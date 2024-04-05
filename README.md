@@ -5,8 +5,8 @@ from the database table.  The Datasync Toolkit is a member of the Community Tool
 
 Currently, the library supports:
 
-* Server: ASP.NET for dotNET 6, 7, and 8
-* Client: .NET Standard 2.0 and dotNET 6 or later
+* Server: [ASP.NET 6 or later](https://learn.microsoft.com/aspnet/core/)
+* Client: .NET Standard 2.0 and .NET 6 or later
 
 The client platforms that have been tested include:
 

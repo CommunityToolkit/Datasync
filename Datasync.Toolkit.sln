@@ -3,12 +3,33 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{84AD662A-4B9E-4E64-834D-72529FB7FCE5}"
+	ProjectSection(SolutionItems) = preProject
+		src\Shared.Build.props = src\Shared.Build.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D59F1489-5D74-4F52-B78B-88037EAB2838}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.Abstractions", "src\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj", "{852F8266-603E-4FC6-A5CB-E492E747924F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{852F8266-603E-4FC6-A5CB-E492E747924F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{852F8266-603E-4FC6-A5CB-E492E747924F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{852F8266-603E-4FC6-A5CB-E492E747924F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{852F8266-603E-4FC6-A5CB-E492E747924F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{852F8266-603E-4FC6-A5CB-E492E747924F} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {78A935E9-8F14-448A-BEDF-360FB742F14E}
 	EndGlobalSection
 EndGlobal

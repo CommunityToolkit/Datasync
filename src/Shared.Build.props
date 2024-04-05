@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Authors>Community Toolkit</Authors>
+    <Company>Community Toolkit</Company>
+    <Copyright>(c) .NET Foundation and Contributors. All rights reserved.</Copyright>
+    <LicenseUrl>https://github.com/CommunityToolkit/Datasync/blob/main/LICENSE.txt</LicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/CommunityToolkit/Datasync</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageTags>Community Toolkit;Datasync;cloud</PackageTags>
+    <Product>$(AssemblyName) ($(TargetFramework))</Product>
+    <ProjectUrl>https://github.com/CommunityToolkit/Datasync</ProjectUrl>
+    <RepositoryUrl>https://github.com/CommunityToolkit/Datasync</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <ImplicitUsings>true</ImplicitUsings>
+    <LangVersion>10.0</LangVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Nullable>enable</Nullable>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IsTestProject>$(MSBuildProjectName.Contains('Test'))</IsTestProject>
+    <IsCoreProject Condition="$(IsTestProject)">False</IsCoreProject>
+    <IsCoreProject Condition="'$(IsCoreProject)' == ''">True</IsCoreProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)\..\README.md" PackagePath="README.md" Pack="True" />
+  </ItemGroup>
+</Project>
