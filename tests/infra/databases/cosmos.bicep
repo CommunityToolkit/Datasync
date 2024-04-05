@@ -1,7 +1,11 @@
 targetScope = 'resourceGroup'
 
 @description('The IP address of the place running the tests')
+#disable-next-line no-unused-params
 param clientIpAddress string?
+
+@description('The name of the database to create')
+param databaseName string = 'unittests'
 
 @minLength(1)
 @description('Primary location for all resources')
@@ -13,11 +17,13 @@ param administratorUsername string?
 
 @secure()
 @description('The administrator password for the database')
+#disable-next-line no-unused-params
 param administratorPassword string?
 
+var containerName = 'Movies'
 var resourceToken = toLower(uniqueString(subscription().id, resourceGroup().name, location))
 
-resource cosmos_account 'Microsoft.DocumentDB/databaseAccounts@2023-09-15' = {
+resource account 'Microsoft.DocumentDB/databaseAccounts@2024-02-15-preview' = {
     name: 'cosmos-${resourceToken}'
     location: location
     kind: 'GlobalDocumentDB'
@@ -34,25 +40,26 @@ resource cosmos_account 'Microsoft.DocumentDB/databaseAccounts@2023-09-15' = {
         ]
         databaseAccountOfferType: 'Standard'
         enableAutomaticFailover: false
+        disableKeyBasedMetadataWriteAccess: true
     }
 }
 
-resource cosmos_database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2023-09-15' = {
-    name: 'unittests'
-    parent: cosmos_account
+resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2024-02-15-preview' = {
+    name: databaseName
+    parent: account
     properties: {
         resource: {
-            id: 'unittests'
+            id: databaseName
         }
     }
 }
 
-resource cosmos_container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-09-15' = {
-    name: 'Movies'
-    parent: cosmos_database
+resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-09-15' = {
+    name: containerName
+    parent: database
     properties: {
         resource: {
-            id: 'Movies'
+            id: containerName
             partitionKey: {
                 paths: [ '/id' ]
                 kind: 'Hash'
@@ -72,10 +79,14 @@ resource cosmos_container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/co
                     ]
                 ]
             }
+            defaultTtl: 86400
+        }
+        options: {
+            throughput: 400
         }
     }
 }
 
 
 #disable-next-line outputs-should-not-contain-secrets
-output connectionString string = cosmos_account.listConnectionStrings().connectionStrings[0].connectionString
+output connectionString string = account.listConnectionStrings().connectionStrings[0].connectionString

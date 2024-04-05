@@ -15,7 +15,7 @@ public static class HttpStatusCodes
     /// <summary>
     /// A symbolic name for the HTTP Status Code 400 Bad Request.
     /// </summary>
-    public const int Status40BadRequest = 400;
+    public const int Status400BadRequest = 400;
 
     /// <summary>
     /// A symbolic name for the HTTP Status Code 404 Not Found.

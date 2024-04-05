@@ -4,7 +4,7 @@
     <Authors>Community Toolkit</Authors>
     <Company>Community Toolkit</Company>
     <Copyright>(c) .NET Foundation and Contributors. All rights reserved.</Copyright>
-    <LicenseUrl>https://github.com/CommunityToolkit/Datasync/blob/main/LICENSE.txt</LicenseUrl>
+    <LicenseUrl>https://github.com/CommunityToolkit/Datasync/blob/main/LICENSE.md</LicenseUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/CommunityToolkit/Datasync</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -20,16 +20,11 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <ImplicitUsings>true</ImplicitUsings>
+    <IsCoreProject>true</IsCoreProject>
     <LangVersion>10.0</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Nullable>enable</Nullable>
     <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <IsTestProject>$(MSBuildProjectName.Contains('Test'))</IsTestProject>
-    <IsCoreProject Condition="$(IsTestProject)">False</IsCoreProject>
-    <IsCoreProject Condition="'$(IsCoreProject)' == ''">True</IsCoreProject>
   </PropertyGroup>
 
   <ItemGroup>

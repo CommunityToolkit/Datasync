@@ -16,32 +16,64 @@ $ az account set --subscription <subscription-id>
 Then create a resource group with a good name and location
 
 ```bash
-$ export BUILD=tests-04052024-01
-$ az group create -l westus3 -n $BUILD
-$ az deployment group create --name d-$BUILD --resource-group $BUILD --template-file ./infra/main.bicep
+$ export RG=datasync-testing
+$ az group create -l westus3 -n $RG
+$ az deployment group create -n "d-$RG" -g $RG --template-file ./infra/main.bicep
 ```
 
-Replace the definition of `BUILD` with a unique name.  This will ensure all the resources are unique
-and that your tests will run to completion properly.
+Replace the definition of `RG` with a unique name.  This will ensure all the resources are unique
+and that your tests will run to completion properly.  It takes approximately 15-20 minutes to provision
+the resources.  The following resources are created:
+
+* Azure SQL Server and Database (Basic SKU)
+* Azure Cosmos Database (Standard SKU)
+* Azure DB for PostgreSQL flexible server (Burstable B1ms SKU)
+
+Costs (westus3):
+
+| Service | Monthly Cost |
+|+--------|------------+|
+| Azure SQL | $4.90 |
+| Cosmos Db | $0.88 |
+| PostgreSQL | $12.99 |
+| **TOTAL** | **$18.76** |
+
+We recommend spinning up the databases for testing as needed, then removing them again.  You only need to 
+run live tests when changing the repository code.
 
 ## Running live tests
 
-Run the following commands to set up your environment for the tests:
+The deployment returns some output which you can read as follows:
 
 ```bash
-# TODO: Put the commands in to grab the connection strings and transfer them to the environment.
+az deployment group show -n "d-$RG" -g $RG --query properties.outputs
 ```
 
-To run the tests, run the following command:
+Create a `.runsettings` file in the `tests` directory (or the top level repository directory):
 
-```bash
-# TODO: Command to run the live tests.
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <EnvironmentVariables>
+      <DATASYNC_AZSQL_CONNECTIONSTRING>{{connection string}}</DATASYNC_AZSQL_CONNECTIONSTRING>
+      <DATASYNC_COSMOS_CONNECTIONSTRING>{{connection string}}</DATADSYNC_COSMOS_CONNECTIONSTRING>
+      <DATASYNC_PGSQL_CONNECTIONSTRING>{{connection string}}</DATASYNC_PGSQL_CONNECTIONSTRING>
+    </EnvironmentVariables>
+  </RunConfiguration>
+</RunSettings>
 ```
+
+Replace the connection strings with the appropriate value from the deployment outputs.
+
+> You can also turn on logging by setting the `ENABLE_SQL_LOGGING` environment variable to `true`.
+
+You can either run the tests from the Visual Studio Test Explorer or run `dotnet test`.
 
 ## Shutting down the test resources
 
 Delete the resource group containing the resources:
 
 ```bash
-$ az group delete -n $BUILD
+$ az group delete -n $RG
 ```

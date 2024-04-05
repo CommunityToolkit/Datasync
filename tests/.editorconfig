@@ -1,0 +1,8 @@
+[*.cs]
+
+#
+# Settings below here are required to silence the code style warnings that conflict with XUnit.
+#
+
+# IDE0058: Expression value is never used
+csharp_style_unused_value_expression_statement_preference = discard_variable

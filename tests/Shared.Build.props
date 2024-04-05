@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Authors>Community Toolkit</Authors>
+    <Company>Community Toolkit</Company>
+    <Copyright>(c) .NET Foundation and Contributors. All rights reserved.</Copyright>
+    <Description>A test package for supporting the Datasync Toolkit.</Description>
+    <LicenseUrl>https://github.com/CommunityToolkit/Datasync/blob/main/LICENSE.md</LicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/CommunityToolkit/Datasync</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageTags>Community Toolkit;Datasync;cloud</PackageTags>
+    <Product>$(AssemblyName) ($(TargetFramework))</Product>
+    <ProjectUrl>https://github.com/CommunityToolkit/Datasync</ProjectUrl>
+    <RepositoryUrl>https://github.com/CommunityToolkit/Datasync</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <ImplicitUsings>true</ImplicitUsings>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <LangVersion>10.0</LangVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <UserSecretsId>060A4D30-3C90-4975-A94E-438D547508DD</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.12.*" />
+    <PackageReference Include="FluentAssertions.Web" Version="1.2.*" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.*" />
+    <PackageReference Include="NSubstitute" Version="5.1.*" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.*" />
+    <PackageReference Include="xunit" Version="2.6.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.*">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.*">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="XUnit.Combinatorial" Version="1.6.*" />
+    <PackageReference Include="XUnit.SkippableFact" Version="1.4.*" />
+  </ItemGroup>
+</Project>
