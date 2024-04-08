@@ -13,7 +13,7 @@ $ az login
 $ az account set --subscription <subscription-id>
 ```
 
-Then create a resource group with a good name and location
+Then create a resource group with a good name and location; with bash:
 
 ```bash
 $ export RG=datasync-testing
@@ -21,32 +21,37 @@ $ az group create -l westus3 -n $RG
 $ az deployment group create -n "d-$RG" -g $RG --template-file ./infra/main.bicep
 ```
 
+Or, with PowerShell:
+
+```powershell
+> $env:RG="datasync-testing"
+> az group create -l westus3 -n $env:RG
+> az deployment group create -n "d-$($env:RG)" -g $env:RG --template-file .\infra\main.bicep
+```
+
 Replace the definition of `RG` with a unique name.  This will ensure all the resources are unique
 and that your tests will run to completion properly.  It takes approximately 15-20 minutes to provision
 the resources.  The following resources are created:
 
-* Azure SQL Server and Database (Basic SKU)
-* Azure Cosmos Database (Standard SKU)
-* Azure DB for PostgreSQL flexible server (Burstable B1ms SKU)
-
-Costs (westus3):
-
-| Service | Monthly Cost |
-|+--------|------------+|
-| Azure SQL | $4.90 |
-| Cosmos Db | $0.88 |
-| PostgreSQL | $12.99 |
-| **TOTAL** | **$18.76** |
+* Azure SQL Server and Database (Basic SKU - $4.90 per month)
+* Azure Cosmos Database (Standard SKU - $0.88 per month)
+* Azure DB for PostgreSQL flexible server (Burstable B1ms SKU - $12.99 per month)
 
 We recommend spinning up the databases for testing as needed, then removing them again.  You only need to 
 run live tests when changing the repository code.
 
 ## Running live tests
 
-The deployment returns some output which you can read as follows:
+The deployment returns some output which you can read as follows; with bash:
 
 ```bash
-az deployment group show -n "d-$RG" -g $RG --query properties.outputs
+$ az deployment group show -n "d-$RG" -g $RG --query properties.outputs
+```
+
+Or with PowerShell:
+
+```powershell
+> az deployment group show -n "d-$($env:RG)" -g $env:RG --query properties.outputs
 ```
 
 Create a `.runsettings` file in the `tests` directory (or the top level repository directory):
@@ -72,8 +77,14 @@ You can either run the tests from the Visual Studio Test Explorer or run `dotnet
 
 ## Shutting down the test resources
 
-Delete the resource group containing the resources:
+Delete the resource group containing the resources; with bash:
 
 ```bash
 $ az group delete -n $RG
+```
+
+Or with PowerShell:
+
+```powershell
+> az group delete -n $env:RG
 ```
