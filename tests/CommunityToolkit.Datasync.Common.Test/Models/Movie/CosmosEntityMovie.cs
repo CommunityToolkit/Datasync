@@ -5,7 +5,7 @@
 using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace CommunityToolkit.Datasync.Common.Test.Models.Movie;
+namespace CommunityToolkit.Datasync.Common.Test.Models;
 
 [ExcludeFromCodeCoverage]
 public class CosmosEntityMovie : CosmosEntityTableData, IMovie, IEquatable<IMovie>

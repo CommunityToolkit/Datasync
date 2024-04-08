@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Common.Test.Database;
-using CommunityToolkit.Datasync.Common.Test.Models.Movie;
+using CommunityToolkit.Datasync.Common.Test.Models;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 

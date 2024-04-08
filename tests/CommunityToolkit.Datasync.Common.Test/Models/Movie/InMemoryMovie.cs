@@ -2,13 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
+using CommunityToolkit.Datasync.Server.InMemory;
 using System.ComponentModel.DataAnnotations;
 
 namespace CommunityToolkit.Datasync.Common.Test.Models;
 
 [ExcludeFromCodeCoverage]
-public class SqliteEntityMovie : SqliteEntityTableData, IMovie, IEquatable<IMovie>
+public class InMemoryMovie : InMemoryTableData, IMovie, IEquatable<IMovie>
 {
     /// <summary>
     /// True if the movie won the oscar for Best Picture
@@ -37,7 +37,7 @@ public class SqliteEntityMovie : SqliteEntityTableData, IMovie, IEquatable<IMovi
     /// The title of the movie.
     /// </summary>
     [Required]
-    [StringLength(128, MinimumLength = 2)]
+    [StringLength(60, MinimumLength = 2)]
     public string Title { get; set; } = string.Empty;
 
     /// <summary>

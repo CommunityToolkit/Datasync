@@ -7,6 +7,8 @@ using CommunityToolkit.Datasync.Server;
 using FluentAssertions;
 using Xunit;
 
+#pragma warning disable IDE0300, IDE0305 // Collection initialization can be simplified, Use LINQ to replace loops
+
 namespace CommunityToolkit.Datasync.Common.Test;
 
 /// <summary>
@@ -83,7 +85,8 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         int expected = Movies.Count<TEntity>(m => m.Rating == MovieRating.R);
-        List<TEntity> actual = (await Repository.AsQueryableAsync()).Where(m => m.Rating == MovieRating.R).ToList();
+        IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
+        List<TEntity> actual = queryable.Where(m => m.Rating == MovieRating.R).ToList();
 
         actual.Should().HaveCount(expected);
     }
@@ -95,7 +98,8 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         int expected = Movies.Count<TEntity>(m => m.Rating == MovieRating.R);
-        var actual = (await Repository.AsQueryableAsync()).Where(m => m.Rating == MovieRating.R).Select(m => new { m.Id, m.Title }).ToList();
+        IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
+        var actual = queryable.Where(m => m.Rating == MovieRating.R).Select(m => new { m.Id, m.Title }).ToList();
 
         actual.Should().HaveCount(expected);
     }
@@ -106,7 +110,8 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         Skip.IfNot(CanRunLiveTests());
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
-        List<TEntity> actual = (await Repository.AsQueryableAsync()).Where(m => m.Rating == MovieRating.R).Skip(5).Take(20).ToList();
+        IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
+        List<TEntity> actual = queryable.Where(m => m.Rating == MovieRating.R).Skip(5).Take(20).ToList();
 
         actual.Should().HaveCount(20);
     }
@@ -120,10 +125,8 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         Skip.IfNot(CanRunLiveTests());
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
-        List<TEntity> actual = (await Repository.AsQueryableAsync())
-            .Where(m => m.UpdatedAt > DateTimeOffset.UnixEpoch && !m.Deleted)
-            .OrderBy(m => m.UpdatedAt)
-            .Skip(10).Take(10).ToList();
+        IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
+        List<TEntity> actual = queryable.Where(m => m.UpdatedAt > DateTimeOffset.UnixEpoch && !m.Deleted).OrderBy(m => m.UpdatedAt).Skip(10).Take(10).ToList();
 
         actual.Should().HaveCount(10);
     }

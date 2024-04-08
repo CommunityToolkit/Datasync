@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Common.Test.Database;
-using CommunityToolkit.Datasync.Common.Test.Models.Movie;
+using CommunityToolkit.Datasync.Common.Test.Models;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -20,7 +20,7 @@ public class SqliteEntityTableRepository_Tests : RepositoryTests<SqliteEntityMov
     public SqliteEntityTableRepository_Tests(ITestOutputHelper output)
     {
         this.lazyContext = new(() => SqliteDbContext.CreateContext(output));
-        this.movies = Context.Movies.AsNoTracking().ToList();
+        this.movies = [.. Context.Movies.AsNoTracking()];
     }
 
     private SqliteDbContext Context { get => this.lazyContext.Value; }

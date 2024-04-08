@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common.Test.Models.Movie;
+using CommunityToolkit.Datasync.Common.Test.Models;
 using CommunityToolkit.Datasync.Server;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +13,7 @@ using Xunit.Abstractions;
 namespace CommunityToolkit.Datasync.Common.Test.Database;
 
 [ExcludeFromCodeCoverage]
-public class SqliteDbContext : BaseDbContext<SqliteDbContext, SqliteEntityMovie>
+public class SqliteDbContext(DbContextOptions<SqliteDbContext> options) : BaseDbContext<SqliteDbContext, SqliteEntityMovie>(options)
 {
     public static SqliteDbContext CreateContext(ITestOutputHelper output = null)
     {
@@ -26,10 +26,6 @@ public class SqliteDbContext : BaseDbContext<SqliteDbContext, SqliteEntityMovie>
 
         context.InitializeDatabase();
         return context;
-    }
-
-    public SqliteDbContext(DbContextOptions<SqliteDbContext> options) : base(options)
-    {
     }
 
     public SqliteConnection Connection { get; set; }

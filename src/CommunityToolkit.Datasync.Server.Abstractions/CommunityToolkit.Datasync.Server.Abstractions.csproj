@@ -6,6 +6,6 @@
   <Import Project="..\Shared.Build.props" />
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Core.Spatial" Version="1.1.*" />
+    <PackageReference Include="Microsoft.Azure.Core.Spatial" Version="1.1.0" />
   </ItemGroup>
 </Project>

@@ -12,13 +12,10 @@ using Xunit.Abstractions;
 namespace CommunityToolkit.Datasync.Common.Test.Database;
 
 [ExcludeFromCodeCoverage]
-public abstract class BaseDbContext<TContext, TEntity> : DbContext
+public abstract class BaseDbContext<TContext, TEntity>(DbContextOptions<TContext> options) : DbContext(options)
     where TContext : DbContext
     where TEntity : class, IMovie, ITableData, new()
 {
-    protected BaseDbContext(DbContextOptions<TContext> options) : base(options)
-    {
-    }
 
     /// <summary>
     /// If set, the <see cref="ITestOutputHelper"/> for logging.
@@ -49,12 +46,11 @@ public abstract class BaseDbContext<TContext, TEntity> : DbContext
     }
 
     /// <summary>
-    /// Populates the database with the core set of movies.  Ensures that we
-    /// have the same data for all tests.
+    /// Populates the database with the core set of movies.  Ensures that we have the same data for all tests.
     /// </summary>
     protected void PopulateDatabase()
     {
-        List<TEntity> movies = Movies.OfType<TEntity>().ToList();
+        List<TEntity> movies = [.. Test.Movies.OfType<TEntity>()];
         MovieIds = movies.ConvertAll(m => m.Id);
 
         // Make sure we are populating with the right data

@@ -15,11 +15,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D59F1489
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.Abstractions", "src\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj", "{852F8266-603E-4FC6-A5CB-E492E747924F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.EntityFrameworkCore", "src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj", "{1C3C2B80-ECE3-4442-8183-C2AD7F735D8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.EntityFrameworkCore", "src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj", "{1C3C2B80-ECE3-4442-8183-C2AD7F735D8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test", "tests\CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test\CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test.csproj", "{B616A68F-F8B6-49C3-AB14-4718F09F2082}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test", "tests\CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test\CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test.csproj", "{B616A68F-F8B6-49C3-AB14-4718F09F2082}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Common.Test", "tests\CommunityToolkit.Datasync.Common.Test\CommunityToolkit.Datasync.Common.Test.csproj", "{89BB94FD-0B89-4AE9-B2CF-9FB891E0B641}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Common.Test", "tests\CommunityToolkit.Datasync.Common.Test\CommunityToolkit.Datasync.Common.Test.csproj", "{89BB94FD-0B89-4AE9-B2CF-9FB891E0B641}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.InMemory", "src\CommunityToolkit.Datasync.Server.InMemory\CommunityToolkit.Datasync.Server.InMemory.csproj", "{343D137B-FE42-4D56-85E8-AAEA2486CBDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.InMemory.Test", "tests\CommunityToolkit.Datasync.Server.InMemory.Test\CommunityToolkit.Datasync.Server.InMemory.Test.csproj", "{8255CE7F-B549-4477-A0AC-E66B3A9C12C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +47,14 @@ Global
 		{89BB94FD-0B89-4AE9-B2CF-9FB891E0B641}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89BB94FD-0B89-4AE9-B2CF-9FB891E0B641}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89BB94FD-0B89-4AE9-B2CF-9FB891E0B641}.Release|Any CPU.Build.0 = Release|Any CPU
+		{343D137B-FE42-4D56-85E8-AAEA2486CBDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{343D137B-FE42-4D56-85E8-AAEA2486CBDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{343D137B-FE42-4D56-85E8-AAEA2486CBDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{343D137B-FE42-4D56-85E8-AAEA2486CBDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8255CE7F-B549-4477-A0AC-E66B3A9C12C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8255CE7F-B549-4477-A0AC-E66B3A9C12C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8255CE7F-B549-4477-A0AC-E66B3A9C12C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8255CE7F-B549-4477-A0AC-E66B3A9C12C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,6 +64,8 @@ Global
 		{1C3C2B80-ECE3-4442-8183-C2AD7F735D8E} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{B616A68F-F8B6-49C3-AB14-4718F09F2082} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{89BB94FD-0B89-4AE9-B2CF-9FB891E0B641} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
+		{343D137B-FE42-4D56-85E8-AAEA2486CBDB} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+		{8255CE7F-B549-4477-A0AC-E66B3A9C12C4} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {78A935E9-8F14-448A-BEDF-360FB742F14E}

@@ -21,10 +21,10 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <ImplicitUsings>true</ImplicitUsings>
     <IsCoreProject>true</IsCoreProject>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>12.0</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Nullable>enable</Nullable>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

@@ -8,7 +8,7 @@ namespace CommunityToolkit.Datasync.Server;
 /// A list of valid operation types for a single operation on a table.
 /// </summary>
 /// <remarks>
-/// This is used in an <see cref="IAccessControlProvides{TEntity}"/> to pass the
+/// This is used in an <see cref="IAccessControlProvider{TEntity}"/> to pass the
 /// operation type being requested by the client.
 /// </remarks>
 public enum TableOperation
