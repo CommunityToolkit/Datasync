@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>A repository for the server-side of the Datasync Toolkit that uses Automapper.</Description>
+  </PropertyGroup>
+
+  <Import Project="../Shared.Build.props"/>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.Test"/>
+    <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.Automappter.Test"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+  </ItemGroup>
+
+</Project>

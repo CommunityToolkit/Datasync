@@ -25,9 +25,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.InMemory.Test", "tests\CommunityToolkit.Datasync.Server.InMemory.Test\CommunityToolkit.Datasync.Server.InMemory.Test.csproj", "{8255CE7F-B549-4477-A0AC-E66B3A9C12C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.LiteDb", "src\CommunityToolkit.Datasync.Server.LiteDb\CommunityToolkit.Datasync.Server.LiteDb.csproj", "{66A40624-ADF3-4469-A1D5-E5BD854CFA94}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.LiteDb", "src\CommunityToolkit.Datasync.Server.LiteDb\CommunityToolkit.Datasync.Server.LiteDb.csproj", "{66A40624-ADF3-4469-A1D5-E5BD854CFA94}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.LiteDb.Test", "tests\CommunityToolkit.Datasync.Server.LiteDb.Test\CommunityToolkit.Datasync.Server.LiteDb.Test.csproj", "{860946FE-CAEC-4804-8A16-99E8D1CCAAFF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.LiteDb.Test", "tests\CommunityToolkit.Datasync.Server.LiteDb.Test\CommunityToolkit.Datasync.Server.LiteDb.Test.csproj", "{860946FE-CAEC-4804-8A16-99E8D1CCAAFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.Automapper", "src\CommunityToolkit.Datasync.Server.Automapper\CommunityToolkit.Datasync.Server.Automapper.csproj", "{CAC05109-B682-4DA3-8EBF-ECD13E6B913E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.Automapper.Test", "tests\CommunityToolkit.Datasync.Server.Automapper.Test\CommunityToolkit.Datasync.Server.Automapper.Test.csproj", "{E322C30C-F40C-4594-86ED-DAA90E2F5611}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +71,14 @@ Global
 		{860946FE-CAEC-4804-8A16-99E8D1CCAAFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{860946FE-CAEC-4804-8A16-99E8D1CCAAFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{860946FE-CAEC-4804-8A16-99E8D1CCAAFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAC05109-B682-4DA3-8EBF-ECD13E6B913E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAC05109-B682-4DA3-8EBF-ECD13E6B913E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAC05109-B682-4DA3-8EBF-ECD13E6B913E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAC05109-B682-4DA3-8EBF-ECD13E6B913E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E322C30C-F40C-4594-86ED-DAA90E2F5611}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E322C30C-F40C-4594-86ED-DAA90E2F5611}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E322C30C-F40C-4594-86ED-DAA90E2F5611}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E322C30C-F40C-4594-86ED-DAA90E2F5611}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -80,6 +92,8 @@ Global
 		{8255CE7F-B549-4477-A0AC-E66B3A9C12C4} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{66A40624-ADF3-4469-A1D5-E5BD854CFA94} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{860946FE-CAEC-4804-8A16-99E8D1CCAAFF} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
+		{CAC05109-B682-4DA3-8EBF-ECD13E6B913E} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+		{E322C30C-F40C-4594-86ED-DAA90E2F5611} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {78A935E9-8F14-448A-BEDF-360FB742F14E}
