@@ -13,25 +13,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D59F1489
 		tests\Shared.Build.props = tests\Shared.Build.props
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server", "src\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj", "{63CE11A8-EE08-4E6A-A30C-688E2902BCBB}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.Abstractions", "src\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj", "{852F8266-603E-4FC6-A5CB-E492E747924F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.EntityFrameworkCore", "src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj", "{1C3C2B80-ECE3-4442-8183-C2AD7F735D8E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test", "tests\CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test\CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test.csproj", "{B616A68F-F8B6-49C3-AB14-4718F09F2082}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Common.Test", "tests\CommunityToolkit.Datasync.Common.Test\CommunityToolkit.Datasync.Common.Test.csproj", "{89BB94FD-0B89-4AE9-B2CF-9FB891E0B641}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.InMemory", "src\CommunityToolkit.Datasync.Server.InMemory\CommunityToolkit.Datasync.Server.InMemory.csproj", "{343D137B-FE42-4D56-85E8-AAEA2486CBDB}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.InMemory.Test", "tests\CommunityToolkit.Datasync.Server.InMemory.Test\CommunityToolkit.Datasync.Server.InMemory.Test.csproj", "{8255CE7F-B549-4477-A0AC-E66B3A9C12C4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.LiteDb", "src\CommunityToolkit.Datasync.Server.LiteDb\CommunityToolkit.Datasync.Server.LiteDb.csproj", "{66A40624-ADF3-4469-A1D5-E5BD854CFA94}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.LiteDb.Test", "tests\CommunityToolkit.Datasync.Server.LiteDb.Test\CommunityToolkit.Datasync.Server.LiteDb.Test.csproj", "{860946FE-CAEC-4804-8A16-99E8D1CCAAFF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.Automapper", "src\CommunityToolkit.Datasync.Server.Automapper\CommunityToolkit.Datasync.Server.Automapper.csproj", "{CAC05109-B682-4DA3-8EBF-ECD13E6B913E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.EntityFrameworkCore", "src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj", "{1C3C2B80-ECE3-4442-8183-C2AD7F735D8E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.InMemory", "src\CommunityToolkit.Datasync.Server.InMemory\CommunityToolkit.Datasync.Server.InMemory.csproj", "{343D137B-FE42-4D56-85E8-AAEA2486CBDB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.LiteDb", "src\CommunityToolkit.Datasync.Server.LiteDb\CommunityToolkit.Datasync.Server.LiteDb.csproj", "{66A40624-ADF3-4469-A1D5-E5BD854CFA94}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Common.Test", "tests\CommunityToolkit.Datasync.Common.Test\CommunityToolkit.Datasync.Common.Test.csproj", "{89BB94FD-0B89-4AE9-B2CF-9FB891E0B641}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.Automapper.Test", "tests\CommunityToolkit.Datasync.Server.Automapper.Test\CommunityToolkit.Datasync.Server.Automapper.Test.csproj", "{E322C30C-F40C-4594-86ED-DAA90E2F5611}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test", "tests\CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test\CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test.csproj", "{B616A68F-F8B6-49C3-AB14-4718F09F2082}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.InMemory.Test", "tests\CommunityToolkit.Datasync.Server.InMemory.Test\CommunityToolkit.Datasync.Server.InMemory.Test.csproj", "{8255CE7F-B549-4477-A0AC-E66B3A9C12C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.LiteDb.Test", "tests\CommunityToolkit.Datasync.Server.LiteDb.Test\CommunityToolkit.Datasync.Server.LiteDb.Test.csproj", "{860946FE-CAEC-4804-8A16-99E8D1CCAAFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,6 +81,10 @@ Global
 		{E322C30C-F40C-4594-86ED-DAA90E2F5611}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E322C30C-F40C-4594-86ED-DAA90E2F5611}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E322C30C-F40C-4594-86ED-DAA90E2F5611}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63CE11A8-EE08-4E6A-A30C-688E2902BCBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63CE11A8-EE08-4E6A-A30C-688E2902BCBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63CE11A8-EE08-4E6A-A30C-688E2902BCBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63CE11A8-EE08-4E6A-A30C-688E2902BCBB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,13 +92,14 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{852F8266-603E-4FC6-A5CB-E492E747924F} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{1C3C2B80-ECE3-4442-8183-C2AD7F735D8E} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+		{343D137B-FE42-4D56-85E8-AAEA2486CBDB} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+		{66A40624-ADF3-4469-A1D5-E5BD854CFA94} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+		{CAC05109-B682-4DA3-8EBF-ECD13E6B913E} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+		{63CE11A8-EE08-4E6A-A30C-688E2902BCBB} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{B616A68F-F8B6-49C3-AB14-4718F09F2082} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{89BB94FD-0B89-4AE9-B2CF-9FB891E0B641} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
-		{343D137B-FE42-4D56-85E8-AAEA2486CBDB} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{8255CE7F-B549-4477-A0AC-E66B3A9C12C4} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
-		{66A40624-ADF3-4469-A1D5-E5BD854CFA94} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{860946FE-CAEC-4804-8A16-99E8D1CCAAFF} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
-		{CAC05109-B682-4DA3-8EBF-ECD13E6B913E} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{E322C30C-F40C-4594-86ED-DAA90E2F5611} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

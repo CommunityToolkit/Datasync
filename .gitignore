@@ -1,6 +1,9 @@
 ### Azure Developer CLI ###
 .azure/
 
+# Ignore codespaces / C# Dev Kit files
+.mono
+
 # Ignore .runsettings as it has environment settings in it, including passwords
 .runsettings
 
