@@ -27,17 +27,17 @@ public static class FluentAssertionExtensions
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is JsonElement)
-            .FailWith("Expected {context:object} to be a JsonElement", current.Subject);
+            .FailWith("Expected object to be a JsonElement", current.Subject);
         JsonElement jsonElement = (JsonElement)current.Subject;
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(jsonElement.ValueKind is JsonValueKind.False or JsonValueKind.True)
-            .FailWith("Expected {context:object} to be a boolean, but found {0}", jsonElement.ValueKind);
+            .FailWith("Expected object to be a boolean, but found {0}", jsonElement.ValueKind);
         bool elementValue = jsonElement.GetBoolean();
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(elementValue == value)
-            .FailWith("Expected {context:object} to be a boolean with value {0}, but found {1}", value, elementValue);
+            .FailWith("Expected object to be a boolean with value {0}, but found {1}", value, elementValue);
 
         return new AndConstraint<ObjectAssertions>(current);
     }
@@ -50,17 +50,17 @@ public static class FluentAssertionExtensions
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is JsonElement)
-            .FailWith("Expected {context:object} to be a JsonElement", current.Subject);
+            .FailWith("Expected object to be a JsonElement", current.Subject);
         JsonElement jsonElement = (JsonElement)current.Subject;
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(jsonElement.ValueKind == JsonValueKind.Number)
-            .FailWith("Expected {context:object} to be a number, but found {0}", jsonElement.ValueKind);
+            .FailWith("Expected object to be a number, but found {0}", jsonElement.ValueKind);
         double elementValue = jsonElement.GetDouble();
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(elementValue == value)
-            .FailWith("Expected {context:object} to be a double with value {0}, but found {1}", value, elementValue);
+            .FailWith("Expected object to be a double with value {0}, but found {1}", value, elementValue);
 
         return new AndConstraint<ObjectAssertions>(current);
     }
@@ -73,17 +73,17 @@ public static class FluentAssertionExtensions
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is JsonElement)
-            .FailWith("Expected {context:object} to be a JsonElement", current.Subject);
+            .FailWith("Expected object to be a JsonElement", current.Subject);
         JsonElement jsonElement = (JsonElement)current.Subject;
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(jsonElement.ValueKind == JsonValueKind.Number)
-            .FailWith("Expected {context:object} to be a number, but found {0}", jsonElement.ValueKind);
+            .FailWith("Expected object to be a number, but found {0}", jsonElement.ValueKind);
         int elementValue = jsonElement.GetInt32();
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(elementValue == value)
-            .FailWith("Expected {context:object} to be an int with value {0}, but found {1}", value, elementValue);
+            .FailWith("Expected object to be an int with value {0}, but found {1}", value, elementValue);
 
         return new AndConstraint<ObjectAssertions>(current);
     }
@@ -96,19 +96,19 @@ public static class FluentAssertionExtensions
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is JsonElement)
-            .FailWith("Expected {context:object} to be a JsonElement", current.Subject);
+            .FailWith("Expected object to be a JsonElement", current.Subject);
 
         // Check that jsonElement is a string
         JsonElement jsonElement = (JsonElement)current.Subject;
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(jsonElement.ValueKind == JsonValueKind.String)
-            .FailWith("Expected {context:object} to be a string, but found {0}", jsonElement.ValueKind);
+            .FailWith("Expected object to be a string, but found {0}", jsonElement.ValueKind);
         string elementValue = jsonElement.GetString();
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(elementValue == value)
-            .FailWith("Expected {context:object} to be a string with value {0}, but found {1}", value, elementValue);
+            .FailWith("Expected object to be a string with value {0}, but found {1}", value, elementValue);
 
         return new AndConstraint<ObjectAssertions>(current);
     }
@@ -121,13 +121,13 @@ public static class FluentAssertionExtensions
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is null or JsonElement)
-            .FailWith("Expected {context:object} to be a JsonElement", current.Subject);
+            .FailWith("Expected object to be a JsonElement", current.Subject);
         if (current.Subject is JsonElement jsonElement)
         {
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(jsonElement.ValueKind == JsonValueKind.Null)
-                .FailWith("Expected {context:object} to be a NULL, but found {0}", jsonElement.ValueKind);
+                .FailWith("Expected object to be a NULL, but found {0}", jsonElement.ValueKind);
         }
 
         return new AndConstraint<ObjectAssertions>(current);
@@ -141,19 +141,19 @@ public static class FluentAssertionExtensions
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is JsonElement)
-            .FailWith("Expected {context:object} to be a JsonElement", current.Subject);
+            .FailWith("Expected object to be a JsonElement", current.Subject);
 
         // Check that jsonElement is a string
         JsonElement jsonElement = (JsonElement)current.Subject;
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(jsonElement.ValueKind == JsonValueKind.Object)
-            .FailWith("Expected {context:object} to be a string, but found {0}", jsonElement.ValueKind);
+            .FailWith("Expected object to be a string, but found {0}", jsonElement.ValueKind);
         string elementValue = jsonElement.ToString();
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(elementValue == value)
-            .FailWith("Expected {context:object} to be a string with value {0}, but found {1}", value, elementValue);
+            .FailWith("Expected object to be a string with value {0}, but found {1}", value, elementValue);
 
         return new AndConstraint<ObjectAssertions>(current);
     }
@@ -163,22 +163,25 @@ public static class FluentAssertionExtensions
     /// </summary>
     public static AndConstraint<ObjectAssertions> HaveChangedMetadata(this ObjectAssertions current, string id, DateTimeOffset startTime, string because = "", params string[] becauseArgs)
     {
+        // Round the start time to the nearest lowest millisecond.
+        DateTimeOffset st = DateTimeOffset.FromUnixTimeMilliseconds(startTime.ToUnixTimeMilliseconds());
+
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is ClientTableData)
-            .FailWith("Expected {context:object} to be derived from ClientTableData");
+            .FailWith("Expected object to be derived from ClientTableData");
         ClientTableData metadata = (ClientTableData)current.Subject;
 
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(id == null ? !string.IsNullOrEmpty(metadata.Id) : metadata.Id == id)
-            .FailWith(id == null ? "Expected {context.object}.Id to be set" : "Expected {context.object}.Id to be {0}, but found {1}", id, metadata.Id)
+            .FailWith(id == null ? "Expected Id to be set" : "Expected Id to be {0}, but found {1}", id, metadata.Id)
         .Then
-            .ForCondition(metadata.UpdatedAt >= startTime && metadata.UpdatedAt <= DateTimeOffset.UtcNow)
-            .FailWith("Expected {context.object}.UpdatedAt to be recent, but found {0}", metadata.UpdatedAt?.ToString("o"))
+            .ForCondition(metadata.UpdatedAt >= st && metadata.UpdatedAt <= DateTimeOffset.UtcNow)
+            .FailWith("Expected UpdatedAt to be between {0} and {1}, but found {2}", startTime.ToString("o"), DateTimeOffset.UtcNow.ToString("o"), metadata.UpdatedAt?.ToString("o"))
         .Then
             .ForCondition(!string.IsNullOrEmpty(metadata.Version))
-            .FailWith("Exepcted {context.object}.Version to be set");
+            .FailWith("Exepcted Version to be set");
 
         return new AndConstraint<ObjectAssertions>(current);
     }
@@ -188,10 +191,13 @@ public static class FluentAssertionExtensions
     /// </summary>
     public static AndConstraint<ObjectAssertions> HaveChangedMetadata(this ObjectAssertions current, object source, DateTimeOffset startTime, string because = "", params string[] becauseArgs)
     {
+        // Round the start time to the nearest lowest millisecond.
+        DateTimeOffset st = DateTimeOffset.FromUnixTimeMilliseconds(startTime.ToUnixTimeMilliseconds());
+
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is ClientTableData)
-            .FailWith("Expected {context:object} to be derived from ClientTableData")
+            .FailWith("Expected object to be derived from ClientTableData")
         .Then
             .ForCondition(source is ITableData or ClientTableData)
             .FailWith("Expected source to be derived from ClientTableData or ITableData");
@@ -200,13 +206,13 @@ public static class FluentAssertionExtensions
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(metadata.Id == sourceMetadata.Id)
-            .FailWith("Exepcted {context.object}.Id to be {0}, but found {1}", sourceMetadata.Id, metadata.Id)
+            .FailWith("Exepcted Id to be {0}, but found {1}", sourceMetadata.Id, metadata.Id)
         .Then
-            .ForCondition(metadata.UpdatedAt >= startTime && metadata.UpdatedAt <= DateTimeOffset.UtcNow)
-            .FailWith("Expected {context.object}.UpdatedAt to be recent, but found {0}", metadata.UpdatedAt)
+            .ForCondition(metadata.UpdatedAt >= st && metadata.UpdatedAt <= DateTimeOffset.UtcNow)
+            .FailWith("Expected UpdatedAt to be between {0} and {1}, but found {2}", startTime.ToString("o"), DateTimeOffset.UtcNow.ToString("o"), metadata.UpdatedAt?.ToString("o"))
         .Then
             .ForCondition(metadata.Version != sourceMetadata.Version)
-            .FailWith("Exepcted {context.object}.Version to be different to {0}, but found {1}", sourceMetadata.Version, metadata.Version);
+            .FailWith("Exepcted Version to be different to {0}, but found {1}", sourceMetadata.Version, metadata.Version);
         return new AndConstraint<ObjectAssertions>(current);
     }
 
@@ -220,7 +226,7 @@ public static class FluentAssertionExtensions
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is ITableData or ClientTableData)
-            .FailWith("Expected {context:object} to be derived from ITableData or ClientTableData", current.Subject);
+            .FailWith("Expected object to be derived from ITableData or ClientTableData", current.Subject);
 
         ClientTableData metadata = current.Subject is ClientTableData data ? data : new ClientTableData(current.Subject);
         bool updatedAtEquals = source.UpdatedAt == metadata.UpdatedAt;
@@ -228,16 +234,16 @@ public static class FluentAssertionExtensions
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(metadata.Id == source.Id)
-            .FailWith("Expected {context:object} to have Id {0}, but found {1}", source.Id, metadata.Id)
+            .FailWith("Expected Id to be {0}, but found {1}", source.Id, metadata.Id)
         .Then
             .ForCondition(metadata.Version.Equals(Convert.ToBase64String(source.Version)))
-            .FailWith("Expected {context:object} to have Version {0}, but found {1}", Convert.ToBase64String(source.Version), metadata.Version)
+            .FailWith("Expected Version to be {0}, but found {1}", Convert.ToBase64String(source.Version), metadata.Version)
         .Then
             .ForCondition(metadata.Deleted == source.Deleted)
-            .FailWith("Expected {context:object} to have Deleted {0}, but found {1}", source.Deleted, metadata.Deleted)
+            .FailWith("Expected Deleted to be {0}, but found {1}", source.Deleted, metadata.Deleted)
         .Then
             .ForCondition(updatedAtEquals || updatedAtClose)
-            .FailWith("Expected {context:object} to have UpdatedAt {0}, but found {1}", source.UpdatedAt?.ToString(dateFormat), metadata.UpdatedAt?.ToString(dateFormat));
+            .FailWith("Expected UpdatedAt to be {0}, but found {1}", source.UpdatedAt?.ToString(dateFormat), metadata.UpdatedAt?.ToString(dateFormat));
 
         return new AndConstraint<ObjectAssertions>(current);
     }
@@ -268,7 +274,7 @@ public static class FluentAssertionExtensions
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(Guid.TryParse(current.Subject, out _))
-            .FailWith("Expected {context:object} to be a Guid, but found {0}", current.Subject);
+            .FailWith("Expected object to be a Guid, but found {0}", current.Subject);
         return new AndConstraint<StringAssertions>(current);
     }
 
@@ -280,10 +286,10 @@ public static class FluentAssertionExtensions
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is EntityTagHeaderValue)
-            .FailWith("Expected {context:object} to be an EntityTagHeaderValue", current.Subject)
+            .FailWith("Expected object to be an EntityTagHeaderValue", current.Subject)
         .Then
             .ForCondition(((EntityTagHeaderValue)current.Subject).Tag == value)
-            .FailWith("Expected {context:object} to have value {0}, but found {1}", value, ((EntityTagHeaderValue)current.Subject).Tag);
+            .FailWith("Expected object to have value {0}, but found {1}", value, ((EntityTagHeaderValue)current.Subject).Tag);
         return new AndConstraint<ObjectAssertions>(current);
     }
 }

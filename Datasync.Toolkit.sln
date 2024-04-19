@@ -35,11 +35,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server", "src\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj", "{0187B46B-F03C-4C2A-8FAA-0DA9EA343CDF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.Test", "tests\CommunityToolkit.Datasync.Server.Test\CommunityToolkit.Datasync.Server.Test.csproj", "{A73294C8-3D8C-4731-A2CE-6934CAFE7902}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.Test", "tests\CommunityToolkit.Datasync.Server.Test\CommunityToolkit.Datasync.Server.Test.csproj", "{A73294C8-3D8C-4731-A2CE-6934CAFE7902}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.Abstractions.Test", "tests\CommunityToolkit.Datasync.Server.Abstractions.Test\CommunityToolkit.Datasync.Server.Abstractions.Test.csproj", "{0F17CC55-9DC8-4CCA-9C64-D1EFB6134D32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.Abstractions.Test", "tests\CommunityToolkit.Datasync.Server.Abstractions.Test\CommunityToolkit.Datasync.Server.Abstractions.Test.csproj", "{0F17CC55-9DC8-4CCA-9C64-D1EFB6134D32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.TestService", "tests\CommunityToolkit.Datasync.TestService\CommunityToolkit.Datasync.TestService.csproj", "{1A3EE020-7299-4F00-A11F-06DD241EC6EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.TestService", "tests\CommunityToolkit.Datasync.TestService\CommunityToolkit.Datasync.TestService.csproj", "{1A3EE020-7299-4F00-A11F-06DD241EC6EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Client", "src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj", "{F5B5B034-DEEF-4588-982A-C052B2D35A62}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Client.Test", "tests\CommunityToolkit.Datasync.Client.Test\CommunityToolkit.Datasync.Client.Test.csproj", "{D6C0258B-266E-49EB-BB24-54F4FDC43B50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,6 +107,14 @@ Global
 		{1A3EE020-7299-4F00-A11F-06DD241EC6EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A3EE020-7299-4F00-A11F-06DD241EC6EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A3EE020-7299-4F00-A11F-06DD241EC6EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5B5B034-DEEF-4588-982A-C052B2D35A62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5B5B034-DEEF-4588-982A-C052B2D35A62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5B5B034-DEEF-4588-982A-C052B2D35A62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5B5B034-DEEF-4588-982A-C052B2D35A62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6C0258B-266E-49EB-BB24-54F4FDC43B50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6C0258B-266E-49EB-BB24-54F4FDC43B50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6C0258B-266E-49EB-BB24-54F4FDC43B50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6C0258B-266E-49EB-BB24-54F4FDC43B50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -122,6 +134,8 @@ Global
 		{A73294C8-3D8C-4731-A2CE-6934CAFE7902} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{0F17CC55-9DC8-4CCA-9C64-D1EFB6134D32} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{1A3EE020-7299-4F00-A11F-06DD241EC6EA} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
+		{F5B5B034-DEEF-4588-982A-C052B2D35A62} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+		{D6C0258B-266E-49EB-BB24-54F4FDC43B50} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {78A935E9-8F14-448A-BEDF-360FB742F14E}
