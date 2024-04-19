@@ -1,0 +1,99 @@
+name: Build and Test Library
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'src/**', 'tests/**', 'Datasync Solution.sln' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'src/**', 'tests/**', 'Datasync Solution.sln' ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '6.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCe: 1
+  DOTNET_NOLOGO: true
+  DOTNET_CONFIGURATION: 'Release'
+  NuGetDirectory: ${{ github.workspace }}/nuget
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repoosity
+        uses: actions/checkout@v3
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore NuGet packages
+        run: dotnet restore
+
+      - name: Build library
+        run: dotnet build --configuration ${{ env.DOTNET_CONFIGURATION }} --no-restore
+
+      - name: Run tests
+        run: dotnet test --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity normal --logger trx --collect:"XPlat Code Coverage"
+
+      - name: Upload Test Result Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ${{ github.workspace }}/**/TestResults/**/*
+          retention-days: 5
+    
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2.16.1
+        if: always()
+        with:
+          trx_files: "${{ github.workspace }}/**/*.trx"
+
+      - name: Combine Coverage Reports
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.2.4
+        with:
+          reports: "**/*.cobertura.xml"
+          targetdir: "${{ github.workspace }}" 
+          reporttypes: "Cobertura" 
+          verbosity: "Info"
+          title: "Code Coverage" 
+          tag: "${{ github.run_number }}_${{ github.run_id }}" 
+          customSettings: "" 
+          toolpath: "reportgeneratortool"
+
+      - name: Upload Combined Coverage XML
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: ${{ github.workspace }}/Cobertura.xml
+          retention-days: 5
+
+      - name: Publish Code Coverage Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: "Cobertura.xml"
+          badge: true
+          fail_below_min: false 
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: false
+          indicators: true
+          output: both
+          thresholds: "10 30"
+
+      - name: Upload Combined Coverage Markdown
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-markdown
+          path: ${{ github.workspace }}/code-coverage-results.md
+          retention-days: 5
+
+      - name: Add Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          recreate: true
+          path: code-coverage-results.md
