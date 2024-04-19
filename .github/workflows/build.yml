@@ -35,7 +35,7 @@ jobs:
         run: dotnet build --configuration ${{ env.DOTNET_CONFIGURATION }} --no-restore
 
       - name: Run tests
-        run: dotnet test --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity minimal --logger trx --collect:"XPlat Code Coverage"
+        run: dotnet test --nologo --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity minimal --logger trx --collect:"XPlat Code Coverage"
 
       - name: Upload rest result files
         uses: actions/upload-artifact@v4
