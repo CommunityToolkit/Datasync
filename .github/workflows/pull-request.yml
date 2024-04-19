@@ -1,0 +1,40 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    types: [ opened, edited, ready_for_review, reopened ]
+    branches:
+      - main
+    paths:
+      - 'Datasync Solution.sln'
+      - 'src/**'
+      - 'tests/**'
+  workflow_dispatch:
+
+jobs:
+    build:
+      runs-on: ubuntu-latest
+        
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Setup dotnet 8.0.x
+          uses: actions/setup-dotnet@v3
+          with:
+            dotnet-version: '8.0.x'
+
+        - name: Display dotnet version
+          run: dotnet --version
+
+        - name: Restore dependencies
+          run: dotnet restore
+
+        - name: Build library
+          run: dotnet build --configuration Debug --no-restore
+
+        - name: Run tests
+          run: dotnet test --configuration Debug --no-build --verbosity normal /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+
+        - name: Code coverage
+          uses: codecov/codecov-action@v2
