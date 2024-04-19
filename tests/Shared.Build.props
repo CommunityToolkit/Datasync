@@ -55,4 +55,8 @@
     <PackageReference Include="XUnit.Combinatorial" Version="1.6.24" />
     <PackageReference Include="XUnit.SkippableFact" Version="1.4.13" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System.Diagnostics.CodeAnalysis" />
+  </ItemGroup>
 </Project>

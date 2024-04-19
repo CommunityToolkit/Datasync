@@ -1,6 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\Shared.Build.props" />
 
+  <PropertyGroup>
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="8.0.*" />
@@ -24,9 +28,4 @@
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.InMemory\CommunityToolkit.Datasync.Server.InMemory.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Using Include="System.Diagnostics.CodeAnalysis" />
-  </ItemGroup>
-
 </Project>
