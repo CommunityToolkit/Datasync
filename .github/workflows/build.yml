@@ -7,8 +7,6 @@ on:
   pull_request:
     branches: [ main ]
     paths: [ 'src/**', 'tests/**', 'Datasync Solution.sln' ]
-  release:
-    types: [ published ]
   workflow_dispatch:
 
 env:
