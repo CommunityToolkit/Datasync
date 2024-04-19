@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOTNET_VERSION: '6.0.x'
+  DOTNET_VERSION: '8.0.x'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCe: 1
   DOTNET_NOLOGO: true
   DOTNET_CONFIGURATION: 'Release'
