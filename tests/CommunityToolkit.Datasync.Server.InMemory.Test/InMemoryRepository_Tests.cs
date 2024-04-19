@@ -51,6 +51,14 @@ public class InMemoryRepository_Tests : RepositoryTests<InMemoryMovie>
     }
 
     [Fact]
+    public async Task Remove_NonExisting_Throws()
+    {
+        InMemoryRepository<InMemoryMovie> sut = await GetPopulatedRepositoryAsync() as InMemoryRepository<InMemoryMovie>;
+        Action act = () => sut.RemoveEntity("non-existing-id");
+        act.Should().Throw<RepositoryException>();
+    }
+
+    [Fact]
     public void Ctor_Populated_NoId()
     {
         List<InMemoryMovie> movies = Movies.OfType<InMemoryMovie>().ConvertAll(m => { m.Id = null; return m; });

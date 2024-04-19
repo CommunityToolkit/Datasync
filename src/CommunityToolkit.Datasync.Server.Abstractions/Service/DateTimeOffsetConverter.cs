@@ -21,5 +21,5 @@ public class DateTimeOffsetConverter : JsonConverter<DateTimeOffset>
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)
-        => writer.WriteStringValue(value.ToUniversalTime().ToString(format));
+        => writer.WriteStringValue(value.ToUniversalTime().UtcDateTime.ToString(format));
 }

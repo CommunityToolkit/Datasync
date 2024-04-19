@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.Extensions.Primitives;
-using Microsoft.Net.Http.Headers;
 using System.Globalization;
 using System.Linq.Expressions;
+using Microsoft.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -156,7 +156,7 @@ internal static class InternalExtensions
             throw isFetch ? new HttpException(StatusCodes.Status304NotModified) : new HttpException(StatusCodes.Status412PreconditionFailed) { Payload = entity };
         }
 
-        version = headers.IfMatch.Count > 0 ? headers.IfMatch.Single().ToByteArray() : [];
+        version = headers.IfMatch.SingleOrDefault()?.ToByteArray() ?? [];
     }
 
     /// <summary>

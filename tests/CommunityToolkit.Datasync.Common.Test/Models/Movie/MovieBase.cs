@@ -7,6 +7,7 @@ namespace CommunityToolkit.Datasync.Common.Test.Models;
 /// <summary>
 /// The base class for the movie data, implementing <see cref="IMovie"/>.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class MovieBase : IMovie
 {
     /// <summary>

@@ -9,6 +9,7 @@ namespace CommunityToolkit.Datasync.Common.Test;
 /// <summary>
 /// A concrete implementation of the <see cref="ITableData"/> interface for testing purposes.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class TableData : ITableData
 {
     /// <inheritdoc />
@@ -21,7 +22,7 @@ public class TableData : ITableData
     public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UnixEpoch;
 
     /// <inheritdoc />
-    public byte[] Version { get; set; } = Array.Empty<byte>();
+    public byte[] Version { get; set; } = [];
 
     public bool Equals(ITableData other)
         => other is not null && Id == other.Id && Version.SequenceEqual(other.Version);

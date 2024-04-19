@@ -8,7 +8,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using FluentAssertions.Specialized;
-using Microsoft.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Common.Test;

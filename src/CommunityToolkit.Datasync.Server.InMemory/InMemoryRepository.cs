@@ -57,7 +57,7 @@ public class InMemoryRepository<TEntity> : IRepository<TEntity> where TEntity : 
     /// Used in tests to get all the entities from the repository.
     /// </summary>
     /// <returns>A list of entities in the repository.</returns>
-    internal List<TEntity> GetEntities() => this._entities.Values.ToList();
+    internal List<TEntity> GetEntities() => [.. this._entities.Values];
 
     /// <summary>
     /// Clears the repository of all entities so that tests are predicatable.
@@ -77,6 +77,19 @@ public class InMemoryRepository<TEntity> : IRepository<TEntity> where TEntity : 
     {
         string json = JsonSerializer.Serialize(entity, jsonSerializerOptions.Value);
         return JsonSerializer.Deserialize<TEntity>(json, jsonSerializerOptions.Value)!;
+    }
+
+    /// <summary>
+    /// Removes an entity from the repository store.
+    /// </summary>
+    /// <param name="id">The ID of the entity to remove.</param>
+    /// <exception cref="RepositoryException">Thrown if the entity cannot be removed.</exception>
+    internal void RemoveEntity(string id)
+    {
+        if (!this._entities.TryRemove(id, out _))
+        {
+            throw new RepositoryException("Failed to remove entity from the repository");
+        }
     }
 
     /// <summary>
@@ -146,11 +159,7 @@ public class InMemoryRepository<TEntity> : IRepository<TEntity> where TEntity : 
             throw new HttpException(HttpStatusCodes.Status412PreconditionFailed) { Payload = Disconnect(storedEntity) };
         }
 
-        if (!this._entities.TryRemove(id, out _))
-        {
-            throw new RepositoryException("Failed to remove entity from the repository");
-        }
-
+        RemoveEntity(id);
         return ValueTask.CompletedTask;
     }
 

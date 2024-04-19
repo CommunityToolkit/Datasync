@@ -6,6 +6,10 @@
   <Import Project="..\Shared.Build.props" />
 
   <ItemGroup>
+    <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.Test" />
+  </ItemGroup>
+
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 

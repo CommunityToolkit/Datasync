@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\Shared.Build.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj" />
+    <ProjectReference Include="..\CommunityToolkit.Datasync.Common.Test\CommunityToolkit.Datasync.Common.Test.csproj" />
+    <ProjectReference Include="..\CommunityToolkit.Datasync.TestService\CommunityToolkit.Datasync.TestService.csproj" />
+  </ItemGroup>
+</Project>
