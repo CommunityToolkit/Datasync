@@ -53,9 +53,10 @@ jobs:
       - name: Combine coverage reports
         uses: danielpalme/ReportGenerator-GitHub-Action@5.2.4
         with:
+          filefilters: "+src/**"
           reports: "**/*.cobertura.xml"
           targetdir: "${{ github.workspace }}" 
-          reporttypes: "Cobertura" 
+          reporttypes: "Cobertura;MarkdownSummaryGithub;Badges" 
           verbosity: "Info"
           title: "Code Coverage" 
           tag: "${{ github.run_number }}_${{ github.run_id }}" 
