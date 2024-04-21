@@ -41,4 +41,23 @@ internal static class EnsureThatExtensions
             throw new UriFormatException($"'{param.Name}' must use HTTP protocol");
         }
     }
+
+    /// <summary>
+    /// Determines if the given string parameter is a valid remote parameter.
+    /// </summary>
+    /// <param name="param">The string parameter to check.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the parameter is empty.</exception>
+    /// <exception cref="ArgumentException">Thrown if the parameter is invalid.</exception>
+    internal static void IsValidRemoteParameter(this StringParam param)
+    {
+        if (string.IsNullOrWhiteSpace(param.Value)) 
+        {
+            throw new ArgumentNullException($"The parameter '{param.Name}' cannot be empty or whitespace.");
+        }
+        
+        if (param.Value.StartsWith('$') || param.Value.StartsWith("__"))
+        {
+            throw new ArgumentException($"The parameter '{param.Name}' has an invalid format.");
+        }
+    }
 }
