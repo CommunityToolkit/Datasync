@@ -12,8 +12,7 @@ public class DatasyncHttpClientOptions : IDatasyncHttpClientOptions
     /// <summary>
     /// The base address for the datasync service.
     /// </summary>
-    /// <remarks>The default address is explicitly invalid.</remarks>
-    public Uri BaseAddress { get; set; } = new Uri("https://localhost/");
+    public Uri BaseAddress { get; set; } = new("http://localhost/");
 
     /// <summary>
     /// The HTTP pipeline to use.  It must be an ordered list of <see cref="DelegatingHandler"/> objects, potentially followed by a <see cref="HttpClientHandler"/> to use as a transport.
