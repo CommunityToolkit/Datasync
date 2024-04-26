@@ -4,25 +4,21 @@
 
 namespace CommunityToolkit.Datasync.Client.Http;
 
+/// <summary>
+/// An interface for describing the options required for the Datasync HTTP client factory.
+/// </summary>
 public interface IDatasyncHttpClientOptions
 {
     /// <summary>
-    /// The base address for the datasync service.
-    /// </summary>
-    Uri BaseAddress { get; }
-
-    /// <summary>
-    /// The HTTP pipeline to use.  It must be an ordered list of <see cref="DelegatingHandler"/> objects, potentially followed by a <see cref="HttpClientHandler"/> to use as a transport.
+    /// The HTTP Pipeline to use.  This can be null.  If set, it must
+    /// be an ordered set of <see cref="DelegatingHandler"/> objects,
+    /// potentially followed by a <see cref="HttpClientHandler"/> for
+    /// a transport.
     /// </summary>
     IEnumerable<HttpMessageHandler> HttpPipeline { get; }
 
     /// <summary>
-    /// A set of additional request headers to include in each HTTP request.
-    /// </summary>
-    IDictionary<string, string> HttpRequestHeaders { get; }
-
-    /// <summary>
-    /// The timeout to use with <see cref="HttpClient"/> instances.
+    /// The timeout to use with <see cref="HttpClient"/> connections.
     /// </summary>
     TimeSpan HttpTimeout { get; }
 }

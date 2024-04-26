@@ -27,7 +27,7 @@ public class DatasyncServiceOptions : IDatasyncServiceOptions
     }
 
     /// <inheritdoc />
-    public JsonSerializerOptions JsonSerializerOptions => _options.Value;
+    public JsonSerializerOptions JsonSerializerOptions => this._options.Value;
 
     private static JsonSerializerOptions GetJsonSerializerOptions() => new(JsonSerializerDefaults.Web)
     {
