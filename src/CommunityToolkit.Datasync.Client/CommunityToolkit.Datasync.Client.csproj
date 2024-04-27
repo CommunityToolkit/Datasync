@@ -5,6 +5,10 @@
 
   <Import Project="..\Shared.Build.props" />
 
+  <PropertyGroup>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
   <ItemGroup>
     <InternalsVisibleTo Include="CommunityToolkit.Datasync.Client.Test" />
   </ItemGroup>
