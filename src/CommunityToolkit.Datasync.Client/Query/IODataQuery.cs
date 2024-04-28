@@ -29,4 +29,12 @@ public interface IODataQuery<T> : IODataLinqMethods<T>
     /// If <c>true</c>, the total count of items that will be returned with this query will be requested.
     /// </summary>
     bool RequestTotalCount { get; }
+
+    /// <summary>
+    /// Returns the OData query string for this query.
+    /// </summary>
+    /// <param name="includeParamters">If <c>true</c>, include the HTTP parameters in the call.</param>
+    /// <returns>The OData query string representing this query.</returns>
+    /// <exception cref="NotSupportedException">If the query cannot be represented as an OData query.</exception>
+    string ToODataString(bool includeParameters = true);
 }

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Query.Linq;
 using CommunityToolkit.Datasync.Client.Query.OData;
 using System.Linq.Expressions;
 
@@ -46,6 +47,15 @@ internal class ODataQuery<T> : IODataQuery<T>
     /// If <c>true</c>, the total count of items that will be returned with this query will be requested.
     /// </summary>
     public bool RequestTotalCount { get; set; }
+
+    /// <summary>
+    /// Returns the OData query string for this query.
+    /// </summary>
+    /// <param name="includeParameters">If <c>true</c>, include the HTTP parameters in the call.</param>
+    /// <returns>The OData query string representing this query.</returns>
+    /// <exception cref="NotSupportedException">If the query cannot be represented as an OData query.</exception>
+    public string ToODataString(bool includeParameters = true)
+        => new QueryTranslator<T>(this).Translate().ToODataString(includeParameters ? QueryParameters : null);
     #endregion
 
     #region IODataLinqMethods<T> implementation
