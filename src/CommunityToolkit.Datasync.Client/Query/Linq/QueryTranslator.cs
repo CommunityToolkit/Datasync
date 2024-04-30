@@ -308,10 +308,7 @@ internal class QueryTranslator<T>
 
                 // Make sure we also include all the members that would be required for deserialization
                 // To do this, we get all the properties on the type that has the [Required] attribute
-                List<PropertyInfo> properties = typeof(T).GetProperties()
-                    .Where(p => p.GetCustomAttribute<RequiredAttribute>() != null)
-                    .ToList();
-                foreach (PropertyInfo property in properties)
+                foreach (PropertyInfo property in typeof(T).GetProperties().Where(p => p.GetCustomAttribute<RequiredAttribute>() != null))
                 {
                     string jsonPropName = FilterBuildingExpressionVisitor.JsonPropertyName(property);
                     if (!QueryDescription.Selection.Contains(jsonPropName))

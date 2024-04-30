@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.Client.Query;
 using CommunityToolkit.Datasync.Common.Test.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 
 namespace CommunityToolkit.Datasync.Client.Test.Query;
@@ -18,6 +19,14 @@ public class ODataQuery_Tests
     {
         public string Id { get; set; }
         public string Title { get; set; }
+    }
+
+    class RequiredSelectResult
+    {
+        public string Id { get; set; }
+        public string Title { get; set; }
+        [Required]
+        public bool Deleted { get; set; }
     }
 
     public ODataQuery_Tests()
@@ -162,6 +171,14 @@ public class ODataQuery_Tests
     }
 
     [Fact]
+    public void ToODataString_Select_RequiredProperty()
+    {
+        string odata = this.query.Select(m => new RequiredSelectResult { Id = m.Id, Title = m.Title }).ToODataString();
+
+        odata.Should().Be("$select=deleted,id,title");
+    }
+
+    [Fact]
     public void ToODataString_Select_NoId_IsWellFormed()
     {
         string odata = this.query.Select(m => new { m.Title, m.ReleaseDate }).ToODataString();
@@ -185,6 +202,15 @@ public class ODataQuery_Tests
         odata.Should().Be("$skip=5");
     }
 
+    [Fact]
+    public void ToODataString_DoubleSkip()
+    {
+        ODataQuery<ClientMovie> actual = this.query.Skip(20).Skip(5) as ODataQuery<ClientMovie>;
+        string odata = actual.ToODataString();
+
+        odata.Should().Be("$skip=25");
+    }
+
     [Theory, CombinatorialData]
     public void Take_ThrowsOutOfRange([CombinatorialValues(-10, -1, 0)] int take)
     {
@@ -198,6 +224,18 @@ public class ODataQuery_Tests
         string odata = actual.ToODataString();
 
         odata.Should().Be("$top=5");
+    }
+
+    [Fact]
+    public void ToODataString_DoubleTake_Second()
+    {
+        this.query.Take(20).Take(5).ToODataString().Should().Be("$top=5");
+    }
+
+    [Fact]
+    public void ToODataString_DoubleTake_First()
+    {
+        this.query.Take(5).Take(20).ToODataString().Should().Be("$top=5");
     }
 
     [Fact]
@@ -259,6 +297,13 @@ public class ODataQuery_Tests
         string odata = actual.ToODataString();
 
         odata.Should().Be("$filter=%28id%20eq%20%27foo%27%29");
+    }
+
+    [Fact]
+    public void ToODataString_DoubleWhere()
+    {
+        this.query.Where(m => m.Id == "foo").Where(m => m.Title.StartsWith("the")).ToODataString()
+            .Should().Be("$filter=%28%28id%20eq%20%27foo%27%29%20and%20startswith%28title%2C%27the%27%29%29");
     }
 
     [Fact]
