@@ -49,11 +49,6 @@ internal class QueryDescription
     public int? Skip { get; set; }
 
     /// <summary>
-    /// The name of the table being queried.
-    /// </summary>
-    public string TableName { get; }
-
-    /// <summary>
     /// The number of elements to take.
     /// </summary>
     public int? Top { get; set; }

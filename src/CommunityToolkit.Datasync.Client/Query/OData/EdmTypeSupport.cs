@@ -76,15 +76,17 @@ internal static class EdmTypeSupport
             return null;
         }
 
+        // Because we have the type lookup table, we can safely ignore the warning here.
+#pragma warning disable CS8524 // The switch expression does not handle some values of its input type (it is not exhaustive) involving an unnamed enum value.
         return type switch
         {
             EdmType.Date => $"cast({((DateOnly)value).ToString(DateOnlyFormat)},Edm.Date)",
             EdmType.TimeOfDay => $"cast({((TimeOnly)value).ToString(TimeOnlyFormat)},Edm.TimeOfDay)",
             EdmType.DateTime => $"cast({new DateTimeOffset(((DateTime)value).ToUniversalTime()).ToString(DateTimeFormat)},Edm.DateTimeOffset)",
             EdmType.DateTimeOffset => $"cast({((DateTimeOffset)value).ToUniversalTime().ToString(DateTimeFormat)},Edm.DateTimeOffset)",
-            EdmType.Guid => $"cast({string.Format("{0:D}", (Guid)value)},Edm.Guid)",
-            _ => null,
+            EdmType.Guid => $"cast({string.Format("{0:D}", (Guid)value)},Edm.Guid)"
         };
+#pragma warning restore CS8524 // The switch expression does not handle some values of its input type (it is not exhaustive) involving an unnamed enum value.
     }
 
     /// <summary>
@@ -100,6 +102,8 @@ internal static class EdmTypeSupport
             throw new InvalidOperationException($"Edm Type '{typestr}' is not valid.");
         }
 
+        // Because we have the type lookup table, we can safely ignore the warning here.
+#pragma warning disable CS8524 // The switch expression does not handle some values of its input type (it is not exhaustive) involving an unnamed enum value.
         return type switch
         {
             EdmType.Date => new ConstantNode(DateOnly.ParseExact(literal, DateOnlyFormat)),
@@ -107,7 +111,7 @@ internal static class EdmTypeSupport
             EdmType.DateTime => new ConstantNode(DateTime.Parse(literal)),
             EdmType.DateTimeOffset => new ConstantNode(DateTimeOffset.Parse(literal)),
             EdmType.Guid => new ConstantNode(Guid.Parse(literal)),
-            _ => new ConstantNode(null),
         };
+#pragma warning restore CS8524 // The switch expression does not handle some values of its input type (it is not exhaustive) involving an unnamed enum value.
     }
 }

@@ -42,14 +42,12 @@ public class GenericAuthenticationProvider_Tests
     #endregion
 
     [Fact]
-    [Trait("Method", "Ctor")]
     public void Ctor_NullTokenRequestor_Throws()
     {
         Assert.Throws<ArgumentNullException>(() => new GenericAuthenticationProvider(null));
     }
 
     [Fact]
-    [Trait("Method", "Ctor")]
     public void Ctor_CanSetTokenRequestor()
     {
         GenericAuthenticationProvider sut = new(() => Task.FromResult(this.ValidAuthenticationToken));
@@ -61,7 +59,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "Ctor")]
     public void Ctor_NullHeader_Throws()
     {
         Assert.Throws<ArgumentNullException>(() => new GenericAuthenticationProvider(() => Task.FromResult(this.ValidAuthenticationToken), null));
@@ -72,7 +69,6 @@ public class GenericAuthenticationProvider_Tests
     [InlineData(" ")]
     [InlineData("\t")]
     [InlineData(" \t ")]
-    [Trait("Method", "Ctor")]
     public void Ctor_WhitespaceHeader_Throws(string headerName)
     {
         Assert.Throws<ArgumentException>(() => new GenericAuthenticationProvider(() => Task.FromResult(this.ValidAuthenticationToken), headerName));
@@ -83,14 +79,12 @@ public class GenericAuthenticationProvider_Tests
     [InlineData(" ")]
     [InlineData("\t")]
     [InlineData(" \t ")]
-    [Trait("Method", "Ctor")]
     public void Ctor_Authorization_RequiresType(string authType)
     {
         Assert.Throws<ArgumentException>(() => new GenericAuthenticationProvider(() => Task.FromResult(this.ValidAuthenticationToken), "Authorization", authType));
     }
 
     [Fact]
-    [Trait("Method", "Ctor")]
     public void Ctor_CanDoXZumoAuth()
     {
         GenericAuthenticationProvider sut = new(() => Task.FromResult(this.ValidAuthenticationToken), TestAuthHeader, null);
@@ -102,7 +96,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "Ctor")]
     public void Ctor_CanDoAuthBasic()
     {
         GenericAuthenticationProvider sut = new(() => Task.FromResult(this.ValidAuthenticationToken), "Authorization", "Basic");
@@ -114,7 +107,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "Ctor")]
     public void Ctor_CanDoAuthBearer()
     {
         GenericAuthenticationProvider sut = new(() => Task.FromResult(this.ValidAuthenticationToken), "Authorization");
@@ -128,7 +120,6 @@ public class GenericAuthenticationProvider_Tests
     [Theory]
     [InlineData(0)]
     [InlineData(100)]
-    [Trait("Method", "RefreshBufferTimeSpan")]
     public void RefreshBufferTimeSpan_CannotBeSmall(long ms)
     {
         GenericAuthenticationProvider sut = new(() => Task.FromResult(this.ValidAuthenticationToken));
@@ -137,7 +128,6 @@ public class GenericAuthenticationProvider_Tests
 
     [Theory]
     [InlineData(60)]
-    [Trait("Method", "RefreshBufferTimeSpan")]
     public void RefreshBufferTimeSpan_Roundtrips(int secs)
     {
         TimeSpan ts = TimeSpan.FromSeconds(secs);
@@ -146,7 +136,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "IsExpired")]
     public void IsExpired_NullToken_ReturnsTrue()
     {
         GenericAuthenticationProvider sut = new(() => Task.FromResult(this.ValidAuthenticationToken)) { RefreshBufferTimeSpan = TimeSpan.FromMinutes(2) };
@@ -154,7 +143,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "IsExpired")]
     public void IsExpired_NotExpired_ReturnsFalse()
     {
         GenericAuthenticationProvider sut = new(() => Task.FromResult(this.ValidAuthenticationToken))
@@ -166,7 +154,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "IsExpired")]
     public void IsExpired_InBuffer_ReturnsTrue()
     {
         GenericAuthenticationProvider sut = new(() => Task.FromResult(this.ValidAuthenticationToken))
@@ -178,7 +165,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "IsExpired")]
     public void IsExpired_Expired_ReturnsTrue()
     {
         GenericAuthenticationProvider sut = new(() => Task.FromResult(this.ValidAuthenticationToken))
@@ -190,7 +176,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "IsExpired")]
     public void IsExpired_ExpiredToken_ReturnsTrue()
     {
         GenericAuthenticationProvider sut = new(() => Task.FromResult(this.ValidAuthenticationToken))
@@ -201,7 +186,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "IsExpired")]
     public void IsExpired_BasicToken_ReturnsFalse()
     {
         GenericAuthenticationProvider sut = new(() => Task.FromResult(this.ValidAuthenticationToken))
@@ -212,7 +196,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "IsExpired")]
     public void IsExpired_NoExpiration_ReturnsTrue()
     {
         AuthenticationToken authtoken = new()
@@ -229,7 +212,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "GetTokenAsync")]
     public async Task GetTokenAsync_CallsOnFirstRun()
     {
         int count = 0;
@@ -240,7 +222,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "GetTokenAsync")]
     public async Task GetTokenAsync_CachesResult()
     {
         int count = 0;
@@ -254,7 +235,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "GetTokenAsync")]
     public async Task GetTokenAsync_CallsOnForce()
     {
         int count = 0;
@@ -267,7 +247,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "GetTokenAsync")]
     public async Task GetTokenAsync_LogsOutWhenExpired()
     {
         GenericAuthenticationProvider sut = new(() => Task.FromResult(this.ValidAuthenticationToken));
@@ -286,7 +265,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "LoginAsync")]
     public async Task LoginAsync_CallsTokenRequestor()
     {
         int count = 0;
@@ -296,7 +274,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "LoginAsync")]
     public async Task LoginAsync_ForcesTokenRequestor()
     {
         int count = 0;
@@ -308,7 +285,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "SendAsync")]
     public async Task SendAsync_AddsHeader_BearerAuth()
     {
         MockDelegatingHandler handler = new([new HttpResponseMessage(HttpStatusCode.OK)]);
@@ -322,7 +298,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "SendAsync")]
     public async Task SendAsync_AddsHeader_ZumoAuth()
     {
         MockDelegatingHandler handler = new([new HttpResponseMessage(HttpStatusCode.OK)]);
@@ -336,7 +311,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "SendAsync")]
     public async Task SendAsync_NoHeader_WhenExpired()
     {
         MockDelegatingHandler handler = new([new HttpResponseMessage(HttpStatusCode.OK)]);
@@ -350,7 +324,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "SendAsync")]
     public async Task SendAsync_RemoveHeader_WhenExpired()
     {
         MockDelegatingHandler handler = new([new HttpResponseMessage(HttpStatusCode.OK)]);
@@ -365,7 +338,6 @@ public class GenericAuthenticationProvider_Tests
     }
 
     [Fact]
-    [Trait("Method", "SendAsync")]
     public async Task SendAsync_OverwritesHeader_WhenNotExpired()
     {
         MockDelegatingHandler handler = new([new HttpResponseMessage(HttpStatusCode.OK)]);

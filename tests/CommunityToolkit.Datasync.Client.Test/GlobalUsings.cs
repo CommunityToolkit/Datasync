@@ -3,5 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 global using FluentAssertions;
+global using NSubstitute;
 global using System.Diagnostics.CodeAnalysis;
 global using Xunit;

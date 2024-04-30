@@ -9,6 +9,5 @@
 
   <ItemGroup>
     <Folder Include="Table\" />
-    <Folder Include="Query\" />
   </ItemGroup>
 </Project>

@@ -194,7 +194,7 @@ internal class ODataQuery<T> : IODataQuery<T>
     {
         Ensure.That(key, nameof(key)).IsNotNull().And.IsHttpHeaderName();
         Ensure.That(value?.Trim(), nameof(value)).IsNotNullOrWhiteSpace();
-        QueryParameters[key.ToLowerInvariant()] = Uri.EscapeDataString(value.Trim());
+        QueryParameters[key.ToLowerInvariant()] = value.Trim();
         return this;
     }
     #endregion
