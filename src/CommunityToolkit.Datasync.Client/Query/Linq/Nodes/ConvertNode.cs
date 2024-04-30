@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Common;
 using System.Diagnostics.CodeAnalysis;
 
 namespace CommunityToolkit.Datasync.Client.Query.Linq.Nodes;
@@ -36,7 +37,7 @@ internal class ConvertNode(QueryNode source, Type targetType) : QueryNode
     /// <inheritdoc/>
     internal override void SetChildren(IList<QueryNode> children)
     {
-        Ensure.That(children.Count, nameof(children)).IsGt(0);
+        Ensure.That(children, nameof(children)).IsNotNull().And.HasItems();
         Source = children[0];
     }
 }

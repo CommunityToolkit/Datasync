@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Query;
+using CommunityToolkit.Datasync.Common;
 using System.Linq.Expressions;
 using System.Text.Json;
 
@@ -30,7 +31,7 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// <param name="options">The options to use in communicating with the remote dataset.</param>
     public RemoteDataset(Uri endpoint, IRemoteDatasetOptions options)
     {
-        Ensure.That(endpoint, nameof(endpoint)).IsValidDatasyncEndpoint();
+        Ensure.That(endpoint, nameof(endpoint)).IsDatasyncEndpoint();
         Ensure.That(options, nameof(options)).IsNotNull();
 
         Endpoint = endpoint;

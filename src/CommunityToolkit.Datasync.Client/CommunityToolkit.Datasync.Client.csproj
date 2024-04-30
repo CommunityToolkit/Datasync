@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>A client-side library for communicating with a datasync service.</Description>
   </PropertyGroup>
@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ensure.That" Version="10.1.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
   </ItemGroup>
 
@@ -26,9 +25,5 @@
     <Reference Include="Microsoft.Azure.Core.Spatial">
       <HintPath>..\..\..\..\..\..\..\Nuget\microsoft.azure.core.spatial\1.1.0\lib\netstandard2.0\Microsoft.Azure.Core.Spatial.dll</HintPath>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Using Include="EnsureThat" />
   </ItemGroup>
 </Project>

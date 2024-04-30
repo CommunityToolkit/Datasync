@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using Azure.Core.Serialization;
+using CommunityToolkit.Datasync.Common;
 using CommunityToolkit.Datasync.Server.Converters;
 using System.Runtime.CompilerServices;
 using System.Text.Json;

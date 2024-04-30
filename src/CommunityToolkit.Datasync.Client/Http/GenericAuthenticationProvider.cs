@@ -2,13 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CommunityToolkit.Datasync.Client.Http;
 /// <summary>
@@ -27,7 +24,7 @@ public class GenericAuthenticationProvider : AuthenticationProvider
     /// <param name="authenticationType">The authentication type (if specified)</param>
     public GenericAuthenticationProvider(Func<Task<AuthenticationToken>> asyncTokenRequestor, string headerName = "Authorization", string authenticationType = null)
     {
-        Ensure.That(headerName, nameof(headerName)).IsValidHttpHeaderName();
+        Ensure.That(headerName, nameof(headerName)).IsHttpHeaderName();
         TokenRequestorAsync = asyncTokenRequestor ?? throw new ArgumentNullException(nameof(asyncTokenRequestor));
 
         if (headerName.Equals("authorization", StringComparison.InvariantCultureIgnoreCase))
@@ -47,6 +44,7 @@ public class GenericAuthenticationProvider : AuthenticationProvider
     /// <summary>
     /// A logger for this provider.  This is optional.
     /// </summary>
+    [ExcludeFromCodeCoverage(Justification = "Logger setting doesn't need to be tested")]
     public ILogger<GenericAuthenticationProvider> Logger { get; set; } = new NullLogger<GenericAuthenticationProvider>();
 
     /// <summary>
@@ -77,7 +75,7 @@ public class GenericAuthenticationProvider : AuthenticationProvider
         get => this._bufferPeriod;
         set
         {
-            Ensure.That(value, nameof(RefreshBufferTimeSpan)).IsGt(TimeSpan.FromSeconds(1));
+            Ensure.That(value, nameof(RefreshBufferTimeSpan)).IsGte(TimeSpan.FromSeconds(1));
             Logger.LogDebug("Setting refresh buffer to {value}", value);
             this._bufferPeriod = value;
         }

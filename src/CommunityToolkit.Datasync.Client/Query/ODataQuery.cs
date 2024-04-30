@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.Client.Query.Linq;
 using CommunityToolkit.Datasync.Client.Query.OData;
+using CommunityToolkit.Datasync.Common;
 using System.Linq.Expressions;
 
 namespace CommunityToolkit.Datasync.Client.Query;
@@ -191,9 +192,9 @@ internal class ODataQuery<T> : IODataQuery<T>
     /// <returns>The composed query object.</returns>
     public IODataQuery<T> WithParameter(string key, string value)
     {
-        Ensure.That(key, nameof(key)).IsValidHttpHeaderName();
-        Ensure.That(value?.Trim(), nameof(value)).IsNotNullOrEmpty();
-        QueryParameters[key.ToLowerInvariant()] = Uri.EscapeDataString(value);
+        Ensure.That(key, nameof(key)).IsNotNull().And.IsHttpHeaderName();
+        Ensure.That(value?.Trim(), nameof(value)).IsNotNullOrWhiteSpace();
+        QueryParameters[key.ToLowerInvariant()] = Uri.EscapeDataString(value.Trim());
         return this;
     }
     #endregion

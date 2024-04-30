@@ -292,4 +292,54 @@ public static class FluentAssertionExtensions
             .FailWith("Expected object to have value {0}, but found {1}", value, ((EntityTagHeaderValue)current.Subject).Tag);
         return new AndConstraint<ObjectAssertions>(current);
     }
+
+    /// <summary>
+    /// Checks that a <see cref="HttpRequestMessage"/> has a specific header with a specific value.
+    /// </summary>
+    /// <param name="current">The current assertion.</param>
+    /// <param name="headerName">The name of the header that is expected.</param>
+    /// <param name="expectedValue">The expected value in the header.</param>
+    /// <param name="because">A reason to use.</param>
+    /// <param name="becauseArgs">Any arguments to the reason.</param>
+    /// <returns>A chaining construct.</returns>
+    public static AndConstraint<ObjectAssertions> HaveHeader(this ObjectAssertions current, string headerName, string expectedValue, string because = "", params object[] becauseArgs)
+    {
+        Execute.Assertion
+            .BecauseOf(because, becauseArgs)
+            .ForCondition(current.Subject is HttpRequestMessage)
+            .FailWith("Expected object to be a HttpRequestMessage", current.Subject);
+
+        HttpRequestMessage request = (HttpRequestMessage)current.Subject;
+        Execute.Assertion
+            .BecauseOf(because, becauseArgs)
+            .ForCondition(request.Headers.TryGetValues(headerName, out IEnumerable<string> values))
+            .FailWith("Expected header {0} to be present", headerName)
+        .Then
+            .ForCondition(values.Contains(expectedValue))
+            .FailWith("Exepcted header {0} to have value {1}", headerName, expectedValue);
+        return new AndConstraint<ObjectAssertions>(current);
+    }
+
+    /// <summary>
+    /// Checks that a <see cref="HttpRequestMessage"/> does not have a specific header.
+    /// </summary>
+    /// <param name="current">The current assertion.</param>
+    /// <param name="headerName">The name of the header that is not expected.</param>
+    /// <param name="because">A reason to use.</param>
+    /// <param name="becauseArgs">Any arguments to the reason.</param>
+    /// <returns>A chaining construct.</returns>
+    public static AndConstraint<ObjectAssertions> NotHaveHeader(this ObjectAssertions current, string headerName, string because = "", params object[] becauseArgs)
+    {
+        Execute.Assertion
+            .BecauseOf(because, becauseArgs)
+            .ForCondition(current.Subject is HttpRequestMessage)
+            .FailWith("Expected object to be a HttpRequestMessage", current.Subject);
+
+        HttpRequestMessage request = (HttpRequestMessage)current.Subject;
+        Execute.Assertion
+            .BecauseOf(because, becauseArgs)
+            .ForCondition(!request.Headers.TryGetValues(headerName, out IEnumerable<string> _))
+            .FailWith("Expected header {0} to not be present", headerName);
+        return new AndConstraint<ObjectAssertions>(current);
+    }
 }

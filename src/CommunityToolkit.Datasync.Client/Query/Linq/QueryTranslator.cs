@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.Client.Query.Linq.Nodes;
 using CommunityToolkit.Datasync.Client.Query.OData;
+using CommunityToolkit.Datasync.Common;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Common;
 using System.Linq.Expressions;
 
 namespace CommunityToolkit.Datasync.Client.Query.Linq.Nodes;
@@ -87,8 +88,7 @@ internal class BinaryOperatorNode(BinaryOperatorKind kind, QueryNode left = null
     /// <inheritdoc />
     internal override void SetChildren(IList<QueryNode> children)
     {
-        Ensure.That(children, nameof(children)).IsNotNull();
-        Ensure.That(children.Count, nameof(children)).Is(2);
+        Ensure.That(children, nameof(children)).IsNotNull().And.HasCount(2);
         LeftOperand = children[0];
         RightOperand = children[1];
     }

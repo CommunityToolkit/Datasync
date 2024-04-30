@@ -33,5 +33,5 @@ public struct AuthenticationToken
     /// </summary>
     /// <returns>The string representation of the authentication token</returns>
     public override readonly string ToString()
-        => $"AuthenticationToken(DisplayName=\"{DisplayName}\",ExpiresOn=\"{ExpiresOn}\",Token=\"{Token}\",UserId=\"{UserId}\")";
+        => $"AuthenticationToken(DisplayName=\"{DisplayName ?? null}\",ExpiresOn=\"{ExpiresOn}\",Token=\"{Token ?? null}\",UserId=\"{UserId ?? null}\")";
 }
