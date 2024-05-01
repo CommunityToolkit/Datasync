@@ -33,7 +33,7 @@ public interface IODataQuery<T> : IODataLinqMethods<T>
     /// <summary>
     /// Returns the OData query string for this query.
     /// </summary>
-    /// <param name="includeParamters">If <c>true</c>, include the HTTP parameters in the call.</param>
+    /// <param name="includeParameters">If <c>true</c>, include the HTTP parameters in the call.</param>
     /// <returns>The OData query string representing this query.</returns>
     /// <exception cref="NotSupportedException">If the query cannot be represented as an OData query.</exception>
     string ToODataString(bool includeParameters = true);
