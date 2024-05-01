@@ -26,6 +26,15 @@ public class MockDelegatingHandler : DelegatingHandler
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
+    public MockDelegatingHandler()
+    {
+    }
+
+    public MockDelegatingHandler(IEnumerable<HttpResponseMessage> responses)
+    {
+        Responses = responses.ToList();
+    }
+
     /// <summary>
     /// List of requests that have been received.
     /// </summary>

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Common;
 using Microsoft.AspNetCore.Http;
 
 namespace CommunityToolkit.Datasync.Server;
@@ -44,7 +45,7 @@ public class TableControllerOptions
     public int MaxTop
     {
         get => this._maxTop;
-        set { Ensure.That(value).IsInRange(1, MAX_TOP); this._maxTop = value; }
+        set { Ensure.That(value, nameof(MaxTop)).IsInRange(1, MAX_TOP); this._maxTop = value; }
     }
 
     /// <summary>
@@ -53,7 +54,7 @@ public class TableControllerOptions
     public int PageSize
     {
         get => this._pageSize;
-        set { Ensure.That(value).IsInRange(1, MAX_PAGESIZE); this._pageSize = value; }
+        set { Ensure.That(value, nameof(MaxTop)).IsInRange(1, MAX_PAGESIZE); this._pageSize = value; }
     }
 
     /// <summary>

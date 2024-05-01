@@ -5,16 +5,25 @@
 
   <Import Project="..\Shared.Build.props" />
 
+  <PropertyGroup>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
   <ItemGroup>
     <InternalsVisibleTo Include="CommunityToolkit.Datasync.Client.Test" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ensure.That" Version="10.1.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="EnsureThat" />
+    <ProjectReference Include="..\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.Azure.Core.Spatial">
+      <HintPath>..\..\..\..\..\..\..\Nuget\microsoft.azure.core.spatial\1.1.0\lib\netstandard2.0\Microsoft.Azure.Core.Spatial.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

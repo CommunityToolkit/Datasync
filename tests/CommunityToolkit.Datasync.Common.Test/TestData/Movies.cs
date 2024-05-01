@@ -5,11 +5,9 @@
 using CommunityToolkit.Datasync.Common.Test.Models;
 using CommunityToolkit.Datasync.Server;
 
-// This makes the list of movies explicitly typed.
-#pragma warning disable IDE0090 // Use 'new(...)'
-
 namespace CommunityToolkit.Datasync.Common.Test;
 
+[ExcludeFromCodeCoverage]
 public static class Movies
 {
     public static readonly MovieBase BlackPanther = new()
@@ -46,11 +44,12 @@ public static class Movies
     /// <returns>A list of movies</returns>
     public static List<T> OfType<T>() where T : ITableData, IMovie, new()
     {
-        List<T> result = new();
+        List<T> result = [];
         for (int idx = 0; idx < MovieList.Length; idx++)
         {
             result.Add(OfType<T>(MovieList[idx], string.Format("id-{0:000}", idx)));
         }
+
         return result;
     }
 
@@ -71,8 +70,8 @@ public static class Movies
     /// <summary>
     /// The list of movies.
     /// </summary>
-    public static MovieBase[] MovieList { get; } = new MovieBase[]
-    {
+    public static MovieBase[] MovieList { get; } =
+    [
         new MovieBase /* 000 */
         {
             BestPictureWinner = false,
@@ -2304,5 +2303,5 @@ public static class Movies
             Title = "Rio Bravo",
             Year = 1959
         }
-    };
+    ];
 }

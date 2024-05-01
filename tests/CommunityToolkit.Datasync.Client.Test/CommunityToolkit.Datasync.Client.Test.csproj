@@ -6,4 +6,8 @@
     <ProjectReference Include="..\CommunityToolkit.Datasync.Common.Test\CommunityToolkit.Datasync.Common.Test.csproj" />
     <ProjectReference Include="..\CommunityToolkit.Datasync.TestService\CommunityToolkit.Datasync.TestService.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Table\" />
+  </ItemGroup>
 </Project>

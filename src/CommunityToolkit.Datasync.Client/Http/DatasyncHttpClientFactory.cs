@@ -8,62 +8,71 @@ using System.Net;
 namespace CommunityToolkit.Datasync.Client.Http;
 
 /// <summary>
-/// An implementation of the <see cref="IHttpClientFactory"/> that provides a
-/// suitable client for use with the Datasync client.
+/// A simple implementation of the <see cref="IHttpClientFactory"/>.
 /// </summary>
-internal class DatasyncHttpClientFactory(IDatasyncHttpClientOptions options) : IHttpClientFactory
+/// <param name="options">The options to use in creating a client.</param>
+public class DatasyncHttpClientFactory(IDatasyncHttpOptions options) : IHttpClientFactory
 {
     /// <summary>
-    /// A factory method for creating the default <see cref="HttpClientHandler"/>
+    /// The cache of <see cref="HttpClient"/> objects.
+    /// </summary>
+    private readonly ConcurrentDictionary<string, HttpClient> _clients = new();
+
+    /// <summary>
+    /// A factory method for creating the default <see cref="HttpClientHandler"/>.
     /// </summary>
     protected Func<HttpMessageHandler> DefaultHandlerFactory = GetDefaultHttpClientHandler;
 
     /// <summary>
-    /// A cache for the <see cref="HttpClient" /> instances created by this factory.
+    /// Creates a new <see cref="HttpClient"/> based on the options provided.
     /// </summary>
-    protected readonly ConcurrentDictionary<string, HttpClient> _clients = new();
-
-    /// <inheritdoc />
+    /// <param name="name">The name of the client to create.</param>
+    /// <returns>The created client.</returns>
     public HttpClient CreateClient(string name)
     {
-        Ensure.That(Options.BaseAddress).IsValidDatasyncUri();
-
-        if (this._clients.TryGetValue(name, out HttpClient? client))
+        name ??= "";
+        if (this._clients.TryGetValue(name, out HttpClient client))
         {
             return client;
         }
 
-        HttpMessageHandler roothandler = CreatePipeline();
-        HttpClient newclient = new(roothandler, disposeHandler: true) { BaseAddress = Options.BaseAddress, Timeout = Options.HttpTimeout };
-        foreach (KeyValuePair<string, string> header in Options.HttpRequestHeaders)
+        HttpMessageHandler rootHandler = CreatePipeline(Options.HttpPipeline ?? []);
+        client = new HttpClient(rootHandler) { Timeout = Options.HttpTimeout };
+        if (Options.HttpRequestHeaders is not null)
         {
-            newclient.DefaultRequestHeaders.Add(header.Key, header.Value);
+            foreach (KeyValuePair<string, string> header in Options.HttpRequestHeaders)
+            {
+                if (!client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value))
+                {
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                }
+            }
         }
 
-        // Attempt to add the client to the cache.  Don't worry if it doesn't work, as we'll just return the new client.
-        _ = this._clients.TryAdd(name, newclient);
-        return newclient;
+        // We don't really care if we fail to add the client since we'll just return the one we created
+        _ = this._clients.TryAdd(name, client);
+        return client;
     }
 
-    /// <summary>
-    /// The options to use when creating the <see cref="HttpClient" /> instances.
-    /// </summary>
-    internal IDatasyncHttpClientOptions Options { get; } = options;
+    internal IDatasyncHttpOptions Options { get; set; } = options;
 
     /// <summary>
-    /// Transform a list of <see cref="HttpMessageHandler"/> objects into a chain suitable for using as the pipeline of a <see cref="HttpClient"/>.
+    /// Transforms a list of <see cref="HttpMessageHandler"/> instances into a chain of handlers suitable for
+    /// using as a pipeline in an <see cref="HttpClient"/>.
     /// </summary>
-    /// <returns>The chained <see cref="HttpMessageHandler"/></returns>
-    internal HttpMessageHandler CreatePipeline()
+    /// <param name="handlers">The ordered list of <see cref="HttpMessageHandler"/> objects to transform.</param>
+    /// <returns>The chained <see cref="HttpMessageHandler"/> objects.</returns>
+    /// <exception cref="ArgumentException">Thrown if the ordered list is invalid.</exception>
+    internal HttpMessageHandler CreatePipeline(IEnumerable<HttpMessageHandler> handlers)
     {
-        HttpMessageHandler pipeline = Options.HttpPipeline.LastOrDefault() ?? this.DefaultHandlerFactory();
+        HttpMessageHandler pipeline = handlers.LastOrDefault() ?? this.DefaultHandlerFactory();
         if (pipeline is DelegatingHandler lastPolicy && lastPolicy.InnerHandler is null)
         {
             lastPolicy.InnerHandler = this.DefaultHandlerFactory();
             pipeline = lastPolicy;
         }
 
-        foreach (HttpMessageHandler handler in Options.HttpPipeline.Reverse().Skip(1))
+        foreach (HttpMessageHandler handler in handlers.Reverse().Skip(1))
         {
             if (handler is DelegatingHandler policy)
             {
@@ -72,7 +81,7 @@ internal class DatasyncHttpClientFactory(IDatasyncHttpClientOptions options) : I
             }
             else
             {
-                throw new InvalidOperationException("All message handlers except the last one must be 'DelegatingHandler' instances.  The last handler may be a 'HttpClientHandler' instance.");
+                throw new ArgumentException("All message handlers except the last one must be a 'DelegatingHandler'", nameof(handlers));
             }
         }
 
@@ -80,9 +89,9 @@ internal class DatasyncHttpClientFactory(IDatasyncHttpClientOptions options) : I
     }
 
     /// <summary>
-    /// Returns a default <see cref="HttpClientHandler"/> instance that supports automatic decompression.
+    /// Returns a <see cref="HttpClientHandler"/> that support automatic decompression.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A <see cref="HttpMessageHandler"/>.</returns>
     protected static HttpMessageHandler GetDefaultHttpClientHandler()
     {
         HttpClientHandler handler = new();

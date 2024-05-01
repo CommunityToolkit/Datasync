@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Abstractions for developing server-side applications using the Datasync Toolkit.</Description>
   </PropertyGroup>
