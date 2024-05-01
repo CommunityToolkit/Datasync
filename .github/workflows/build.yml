@@ -11,10 +11,14 @@ on:
 
 env:
   DOTNET_VERSION: '8.0.x'
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCe: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   DOTNET_CONFIGURATION: 'Release'
   NuGetDirectory: ${{ github.workspace }}/nuget
+
+permissions:
+  pull-requests: write
+  contents: read
 
 jobs:
   build:
