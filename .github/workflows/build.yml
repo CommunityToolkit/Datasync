@@ -18,6 +18,7 @@ env:
   DOTNET_CONFIGURATION: 'Release'
   NuGetDirectory: ${{ github.workspace }}/nuget
   SolutionFile: 'Datasync Solution.sln'
+  BASE_VERSION: '8.0.0'
 
 permissions:
   pull-requests: write
@@ -35,7 +36,7 @@ jobs:
         run: |
           Import-Module .\tools\GetBuildVersion.psm1
           Write-Host "GitHub Reference = $($env:GITHUB_REF)"
-          $version = GetBuildVersion -VersionString $env:GITHUB_REF -BuildNumber $env:GITHUB_RUN_NUMBER
+          $version = GetBuildVersion -BaseVersion $env:BASE_VERSION -VersionString $env:GITHUB_REF -BuildNumber $env:GITHUB_RUN_NUMBER
           echo "BUILD_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf-8 -Append
           Write-Host "BUILD_VERSION=$version"
         shell: pwsh
