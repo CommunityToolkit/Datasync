@@ -39,6 +39,6 @@ public class AuthenticationToken_Tests
     public void ToString_Null_ReturnsExpected()
     {
         string actual = this.NullAuthenticationToken.ToString();
-        actual.Should().Be("AuthenticationToken(DisplayName=\"\",ExpiresOn=\"0001-01-01T00:00:00.0000000+00:00\",Token=\"\",UserId=\"\")");
+        actual.Should().Be("AuthenticationToken(DisplayName=null,ExpiresOn=\"0001-01-01T00:00:00.0000000+00:00\",Token=null,UserId=null)");
     }
 }

@@ -34,7 +34,10 @@ public struct AuthenticationToken
     /// <returns>The string representation of the authentication token</returns>
     public override readonly string ToString()
     {
+        string displayName = DisplayName is null ? "null" : $"\"{DisplayName}\"";
         string expiresOn = ExpiresOn.ToString("O", System.Globalization.CultureInfo.InvariantCulture);
-        return $"AuthenticationToken(DisplayName=\"{DisplayName ?? "null"}\",ExpiresOn=\"{expiresOn}\",Token=\"{Token ?? "null"}\",UserId=\"{UserId ?? "null"}\")";
+        string token = Token is null ? "null" : $"\"{Token}\"";
+        string userId = UserId is null ? "null" : $"\"{UserId}\"";
+        return $"AuthenticationToken(DisplayName={displayName},ExpiresOn=\"{expiresOn}\",Token={token},UserId={userId})";
     }
 }
