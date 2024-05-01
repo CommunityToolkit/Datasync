@@ -34,9 +34,10 @@ jobs:
       - name: Get build version
         run: |
           Import-Module .\tools\GetBuildVersion.psm1
-          Write-Host $env:GITHUB_REF
+          Write-Host "GitHub Reference = $($env:GITHUB_REF)"
           $version = GetBuildVersion -VersionString $env:GITHUB_REF
           echo "BUILD_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf-8 -Append
+          Write-Host "BUILD_VERSION=$version"
         shell: pwsh
 
       - name: Setup .NET
@@ -48,13 +49,13 @@ jobs:
         run: dotnet restore
 
       - name: Build library
-        run: dotnet build ${{ env.SolutionFile }} --configuration ${{ env.DOTNET_CONFIGURATION }} -p:Version=$BUILD_VERSION --no-restore
+        run: dotnet build --configuration ${{ env.DOTNET_CONFIGURATION }} -p:Version=$BUILD_VERSION --no-restore
 
       - name: Run tests
         run: dotnet test --nologo --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity minimal --logger trx --collect:"XPlat Code Coverage"
 
       - name: Pack NuGet libraries
-        run: dotnet pack ${{ env.SolutionFile }} --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --output ${{ env.NuGetDirectory }}
+        run: dotnet pack --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --output ${{ env.NuGetDirectory }}
 
       - name: Upload NuGet packages
         uses: actions/upload-artifact@v4
