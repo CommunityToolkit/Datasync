@@ -49,13 +49,31 @@ jobs:
         run: dotnet restore
 
       - name: Build library
-        run: dotnet build --configuration ${{ env.DOTNET_CONFIGURATION }} -p:Version=$BUILD_VERSION --no-restore
+        run: >
+          dotnet build 
+          --configuration ${{ env.DOTNET_CONFIGURATION }} 
+          -p:PackageVersion=$BUILD_VERSION
+          -p:Version=$BUILD_VERSION 
+          --no-restore
 
       - name: Run tests
-        run: dotnet test --nologo --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity minimal --logger trx --collect:"XPlat Code Coverage"
+        run: >
+          dotnet test --nologo 
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          -p:PackageVersion=$BUILD_VERSION
+          -p:Version=$BUILD_VERSION 
+          --no-build 
+          --verbosity minimal 
+          --logger trx --collect:"XPlat Code Coverage"
 
       - name: Pack NuGet libraries
-        run: dotnet pack --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --output ${{ env.NuGetDirectory }}
+        run: >
+          dotnet pack 
+          --configuration ${{ env.DOTNET_CONFIGURATION }} 
+          -p:PackageVersion=$BUILD_VERSION
+          -p:Version=$BUILD_VERSION 
+          --no-build 
+          --output ${{ env.NuGetDirectory }}
 
       - name: Upload NuGet packages
         uses: actions/upload-artifact@v4
