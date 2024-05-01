@@ -149,12 +149,19 @@ jobs:
           path: ${{ github.workspace }}/code-coverage-results.md
           retention-days: 7
 
+      - name: Find GitHub PR ID
+        if: ${{ github.event_name == 'pull_request' }}
+        id: pr_finder
+        uses: jwalton/gh-find-current-pr@mv1
+        with: 
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: Add coverage PR comment
         if: ${{ github.event_name == 'pull_request' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.number }},
+          issue-number: ${{ steps.pr_finder.outputs.number }},
           body-path: ${{ github.workspace }}/code-coverage-results.md
 
   sign:
