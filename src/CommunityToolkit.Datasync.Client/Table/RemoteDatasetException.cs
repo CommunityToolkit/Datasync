@@ -19,12 +19,12 @@ public class RemoteDatasetException : ApplicationException
     }
 
     /// <inheritdoc />
-    public RemoteDatasetException(string? message) : base(message)
+    public RemoteDatasetException(string message) : base(message)
     {
     }
 
     /// <inheritdoc />
-    public RemoteDatasetException(string? message, Exception? innerException) : base(message, innerException)
+    public RemoteDatasetException(string message, Exception innerException) : base(message, innerException)
     {
     }
 
