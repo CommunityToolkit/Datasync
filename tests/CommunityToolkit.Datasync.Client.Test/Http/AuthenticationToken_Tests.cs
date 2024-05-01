@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Http;
+using System.Security.Policy;
 
 namespace CommunityToolkit.Datasync.Client.Test.Http;
 
@@ -31,13 +32,13 @@ public class AuthenticationToken_Tests
     public void ToString_Valid_ReturnsExpected()
     {
         string actual = this.ValidAuthenticationToken.ToString();
-        actual.Should().Be("AuthenticationToken(DisplayName=\"John Smith\",ExpiresOn=\"12/24/2024 1:23:45 AM +00:00\",Token=\"YmFzaWMgdG9rZW4gZm9yIHRlc3Rpbmc=\",UserId=\"the_doctor\")");
+        actual.Should().Be("AuthenticationToken(DisplayName=\"John Smith\",ExpiresOn=\"2024-12-24T01:23:45.0000000+00:00\",Token=\"YmFzaWMgdG9rZW4gZm9yIHRlc3Rpbmc=\",UserId=\"the_doctor\")");
     }
 
     [Fact]
     public void ToString_Null_ReturnsExpected()
     {
         string actual = this.NullAuthenticationToken.ToString();
-        actual.Should().Be("AuthenticationToken(DisplayName=\"\",ExpiresOn=\"1/1/0001 12:00:00 AM +00:00\",Token=\"\",UserId=\"\")");
+        actual.Should().Be("AuthenticationToken(DisplayName=\"\",ExpiresOn=\"0001-01-01T00:00:00.0000000+00:00\",Token=\"\",UserId=\"\")");
     }
 }
