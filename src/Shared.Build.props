@@ -2,9 +2,11 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Authors>Community Toolkit</Authors>
-    <Company>Community Toolkit</Company>
+    <Company>.NET Foundation</Company>
     <Copyright>(c) .NET Foundation and Contributors. All rights reserved.</Copyright>
     <LicenseUrl>https://github.com/CommunityToolkit/Datasync/blob/main/LICENSE.md</LicenseUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageIconUrl>https://github.com/CommunityToolkit/Datasync/blob/main/icon.png</PackageIconUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/CommunityToolkit/Datasync</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -26,7 +28,28 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <IsPublishable>true</IsPublishable>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)\..\README.md" PackagePath="README.md" Pack="True" />
+    <None Include="$(MSBuildThisFileDirectory)\..\LICENSE.md" PackagePath="LICENSE.md" Pack="True" />
+    <None Include="$(MSBuildThisFileDirectory)\..\icon.png" PackagePath="icon.png" Pack="True" />
   </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(SourceLinkEnabled)' != 'false'">
+      <PropertyGroup>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+      </PropertyGroup>
+      <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+      </ItemGroup>
+    </When>
+  </Choose>
 </Project>
