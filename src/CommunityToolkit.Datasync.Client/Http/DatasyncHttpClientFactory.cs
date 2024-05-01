@@ -42,10 +42,7 @@ public class DatasyncHttpClientFactory(IDatasyncHttpOptions options) : IHttpClie
         {
             foreach (KeyValuePair<string, string> header in Options.HttpRequestHeaders)
             {
-                if (!client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value))
-                {
-                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
-                }
+                client.DefaultRequestHeaders.Add(header.Key, header.Value);
             }
         }
 
@@ -54,7 +51,7 @@ public class DatasyncHttpClientFactory(IDatasyncHttpOptions options) : IHttpClie
         return client;
     }
 
-    internal IDatasyncHttpOptions Options { get; set; } = options;
+    internal IDatasyncHttpOptions Options { get; } = options;
 
     /// <summary>
     /// Transforms a list of <see cref="HttpMessageHandler"/> instances into a chain of handlers suitable for
