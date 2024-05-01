@@ -152,7 +152,7 @@ jobs:
       - name: Find GitHub PR ID
         if: ${{ github.event_name == 'pull_request' }}
         id: pr_finder
-        uses: jwalton/gh-find-current-pr@mv1
+        uses: jwalton/gh-find-current-pr@v1
         with: 
           github-token: ${{ secrets.GITHUB_TOKEN }}
           
