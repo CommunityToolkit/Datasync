@@ -150,10 +150,11 @@ jobs:
           retention-days: 7
 
       - name: Add coverage PR comment
+        if: ${{ github.event_name == 'pull_request' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }},
+          issue-number: ${{ github.event.number }},
           body-path: ${{ github.workspace }}/code-coverage-results.md
 
   sign:
