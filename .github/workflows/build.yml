@@ -7,6 +7,8 @@ on:
   pull_request:
     branches: [ main ]
     paths: [ 'src/**', 'tests/**', 'Datasync Solution.sln' ]
+  release:
+    types: [ published ]
   workflow_dispatch:
 
 env:
@@ -15,6 +17,7 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CONFIGURATION: 'Release'
   NuGetDirectory: ${{ github.workspace }}/nuget
+  SolutionFile: 'Datasync Solution.sln'
 
 permissions:
   pull-requests: write
@@ -23,36 +26,58 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
 
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v1
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Get build version
+        run: |
+          Import-Module .\tools\GetBuildVersion.psm1
+          Write-Host $env:GITHUB_REF
+          $version = GetBuildVersion -VersionString $env:GITHUB_REF
+          echo "BUILD_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf-8 -Append
+        shell: pwsh
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore NuGet packages
+      - name: Restore dependencies
         run: dotnet restore
 
       - name: Build library
-        run: dotnet build --configuration ${{ env.DOTNET_CONFIGURATION }} --no-restore
+        run: dotnet build ${{ env.SolutionFile }} --configuration ${{ env.DOTNET_CONFIGURATION }} -p:Version=$BUILD_VERSION --no-restore
 
       - name: Run tests
         run: dotnet test --nologo --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --verbosity minimal --logger trx --collect:"XPlat Code Coverage"
 
-      - name: Upload rest result files
+      - name: Pack NuGet libraries
+        run: dotnet pack ${{ env.SolutionFile }} --configuration ${{ env.DOTNET_CONFIGURATION }} --no-build --output ${{ env.NuGetDirectory }}
+
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-unsigned
+          if-no-files-found: error
+          path: ${{ env.NuGetDirectory }}/*.nupkg
+          retention-days: 7
+
+      - name: Upload test results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: ${{ github.workspace }}/**/TestResults/**/*
-          retention-days: 5
-    
+          if-no-files-found: error
+          path: ${{ github.workspace }}/**/TestResults/*.trx
+          retention-days: 7
+
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2.16.1
         if: always()
         with:
-          trx_files: "${{ github.workspace }}/**/*.trx"
+          files: "${{ github.workspace }}/**/*.trx"
 
       - name: Combine coverage reports
         uses: danielpalme/ReportGenerator-GitHub-Action@5.2.4
@@ -71,13 +96,13 @@ jobs:
         with:
           name: coverage
           path: ${{ github.workspace }}/Cobertura.xml
-          retention-days: 5
+          retention-days: 7
 
       - name: Publish code coverage report
         uses: irongut/CodeCoverageSummary@v1.3.0
-        with:
+        with: 
           filename: "Cobertura.xml"
-          badge: true
+          badge: false
           fail_below_min: false 
           format: markdown
           hide_branch_rate: false
@@ -91,7 +116,7 @@ jobs:
         with:
           name: coverage-markdown
           path: ${{ github.workspace }}/code-coverage-results.md
-          retention-days: 5
+          retention-days: 7
 
       - name: Add coverage PR comment
         uses: marocchino/sticky-pull-request-comment@v2
@@ -99,3 +124,7 @@ jobs:
         with:
           recreate: true
           path: code-coverage-results.md
+
+
+
+
