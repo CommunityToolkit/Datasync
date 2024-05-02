@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Contract;
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Query;
 using CommunityToolkit.Datasync.Common;
@@ -35,7 +36,9 @@ public class RemoteDataset<T> : IRemoteDataset<T>
         Ensure.That(options, nameof(options)).IsNotNull();
 
         Endpoint = endpoint;
-        JsonSerializerOptions = options.JsonSerializerOptions;
+        EntityContractService = new EntityContractService<T>(options.JsonSerializerOptions);
+        EntityContractService.ValidateEntityType();
+
         if (options.HttpClient is not null)
         {
             HttpClient = options.HttpClient;
@@ -62,12 +65,12 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// </summary>
     /// <param name="endpoint">The datasync service endpoint for the table.</param>
     /// <param name="client">The <see cref="HttpClient"/> to use.</param>
-    /// <param name="serializerOptions">The <see cref="JsonSerializerOptions"/> to use in communicating with the remote dataset.</param>
-    private RemoteDataset(Uri endpoint, HttpClient client, JsonSerializerOptions serializerOptions)
+    /// <param name="entityContractService">The <see cref="EntityContractService"/> to use in working with the service entities.</param>
+    private RemoteDataset(Uri endpoint, HttpClient client, EntityContractService entityContractService)
     {
         Endpoint = endpoint;
         HttpClient = client;
-        JsonSerializerOptions = serializerOptions;
+        EntityContractService = new EntityContractService<T>(entityContractService.JsonSerializerOptions);
     }
 
     /// <summary>
@@ -81,9 +84,9 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     internal HttpClient HttpClient { get; }
 
     /// <summary>
-    /// The JSON serializer options to use in communicating with the remote dataset.
+    /// The EntityContractService is used for handling entity-specific serialization and deserialization jobs.
     /// </summary>
-    internal JsonSerializerOptions JsonSerializerOptions { get; }
+    internal EntityContractService<T> EntityContractService { get; }
 
     #region IReadonlyRemoteDataset<T> implementation
     /// <summary>
@@ -93,7 +96,7 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// <typeparam name="U">The new entity type, which should be a subset of the current entity type.</typeparam>
     /// <returns>A <see cref="IReadonlyRemoteDataset{T}"/> to access the new entity type.</returns>
     public IReadonlyRemoteDataset<U> AsDataset<U>()
-        => new RemoteDataset<U>(Endpoint, HttpClient, JsonSerializerOptions);
+        => new RemoteDataset<U>(Endpoint, HttpClient, EntityContractService);
 
     /// <summary>
     /// Creates a new <see cref="IODataQuery{T}"/> object for the current dataset.
@@ -147,8 +150,11 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns the added entity (with all metadata set) when complete.</returns>
     /// <exception cref="RemoteDatasetException">Thrown if the remote service returns an error.</exception>
-    public ValueTask<T> AddAsync(T entity, CancellationToken cancellationToken = default)
+    public async ValueTask<T> AddAsync(T entity, CancellationToken cancellationToken = default)
     {
+        Ensure.That(entity, nameof(entity)).IsNotNull();
+        EntityContractService.ValidateEntity(entity, allowNullIdentity: true);
+
         throw new NotImplementedException();
     }
 

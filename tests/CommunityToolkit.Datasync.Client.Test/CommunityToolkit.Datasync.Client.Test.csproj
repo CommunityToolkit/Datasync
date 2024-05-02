@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\Shared.Build.props" />
+  <ItemGroup>
+    <Compile Remove="Table\**" />
+    <EmbeddedResource Remove="Table\**" />
+    <None Remove="Table\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj" />
     <ProjectReference Include="..\CommunityToolkit.Datasync.Common.Test\CommunityToolkit.Datasync.Common.Test.csproj" />
     <ProjectReference Include="..\CommunityToolkit.Datasync.TestService\CommunityToolkit.Datasync.TestService.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Table\" />
   </ItemGroup>
 </Project>
