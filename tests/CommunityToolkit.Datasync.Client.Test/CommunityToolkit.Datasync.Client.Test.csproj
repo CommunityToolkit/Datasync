@@ -1,10 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\Shared.Build.props" />
-  <ItemGroup>
-    <Compile Remove="Table\**" />
-    <EmbeddedResource Remove="Table\**" />
-    <None Remove="Table\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj" />

@@ -2,9 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Diagnostics.CodeAnalysis;
+using CommunityToolkit.Datasync.Server.Abstractions.Guards;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace CommunityToolkit.Datasync.Client.Contract;
 
@@ -13,10 +12,8 @@ namespace CommunityToolkit.Datasync.Client.Contract;
 /// entities for use with the datasync service.
 /// </summary>
 /// <param name="serializerOptions">The <see cref="JsonSerializerOptions"/> to use for serialization and deserialization.</param>
-internal partial class EntityContractService(JsonSerializerOptions serializerOptions)
+internal class EntityContractService(JsonSerializerOptions serializerOptions)
 {
-    private static readonly Regex validIdRegex = new("^[a-zA-Z0-9][a-zA-Z0-9_.|:-]{0,126}$");
-
     /// <summary>
     /// The <see cref="JsonSerializerOptions"/> to use for serialization and deserialization of entities.
     /// </summary>
@@ -59,7 +56,7 @@ internal partial class EntityContractService(JsonSerializerOptions serializerOpt
             }
         }
 
-        if (!validIdRegex.IsMatch(idProperty))
+        if (!RegexpConstants.EntityIdentity.IsMatch(idProperty))
         {
             throw new InvalidEntityException($"Entity has an invalid '{SystemProperties.IdPropertyName}' property", entityType.Name);
         }

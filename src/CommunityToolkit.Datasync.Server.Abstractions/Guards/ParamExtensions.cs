@@ -12,8 +12,6 @@ namespace CommunityToolkit.Datasync.Common;
 /// </summary>
 public static partial class ParamExtensions
 {
-    private static readonly Regex httpHeaderName = HttpHeaderNameRegex();
-
     /// <summary>
     /// Checks to see if a list has a specific number of elements.
     /// </summary>
@@ -66,6 +64,24 @@ public static partial class ParamExtensions
         {
             because ??= $"The parameter '{param.Name}' must be an absolute URI";
             throw new UriFormatException(because);
+        }
+
+        return param;
+    }
+
+    /// <summary>
+    /// Guards against a string not being a valid Id.
+    /// </summary>
+    /// <param name="param">The parameter to check.</param>
+    /// <param name="because">A reason to use instead of the default reason.</param>
+    /// <returns>The parameter (for chaining)</returns>
+    /// <exception cref="ArgumentException">Thrown if the ID is not valid.</exception>
+    public static Param<string> IsAValidId(this Param<string> param, string? because = null)
+    {
+        if (!RegexpConstants.EntityIdentity.IsMatch(param.Value))
+        {
+            because ??= $"The parameter '{param.Name}' must be a valid Id";
+            throw new ArgumentException(because, param.Name);
         }
 
         return param;
@@ -145,7 +161,7 @@ public static partial class ParamExtensions
     /// <param name="because">A reason used in generating exceptions.</param>
     /// <returns>The parameter (for chaining).</returns>
     public static Param<string> IsHttpHeaderName(this Param<string> param, string? because = null)
-        => param.IsNotNull().And.Matches(httpHeaderName, because ?? "The parameter must be a valid HTTP header name");
+        => param.IsNotNull().And.Matches(RegexpConstants.HttpHeaderName, because ?? "The parameter must be a valid HTTP header name");
 
     /// <summary>
     /// Checks that an integer parameter is within a specified range.
@@ -250,7 +266,4 @@ public static partial class ParamExtensions
 
         return param;
     }
-
-    [GeneratedRegex("^[a-zA-Z][a-zA-Z0-9-_]*$")]
-    private static partial Regex HttpHeaderNameRegex();
 }
