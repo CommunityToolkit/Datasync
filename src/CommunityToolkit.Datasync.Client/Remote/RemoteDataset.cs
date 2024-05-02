@@ -7,6 +7,7 @@ using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Query;
 using CommunityToolkit.Datasync.Common;
 using System.Linq.Expressions;
+using System.Net;
 using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client;
@@ -35,7 +36,7 @@ public class RemoteDataset<T> : IRemoteDataset<T>
         Ensure.That(endpoint, nameof(endpoint)).IsDatasyncEndpoint();
         Ensure.That(options, nameof(options)).IsNotNull();
 
-        Endpoint = endpoint;
+        Endpoint = NormalizeEndpoint(endpoint);
         EntityContractService = new EntityContractService<T>(options.JsonSerializerOptions);
         EntityContractService.ValidateEntityType();
 
@@ -68,7 +69,7 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// <param name="entityContractService">The <see cref="EntityContractService"/> to use in working with the service entities.</param>
     private RemoteDataset(Uri endpoint, HttpClient client, EntityContractService entityContractService)
     {
-        Endpoint = endpoint;
+        Endpoint = NormalizeEndpoint(endpoint);
         HttpClient = client;
         EntityContractService = new EntityContractService<T>(entityContractService.JsonSerializerOptions);
     }
@@ -87,6 +88,62 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// The EntityContractService is used for handling entity-specific serialization and deserialization jobs.
     /// </summary>
     internal EntityContractService<T> EntityContractService { get; }
+
+    /// <summary>
+    /// Generates an appropriate exception for a remote service error response.
+    /// </summary>
+    /// <param name="response">The error response.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>An exception matching the error response.</returns>
+    internal async ValueTask<RemoteDatasetException> GenerateExceptionForErrorResponseAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    {
+        Ensure.That(response, nameof(response)).IsNotNull();
+
+        // This switch statement handles all the expected and known error codes.
+        switch (response.StatusCode)
+        {
+            case HttpStatusCode.PreconditionFailed:
+            case HttpStatusCode.Conflict:
+                T entity = await ReadEntityFromResponseAsync(response, cancellationToken).ConfigureAwait(false);
+                return new ConflictException<T>(response.ReasonPhrase, entity);
+            default:
+                return new RemoteDatasetException(response.ReasonPhrase) { StatusCode = response.StatusCode };
+        }
+    }
+
+    /// <summary>
+    /// Reads and deserializes the entity from the provided response.
+    /// </summary>
+    /// <param name="response">The response that is being read.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The deserialized entity.</returns>
+    /// <exception cref="RemoteDatasetException">If any errors occur.</exception>
+    internal async ValueTask<T> ReadEntityFromResponseAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    {
+        Ensure.That(response, nameof(response)).IsNotNull();
+        try
+        {
+            string entityJson = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            return EntityContractService.DeserializeEntity(entityJson);
+        }
+        catch (JsonException ex)
+        {
+            throw new RemoteDatasetException("Entity cannot be deserialized from response", ex);
+        }
+    }
+
+    /// <summary>
+    /// Normalizes the endpoint for the dataset.  It must have a trailing slash on it.
+    /// </summary>
+    /// <param name="endpoint">The endpoint to normalize.</param>
+    /// <returns>The normalized endpoint/</returns>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Lessor of two linter warnings")]
+    internal Uri NormalizeEndpoint(Uri endpoint)
+    {
+        UriBuilder builder = new(endpoint) { Query = string.Empty, Fragment = string.Empty };
+        builder.Path = builder.Path.TrimEnd('/') + "/";
+        return builder.Uri;
+    }
 
     #region IReadonlyRemoteDataset<T> implementation
     /// <summary>
@@ -112,9 +169,20 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns the entity requested when complete.</returns>
     /// <exception cref="RemoteDatasetException">Thrown if the remote service returns an error.</exception>
-    public ValueTask<T> FindAsync(string id, CancellationToken cancellationToken = default)
+    public async ValueTask<T> FindAsync(string id, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        Ensure.That(id, nameof(id)).IsNotNull().And.IsAValidId();
+
+        HttpRequestMessage request = new(HttpMethod.Get, new Uri(Endpoint, id));
+        HttpResponseMessage response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        if (response.IsSuccessStatusCode)
+        {
+            return await ReadEntityFromResponseAsync(response, cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            throw await GenerateExceptionForErrorResponseAsync(response, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     /// <summary>
