@@ -14,6 +14,42 @@ public class EntityContractService_Tests
     // Just the regular JsonSerializerOptions that the service uses.
     private readonly JsonSerializerOptions options = new DatasyncServiceOptions().JsonSerializerOptions;
 
+    [Fact]
+    public void GetId_Throws_NoId()
+    {
+        EntityContractService<T_NoId> sut = new(this.options);
+        T_NoId obj = new();
+        Action act = () => sut.GetId(obj);
+        act.Should().Throw<InvalidEntityException>();
+    }
+
+    [Fact]
+    public void GetId_ReturnsId()
+    {
+        EntityContractService<T_Valid> sut = new(this.options);
+        T_Valid obj = new() { Id = "123" };
+        string actual = sut.GetId(obj);
+        actual.Should().Be("123");
+    }
+
+    [Fact]
+    public void GetOptimisticConcurrencyToken_Throws_NoVersion()
+    {
+        EntityContractService<T_NoVersion> sut = new(this.options);
+        T_NoVersion obj = new();
+        Action act = () => sut.GetOptimisticConcurrencyToken(obj);
+        act.Should().Throw<InvalidEntityException>();
+    }
+
+    [Fact]
+    public void GetOptimisticConcurrencyToken_ReturnsValue()
+    {
+        EntityContractService<T_Valid> sut = new(this.options);
+        T_Valid obj = new() { Version = Guid.NewGuid().ToString("N") };
+        string actual = sut.GetOptimisticConcurrencyToken(obj);
+        actual.Should().Be(obj.Version);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

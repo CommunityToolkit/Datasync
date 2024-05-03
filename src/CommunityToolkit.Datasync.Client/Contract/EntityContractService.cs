@@ -20,6 +20,44 @@ internal class EntityContractService(JsonSerializerOptions serializerOptions)
     internal JsonSerializerOptions JsonSerializerOptions { get; } = serializerOptions;
 
     /// <summary>
+    /// Retrieves the Id property value from an entity.
+    /// </summary>
+    /// <param name="entityType">The type of the entity.</param>
+    /// <param name="entity">The value of the entity.</param>
+    /// <returns>The entity Id value.</returns>
+    /// <exception cref="InvalidEntityException">Thrown if the entity does not have an Id property.</exception>
+    internal static string GetId(Type entityType, object entity)
+    {
+        _ = EntityTypeCache.TryGetSystemProperties(entityType, out SystemProperties properties);
+
+        if (!properties.HasIdProperty)
+        {
+            throw new InvalidEntityException($"Entity type does not have a valid '{SystemProperties.IdPropertyName}' property", entityType.Name);
+        }
+
+        return properties.GetIdProperty(entity);
+    }
+
+    /// <summary>
+    /// Retrieves the OptimisticConcurrency token property value from an entity.
+    /// </summary>
+    /// <param name="entityType">The type of the entity.</param>
+    /// <param name="entity">The value of the entity.</param>
+    /// <returns>The entity Optimistic Concurrency Token value.</returns>
+    /// <exception cref="InvalidEntityException">Thrown if the entity does not have an Optimistic Concurrency Token property.</exception>
+    internal static string GetOptimisticConcurrencyToken(Type entityType, object entity)
+    {
+        _ = EntityTypeCache.TryGetSystemProperties(entityType, out SystemProperties properties);
+
+        if (!properties.HasOptimisticConcurrencyProperty)
+        {
+            throw new InvalidEntityException($"Entity type does not have a valid '{SystemProperties.OptimisticConcurrencyPropertyName}' property", entityType.Name);
+        }
+
+        return properties.GetOptimisticConcurrencyProperty(entity);
+    }
+
+    /// <summary>
     /// Serializes an entity into a JSON string.
     /// </summary>
     /// <param name="entity">The entity to be serialized.</param>
@@ -102,6 +140,31 @@ internal class EntityContractService(JsonSerializerOptions serializerOptions)
 internal class EntityContractService<T>(JsonSerializerOptions serializerOptions) : EntityContractService(serializerOptions)
 {
     /// <summary>
+    /// Deserializes an entity from a JSON string.
+    /// </summary>
+    /// <param name="json">The JSON string to deserialize.</param>
+    /// <returns>The deserialized object.</returns>
+    /// <exception cref="JsonException">Thrown if the entity cannot be deserialized.</exception>"
+    internal T DeserializeEntity(string json)
+        => JsonSerializer.Deserialize<T>(json, JsonSerializerOptions);
+
+    /// <summary>
+    /// Retrieves the Id property value from an entity.
+    /// </summary>
+    /// <param name="entity">The value of the entity.</param>
+    /// <returns>The entity Id value.</returns>
+    /// <exception cref="InvalidEntityException">Thrown if the entity does not have an Id property.</exception>
+    internal string GetId(T entity) => GetId(typeof(T), entity);
+
+    /// <summary>
+    /// Retrieves the Id property value from an entity.
+    /// </summary>
+    /// <param name="entity">The value of the entity.</param>
+    /// <returns>The entity Id value.</returns>
+    /// <exception cref="InvalidEntityException">Thrown if the entity does not have an Id property.</exception>
+    internal string GetOptimisticConcurrencyToken(T entity) => GetOptimisticConcurrencyToken(typeof(T), entity);
+
+    /// <summary>
     /// Validates that the entity provided is suitable for submitting to a datasync service.
     /// </summary>
     /// <param name="entity">The value of the entity.</param>
@@ -115,13 +178,4 @@ internal class EntityContractService<T>(JsonSerializerOptions serializerOptions)
     /// <param name="offlineEnabled">If set to <c>true</c>, ensures that the incremental sync and optimistic concurrency properties are available.</param>
     /// <exception cref="InvalidEntityException">Thrown if the entity type is invalid for datasync services.</exception>
     internal void ValidateEntityType(bool offlineEnabled = false) => ValidateEntityType(typeof(T), offlineEnabled);
-
-    /// <summary>
-    /// Deserializes an entity from a JSON string.
-    /// </summary>
-    /// <param name="json">The JSON string to deserialize.</param>
-    /// <returns>The deserialized object.</returns>
-    /// <exception cref="JsonException">Thrown if the entity cannot be deserialized.</exception>"
-    internal T DeserializeEntity(string json)
-        => JsonSerializer.Deserialize<T>(json, JsonSerializerOptions);
 }
