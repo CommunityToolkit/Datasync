@@ -6,8 +6,10 @@ using CommunityToolkit.Datasync.Client.Contract;
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Query;
 using CommunityToolkit.Datasync.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client;
@@ -18,6 +20,8 @@ namespace CommunityToolkit.Datasync.Client;
 /// <typeparam name="T">The type of entity stored in the remote dataset.</typeparam>
 public class RemoteDataset<T> : IRemoteDataset<T>
 {
+    private const string JsonMediaType = "application/json";
+
     /// <summary>
     /// Creates a new <see cref="RemoteDataset{T}"/> using the standard options.
     /// </summary>
@@ -90,6 +94,22 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     internal EntityContractService<T> EntityContractService { get; }
 
     /// <summary>
+    /// Adds a conditional header based on the version string.
+    /// </summary>
+    /// <param name="force">If true, the header is not added.</param>
+    /// <param name="request">The request to add the header to.</param>
+    /// <param name="headerName">The name of the header.</param>
+    /// <param name="version">The version string.</param>
+    [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Cannot add non-generic static mether to generic static class.")]
+    internal void AddConditionalHeader(bool force, HttpRequestMessage request, string headerName, string version)
+    {
+        if (!force && !string.IsNullOrWhiteSpace(version))
+        {
+            request.Headers.Add(headerName, $"\"{version}\"");
+        }
+    }
+
+    /// <summary>
     /// Generates an appropriate exception for a remote service error response.
     /// </summary>
     /// <param name="response">The error response.</param>
@@ -105,7 +125,7 @@ public class RemoteDataset<T> : IRemoteDataset<T>
             case HttpStatusCode.PreconditionFailed:
             case HttpStatusCode.Conflict:
                 T entity = await ReadEntityFromResponseAsync(response, cancellationToken).ConfigureAwait(false);
-                return new ConflictException<T>(response.ReasonPhrase, entity);
+                return new ConflictException<T>(response.ReasonPhrase, entity) { StatusCode = response.StatusCode };
             default:
                 return new RemoteDatasetException(response.ReasonPhrase) { StatusCode = response.StatusCode };
         }
@@ -223,7 +243,19 @@ public class RemoteDataset<T> : IRemoteDataset<T>
         Ensure.That(entity, nameof(entity)).IsNotNull();
         EntityContractService.ValidateEntity(entity, allowNullIdentity: true);
 
-        throw new NotImplementedException();
+        HttpRequestMessage request = new(HttpMethod.Post, Endpoint)
+        {
+            Content = new StringContent(EntityContractService.SerializeEntity(entity), Encoding.UTF8, JsonMediaType)
+        };
+        HttpResponseMessage response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        if (response.IsSuccessStatusCode)
+        {
+            return await ReadEntityFromResponseAsync(response, cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            throw await GenerateExceptionForErrorResponseAsync(response, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     /// <summary>
@@ -234,9 +266,7 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// <returns>A task that completes when the operation is finished.</returns>
     /// <exception cref="RemoteDatasetException">Thrown if the remote service returns an error.</exception>
     public ValueTask RemoveAsync(string id, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+        => RemoveAsync(id, "", cancellationToken);
 
     /// <summary>
     /// Removes an entity from the remote dataset if it matches the provided version.
@@ -246,9 +276,18 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that completes when the operation is finished.</returns>
     /// <exception cref="RemoteDatasetException">Thrown if the remote service returns an error.</exception>
-    public ValueTask RemoveAsync(string id, string version, CancellationToken cancellationToken = default)
+    public async ValueTask RemoveAsync(string id, string version, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        Ensure.That(id, nameof(id)).IsNotNull().And.IsAValidId();
+
+        HttpRequestMessage request = new(HttpMethod.Delete, new Uri(Endpoint, id));
+        AddConditionalHeader(false, request, "If-Match", version);
+
+        HttpResponseMessage response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw await GenerateExceptionForErrorResponseAsync(response, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     /// <summary>
@@ -261,9 +300,7 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns the replaced entity (with all metadata set) when complete.</returns>
     public ValueTask<T> ReplaceAsync(T entity, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+        => ReplaceAsync(entity, false, cancellationToken);
 
     /// <summary>
     /// Replaces an entity with new data if the version in the replacement data matches the version on the service.
@@ -275,9 +312,26 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// <param name="force">If true, the version is not considered in replacing the service side.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns the replaced entity (with all metadata set) when complete.</returns>
-    public ValueTask<T> ReplaceAsync(T entity, bool force, CancellationToken cancellationToken = default)
+    public async ValueTask<T> ReplaceAsync(T entity, bool force, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        Ensure.That(entity, nameof(entity)).IsNotNull();
+        EntityContractService.ValidateEntity(entity, allowNullIdentity: false);
+
+        HttpRequestMessage request = new(HttpMethod.Put, new Uri(Endpoint, EntityContractService.GetId(entity)))
+        {
+            Content = new StringContent(EntityContractService.SerializeEntity(entity), Encoding.UTF8, JsonMediaType)
+        };
+        AddConditionalHeader(force, request, "If-Match", EntityContractService.GetOptimisticConcurrencyToken(entity));
+
+        HttpResponseMessage response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        if (response.IsSuccessStatusCode)
+        {
+            return await ReadEntityFromResponseAsync(response, cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            throw await GenerateExceptionForErrorResponseAsync(response, cancellationToken).ConfigureAwait(false);
+        }
     }
     #endregion
 
