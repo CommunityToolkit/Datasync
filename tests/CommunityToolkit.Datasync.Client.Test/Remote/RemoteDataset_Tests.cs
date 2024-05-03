@@ -390,6 +390,86 @@ public class RemoteDataset_Tests(ServiceApplicationFactory factory) : ServiceTes
     }
     #endregion
 
+    #region LongCountAsync
+    [Theory]
+    [InlineData(HttpStatusCode.BadRequest)]
+    [InlineData(HttpStatusCode.Unauthorized)]
+    [InlineData(HttpStatusCode.Forbidden)]
+    [InlineData(HttpStatusCode.NotFound)]
+    [InlineData(HttpStatusCode.Gone)]
+    [InlineData(HttpStatusCode.InternalServerError)]
+    public async Task LongCountAsync_BasicErrorResponse_Throws(HttpStatusCode statusCode)
+    {
+        this.mockHandler.Responses.Add(new HttpResponseMessage(statusCode));
+        RemoteDatasetOptions mockOptions = new() { HttpPipeline = [this.mockHandler], HttpRequestHeaders = new Dictionary<string, string>() { { "X-Test", "value" } } };
+        RemoteDataset<T_IdOnly> sut = new(new Uri("http://localhost/tables/endpoint"), mockOptions);
+        Func<Task> act = async () => await sut.LongCountAsync();
+        (await act.Should().ThrowAsync<RemoteDatasetException>()).Where(e => e.StatusCode == statusCode);
+    }
+
+    [Fact]
+    public async Task LongCountAsync_ReturnsValue()
+    {
+        this.mockHandler.Responses.Add(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"items\":[],\"count\":42}", this.jsonMediaTypeHeaderValue) });
+        RemoteDatasetOptions mockOptions = new() { HttpPipeline = [this.mockHandler], HttpRequestHeaders = new Dictionary<string, string>() { { "X-Test", "value" } } };
+        RemoteDataset<T_IdOnly> sut = new(new Uri("http://localhost/tables/endpoint"), mockOptions);
+
+        long result = await sut.LongCountAsync();
+        result.Should().Be(42L);
+
+        // Check that the request was constructed correctly
+        HttpRequestMessage request = this.mockHandler.Requests.Single();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.Should().Be(new Uri("http://localhost/tables/endpoint/?$count=true&$top=0"));
+        request.Should().HaveHeader("X-Test", "value");
+    }
+
+    [Fact]
+    public async Task LongCountAsync_NoCount_Throws()
+    {
+        this.mockHandler.Responses.Add(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"items\":[]}", this.jsonMediaTypeHeaderValue) });
+        RemoteDatasetOptions mockOptions = new() { HttpPipeline = [this.mockHandler], HttpRequestHeaders = new Dictionary<string, string>() { { "X-Test", "value" } } };
+        RemoteDataset<T_IdOnly> sut = new(new Uri("http://localhost/tables/endpoint"), mockOptions);
+
+        Func<Task> act = async () => _ = await sut.LongCountAsync();
+        await act.Should().ThrowAsync<RemoteDatasetException>();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("$top=20")]
+    [InlineData("$skip=20")]
+    [InlineData("$count=true")]
+    public async Task LongCountAsync_WithQuery_ReturnsValue(string query)
+    {
+        this.mockHandler.Responses.Add(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{\"items\":[],\"count\":42}", this.jsonMediaTypeHeaderValue) });
+        RemoteDatasetOptions mockOptions = new() { HttpPipeline = [this.mockHandler], HttpRequestHeaders = new Dictionary<string, string>() { { "X-Test", "value" } } };
+        RemoteDataset<T_IdOnly> sut = new(new Uri("http://localhost/tables/endpoint"), mockOptions);
+
+        long result = await sut.LongCountAsync(query);
+        result.Should().Be(42L);
+
+        // Check that the request was constructed correctly
+        HttpRequestMessage request = this.mockHandler.Requests.Single();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.Should().Be(new Uri("http://localhost/tables/endpoint/?$count=true&$top=0"));
+        request.Should().HaveHeader("X-Test", "value");
+    }
+
+    [Theory]
+    [InlineData("", 248)]
+    [InlineData("$filter=((year gt 2000) or (year lt 1940))", 78)]
+    public async Task Service_LongCountAsync_ReturnsValue(string query, long expected)
+    {
+        RemoteDatasetOptions options = new() { HttpClient = this.client };
+        RemoteDataset<ClientMovie> dataset = new(new Uri(this.factory.MovieEndpoint), options);
+
+        long actual = await dataset.LongCountAsync(query);
+        actual.Should().Be(expected);
+    }
+    #endregion
+
     #region RemoveAsync
     [Fact]
     public async Task RemoveAsync_NullId_Throws()

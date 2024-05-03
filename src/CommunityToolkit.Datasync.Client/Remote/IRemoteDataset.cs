@@ -38,7 +38,7 @@ public interface IReadonlyRemoteDataset<T> : IODataLinqMethods<T>
     /// <summary>
     /// Counts the number of entities that would be returned by the query.
     /// </summary>
-    /// <param name="odataQueryString">The OData querry string to send to the service.</param>
+    /// <param name="odataQueryString">The OData query string to send to the service.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns the number of entities matching the query when complete.</returns>
     /// <exception cref="RemoteDatasetException">Thrown if the remote service returns an error.</exception>
@@ -48,10 +48,9 @@ public interface IReadonlyRemoteDataset<T> : IODataLinqMethods<T>
     /// Executes the query on the remote service, allowing the enumeration of the results asynchronously.
     /// </summary>
     /// <param name="odataQueryString">The OData query string to send to the service.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>An <see cref="IAsyncEnumerable{T}"/> for iterating through the entities.</returns>
     /// <exception cref="RemoteDatasetException">Thrown if the remote service returns an error.</exception>
-    IAsyncEnumerable<T> Query(string odataQueryString, CancellationToken cancellationToken = default);
+    IAsyncEnumerable<T> Query(string odataQueryString);
 }
 
 /// <summary>

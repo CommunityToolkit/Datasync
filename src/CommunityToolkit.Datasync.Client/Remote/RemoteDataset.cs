@@ -5,6 +5,7 @@
 using CommunityToolkit.Datasync.Client.Contract;
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Query;
+using CommunityToolkit.Datasync.Client.Remote;
 using CommunityToolkit.Datasync.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
@@ -153,6 +154,27 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     }
 
     /// <summary>
+    /// Reads and deserializes a page of entities from the provided response.
+    /// </summary>
+    /// <param name="response">The response that is being read.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The deserialized page of entities.</returns>
+    /// <exception cref="RemoteDatasetException">If any errors occur.</exception>
+    internal async ValueTask<Page<T>> ReadPageOfEntitiesFromResponseAsync(HttpResponseMessage response, CancellationToken cancellationToken = default)
+    {
+        Ensure.That(response, nameof(response)).IsNotNull();
+        try
+        {
+            string entityJson = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            return EntityContractService.DeserializePageOfEntities(entityJson);
+        }
+        catch (JsonException ex)
+        {
+            throw new RemoteDatasetException("Entity cannot be deserialized from response", ex);
+        }
+    }
+
+    /// <summary>
     /// Normalizes the endpoint for the dataset.  It must have a trailing slash on it.
     /// </summary>
     /// <param name="endpoint">The endpoint to normalize.</param>
@@ -212,21 +234,69 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns the number of entities matching the query when complete.</returns>
     /// <exception cref="RemoteDatasetException">Thrown if the remote service returns an error.</exception>
-    public ValueTask<long> LongCountAsync(string odataQueryString, CancellationToken cancellationToken = default)
+    public async ValueTask<long> LongCountAsync(string odataQueryString, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        odataQueryString ??= string.Empty;
+
+        // Parse the OData query string into sections
+        List<string> queryParts = odataQueryString.Split('&', StringSplitOptions.RemoveEmptyEntries)
+            .Where(x => !x.StartsWith("$count=") && !x.StartsWith("$top=") && !x.StartsWith("$skip="))
+            .ToList();
+        queryParts.AddRange(["$count=true", "$top=0"]);
+
+        UriBuilder uriBuilder = new(Endpoint) { Query = $"?{string.Join('&', queryParts)}" };
+        HttpRequestMessage request = new(HttpMethod.Get, uriBuilder.Uri);
+        HttpResponseMessage response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        if (response.IsSuccessStatusCode)
+        {
+            Page<T> pageOfItems = await ReadPageOfEntitiesFromResponseAsync(response, cancellationToken).ConfigureAwait(false);
+            return pageOfItems.Count ?? throw new RemoteDatasetException("Invalid response for count operation from server: No Count field in JSON response");
+        }
+        else
+        {
+            throw await GenerateExceptionForErrorResponseAsync(response, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     /// <summary>
     /// Executes the query on the remote service, allowing the enumeration of the results asynchronously.
     /// </summary>
     /// <param name="odataQueryString">The OData query string to send to the service.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>An <see cref="IAsyncEnumerable{T}"/> for iterating through the entities.</returns>
     /// <exception cref="RemoteDatasetException">Thrown if the remote service returns an error.</exception>
-    public IAsyncEnumerable<T> Query(string odataQueryString, CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<T> Query(string odataQueryString)
+        => new FuncAsyncPageable<T>(nextLink => GetNextPageAsync(odataQueryString, nextLink));
+
+    /// <summary>
+    /// Gets a single page of items produced as a result of a query against the server.
+    /// </summary>
+    /// <param name="odataQueryString">The query string to send with the first request to the service.</param>
+    /// <param name="nextLink">The link to the next page of items (for subsequent requests).</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>A task that returns a page of items when complete.</returns>
+    internal async ValueTask<Page<T>> GetNextPageAsync(string odataQueryString = "", string nextLink = null, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        odataQueryString = string.IsNullOrEmpty(odataQueryString) ? "" : $"?{odataQueryString.TrimStart('?').TrimEnd()}";
+        Uri requestUri;
+        if (nextLink is not null)
+        {
+            requestUri = nextLink.StartsWith("http") ? new(nextLink) : new(Endpoint, new Uri(nextLink, UriKind.Relative));
+        }
+        else
+        {
+            requestUri = (new UriBuilder(Endpoint) { Query = odataQueryString }).Uri;
+        }
+
+        HttpRequestMessage request = new(HttpMethod.Get, requestUri);
+        HttpResponseMessage response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        if (response.IsSuccessStatusCode)
+        {
+            return await ReadPageOfEntitiesFromResponseAsync(response, cancellationToken).ConfigureAwait(false);
+        }
+        else
+        {
+            throw await GenerateExceptionForErrorResponseAsync(response, cancellationToken).ConfigureAwait(false);
+        }
     }
     #endregion
 
@@ -431,5 +501,20 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// <returns>The composed query object.</returns>
     public IODataQuery<T> WithParameter(string key, string value)
         => AsQueryable().WithParameter(key, value);
+
+    /// <summary>
+    /// Count the number of entities that would be returned by the query.
+    /// </summary>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The number of entities that would be returned by the query.</returns>
+    public ValueTask<long> LongCountAsync(CancellationToken cancellationToken = default)
+        => LongCountAsync("", cancellationToken);
+
+    /// <summary>
+    /// Executes the query on the remote service, allowing the enumeration of the results asynchronously.
+    /// </summary>
+    /// <returns>An <see cref="IAsyncEnumerable{T}"/> for enumerating the entities asynchronously.</returns>
+    public IAsyncEnumerable<T> ToAsyncEnumerable()
+        => Query("");
     #endregion
 }

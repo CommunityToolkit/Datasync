@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Remote;
 using CommunityToolkit.Datasync.Server.Abstractions.Guards;
 using System.Text.Json;
 
@@ -144,9 +145,18 @@ internal class EntityContractService<T>(JsonSerializerOptions serializerOptions)
     /// </summary>
     /// <param name="json">The JSON string to deserialize.</param>
     /// <returns>The deserialized object.</returns>
-    /// <exception cref="JsonException">Thrown if the entity cannot be deserialized.</exception>"
+    /// <exception cref="JsonException">Thrown if the entity cannot be deserialized.</exception>
     internal T DeserializeEntity(string json)
         => JsonSerializer.Deserialize<T>(json, JsonSerializerOptions);
+
+    /// <summary>
+    /// Deserializes a page of entities from a JSON string.
+    /// </summary>
+    /// <param name="json">The JSON string to deserialize.</param>
+    /// <returns>The deserialized object.</returns>
+    /// <exception cref="JsonException">Thrown if the entity cannot be deserialized.</exception>
+    internal Page<T> DeserializePageOfEntities(string json)
+        => JsonSerializer.Deserialize<Page<T>>(json, JsonSerializerOptions);
 
     /// <summary>
     /// Retrieves the Id property value from an entity.

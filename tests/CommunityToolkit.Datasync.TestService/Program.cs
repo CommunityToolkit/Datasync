@@ -2,12 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common.Test.Models;
 using CommunityToolkit.Datasync.Common.Test;
-using CommunityToolkit.Datasync.Server.InMemory;
+using CommunityToolkit.Datasync.Common.Test.Models;
 using CommunityToolkit.Datasync.Server;
+using CommunityToolkit.Datasync.Server.InMemory;
 using Microsoft.OData.ModelBuilder;
-using System.Diagnostics.CodeAnalysis;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
