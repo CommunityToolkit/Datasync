@@ -197,5 +197,20 @@ internal class ODataQuery<T> : IODataQuery<T>
         QueryParameters[key.ToLowerInvariant()] = value.Trim();
         return this;
     }
+
+    /// <summary>
+    /// Count the number of entities that would be returned by the query.
+    /// </summary>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The number of entities that would be returned by the query.</returns>
+    public ValueTask<long> LongCountAsync(CancellationToken cancellationToken = default)
+        => Dataset.LongCountAsync(ToODataString(), cancellationToken);
+
+    /// <summary>
+    /// Executes the query on the remote service, allowing the enumeration of the results asynchronously.
+    /// </summary>
+    /// <returns>An <see cref="IAsyncEnumerable{T}"/> for enumerating the entities asynchronously.</returns>
+    public IAsyncEnumerable<T> ToAsyncEnumerable()
+        => Dataset.Query(ToODataString());
     #endregion
 }
