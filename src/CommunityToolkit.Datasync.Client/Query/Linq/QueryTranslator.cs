@@ -172,6 +172,7 @@ internal class QueryTranslator<T>
     /// </summary>
     /// <param name="expression">The expression to check.</param>
     /// <returns>An unquoted expression</returns>
+    [ExcludeFromCodeCoverage(Justification = "Not used in tests")]
     [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Method is in a generic class without type markings.")]
     internal Expression StripQuote(Expression expression)
         => expression.NodeType == ExpressionType.Quote ? ((UnaryExpression)expression).Operand : expression;
@@ -329,6 +330,7 @@ internal class QueryTranslator<T>
     /// </summary>
     /// <param name="expression">The method call expression.</param>
     /// <returns>The count argument</returns>
+    [ExcludeFromCodeCoverage(Justification = "Not used in tests")]
     [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Static in a generic class needs generic marker, which this doesn't have.")]
     internal int GetCountArgument(MethodCallExpression expression)
     {
@@ -342,6 +344,6 @@ internal class QueryTranslator<T>
             }
         }
 
-        throw new NotSupportedException($"'{expression?.Method?.Name}' query expressions must consist of a single integer, not '{deepest?.ToString()}'.");
+        throw new NotSupportedException($"'{expression?.Method.Name}' query expressions must consist of a single integer, not '{deepest?.ToString()}'.");
     }
 }

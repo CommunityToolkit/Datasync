@@ -5,27 +5,23 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
+
 namespace CommunityToolkit.Datasync.Server.Abstractions.Guards;
 
 /// <summary>
 /// A set of regular expressions to use for validations.
 /// </summary>
 [ExcludeFromCodeCoverage]
-public static partial class RegexpConstants
+public static class RegexpConstants
 {
     /// <summary>
     /// The regular expression for a HTTP Header
     /// </summary>
-    public static readonly Regex HttpHeaderName = HttpHeaderNameRegex();
+    public static readonly Regex HttpHeaderName = new("^[a-zA-Z][a-zA-Z0-9-_]*$", RegexOptions.Compiled);
 
     /// <summary>
     /// The regular expression for an entity identity property.
     /// </summary>
-    public static readonly Regex EntityIdentity = IdPropertyRegex();
-
-    [GeneratedRegex("^[a-zA-Z][a-zA-Z0-9-_]*$")]
-    private static partial Regex HttpHeaderNameRegex();
-
-    [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9_.|:-]{0,126}$")]
-    private static partial Regex IdPropertyRegex();
+    public static readonly Regex EntityIdentity = new("^[a-zA-Z0-9][a-zA-Z0-9_.|:-]{0,126}$", RegexOptions.Compiled);
 }

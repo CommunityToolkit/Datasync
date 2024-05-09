@@ -4,8 +4,10 @@
 
 using CommunityToolkit.Datasync.Client.Query;
 using CommunityToolkit.Datasync.Common.Test.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 
 namespace CommunityToolkit.Datasync.Client.Test.Query;
 
@@ -27,6 +29,13 @@ public class ODataQuery_Tests
         public string Title { get; set; }
         [Required]
         public bool Deleted { get; set; }
+    }
+
+    class NamedSelectResult
+    {
+        public string Id { get; set; }
+        [JsonPropertyName("rating")]
+        public string Title { get; set; }
     }
 
     public ODataQuery_Tests()
@@ -167,6 +176,13 @@ public class ODataQuery_Tests
         ODataQuery<SelectResult> actual = this.query.Select(m => new SelectResult { Id = m.Id, Title = m.Title }) as ODataQuery<SelectResult>;
         string odata = actual.ToODataString();
 
+        odata.Should().Be("$select=id,title");
+    }
+
+    [Fact]
+    public void ToODataString_Select_JsonPropertyName()
+    {
+        string odata = this.query.Select(m => new NamedSelectResult { Id = m.Id, Title = m.Title }).ToODataString();
         odata.Should().Be("$select=id,title");
     }
 
@@ -622,6 +638,26 @@ public class ODataQuery_Tests
             m => m.StringValue.StartsWith("abc", StringComparison.InvariantCultureIgnoreCase),
             "$filter=startswith%28tolower%28stringValue%29%2Ctolower%28%27abc%27%29%29"
         );
+    }
+
+    [Fact]
+    public void Linq_StartsWith_Others_Throws()
+    {
+        IReadonlyRemoteDataset<ClientKitchenSink> ds = new RemoteDataset<ClientKitchenSink>(new Uri("https://localhost/"));
+        IODataQuery<ClientKitchenSink> query = new ODataQuery<ClientKitchenSink>(ds, null, null, false).Where(x => x.StringValue.StartsWith("the", StringComparison.CurrentCulture));
+        Action act = () => query.ToODataString();
+        act.Should().Throw<NotSupportedException>();
+    }
+
+    [Fact]
+    public void Linq_StartsWith_NotConstant_Throws()
+    {
+        IReadonlyRemoteDataset<ClientKitchenSink> ds = new RemoteDataset<ClientKitchenSink>(new Uri("https://localhost/"));
+        int useOther = new Random().Next(2);
+        IODataQuery<ClientKitchenSink> query = new ODataQuery<ClientKitchenSink>(ds, null, null, false)
+            .Where(x => x.StringValue.StartsWith("the", useOther == 1 ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase));
+        Action act = () => query.ToODataString();
+        act.Should().Throw<NotSupportedException>();
     }
 
     [Fact]

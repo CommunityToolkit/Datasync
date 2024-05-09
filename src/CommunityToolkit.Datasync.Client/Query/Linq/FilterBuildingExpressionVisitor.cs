@@ -389,7 +389,18 @@ internal sealed class FilterBuildingExpressionVisitor
     {
         Visit(node);
         QueryNode comparisonNode = FilterExpression.Pop();
-        if (comparisonNode is not ConstantNode ccn || ccn.Value.GetType() != typeof(StringComparison))
+        return GetStringComparisonFromQueryNode(comparisonNode);
+    }
+
+    /// <summary>
+    /// When there is a StringComparison node, find it's value.  The backend doesn't
+    /// support StringComparison, so remove it from the stack.
+    /// </summary>
+    /// <param name="node">The query node.</param>
+    /// <returns>The StringComparison value.</returns>
+    internal static StringComparison GetStringComparisonFromQueryNode(QueryNode node)
+    {
+        if (node is not ConstantNode ccn || ccn.Value.GetType() != typeof(StringComparison))
         {
             throw new NotSupportedException($"'{node}' must have a constant StringComparison value");
         }
@@ -402,6 +413,7 @@ internal sealed class FilterBuildingExpressionVisitor
     /// </summary>
     /// <param name="node">The node to visit</param>
     /// <returns>The visited node</returns>
+    [ExcludeFromCodeCoverage(Justification = "Not used in tests")]
     internal Expression VisitUnaryExpression(UnaryExpression node)
     {
         switch (node.NodeType)
@@ -438,6 +450,7 @@ internal sealed class FilterBuildingExpressionVisitor
     /// <param name="from">The type to convert from</param>
     /// <param name="to">The type to convert to</param>
     /// <returns>True if there is an implicit conversion</returns>
+    [ExcludeFromCodeCoverage(Justification = "Not used in tests")]
     internal static bool IsConversionImplicit(UnaryExpression node, Type from, Type to)
         => GetMemberName(node.Operand) != null && ImplicitConversions.IsImplicitConversion(from, to);
 
