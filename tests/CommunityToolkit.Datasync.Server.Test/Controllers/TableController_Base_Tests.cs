@@ -246,4 +246,18 @@ public class TableController_Base_Tests : BaseTest
         firedEvents[0].Timestamp.Should().BeAfter(this.StartTime).And.BeBefore(DateTimeOffset.UtcNow);
     }
     #endregion
+
+    #region CreateNextLink
+    [Theory]
+    [InlineData(0, 0, "")]
+    [InlineData(5, 0, "$skip=5")]
+    [InlineData(0, 5, "$top=5")]
+    [InlineData(40, 2, "$skip=40&$top=2")]
+    public void CreateNextLink_Works(int skip, int top, string expected)
+    {
+        const string queryString = null;
+        string result = TableController<TableData>.CreateNextLink(queryString, skip, top);
+        result.Should().Be(expected);
+    }
+    #endregion
 }

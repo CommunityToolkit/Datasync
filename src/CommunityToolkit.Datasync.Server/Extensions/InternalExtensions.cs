@@ -5,12 +5,11 @@
 using Azure.Core.Serialization;
 using CommunityToolkit.Datasync.Server.Converters;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 using System.Globalization;
 using System.Linq.Expressions;
-using Microsoft.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -22,8 +21,6 @@ namespace CommunityToolkit.Datasync.Server;
 internal static class InternalExtensions
 {
     private static readonly Lazy<JsonSerializerOptions> _options = new(() => GetSerializerOptions());
-    private const string SkipParameterName = "$skip";
-    private const string TopParameterName = "$top";
     private const string IncludeDeletedParameterName = "__includedeleted";
 
     /// <summary>
@@ -46,27 +43,6 @@ internal static class InternalExtensions
     /// <returns>An updated <see cref="IQueryable{T}"/> representing the new query.</returns>
     internal static IQueryable<T> ApplyDeletedView<T>(this IQueryable<T> query, HttpRequest request, bool enableSoftDelete) where T : ITableData
         => !enableSoftDelete || request.ShouldIncludeDeletedEntities() ? query : query.Where(e => !e.Deleted);
-
-    internal static string CreateNextLink(this HttpRequest request, int skip = 0, int top = 0)
-    {
-        UriBuilder builder = new(request.GetDisplayUrl());
-        List<string> query = (builder.Query ?? "").TrimStart('?')
-            .Split('&')
-            .Where(q => !q.StartsWith($"{SkipParameterName}=") && !q.StartsWith($"{TopParameterName}="))
-            .ToList();
-
-        if (skip > 0)
-        {
-            query.Add($"{SkipParameterName}={skip}");
-        }
-
-        if (top > 0)
-        {
-            query.Add($"{TopParameterName}={top}");
-        }
-
-        return string.Join('&', query).TrimStart('&');
-    }
 
     /// <summary>
     /// Determines if the provided entity is in the view of the current user.

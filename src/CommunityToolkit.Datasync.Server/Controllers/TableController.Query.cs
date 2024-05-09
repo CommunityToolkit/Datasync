@@ -16,11 +16,15 @@ using Microsoft.OData.UriParser;
 using Microsoft.OData;
 using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Datasync.Server.OData;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace CommunityToolkit.Datasync.Server;
 
 public partial class TableController<TEntity> : ODataController where TEntity : class, ITableData
 {
+    private const string SkipParameterName = "$skip";
+    private const string TopParameterName = "$top";
+
     /// <summary>
     /// <para>
     /// The GET method is used to retrieve resource representation.  The resource is never modified.
@@ -132,14 +136,55 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         PagedResult result = new(results ?? []) { Count = queryOptions.Count != null ? count : null };
         if (queryOptions.Top != null)
         {
-            result.NextLink = skip >= count || top <= 0 ? null : Request.CreateNextLink(skip, top);
+            result.NextLink = skip >= count || top <= 0 ? null : CreateNextLink(Request, skip, top);
         }
         else
         {
-            result.NextLink = skip >= count ? null : Request.CreateNextLink(skip, 0);
+            result.NextLink = skip >= count ? null : CreateNextLink(Request, skip, 0);
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Given a very specific URI, creates a new query string with the same query, but with a different value for the <c>$skip</c> parameter.
+    /// </summary>
+    /// <param name="request">The original request.</param>
+    /// <param name="skip">The new skip value.</param>
+    /// <param name="top">The new top value.</param>
+    /// <returns>The new URI for the next page of items.</returns>
+    [NonAction]
+    [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "Static method in generic non-static class")]
+    internal static string CreateNextLink(HttpRequest request, int skip = 0, int top = 0)
+        => CreateNextLink(new UriBuilder(request.GetDisplayUrl()).Query, skip, top);
+
+    /// <summary>
+    /// Given a very specific query string,  creates a new query string with the same query, but with a different value for the <c>$skip</c> parameter.
+    /// </summary>
+    /// <param name="queryString">The original query string.</param>
+    /// <param name="skip">The new skip value.</param>
+    /// <param name="top">The new top value.</param>
+    /// <returns>The new URI for the next page of items.</returns>
+    [NonAction]
+    [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "Static method in generic non-static class")]
+    internal static string CreateNextLink(string queryString, int skip = 0, int top = 0)
+    {
+        List<string> query = (queryString ?? "").TrimStart('?')
+            .Split('&')
+            .Where(q => !q.StartsWith($"{SkipParameterName}=") && !q.StartsWith($"{TopParameterName}="))
+            .ToList();
+
+        if (skip > 0)
+        {
+            query.Add($"{SkipParameterName}={skip}");
+        }
+
+        if (top > 0)
+        {
+            query.Add($"{TopParameterName}={top}");
+        }
+
+        return string.Join('&', query).TrimStart('&');
     }
 
     /// <summary>

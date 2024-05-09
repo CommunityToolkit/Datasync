@@ -86,7 +86,7 @@ internal class FuncAsyncPageable<T>(Func<string, ValueTask<Page<T>>> pageFunc) :
         do
         {
             Page<T> pageResponse = await this._pageFunc(requestUri).ConfigureAwait(false);
-            requestUri = pageResponse.NextLink?.ToString();
+            requestUri = pageResponse?.NextLink?.ToString();
             yield return pageResponse ?? new Page<T>();
         } while (requestUri != null);
     }

@@ -276,18 +276,24 @@ public class RemoteDataset<T> : IRemoteDataset<T>
     /// <returns>A task that returns a page of items when complete.</returns>
     internal async ValueTask<Page<T>> GetNextPageAsync(string odataQueryString = "", string nextLink = null, CancellationToken cancellationToken = default)
     {
-        odataQueryString = string.IsNullOrEmpty(odataQueryString) ? "" : $"?{odataQueryString.TrimStart('?').TrimEnd()}";
-        Uri requestUri;
+        UriBuilder builder = new(Endpoint);
         if (nextLink is not null)
         {
-            requestUri = nextLink.StartsWith("http") ? new(nextLink) : new(Endpoint, new Uri(nextLink, UriKind.Relative));
+            if (nextLink.StartsWith("http"))
+            {
+                builder = new(nextLink);    // v6 Azure Mobile Apps support
+            }
+            else
+            {
+                builder.Query = $"?{nextLink.TrimStart('?').TrimEnd()}";
+            }
         }
         else
         {
-            requestUri = (new UriBuilder(Endpoint) { Query = odataQueryString }).Uri;
+            builder.Query = string.IsNullOrEmpty(odataQueryString) ? "" : $"?{odataQueryString.TrimStart('?').TrimEnd()}";
         }
 
-        HttpRequestMessage request = new(HttpMethod.Get, requestUri);
+        HttpRequestMessage request = new(HttpMethod.Get, builder.Uri);
         HttpResponseMessage response = await HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
         if (response.IsSuccessStatusCode)
         {
