@@ -1,0 +1,144 @@
+name: Build Templates
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'templates/**' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'templates/**' ]
+  release:
+    types: [ published ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  DOTNET_CONFIGURATION: 'Release'
+  NuGetDirectory: ${{ github.workspace }}/nuget
+  SolutionFile: 'Datasync Solution.sln'
+  BASE_VERSION: '8.0.0'
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Get build version
+        run: |
+          Import-Module .\tools\GetBuildVersion.psm1
+          Write-Host "GitHub Reference = $($env:GITHUB_REF)"
+          $version = GetBuildVersion -BaseVersion $env:BASE_VERSION -VersionString $env:GITHUB_REF -BuildNumber $env:GITHUB_RUN_NUMBER
+          echo "BUILD_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf-8 -Append
+          Write-Host "BUILD_VERSION=$version"
+        shell: pwsh
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Generate csproj
+        working-directory: templates
+        run: |
+          (Get-Content -path "Template.DatasyncServer.csproj.template") -replace "${NUGET_VERSION}", "$(BUILD_VERSION)" | Set-Content -Path "./Template.DatasyncServer.csproj"
+        shell: pwsh
+
+      - name: Build template
+        working-directory: templates
+        run: dotnet pack DatasyncTemplates.csproj --configuration $(DOTNET_CONFIGURATION) --output ${{ env.NuGetDirectory }} /p:PackageVersion-$(BUILD_VERSION) 
+
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-unsigned
+          if-no-files-found: error
+          path: ${{ env.NuGetDirectory }}/*.nupkg
+          retention-days: 7
+
+      - name: Upload Package List
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-list
+          if-no-files-found: error
+          path: |
+            ${{ github.workspace }}/.github/workflows/SignedTemplateFileList.txt
+
+  sign:
+    needs: [build]
+    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/rel') }}
+    runs-on: windows-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install signing tool
+        run: dotnet tool install --tool-path ./tools sign --version 0.9.1-beta.23356.1
+
+      - name: Download NuGet package list
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-list
+          path: ${{ github.workspace }}
+
+      - name: Download unsigned NuGet packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-unsigned
+          path: ${{ github.workspace }}/packages
+
+      - name: Sign NuGet packages
+        run: >
+          ./tools/sign code azure-key-vault
+          **/*.nupkg
+          --base-directory "${{ github.workspace }}/packages"
+          --file-list "${{ github.workspace }}/SignedPackageFileList.txt"
+          --timestamp-url "http://timestamp.digicert.com"
+          --publisher-name ".NET Foundation"
+          --description "Community Datasync Toolkit"
+          --description-url "https://github.com/CommunityToolkit/Datasync"
+          --azure-key-vault-url "${{ secrets.SIGN_KEY_VAULT_URL }}"
+          --azure-key-vault-client-id ${{ secrets.SIGN_CLIENT_ID }}
+          --azure-key-vault-client-secret "${{ secrets.SIGN_CLIENT_SECRET }}"
+          --azure-key-vault-tenant-id ${{ secrets.SIGN_TENANT_ID }}
+          --azure-key-vault-certificate "${{ secrets.SIGN_CERTIFICATE }}"
+          --verbosity Information        
+
+      - name: Upload signed NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-signed
+          if-no-files-found: error
+          path: ${{ github.workspace }}/packages/**/*.nupkg
+
+      - name: Add AzDO NuGet feed
+        run: >
+          dotnet nuget add source 
+          https://pkgs.dev.azure.com/dotnet/CommunityToolkit/_packaging/CommunityToolkit-MainLatest/nuget/v3/index.json 
+          --name MainLatest
+          --username dummy
+          --password ${{ secrets.DEVOPS_PACKAGE_PUSH_TOKEN }}
+
+      - name: Push signed packages to AzDO
+        run: >
+          dotnet nuget push 
+          "${{ github.workspace }}/packages/**/*.nupkg" 
+          --api-key dummy 
+          --source MainLatest 
+          --skip-duplicate

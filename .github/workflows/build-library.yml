@@ -200,25 +200,6 @@ jobs:
           name: nuget-signed
           if-no-files-found: error
           path: ${{ github.workspace }}/packages/**/*.nupkg
-  
-  publish:
-    needs: [ sign ]
-    if: ${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/rel') }}
-    runs-on: windows-latest
-    permissions:
-      id-token: write    
-
-    steps:
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-  
-      - name: Download unsigned NuGet packages
-        uses: actions/download-artifact@v4
-        with:
-          name: nuget-signed
-          path: ${{ github.workspace }}/packages
 
       - name: Add AzDO NuGet feed
         run: >
