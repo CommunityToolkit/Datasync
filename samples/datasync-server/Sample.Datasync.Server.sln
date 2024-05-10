@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4B8E4DD5-C2CA-4729-A10B-8A3C993018EC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Datasync.Server", "src\Sample.Datasync.Server\Sample.Datasync.Server.csproj", "{67A76156-0033-4085-86BE-558DC28688A6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "library", "library", "{95358590-6440-469A-8A6A-6ACC47F52966}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server", "..\..\..\..\CommunityToolkit\Datasync\src\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj", "{D42DBA41-28AA-4B6D-83A4-A5B839EC8B25}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.Abstractions", "..\..\..\..\CommunityToolkit\Datasync\src\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj", "{CECB1B21-46C7-4197-B8D2-EC54D0AF8145}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.EntityFrameworkCore", "..\..\..\..\CommunityToolkit\Datasync\src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj", "{8CDD3736-4B8D-43F5-8F9A-222210D73DAC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{67A76156-0033-4085-86BE-558DC28688A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67A76156-0033-4085-86BE-558DC28688A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67A76156-0033-4085-86BE-558DC28688A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67A76156-0033-4085-86BE-558DC28688A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D42DBA41-28AA-4B6D-83A4-A5B839EC8B25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D42DBA41-28AA-4B6D-83A4-A5B839EC8B25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D42DBA41-28AA-4B6D-83A4-A5B839EC8B25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D42DBA41-28AA-4B6D-83A4-A5B839EC8B25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CECB1B21-46C7-4197-B8D2-EC54D0AF8145}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CECB1B21-46C7-4197-B8D2-EC54D0AF8145}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CECB1B21-46C7-4197-B8D2-EC54D0AF8145}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CECB1B21-46C7-4197-B8D2-EC54D0AF8145}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CDD3736-4B8D-43F5-8F9A-222210D73DAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CDD3736-4B8D-43F5-8F9A-222210D73DAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CDD3736-4B8D-43F5-8F9A-222210D73DAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CDD3736-4B8D-43F5-8F9A-222210D73DAC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{67A76156-0033-4085-86BE-558DC28688A6} = {4B8E4DD5-C2CA-4729-A10B-8A3C993018EC}
+		{D42DBA41-28AA-4B6D-83A4-A5B839EC8B25} = {95358590-6440-469A-8A6A-6ACC47F52966}
+		{CECB1B21-46C7-4197-B8D2-EC54D0AF8145} = {95358590-6440-469A-8A6A-6ACC47F52966}
+		{8CDD3736-4B8D-43F5-8F9A-222210D73DAC} = {95358590-6440-469A-8A6A-6ACC47F52966}
+	EndGlobalSection
+EndGlobal
