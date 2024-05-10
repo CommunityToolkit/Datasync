@@ -1,1 +1,7 @@
-**/CommunityToolkit.Datasync.*
+**/CommunityToolkit.Datasync.Server
+**/CommunityToolkit.Datasync.Server.Abstractions
+**/CommunityToolkit.Datasync.Server.Automapper
+**/CommunityToolkit.Datasync.Server.EntityFrameworkCore
+**/CommunityToolkit.Datasync.Server.InMemory
+**/CommunityToolkit.Datasync.Server.LiteDb
+**/CommunityToolkit.Datasync.Client
