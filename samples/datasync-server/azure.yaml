@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: community-toolkit-datasync-server
+metadata:
+  template: community-toolkit-datasync-server@8.0.0
+
+workflows:
+  up:
+    steps:
+      - azd: provision
+      - azd: deploy --all
+
+services:
+  backend:
+    project: ./src/Sample.Datasync.Server
+    language: csharp
+    host: appservice

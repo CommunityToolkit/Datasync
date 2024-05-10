@@ -1,0 +1,4 @@
+# These files are used during the Publish process from VS
+PublishProfiles/
+ServiceDependencies/
+serviceDependencies.*
