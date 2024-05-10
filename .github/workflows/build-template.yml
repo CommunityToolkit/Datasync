@@ -50,7 +50,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Generate csproj
-        working-directory: templates
+        working-directory: templates/Template.DatasyncServer
         run: |
           (Get-Content -path "Template.DatasyncServer.csproj.template") -replace "${NUGET_VERSION}", "$(BUILD_VERSION)" | Set-Content -Path "./Template.DatasyncServer.csproj"
         shell: pwsh
