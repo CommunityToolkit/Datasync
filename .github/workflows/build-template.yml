@@ -3,10 +3,10 @@ name: Build Templates
 on:
   push:
     branches: [ main ]
-    paths: [ 'templates/**' ]
+    paths: [ 'templates/**', '.github/workflows/build-template.yml', '.github/workflows/SignedTemplateFileList.txt' ]
   pull_request:
     branches: [ main ]
-    paths: [ 'templates/**' ]
+    paths: [ 'templates/**', '.github/workflows/build-template.yml', '.github/workflows/SignedTemplateFileList.txt' ]
   release:
     types: [ published ]
   workflow_dispatch:
@@ -52,12 +52,12 @@ jobs:
       - name: Generate csproj
         working-directory: templates/Template.DatasyncServer
         run: |
-          (Get-Content -path "Template.DatasyncServer.csproj.template") -replace "${NUGET_VERSION}", "$(BUILD_VERSION)" | Set-Content -Path "./Template.DatasyncServer.csproj"
+          (Get-Content -path "Template.DatasyncServer.csproj.template") -replace "${NUGET_VERSION}", $BUILD_VERSION | Set-Content -Path "./Template.DatasyncServer.csproj"
         shell: pwsh
 
       - name: Build template
         working-directory: templates
-        run: dotnet pack DatasyncTemplates.csproj --configuration $(DOTNET_CONFIGURATION) --output ${{ env.NuGetDirectory }} /p:PackageVersion-$(BUILD_VERSION) 
+        run: dotnet pack DatasyncTemplates.csproj --configuration $(DOTNET_CONFIGURATION) --output ${{ env.NuGetDirectory }} /p:PackageVersion=$BUILD_VERSION
 
       - name: Upload NuGet packages
         uses: actions/upload-artifact@v4
