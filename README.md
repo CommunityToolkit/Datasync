@@ -23,13 +23,13 @@ Other platforms may work, but have not been tested.
 
 ## 🙌 Getting Started
 
-Please take a look at the tutorials included in our [documentation][1].
+Please take a look at the tutorials included in our [documentation][documentation].
 
 You can easily get started by using the `dotnet new` command to create a new datasync server.  The template pre-configured ASP.NET Core, 
 Entity Framework Core, and the Datasync server libraries.  To install the template:
 
 ```dotnetcli
-dotnet new -i CommunityToolkit.Datasync.Template.CSharp
+dotnet new -i CommunityToolkit.Datasync.Server.Template.CSharp
 ```
 
 To create a project:
@@ -78,6 +78,7 @@ This project is supported by the [.NET Foundation](http://dotnetfoundation.org).
 The Datasync Toolkit used to be known as Azure Mobile Apps.  You can find the code for previous (unsupported) versions of the library at the [old repository](https://github.com/Azure/azure-mobile-apps).
 
 <!-- Links -->
+[documentation]: https://CommunityToolkit.github.io/Datasync
 [CommunityToolkit.Datasync.Server]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server
 [CommunityToolkit.Datasync.Server.Abstractions]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.Abstractions
 [CommunityToolkit.Datasync.Server.Automapper]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.Automapper
