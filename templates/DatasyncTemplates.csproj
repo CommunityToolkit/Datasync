@@ -5,6 +5,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeContentInPack>true</IncludeContentInPack>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
     <PackageId>CommunityToolkit.Datasync.Server.Template.CSharp</PackageId>
     <PackageTags>dotnet-new;template;aspnetcore;datasync</PackageTags>
     <PackageType>Template</PackageType>

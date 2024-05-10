@@ -3,10 +3,10 @@ name: Build and Test Library
 on:
   push:
     branches: [ main ]
-    paths: [ 'src/**', 'tests/**', 'Datasync Solution.sln' ]
+    paths: [ 'src/**', 'tests/**', 'Datasync Solution.sln', '.github/workflows/build-library.yml', '.github/workflows/SignedPackageFileList.txt' ]
   pull_request:
     branches: [ main ]
-    paths: [ 'src/**', 'tests/**', 'Datasync Solution.sln' ]
+    paths: [ 'src/**', 'tests/**', 'Datasync Solution.sln', '.github/workflows/build-library.yml', '.github/workflows/SignedPackageFileList.txt' ]
   release:
     types: [ published ]
   workflow_dispatch:
