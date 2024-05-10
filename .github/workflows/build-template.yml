@@ -57,7 +57,11 @@ jobs:
 
       - name: Build template
         working-directory: templates
-        run: dotnet pack DatasyncTemplates.csproj --configuration $(DOTNET_CONFIGURATION) --output ${{ env.NuGetDirectory }} /p:PackageVersion=$BUILD_VERSION
+        run: >
+          dotnet pack DatasyncTemplates.csproj 
+          --configuration ${{ env.DOTNET_CONFIGURATION }} 
+          --output ${{ env.NuGetDirectory }}
+          -p:PackageVersion=$BUILD_VERSION
 
       - name: Upload NuGet packages
         uses: actions/upload-artifact@v4
