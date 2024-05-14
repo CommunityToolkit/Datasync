@@ -15,15 +15,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Azure.Core.Spatial" Version="1.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Microsoft.Azure.Core.Spatial">
-      <HintPath>..\..\..\..\..\..\..\Nuget\microsoft.azure.core.spatial\1.1.0\lib\netstandard2.0\Microsoft.Azure.Core.Spatial.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>
