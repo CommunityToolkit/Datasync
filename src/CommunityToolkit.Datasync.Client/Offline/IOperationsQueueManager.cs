@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client.Offline;
 
@@ -12,6 +13,11 @@ namespace CommunityToolkit.Datasync.Client.Offline;
 /// </summary>
 internal interface IOperationsQueueManager
 {
+    /// <summary>
+    /// The <see cref="JsonSerializerOptions"/> to use for serializing and deserializing data.
+    /// </summary>
+    JsonSerializerOptions JsonSerializerOptions { get; }
+
     /// <summary>
     /// Creates a new Create/Insert/Add operation for the given state change.
     /// </summary>

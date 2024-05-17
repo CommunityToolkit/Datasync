@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Common;
+using CommunityToolkit.Datasync.Server.Abstractions.Guards;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Text.Json;
 
@@ -16,8 +17,7 @@ namespace CommunityToolkit.Datasync.Client.Offline;
 /// stored in the given <see cref="OfflineDbContext"/>.
 /// </remarks>
 /// <param name="context">Tne <see cref="OfflineDbContext"/> holding the operations queue.</param>
-/// <param name="options">The <see cref="IOfflineDatasetOptions"/> used to configure the operations queue.</param>
-internal class OperationsQueueManager(OfflineDbContext context, IOfflineDatasetOptions options) : IOperationsQueueManager
+internal class OperationsQueueManager(OfflineDbContext context) : IOperationsQueueManager
 {
     /// <summary>
     /// The <see cref="OfflineDbContext"/> that is used to store the operations queue.
@@ -25,9 +25,9 @@ internal class OperationsQueueManager(OfflineDbContext context, IOfflineDatasetO
     internal OfflineDbContext Context = context;
 
     /// <summary>
-    /// The <see cref="IOfflineDatasetOptions"/> that are used to configure the operations queue.
+    /// The <see cref="JsonSerializerOptions"/> to use for serializing and deserializing data.
     /// </summary>
-    internal IOfflineDatasetOptions Options = options;
+    public JsonSerializerOptions JsonSerializerOptions { get; } = context.JsonSerializerOptions;
 
     /// <summary>
     /// Creates a new Create/Insert/Add operation for the given state change.
@@ -41,11 +41,7 @@ internal class OperationsQueueManager(OfflineDbContext context, IOfflineDatasetO
     public void AddCreateOperation(EntityEntry entry)
     {
         string entityType = entry.Entity.GetType().FullName;
-        if (!entry.CurrentValues.TryGetValue<string>("Id", out string entityId))
-        {
-            entityId = this.Options.GenerateId.Invoke();
-            entry.CurrentValues["Id"] = entityId;
-        }
+        string entityId = GetEntityId(entry.OriginalValues);
 
         LockQueueEntity(entityType, entityId, () =>
         {
@@ -68,10 +64,7 @@ internal class OperationsQueueManager(OfflineDbContext context, IOfflineDatasetO
     public void AddDeleteOperation(EntityEntry entry)
     {
         string entityType = entry.Entity.GetType().FullName;
-        if (!entry.OriginalValues.TryGetValue<string>("Id", out string entityId))
-        {
-            throw new InvalidOperationException("Attempting to delete an entity without an ID");
-        }
+        string entityId = GetEntityId(entry.OriginalValues);
 
         LockQueueEntity(entityType, entityId, () =>
         {
@@ -80,11 +73,15 @@ internal class OperationsQueueManager(OfflineDbContext context, IOfflineDatasetO
             {
                 AddQueueEntity(EntityChangeType.Delete, entityType, entityId, entry.OriginalValues, null);
             }
+            else if (queueEntity.ChangeType == EntityChangeType.Add)
+            {
+                RemoveQueueEntity(queueEntity);
+            }
             else if (queueEntity.ChangeType == EntityChangeType.Delete)
             {
                 throw new OperationsQueueConflictException("Attempting to delete an entity that is already queued to be deleted.") { QueuedOperation = queueEntity };
             }
-            else
+            else if (queueEntity.ChangeType == EntityChangeType.Update)
             {
                 queueEntity.ChangeType = EntityChangeType.Delete;
                 queueEntity.ReplacementJsonEntityData = null;
@@ -100,10 +97,7 @@ internal class OperationsQueueManager(OfflineDbContext context, IOfflineDatasetO
     public void AddUpdateOperation(EntityEntry entry)
     {
         string entityType = entry.Entity.GetType().FullName;
-        if (!entry.OriginalValues.TryGetValue<string>("Id", out string entityId))
-        {
-            throw new InvalidOperationException("Attempting to delete an entity without an ID");
-        }
+        string entityId = GetEntityId(entry.OriginalValues);
 
         LockQueueEntity(entityType, entityId, () =>
         {
@@ -118,10 +112,38 @@ internal class OperationsQueueManager(OfflineDbContext context, IOfflineDatasetO
             }
             else
             {
-                queueEntity.ReplacementJsonEntityData = JsonSerializer.Serialize(entry.CurrentValues);
+                queueEntity.ReplacementJsonEntityData = Serialize(entry.CurrentValues);
                 UpdateQueueEntity(queueEntity);
             }
         });
+    }
+
+    /// <summary>
+    /// Returns the ID of the entity.
+    /// </summary>
+    /// <param name="values">The property values for the entity.</param>
+    /// <returns>The entity ID</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the entity ID is not valid.</exception>
+    internal static string GetEntityId(PropertyValues values)
+        => ValidateEntityId(values["Id"] as string);
+
+    /// <summary>
+    /// Validates the ID of the entity.
+    /// </summary>
+    /// <param name="entityId">The ID of the entity</param>
+    /// <returns>The entity ID</returns>
+    /// <exception cref="InvalidOperationException">Thrown if the entity ID is not valid.</exception>
+    internal static string ValidateEntityId(string entityId)
+    {
+        if (string.IsNullOrWhiteSpace(entityId))
+        {
+            throw new InvalidOperationException("Attempting to enqueue an entity with an empty ID");
+        }
+        if (!RegexpConstants.EntityIdentity.IsMatch(entityId))
+        {
+            throw new InvalidOperationException("Attempting to enqueue an entity with an invalid ID");
+        }
+        return entityId;
     }
 
     /// <summary>
@@ -175,10 +197,20 @@ internal class OperationsQueueManager(OfflineDbContext context, IOfflineDatasetO
             ChangeType = changeType,
             EntityName = entityName,
             EntityId = entityId,
-            OriginalJsonEntityEntity = originalValues is not null ? JsonSerializer.Serialize(originalValues) : string.Empty,
-            ReplacementJsonEntityData = currentValues is not null ? JsonSerializer.Serialize(currentValues) : string.Empty
+            OriginalJsonEntityEntity = originalValues is not null ? Serialize(originalValues) : string.Empty,
+            ReplacementJsonEntityData = currentValues is not null ? Serialize(currentValues) : string.Empty
         };
         this.Context.DatasyncOperationsQueue.Add(queueEntity);
+    }
+
+    /// <summary>
+    /// Removes a queue entity.
+    /// </summary>
+    /// <param name="queueEntity">The queue entity to be removed.</param>
+    internal void RemoveQueueEntity(OfflineQueueEntity queueEntity)
+    {
+        Ensure.That(queueEntity, nameof(queueEntity)).IsNotNull();
+        this.Context.DatasyncOperationsQueue.Remove(queueEntity);
     }
 
     /// <summary>
@@ -190,4 +222,11 @@ internal class OperationsQueueManager(OfflineDbContext context, IOfflineDatasetO
         Ensure.That(queueEntity, nameof(queueEntity)).IsNotNull();
         this.Context.DatasyncOperationsQueue.Update(queueEntity);
     }
+
+    /// <summary>
+    /// Helper method to put the serialization of the property values into a single place.
+    /// </summary>
+    /// <param name="properties">The <see cref="PropertyValues"/> object to serialize.</param>
+    /// <returns>The serialized object.</returns>
+    internal string Serialize(PropertyValues properties) => JsonSerializer.Serialize(properties.ToObject(), JsonSerializerOptions);
 }

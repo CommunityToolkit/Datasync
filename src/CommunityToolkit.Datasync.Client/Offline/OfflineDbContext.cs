@@ -3,8 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Offline;
+using CommunityToolkit.Datasync.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client;
 
@@ -14,6 +17,24 @@ namespace CommunityToolkit.Datasync.Client;
 /// </summary>
 public abstract class OfflineDbContext : DbContext
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OfflineDbContext"/> class.  The <see cref="OnConfiguring(DbContextOptionsBuilder)"/>
+    /// method will be called to configure the database (and other options) to be used for this context.
+    /// </summary>
+    [ExcludeFromCodeCoverage(Justification = "Standard entry point that is part of DbContext")]
+    protected OfflineDbContext() : base()
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OfflineDbContext"/> class. The <see cref="OnConfiguring(DbContextOptionsBuilder)"/>
+    /// method will still be called to configure the database to be used for this context.
+    /// </summary>
+    /// <param name="options">The options to use in configuring the <see cref="OfflineDbContext"/>.</param>
+    protected OfflineDbContext(DbContextOptions options) : base(options)
+    {
+    }
+
     /// <summary>
     /// The list of entities that are awaiting synchronization.
     /// </summary>
@@ -25,11 +46,9 @@ public abstract class OfflineDbContext : DbContext
     public DbSet<DatasyncTableInformation> DatasyncTableMetadata => Set<DatasyncTableInformation>();
 
     /// <summary>
-    /// The set of options used to configure the offline dataset.  This is normally set
-    /// by overriding the <see cref="OnConfiguring(DbContextOptionsBuilder)"/> method and
-    /// setting it before calling the base method.
+    /// The <see cref="JsonSerializerOptions"/> to use for serializing and deserializing entities.
     /// </summary>
-    public IOfflineDatasetOptions OfflineDatasetOptions { get; protected set; }
+    public JsonSerializerOptions JsonSerializerOptions { get; set; }
 
     /// <summary>
     /// Used to manage the operations queue internally.
@@ -40,14 +59,26 @@ public abstract class OfflineDbContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
-        OfflineDatasetOptions ??= new OfflineDatasetOptions();
-        OperationsQueueManager ??= new OperationsQueueManager(this, OfflineDatasetOptions);
+        JsonSerializerOptions ??= new DatasyncServiceOptions().JsonSerializerOptions;
+        OperationsQueueManager ??= new OperationsQueueManager(this);
     }
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // TODO: Add the model setup for the offline operations queue and metadata tables.
+        modelBuilder.Entity<OfflineQueueEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.EntityName);
+            entity.HasIndex(e => e.EntityId);
+        });
+
+        modelBuilder.Entity<DatasyncTableInformation>(entity =>
+        {
+            entity.HasKey(e => e.QueryId);
+            entity.Property(e => e.LastSynchronization).IsRequired().HasDefaultValue(0L);
+        });
+
         base.OnModelCreating(modelBuilder);
     }
 
@@ -82,24 +113,38 @@ public abstract class OfflineDbContext : DbContext
     internal void StoreChangesInOperationsQueue()
     {
         ChangeTracker.DetectChanges();
-        foreach (EntityEntry entry in ChangeTracker.Entries().Where(t => t.State is EntityState.Added or EntityState.Deleted or EntityState.Modified))
+        List<EntityEntry> changedEntities = ChangeTracker.Entries().Where(t => t.State is EntityState.Added or EntityState.Deleted or EntityState.Modified).ToList();
+        foreach (EntityEntry entry in changedEntities)
         {
-            if (entry.Entity is OfflineClientEntity)
+            StoreChangeInOperationsQueue(entry);
+        }
+    }
+
+    /// <summary>
+    /// When <see cref="SaveChanges(bool)"/> or the async equivalent is called, this method is used to add the entry via
+    /// the operations queue manager.  An <see cref="OfflineQueueEntity"/> is created for each change.
+    /// </summary>
+    /// <remarks>
+    /// Every offline-capable entity must be derived from OfflineClientData and have a <see cref="DbSet{TEntity}"/> that
+    /// is using the entity.
+    /// </remarks>
+    internal void StoreChangeInOperationsQueue(EntityEntry entry)
+    {
+        if (entry.Entity is OfflineClientEntity)
+        {
+            switch (entry.State)
             {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        OperationsQueueManager.AddCreateOperation(entry);
-                        break;
-                    case EntityState.Deleted:
-                        OperationsQueueManager.AddDeleteOperation(entry);
-                        break;
-                    case EntityState.Modified:
-                        OperationsQueueManager.AddUpdateOperation(entry);
-                        break;
-                    default:
-                        throw new InvalidOperationException("Unknown entity state");
-                }
+                case EntityState.Added:
+                    OperationsQueueManager.AddCreateOperation(entry);
+                    break;
+                case EntityState.Deleted:
+                    OperationsQueueManager.AddDeleteOperation(entry);
+                    break;
+                case EntityState.Modified:
+                    OperationsQueueManager.AddUpdateOperation(entry);
+                    break;
+                default:
+                    throw new InvalidOperationException("Unknown entity state");
             }
         }
     }

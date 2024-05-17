@@ -1507,7 +1507,7 @@ public class RemoteDataset_Read_Tests : ServiceTest, IClassFixture<ServiceApplic
     {
         DateTimeOffset dt = new(1994, 10, 14, 0, 0, 0, TimeSpan.Zero);
         await RunLinqTest(
-            m => m.Where(x => x.UpdatedAt > dt).IncludeDeletedItems().OrderBy(x => x.UpdatedAt).IncludeTotalCount().Skip(25),
+            m => m.Where(x => x.UpdatedAt > dt).IncludeDeletedItems().OrderBy(x => x.Id).IncludeTotalCount().Skip(25),
             223,
             ["id-025", "id-026", "id-027", "id-028", "id-029"]
         );
@@ -2625,7 +2625,7 @@ public class RemoteDataset_Read_Tests : ServiceTest, IClassFixture<ServiceApplic
     {
         DateTimeOffset dt = new(1994, 10, 14, 0, 0, 0, TimeSpan.Zero);
         await RunEnumerableTest(
-            this.movieDataset.Where(x => x.UpdatedAt > dt).IncludeDeletedItems().OrderBy(x => x.UpdatedAt).IncludeTotalCount().Skip(25),
+            this.movieDataset.Where(x => x.UpdatedAt > dt).IncludeDeletedItems().OrderBy(x => x.Id).IncludeTotalCount().Skip(25),
             223,
             ["id-025", "id-026", "id-027", "id-028", "id-029"]
         );

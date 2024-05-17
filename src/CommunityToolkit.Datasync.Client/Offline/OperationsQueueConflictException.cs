@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Offline;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CommunityToolkit.Datasync.Client;
 
@@ -14,16 +15,19 @@ namespace CommunityToolkit.Datasync.Client;
 public class OperationsQueueConflictException : OfflineDatasetException
 {
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage(Justification = "Standard exception constructor")]
     public OperationsQueueConflictException() : base()
     {
     }
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage(Justification = "Standard exception constructor")]
     public OperationsQueueConflictException(string message) : base(message)
     {
     }
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage(Justification = "Standard exception constructor")]
     public OperationsQueueConflictException(string message, Exception innerException) : base(message, innerException)
     {
     }
