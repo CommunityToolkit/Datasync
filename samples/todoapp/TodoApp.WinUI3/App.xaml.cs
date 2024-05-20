@@ -5,8 +5,11 @@
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using System;
 using TodoApp.WinUI3.Database;
+using TodoApp.WinUI3.Services;
 using TodoApp.WinUI3.ViewModels;
+using TodoApp.WinUI3.Views;
 
 namespace TodoApp.WinUI3;
 
@@ -17,25 +20,23 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
-        RegisterServices();
+
+        Ioc.Default.ConfigureServices(ConfigureServices());
     }
 
-    private void RegisterServices()
+    private static IServiceProvider ConfigureServices()
     {
-        var services = new ServiceCollection()
+        IServiceCollection services = new ServiceCollection()
+            .AddSingleton<ITodoService, LocalTodoService>()
             .AddTransient<TodoListViewModel>()
-            .AddDbContext<AppDbContext>()
-            .BuildServiceProvider();
+            .AddDbContext<AppDbContext>();
 
-        // Registers the IoC container and services.
-        Ioc.Default.ConfigureServices(services);
-
-
+        return services.BuildServiceProvider();
     }
 
-    protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        this.m_window = new MainWindow();
+        this.m_window = new TodoListWindow();
         this.m_window.Activate();
     }
 }
