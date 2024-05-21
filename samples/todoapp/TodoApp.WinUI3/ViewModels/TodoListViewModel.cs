@@ -36,6 +36,12 @@ public partial class TodoListViewModel(ITodoService service) : ObservableRecipie
     }
 
     [RelayCommand]
+    public async Task LoadPageAsync(CancellationToken cancellationToken = default)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    [RelayCommand]
     public async Task RefreshItemsAsync(CancellationToken cancellationToken = default)
     {
         throw new System.NotImplementedException();

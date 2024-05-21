@@ -7,9 +7,17 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:TodoApp.WinUI3.ViewModels"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:interactions="using:Microsoft.Xaml.Interactions.Core"
     d:DataContext="{d:DesignInstance Type=viewmodels:TodoListViewModel}"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
+
+    <interactivity:Interaction.Behaviors>
+        <interactions:EventTriggerBehavior EventName="Loaded">
+            <interactions:InvokeCommandAction Command="{Binding LoadPageCommand}" />
+        </interactions:EventTriggerBehavior>
+    </interactivity:Interaction.Behaviors>
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
