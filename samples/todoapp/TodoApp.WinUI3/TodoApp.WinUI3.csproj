@@ -12,10 +12,7 @@
     <EnableMsixTooling>true</EnableMsixTooling>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Views\TodoListWindow.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Remove="Views\TodoListWindow.xaml" />
+    <None Remove="Views\TodoListPage.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,13 +26,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Views\TodoListWindow.xaml">
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="CommunityToolkit.WinUI" Version="7.1.2" />
+    <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.0.240109" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
@@ -54,6 +47,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\CommunityToolkit\Datasync\src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\TodoListPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <!--

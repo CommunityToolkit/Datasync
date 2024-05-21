@@ -3,18 +3,18 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using TodoApp.WinUI3.ViewModels;
 
 namespace TodoApp.WinUI3.Views;
 
-public partial class TodoListWindow : Window
+public sealed partial class TodoListPage : Page
 {
-    public TodoListWindow()
+    public TodoListPage()
     {
-        this.InitializeComponent();
-        this.DataContext = Ioc.Default.GetRequiredService<TodoListViewModel>();
+        InitializeComponent();
+        DataContext = Ioc.Default.GetRequiredService<TodoListViewModel>();
     }
 
-    public TodoListViewModel ViewModel => (TodoListViewModel)DataContext;
+    public TodoListViewModel ViewModel => (TodoListViewModel)DataContext!;
 }

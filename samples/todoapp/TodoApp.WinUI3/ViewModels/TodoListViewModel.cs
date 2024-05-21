@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.Generic;
+using CommunityToolkit.Mvvm.Input;
 using System.Threading;
 using System.Threading.Tasks;
 using TodoApp.WinUI3.Services;
@@ -21,16 +21,23 @@ public partial class TodoListViewModel(ITodoService service) : ObservableRecipie
     internal ITodoService TodoService { get; } = service;
 
     [ObservableProperty]
-    private readonly ConcurrentObservableCollection<TodoItem> items = [];
+    private bool isRefreshing;
 
-    /// <summary>
-    /// Refreshes the list of items from the data store.
-    /// </summary>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>A task that completes when the operation is finished.</returns>
-    public async Task RefreshAsync(CancellationToken cancellationToken = default)
+    [RelayCommand]
+    public async Task AddItemAsync(string title, CancellationToken cancellationToken = default)
     {
-        IEnumerable<TodoItem> currentItemList = await TodoService.GetAllAsync(cancellationToken);
-        Items.ReplaceAll(currentItemList);
+        throw new System.NotImplementedException();
+    }
+
+    [RelayCommand]
+    public async Task EditItemAsync(TodoItem item, CancellationToken cancellationToken = default)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    [RelayCommand]
+    public async Task RefreshItemsAsync(CancellationToken cancellationToken = default)
+    {
+        throw new System.NotImplementedException();
     }
 }
