@@ -5,10 +5,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:interactions="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:TodoApp.WinUI3.ViewModels"
-    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:interactions="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.UI.Behaviors"
     d:DataContext="{d:DesignInstance Type=viewmodels:TodoListViewModel}"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
@@ -63,8 +64,14 @@
                 Background="Transparent"
                 BorderBrush="Indigo"
                 FontSize="20"
-                KeyDown="TextboxKeyDownHandler"
-                PlaceholderText="Enter new todo item" />
+                PlaceholderText="Enter new todo item"
+                Text="{Binding Title, Mode=TwoWay}">
+                <interactivity:Interaction.Behaviors>
+                    <behaviors:KeyDownTriggerBehavior Key="Enter">
+                        <interactions:InvokeCommandAction Command="{Binding AddItemCommand}" />
+                    </behaviors:KeyDownTriggerBehavior>
+                </interactivity:Interaction.Behaviors>
+            </TextBox>
 
             <Button
                 Grid.Column="1"
@@ -85,7 +92,7 @@
                 <Image
                     Width="24"
                     Height="24"
-                    Source="/Assets/Refresh.png" />
+                    Source="/Assets/RefreshItems.png" />
             </Button>
         </Grid>
     </Grid>

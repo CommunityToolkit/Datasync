@@ -4,6 +4,8 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using TodoApp.WinUI3.Services;
@@ -23,27 +25,33 @@ public partial class TodoListViewModel(ITodoService service) : ObservableRecipie
     [ObservableProperty]
     private bool isRefreshing;
 
+    [ObservableProperty]
+    private ObservableCollection<TodoItem> items = [];
+
+    [ObservableProperty]
+    private string title = string.Empty;
+
     [RelayCommand]
-    public async Task AddItemAsync(string title, CancellationToken cancellationToken = default)
+    public async Task AddItemAsync(CancellationToken cancellationToken = default)
     {
-        throw new System.NotImplementedException();
+        Console.WriteLine($"Adding item with title: {Title}");
     }
 
     [RelayCommand]
     public async Task EditItemAsync(TodoItem item, CancellationToken cancellationToken = default)
     {
-        throw new System.NotImplementedException();
+        Console.WriteLine($"Editing item {item}");
     }
 
     [RelayCommand]
     public async Task LoadPageAsync(CancellationToken cancellationToken = default)
     {
-        throw new System.NotImplementedException();
+        Console.WriteLine("Loading page");
     }
 
     [RelayCommand]
     public async Task RefreshItemsAsync(CancellationToken cancellationToken = default)
     {
-        throw new System.NotImplementedException();
+        Console.WriteLine("Refreshing items");
     }
 }
