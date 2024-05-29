@@ -5,6 +5,7 @@
 using CommunityToolkit.Datasync.Client;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,17 +18,24 @@ namespace TodoApp.WinUI3.Services;
 /// </summary>
 /// <typeparam name="T">The type of entity being stored in the data store.</typeparam>
 /// <param name="context">The database context.</param>
-public abstract class LocalDataService<T>(AppDbContext context) : IDataService<T> where T : OfflineEntity
+public abstract class LocalDataService<T> : IDataService<T> where T : OfflineClientEntity
 {
+    public LocalDataService(AppDbContext context)
+    {
+        _ = context.Database.EnsureCreated();
+        Context = context;
+        Dataset = context.Set<T>();
+    }
+
     /// <summary>
     /// The database context.
     /// </summary>
-    internal AppDbContext Context { get; } = context;
+    internal AppDbContext Context { get; }
 
     /// <summary>
     /// The data store representation for this entity.
     /// </summary>
-    internal DbSet<T> Dataset { get; } = context.Set<T>();
+    internal DbSet<T> Dataset { get; }
 
     /// <summary>
     /// Create a new entity within the data store.
@@ -37,6 +45,11 @@ public abstract class LocalDataService<T>(AppDbContext context) : IDataService<T
     /// <returns>The entity as stored in the data store.</returns>
     public async Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrEmpty(entity.Id))
+        {
+            entity.Id = Guid.NewGuid().ToString("N");
+        }
+
         EntityEntry<T> result = await Dataset.AddAsync(entity, cancellationToken);
         _ = await Context.SaveChangesAsync(cancellationToken);
         return result.Entity;

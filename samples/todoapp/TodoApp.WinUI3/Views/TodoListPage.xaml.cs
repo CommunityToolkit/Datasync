@@ -3,7 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.WinUI.Behaviors;
 using Microsoft.UI.Xaml.Controls;
+using System;
 using TodoApp.WinUI3.ViewModels;
 
 namespace TodoApp.WinUI3.Views;
@@ -14,7 +16,20 @@ public sealed partial class TodoListPage : Page
     {
         InitializeComponent();
         DataContext = Ioc.Default.GetRequiredService<TodoListViewModel>();
+        ViewModel.NotificationHandler += PublishNotification;
     }
 
     public TodoListViewModel ViewModel => (TodoListViewModel)DataContext!;
+
+    internal void PublishNotification(object sender, NotificationEventArgs args)
+    {
+        Notification notification = new()
+        {
+            Title = args.Title,
+            Message = args.Message,
+            Severity = args.IsError ? InfoBarSeverity.Error : InfoBarSeverity.Informational,
+            Duration = args.IsError ? null : TimeSpan.FromSeconds(2)
+        };
+        _ = this.NotificationQueue.Show(notification);
+    }
 }

@@ -13,7 +13,7 @@ namespace TodoApp.WinUI3.Services;
 /// A standard interface for CRUD operations against a data store.
 /// </summary>
 /// <typeparam name="T">The type of entity being used.</typeparam>
-public interface IDataService<T> where T : OfflineEntity
+public interface IDataService<T> where T : OfflineClientEntity
 {
     /// <summary>
     /// Create a new entity within the data store.

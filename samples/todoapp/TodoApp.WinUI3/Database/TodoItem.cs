@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace TodoApp.WinUI3;
 
-public class TodoItem : OfflineEntity
+public class TodoItem : OfflineClientEntity
 {
     public string Title { get; set; } = string.Empty;
     public bool IsComplete { get; set; } = false;

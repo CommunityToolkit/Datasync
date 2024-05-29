@@ -6,18 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TodoApp.WinUI3.Database;
 
-public class AppDbContext : DbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public AppDbContext()
-    {
-        _ = Database.EnsureCreated();
-    }
-
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
-
-    protected override void OnConfiguring(DbContextOptionsBuilder builder)
-    {
-        builder = builder.UseSqlite("Data Source=:memory:");
-        base.OnConfiguring(builder);
-    }
 }
