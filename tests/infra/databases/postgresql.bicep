@@ -55,8 +55,8 @@ resource server 'Microsoft.DBforPostgreSQL/flexibleServers@2023-06-01-preview' =
         version: '15'
     }
 
-    resource fw 'firewallRules' = [ for fwRule in clientIpFirewallRules : {
-        name: '${fwRule.startIpAddress}-${fwRule.endIpAddress}'
+    resource fw 'firewallRules' = [ for (fwRule, idx) in clientIpFirewallRules : {
+        name: 'fw${idx}'
         properties: {
             startIpAddress: fwRule.startIpAddress
             endIpAddress: fwRule.endIpAddress
