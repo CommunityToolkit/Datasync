@@ -62,7 +62,7 @@ Create a `.runsettings` file in the `tests` directory (or the top level reposito
   <RunConfiguration>
     <EnvironmentVariables>
       <DATASYNC_AZSQL_CONNECTIONSTRING>{{connection string}}</DATASYNC_AZSQL_CONNECTIONSTRING>
-      <DATASYNC_COSMOS_CONNECTIONSTRING>{{connection string}}</DATADSYNC_COSMOS_CONNECTIONSTRING>
+      <DATASYNC_COSMOS_CONNECTIONSTRING>{{connection string}}</DATASYNC_COSMOS_CONNECTIONSTRING>
       <DATASYNC_PGSQL_CONNECTIONSTRING>{{connection string}}</DATASYNC_PGSQL_CONNECTIONSTRING>
     </EnvironmentVariables>
   </RunConfiguration>
