@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.TestCommon;
+
 namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
 [ExcludeFromCodeCoverage]
@@ -24,12 +26,12 @@ public class EntityTableData_Tests
     {
         DateTimeOffset testTime = DateTimeOffset.Now;
 
-        CosmosEntityTableData sut1 = new() { Id = "t1", Deleted = false, UpdatedAt = testTime, Version = new byte[] { 0x61, 0x62, 0x63, 0x64, 0x65 } };
+        CosmosEntityTableData sut1 = new() { Id = "t1", Deleted = false, UpdatedAt = testTime, Version = [0x61, 0x62, 0x63, 0x64, 0x65] };
         sut1.EntityTag.Should().BeEquivalentTo("abcde");
         sut1.UpdatedAt.Should().Be(testTime);
 
         CosmosEntityTableData sut2 = new() { Id = "t1", Deleted = false, UpdatedAt = testTime, EntityTag = "abcde" };
-        sut2.Version.Should().BeEquivalentTo(new byte[] { 0x61, 0x62, 0x63, 0x64, 0x65 });
+        sut2.Version.Should().BeEquivalentTo([ 0x61, 0x62, 0x63, 0x64, 0x65 ]);
         sut2.UpdatedAt.Should().Be(testTime);
     }
 

@@ -2,7 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common.Test.Models;
+using CommunityToolkit.Datasync.TestCommon.Databases;
+using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Server.InMemory.Test;
 
@@ -20,7 +21,7 @@ public class InMemoryRepository_Tests : RepositoryTests<InMemoryMovie>
 
     protected override Task<IRepository<InMemoryMovie>> GetPopulatedRepositoryAsync()
     {
-        this.repository = new InMemoryRepository<InMemoryMovie>(Movies.OfType<InMemoryMovie>());
+        this.repository = new InMemoryRepository<InMemoryMovie>(TestData.Movies.OfType<InMemoryMovie>());
         return Task.FromResult<IRepository<InMemoryMovie>>(this.repository);
     }
 
@@ -44,7 +45,7 @@ public class InMemoryRepository_Tests : RepositoryTests<InMemoryMovie>
     public async Task Ctor_Populated()
     {
         InMemoryRepository<InMemoryMovie> sut = await GetPopulatedRepositoryAsync() as InMemoryRepository<InMemoryMovie>;
-        int movieCount = Movies.MovieList.Length;
+        int movieCount = TestData.Movies.MovieList.Length;
 
         sut.Should().NotBeNull();
         sut.GetEntities().Count.Should().Be(movieCount);
@@ -61,7 +62,7 @@ public class InMemoryRepository_Tests : RepositoryTests<InMemoryMovie>
     [Fact]
     public void Ctor_Populated_NoId()
     {
-        List<InMemoryMovie> movies = Movies.OfType<InMemoryMovie>().ConvertAll(m => { m.Id = null; return m; });
+        List<InMemoryMovie> movies = TestData.Movies.OfType<InMemoryMovie>().ConvertAll(m => { m.Id = null; return m; });
         InMemoryRepository<InMemoryMovie> sut = new(movies);
 
         sut.Should().NotBeNull();
@@ -83,7 +84,7 @@ public class InMemoryRepository_Tests : RepositoryTests<InMemoryMovie>
     {
         InMemoryRepository<InMemoryMovie> sut = await GetPopulatedRepositoryAsync() as InMemoryRepository<InMemoryMovie>;
         sut.ThrowException = new ApplicationException("test exception");
-        InMemoryMovie addition = Movies.OfType<InMemoryMovie>(Movies.BlackPanther);
+        InMemoryMovie addition = TestData.Movies.OfType<InMemoryMovie>(TestData.Movies.BlackPanther);
         Func<Task> act = async () => await sut.CreateAsync(addition);
 
         await act.Should().ThrowAsync<ApplicationException>();
@@ -117,7 +118,7 @@ public class InMemoryRepository_Tests : RepositoryTests<InMemoryMovie>
     {
         InMemoryRepository<InMemoryMovie> sut = await GetPopulatedRepositoryAsync() as InMemoryRepository<InMemoryMovie>;
         sut.ThrowException = new ApplicationException("test exception");
-        InMemoryMovie replacement = Movies.OfType<InMemoryMovie>(Movies.BlackPanther, id);
+        InMemoryMovie replacement = TestData.Movies.OfType<InMemoryMovie>(TestData.Movies.BlackPanther, id);
         Func<Task> act = async () => await sut.ReplaceAsync(replacement);
 
         await act.Should().ThrowAsync<ApplicationException>();

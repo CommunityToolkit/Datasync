@@ -2,12 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common.Test.Models;
-using CommunityToolkit.Datasync.Server;
-using FluentAssertions;
-using Xunit;
-
 #pragma warning disable IDE0300, IDE0305 // Collection initialization can be simplified, Use LINQ to replace loops
+
+using CommunityToolkit.Datasync.Server;
+using CommunityToolkit.Datasync.TestCommon;
+using CommunityToolkit.Datasync.TestCommon.Models;
+using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Common.Test;
 
@@ -84,7 +84,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         Skip.IfNot(CanRunLiveTests());
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
-        int expected = Movies.Count<TEntity>(m => m.Rating == MovieRating.R);
+        int expected = TestData.Movies.Count<TEntity>(m => m.Rating == MovieRating.R);
         IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
         List<TEntity> actual = queryable.Where(m => m.Rating == MovieRating.R).ToList();
 
@@ -97,7 +97,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         Skip.IfNot(CanRunLiveTests());
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
-        int expected = Movies.Count<TEntity>(m => m.Rating == MovieRating.R);
+        int expected = TestData.Movies.Count<TEntity>(m => m.Rating == MovieRating.R);
         IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
         var actual = queryable.Where(m => m.Rating == MovieRating.R).Select(m => new { m.Id, m.Title }).ToList();
 
@@ -140,7 +140,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         string id = await GetRandomEntityIdAsync(false);
-        TEntity addition = Movies.OfType<TEntity>(Movies.BlackPanther, id);
+        TEntity addition = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
         TEntity sut = addition.Clone();
         await Repository.CreateAsync(sut);
         TEntity actual = await GetEntityAsync(id);
@@ -160,7 +160,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         Skip.IfNot(CanRunLiveTests());
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
-        TEntity addition = Movies.OfType<TEntity>(Movies.BlackPanther);
+        TEntity addition = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther);
         addition.Id = id;
         TEntity sut = addition.Clone();
         await Repository.CreateAsync(sut);
@@ -177,7 +177,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         string id = await GetRandomEntityIdAsync(true);
-        TEntity addition = Movies.OfType<TEntity>(Movies.BlackPanther, id);
+        TEntity addition = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
         TEntity sut = addition.Clone();
         TEntity expected = await GetEntityAsync(id);
         Func<Task> act = async () => await Repository.CreateAsync(sut);
@@ -192,7 +192,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         string id = await GetRandomEntityIdAsync(false);
-        TEntity addition = Movies.OfType<TEntity>(Movies.BlackPanther, id);
+        TEntity addition = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
         TEntity sut = addition.Clone();
         sut.UpdatedAt = DateTimeOffset.UtcNow.AddDays(-1);
         byte[] expectedVersion = new byte[] { 0x01, 0x02, 0x03, 0x04 };
@@ -214,7 +214,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         string id = await GetRandomEntityIdAsync(false);
-        TEntity addition = Movies.OfType<TEntity>(Movies.BlackPanther, id);
+        TEntity addition = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
         TEntity sut = addition.Clone();
         sut.UpdatedAt = DateTimeOffset.UtcNow.AddDays(-1);
         byte[] expectedVersion = new byte[] { 0x01, 0x02, 0x03, 0x04 };
@@ -238,7 +238,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         Func<Task> act = async () => await Repository.DeleteAsync(id);
 
         (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(400);
-        (await GetEntityCountAsync()).Should().Be(Movies.Count<TEntity>());
+        (await GetEntityCountAsync()).Should().Be(TestData.Movies.Count<TEntity>());
     }
 
     [SkippableFact]
@@ -251,7 +251,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         Func<Task> act = async () => await Repository.DeleteAsync(id);
 
         (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(404);
-        (await GetEntityCountAsync()).Should().Be(Movies.Count<TEntity>());
+        (await GetEntityCountAsync()).Should().Be(TestData.Movies.Count<TEntity>());
     }
 
     [SkippableFact]
@@ -346,7 +346,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         Skip.IfNot(CanRunLiveTests());
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
-        TEntity replacement = Movies.OfType<TEntity>(Movies.BlackPanther);
+        TEntity replacement = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther);
         replacement.Id = id;
         Func<Task> act = async () => await Repository.ReplaceAsync(replacement);
 
@@ -360,7 +360,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         string id = await GetRandomEntityIdAsync(false);
-        TEntity replacement = Movies.OfType<TEntity>(Movies.BlackPanther, id);
+        TEntity replacement = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
         Func<Task> act = async () => await Repository.ReplaceAsync(replacement);
 
         (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(404);
@@ -373,7 +373,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         string id = await GetRandomEntityIdAsync(true);
-        TEntity replacement = Movies.OfType<TEntity>(Movies.BlackPanther, id);
+        TEntity replacement = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
         TEntity expected = await GetEntityAsync(id);
         byte[] version = Guid.NewGuid().ToByteArray();
         Func<Task> act = async () => await Repository.ReplaceAsync(replacement, version);
@@ -388,7 +388,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         string id = await GetRandomEntityIdAsync(true);
-        TEntity replacement = Movies.OfType<TEntity>(Movies.BlackPanther, id);
+        TEntity replacement = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
         TEntity expected = await GetEntityAsync(id);
         byte[] version = expected.Version.ToArray();
         await Repository.ReplaceAsync(replacement, version);
@@ -406,7 +406,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         string id = await GetRandomEntityIdAsync(true);
-        TEntity replacement = Movies.OfType<TEntity>(Movies.BlackPanther, id);
+        TEntity replacement = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
         TEntity expected = await GetEntityAsync(id);
         byte[] version = expected.Version.ToArray();
         await Repository.ReplaceAsync(replacement);

@@ -2,15 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common.Test;
-using CommunityToolkit.Datasync.Common.Test.Models;
 using CommunityToolkit.Datasync.Server;
 using CommunityToolkit.Datasync.Server.InMemory;
+using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
+using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.OData.ModelBuilder;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-InMemoryRepository<InMemoryMovie> inMemoryMovieRepository = new(Movies.OfType<InMemoryMovie>());
+InMemoryRepository<InMemoryMovie> inMemoryMovieRepository = new(TestData.Movies.OfType<InMemoryMovie>());
 builder.Services.AddSingleton<IRepository<InMemoryMovie>>(inMemoryMovieRepository);
 
 InMemoryRepository<InMemoryKitchenSink> inMemoryKitchenSinkRepository = new();

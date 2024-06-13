@@ -2,20 +2,20 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common.Test.Database;
-using CommunityToolkit.Datasync.Common.Test.Models;
+using CommunityToolkit.Datasync.TestCommon;
+using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
 [ExcludeFromCodeCoverage]
-public class AzureSqlEntityTableRepository_Tests : RepositoryTests<EntityMovie>
+public class AzureSqlEntityTableRepository_Tests : RepositoryTests<AzureSqlEntityMovie>
 {
     #region Setup
     private readonly Random random = new();
     private readonly string connectionString;
-    private readonly List<EntityMovie> movies;
+    private readonly List<AzureSqlEntityMovie> movies;
     private readonly Lazy<AzureSqlDbContext> _context;
 
     public AzureSqlEntityTableRepository_Tests(ITestOutputHelper output) : base()
@@ -32,14 +32,14 @@ public class AzureSqlEntityTableRepository_Tests : RepositoryTests<EntityMovie>
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 
-    protected override Task<EntityMovie> GetEntityAsync(string id)
+    protected override Task<AzureSqlEntityMovie> GetEntityAsync(string id)
         => Task.FromResult(Context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == id));
 
     protected override Task<int> GetEntityCountAsync()
         => Task.FromResult(Context.Movies.Count());
 
-    protected override Task<IRepository<EntityMovie>> GetPopulatedRepositoryAsync()
-        => Task.FromResult<IRepository<EntityMovie>>(new EntityTableRepository<EntityMovie>(Context));
+    protected override Task<IRepository<AzureSqlEntityMovie>> GetPopulatedRepositoryAsync()
+        => Task.FromResult<IRepository<AzureSqlEntityMovie>>(new EntityTableRepository<AzureSqlEntityMovie>(Context));
 
     protected override Task<string> GetRandomEntityIdAsync(bool exists)
         => Task.FromResult(exists ? this.movies[this.random.Next(this.movies.Count)].Id : Guid.NewGuid().ToString());
@@ -57,7 +57,7 @@ public class AzureSqlEntityTableRepository_Tests : RepositoryTests<EntityMovie>
     public void EntityTableRepository_GoodDbSet_Works()
     {
         Skip.IfNot(CanRunLiveTests());
-        Action act = () => _ = new EntityTableRepository<EntityMovie>(Context);
+        Action act = () => _ = new EntityTableRepository<AzureSqlEntityMovie>(Context);
         act.Should().NotThrow();
     }
 
@@ -65,9 +65,9 @@ public class AzureSqlEntityTableRepository_Tests : RepositoryTests<EntityMovie>
     public async Task WrapExceptionAsync_ThrowsConflictException_WhenDbConcurrencyUpdateExceptionThrown()
     {
         Skip.IfNot(CanRunLiveTests());
-        EntityTableRepository<EntityMovie> repository = await GetPopulatedRepositoryAsync() as EntityTableRepository<EntityMovie>;
+        EntityTableRepository<AzureSqlEntityMovie> repository = await GetPopulatedRepositoryAsync() as EntityTableRepository<AzureSqlEntityMovie>;
         string id = await GetRandomEntityIdAsync(true);
-        EntityMovie expectedPayload = await GetEntityAsync(id);
+        AzureSqlEntityMovie expectedPayload = await GetEntityAsync(id);
 
         static Task innerAction() => throw new DbUpdateConcurrencyException("Concurrency exception");
 
@@ -79,9 +79,9 @@ public class AzureSqlEntityTableRepository_Tests : RepositoryTests<EntityMovie>
     public async Task WrapExceptionAsync_ThrowsRepositoryException_WhenDbUpdateExceptionThrown()
     {
         Skip.IfNot(CanRunLiveTests());
-        EntityTableRepository<EntityMovie> repository = await GetPopulatedRepositoryAsync() as EntityTableRepository<EntityMovie>;
+        EntityTableRepository<AzureSqlEntityMovie> repository = await GetPopulatedRepositoryAsync() as EntityTableRepository<AzureSqlEntityMovie>;
         string id = await GetRandomEntityIdAsync(true);
-        EntityMovie expectedPayload = await GetEntityAsync(id);
+        AzureSqlEntityMovie expectedPayload = await GetEntityAsync(id);
 
         static Task innerAction() => throw new DbUpdateException("Non-concurrency exception");
 

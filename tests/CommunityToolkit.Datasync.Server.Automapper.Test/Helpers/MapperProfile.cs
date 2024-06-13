@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using AutoMapper;
-using CommunityToolkit.Datasync.Common.Test.Models;
+using CommunityToolkit.Datasync.TestCommon.Databases;
 
 namespace CommunityToolkit.Datasync.Server.Automapper.Test.Helpers;
 
