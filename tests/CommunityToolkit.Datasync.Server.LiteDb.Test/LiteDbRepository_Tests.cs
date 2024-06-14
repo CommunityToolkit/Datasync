@@ -5,6 +5,8 @@
 using CommunityToolkit.Datasync.Common.Test;
 using LiteDB;
 
+using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
+
 namespace CommunityToolkit.Datasync.Server.LiteDb.Test;
 
 [ExcludeFromCodeCoverage]
@@ -29,7 +31,7 @@ public class LiteDbRepository_Tests : RepositoryTests<LiteDbMovie>, IDisposable
         this.database = new LiteDatabase($"Filename={this.dbFilename};Connection=direct;InitialSize=0");
         this.collection = this.database.GetCollection<LiteDbMovie>("litedbmovies");
 
-        foreach (LiteDbMovie movie in Movies.OfType<LiteDbMovie>())
+        foreach (LiteDbMovie movie in TestData.Movies.OfType<LiteDbMovie>())
         {
             movie.UpdatedAt = DateTimeOffset.Now;
             movie.Version = Guid.NewGuid().ToByteArray();

@@ -2,11 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common.Test.Models;
-using CommunityToolkit.Datasync.Common.Test;
+using CommunityToolkit.Datasync.TestCommon;
+using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Models;
+using Microsoft.Spatial;
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.Spatial;
 
 namespace CommunityToolkit.Datasync.Server.Test.Service;
 

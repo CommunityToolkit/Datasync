@@ -2,11 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common.Test;
-using CommunityToolkit.Datasync.Common.Test.Models;
-using Microsoft.Spatial;
+using CommunityToolkit.Datasync.TestCommon;
+using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Models;
 using System.Net;
 using System.Text.Json;
+
+using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Server.Test.Service;
 
@@ -446,7 +448,7 @@ public class Query_Tests(ServiceApplicationFactory factory) : ServiceTest(factor
             $"{this.factory.MovieEndpoint}?$count=true&$filter=round(duration div 60.0) eq 2",
             100,
             "$count=true&$filter=round(duration div 60.0) eq 2&$skip=100",
-            Movies.MovieList.Count(x => Math.Round(x.Duration / 60.0) == 2.0),
+            TestData.Movies.MovieList.Count(x => Math.Round(x.Duration / 60.0) == 2.0),
             ["id-000", "id-005", "id-009", "id-010", "id-011"]
         );
     }

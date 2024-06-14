@@ -2,12 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common.Test.Models;
-using CommunityToolkit.Datasync.Common.Test;
+using CommunityToolkit.Datasync.TestCommon;
+using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Models;
 using Microsoft.Spatial;
-using System.Net.Http.Json;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
+
+using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Server.Test.Service;
 
@@ -19,7 +22,7 @@ public class Create_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     [InlineData("de76a422-7fb0-4f1f-9bb4-12b3c7882541")]
     public async Task Create_WithValidInput_Returns201(string id)
     {
-        ClientMovie source = new(Movies.BlackPanther) { Id = id };
+        ClientMovie source = new(TestData.Movies.BlackPanther) { Id = id };
 
         HttpResponseMessage response = await this.client.PostAsJsonAsync(this.factory.MovieEndpoint, source, this.serializerOptions);
         response.Should().HaveStatusCode(HttpStatusCode.Created);
@@ -38,7 +41,7 @@ public class Create_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     public async Task Create_ExistingId_Returns409()
     {
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
-        ClientMovie source = new(Movies.BlackPanther) { Id = existingMovie.Id };
+        ClientMovie source = new(TestData.Movies.BlackPanther) { Id = existingMovie.Id };
 
         HttpResponseMessage response = await this.client.PostAsJsonAsync(this.factory.MovieEndpoint, source, this.serializerOptions);
         response.Should().HaveStatusCode(HttpStatusCode.Conflict);
@@ -54,7 +57,7 @@ public class Create_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     {
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
-        ClientMovie source = new(Movies.BlackPanther) { Id = existingMovie.Id };
+        ClientMovie source = new(TestData.Movies.BlackPanther) { Id = existingMovie.Id };
 
         HttpResponseMessage response = await this.client.PostAsJsonAsync(this.factory.MovieEndpoint, source, this.serializerOptions);
         response.Should().HaveStatusCode(HttpStatusCode.Conflict);

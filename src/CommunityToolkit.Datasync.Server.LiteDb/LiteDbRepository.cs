@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Common.Http;
 using LiteDB;
 
 namespace CommunityToolkit.Datasync.Server.LiteDb;
@@ -91,7 +92,6 @@ public class LiteDbRepository<TEntity> : IRepository<TEntity> where TEntity : Li
         }
     }
 
-    #region IRepository<TEntity> implementation
     /// <inheritdoc/>
     public virtual ValueTask<IQueryable<TEntity>> AsQueryableAsync(CancellationToken cancellationToken = default)
         => ValueTask.FromResult(Collection.FindAll().AsQueryable());
@@ -160,5 +160,4 @@ public class LiteDbRepository<TEntity> : IRepository<TEntity> where TEntity : Li
             _ = Collection.Update(entity);
         }, cancellationToken);
     }
-    #endregion
 }

@@ -45,7 +45,11 @@ public class TableControllerOptions
     public int MaxTop
     {
         get => this._maxTop;
-        set { Ensure.That(value, nameof(MaxTop)).IsInRange(1, MAX_TOP); this._maxTop = value; }
+        set 
+        {
+            Ensure.That(value, nameof(MaxTop)).IsInRange(1, MAX_TOP); 
+            this._maxTop = value;
+        }
     }
 
     /// <summary>
@@ -54,7 +58,11 @@ public class TableControllerOptions
     public int PageSize
     {
         get => this._pageSize;
-        set { Ensure.That(value, nameof(MaxTop)).IsInRange(1, MAX_PAGESIZE); this._pageSize = value; }
+        set 
+        { 
+            Ensure.That(value, nameof(MaxTop)).IsInRange(1, MAX_PAGESIZE); 
+            this._pageSize = value; 
+        }
     }
 
     /// <summary>

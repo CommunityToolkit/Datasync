@@ -2,9 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common.Test;
-using CommunityToolkit.Datasync.Common.Test.Models;
 using CommunityToolkit.Datasync.Server.InMemory;
+using CommunityToolkit.Datasync.TestCommon;
+using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
@@ -118,14 +119,12 @@ public class TableController_Query_Tests : BaseTest
         controller.Options.DisableClientSideEvaluation = true;
 
         int evaluations = 0;
-#pragma warning disable RCS1163 // Unused parameter
         void evaluator(IQueryable<InMemoryMovie> dataset)
         {
             evaluations++;
             // if (evaluations == 1) throw new NotSupportedException("Server side");
             // if (evaluations == 2) throw new NotSupportedException("Client side");
         }
-#pragma warning restore RCS1163 // Unused parameter
 
         List<InMemoryMovie> dataset = [];
 
@@ -142,7 +141,6 @@ public class TableController_Query_Tests : BaseTest
         controller.Options.DisableClientSideEvaluation = true;
 
         int evaluations = 0;
-#pragma warning disable RCS1163 // Unused parameter
 #pragma warning disable IDE0011 // Add braces
         void evaluator(IQueryable<InMemoryMovie> dataset)
         {
@@ -151,7 +149,6 @@ public class TableController_Query_Tests : BaseTest
             if (evaluations == 2) throw new NotSupportedException("Client side");
         }
 #pragma warning restore IDE0011 // Add braces
-#pragma warning restore RCS1163 // Unused parameter
 
         List<InMemoryMovie> dataset = [];
 
@@ -167,7 +164,6 @@ public class TableController_Query_Tests : BaseTest
         controller.Options.DisableClientSideEvaluation = false;
 
         int evaluations = 0;
-#pragma warning disable RCS1163 // Unused parameter
 #pragma warning disable IDE0011 // Add braces
         void evaluator(IQueryable<InMemoryMovie> dataset)
         {
@@ -176,7 +172,6 @@ public class TableController_Query_Tests : BaseTest
             //if (evaluations == 2) throw new NotSupportedException("Client side");
         }
 #pragma warning restore IDE0011 // Add braces
-#pragma warning restore RCS1163 // Unused parameter
 
         List<InMemoryMovie> dataset = [];
 
@@ -193,7 +188,6 @@ public class TableController_Query_Tests : BaseTest
         controller.Options.DisableClientSideEvaluation = false;
 
         int evaluations = 0;
-#pragma warning disable RCS1163 // Unused parameter
 #pragma warning disable IDE0011 // Add braces
         void evaluator(IQueryable<InMemoryMovie> dataset)
         {
@@ -202,7 +196,6 @@ public class TableController_Query_Tests : BaseTest
             if (evaluations == 2) throw new NotSupportedException("Client side");
         }
 #pragma warning restore IDE0011 // Add braces
-#pragma warning restore RCS1163 // Unused parameter
 
         List<InMemoryMovie> dataset = [];
 

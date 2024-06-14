@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using CommunityToolkit.Datasync.Common;
 
 namespace CommunityToolkit.Datasync.Server;
 
