@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CommunityToolkit.Datasync.TestCommon.Databases;
 
+[ExcludeFromCodeCoverage]
 public class PgEntityMovie : EntityTableData, IMovie, IEquatable<IMovie>
 {
     /// <summary>
