@@ -8,6 +8,7 @@ using FluentAssertions;
 
 namespace CommunityToolkit.Datasync.TestCommon;
 
+[ExcludeFromCodeCoverage]
 public static class FluentStringAssertions
 {
     /// <summary>

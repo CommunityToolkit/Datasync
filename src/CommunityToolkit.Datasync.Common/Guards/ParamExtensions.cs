@@ -70,24 +70,6 @@ public static partial class ParamExtensions
     }
 
     /// <summary>
-    /// Guards against a string not being a valid Id.
-    /// </summary>
-    /// <param name="param">The parameter to check.</param>
-    /// <param name="because">A reason to use instead of the default reason.</param>
-    /// <returns>The parameter (for chaining)</returns>
-    /// <exception cref="ArgumentException">Thrown if the ID is not valid.</exception>
-    public static Param<string> IsAValidId(this Param<string> param, string? because = null)
-    {
-        if (!RegexpConstants.EntityIdentity.IsMatch(param.Value))
-        {
-            because ??= $"The parameter '{param.Name}' must be a valid Id";
-            throw new ArgumentException(because, param.Name);
-        }
-
-        return param;
-    }
-
-    /// <summary>
     /// Guards against invalid datasync service endpoint URIs.
     /// </summary>
     /// <param name="param">The parameter to check.</param>
@@ -242,6 +224,24 @@ public static partial class ParamExtensions
         if (string.IsNullOrWhiteSpace(param.Value))
         {
             because ??= $"The parameter '{param.Name}' must not be null or whitespace";
+            throw new ArgumentException(because, param.Name);
+        }
+
+        return param;
+    }
+
+    /// <summary>
+    /// Guards against a string not being a valid Id.
+    /// </summary>
+    /// <param name="param">The parameter to check.</param>
+    /// <param name="because">A reason to use instead of the default reason.</param>
+    /// <returns>The parameter (for chaining)</returns>
+    /// <exception cref="ArgumentException">Thrown if the ID is not valid.</exception>
+    public static Param<string> IsValidId(this Param<string> param, string? because = null)
+    {
+        if (!RegexpConstants.EntityIdentity.IsMatch(param.Value))
+        {
+            because ??= $"The parameter '{param.Name}' must be a valid Id";
             throw new ArgumentException(because, param.Name);
         }
 
