@@ -4,7 +4,10 @@
 
 using CommunityToolkit.Datasync.Server.NSwag.Test.Service;
 using CommunityToolkit.Datasync.TestCommon;
+using FluentAssertions.Specialized;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.TestHost;
+using NSwag;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -44,4 +47,44 @@ public class NSwag_Tests
 
         actualContent.Should().Be(expectedContent);
     }
+
+    [Fact]
+    public void ContainsRequestHeader_ReturnsFalse_WhenQueryParam()
+    {
+        OpenApiOperation sut = new();
+        sut.AddODataQueryParameters();
+
+        // Something that doesn't exist.
+        sut.ContainsRequestHeader("X-DOES-NOT-EXIST").Should().BeFalse();
+
+        // Something that exists as a query parameter.
+        sut.ContainsRequestHeader("$count").Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(typeof(TC1))]
+    [InlineData(typeof(TC2))]
+    [InlineData(typeof(TC3))]
+    [InlineData(typeof(TC4<TodoItem>))]
+    [InlineData(typeof(TC5))]
+    public void IsTableController_ReturnsFalse_ForConditions(Type sut)
+    {
+        DatasyncOperationProcessor.IsTableController(sut).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(typeof(object))]
+    [InlineData(typeof(TC1))]
+    [InlineData(typeof(TC2))]
+    public void GetTableEntityType_Throws_Properly(Type sut)
+    {
+        Action act = () => _ = DatasyncOperationProcessor.GetTableEntityType(sut);
+        act.Should().Throw<ArgumentException>();
+    }
+
+    class TC1 { }
+    class TC2 : ControllerBase { }
+    abstract class TC3 : TableController<TodoItem> { }
+    abstract class TC4<T> : ControllerBase { }
+    class TC5 : TC4<TodoItem> { }
 }

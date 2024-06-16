@@ -48,9 +48,10 @@ public static partial class OpenApiDatasyncExtensions
     internal static void SetResponse(this OpenApiOperation operation, HttpStatusCode statusCode, JsonSchema? schema = null, bool includeETagHeader = true)
     {
         int statusId = (int)statusCode;
+        Regex descriptionRegex = new("(?<=[a-z])([A-Z])");
         OpenApiResponse response = new()
         {
-            Description = StatusToDescriptionRegex().Replace(statusCode.ToString(), " $1")
+            Description = descriptionRegex.Replace(statusCode.ToString(), " $1")
         };
 
         if (schema != null)
@@ -130,7 +131,4 @@ public static partial class OpenApiDatasyncExtensions
         operation.AddODataQueryParameter("$top", JsonObjectType.Integer, "The number of items in the list to return for paging support.");
         operation.AddODataQueryParameter("__includedeleted", JsonObjectType.Boolean, "If true, soft-deleted items are returned as well as non-deleted items.");
     }
-
-    [GeneratedRegex("(?<=[a-z])([A-Z])", RegexOptions.Compiled)]
-    private static partial Regex StatusToDescriptionRegex();
 }

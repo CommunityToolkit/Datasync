@@ -35,17 +35,35 @@ public class DatasyncOperationProcessor : IOperationProcessor
     /// </summary>
     /// <param name="type">The type of the table controller.</param>
     /// <returns><c>true</c> if the type is a datasync table controller.</returns>
-    private static bool IsTableController(Type type)
-        => type.BaseType?.IsGenericType == true && !type.IsAbstract
-        && type.GetCustomAttributes().Any(s => s.GetType() == typeof(DatasyncControllerAttribute));
+    internal static bool IsTableController(Type type)
+    {
+        if (!type.IsAbstract && type.BaseType != null && type.BaseType.IsGenericType == true)
+        {
+            if (type.GetCustomAttribute<DatasyncControllerAttribute>() != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Returns the entity type being handled by the controller type.
+    /// </summary>
+    /// <param name="controllerType">The <see cref="Type"/> of the controller.</param>
+    /// <returns>The Type for the entity.</returns>
+    /// <exception cref="ArgumentException">If the controller type is not a generic type.</exception>
+    internal static Type GetTableEntityType(Type controllerType)
+        => controllerType.BaseType?.GetGenericArguments().FirstOrDefault()
+        ?? throw new ArgumentException("Unable to retrieve generic entity type");
 
     private static void ProcessDatasyncOperation(OperationProcessorContext context)
     {
         OpenApiOperation operation = context.OperationDescription.Operation;
         string method = context.OperationDescription.Method;
         string path = context.OperationDescription.Path;
-        Type entityType = context.ControllerType.BaseType?.GetGenericArguments().FirstOrDefault()
-            ?? throw new ArgumentException("Cannot process a non-generic table controller");
+        Type entityType = GetTableEntityType(context.ControllerType);
         JsonSchema entitySchemaRef = GetEntityReference(context, entityType);
 
         if (method.Equals("DELETE", StringComparison.InvariantCultureIgnoreCase))

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CommunityToolkit.Datasync.Server.NSwag.Test.Service;
 
+[ExcludeFromCodeCoverage]
 public abstract class ReadonlyTableController<TData> : TableController<TData> where TData : class, ITableData
 {
     [NonAction]

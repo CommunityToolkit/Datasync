@@ -6,6 +6,10 @@
   <Import Project="..\Shared.Build.props" />
 
   <ItemGroup>
+    <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.NSwag.Test" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <PackageReference Include="NSwag.AspNetCore" Version="14.0.8" />
   </ItemGroup>
 
