@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Provides necessary capabilities for supporting the Datasync server library when using NSwag for creating OpenAPI definitions.</Description>
+  </PropertyGroup>
+
+  <Import Project="..\Shared.Build.props" />
+
+  <ItemGroup>
+    <PackageReference Include="NSwag.AspNetCore" Version="14.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj" />
+  </ItemGroup>
+</Project>

@@ -3,12 +3,33 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Server;
+using Microsoft.AspNetCore.TestHost;
+using System.Reflection;
 
 namespace CommunityToolkit.Datasync.TestCommon;
 
 [ExcludeFromCodeCoverage]
 public static class LibraryExtensions
 {
+    /// <summary>
+    /// Normalizes the content of a file so that they can be compared.
+    /// </summary>
+    public static string NormalizeContent(this string content)
+        => content.Replace("\r\n", "\n").TrimEnd();
+
+    /// <summary>
+    /// Reads an external file within the assembly.
+    /// </summary>
+    /// <param name="assembly">The assembly with the embedded file.</param>
+    /// <param name="path">The path of the file.</param>
+    /// <returns>The contents of the file.</returns>
+    public static string ReadExternalFile(this Assembly assembly, string path)
+    {
+        using Stream s = assembly.GetManifestResourceStream(assembly.GetName().Name + "." + path);
+        using StreamReader sr = new(s);
+        return sr.ReadToEnd().Replace("\r\n", "\n").NormalizeContent();
+    }
+
     /// <summary>
     /// Creates a copy of an <see cref="ITableData"/> into a base table data object.
     /// </summary>
