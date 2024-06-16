@@ -8,6 +8,7 @@ using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.TestCommon.Databases;
 
+[ExcludeFromCodeCoverage]
 public static class LoggingExtensions
 {
     private static readonly string[] categories = ["Microsoft.EntityFrameworkCore.Database.Command"];

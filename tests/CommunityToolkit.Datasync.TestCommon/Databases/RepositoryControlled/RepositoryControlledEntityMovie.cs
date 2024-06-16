@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 namespace CommunityToolkit.Datasync.TestCommon.Databases;
 
 [ExcludeFromCodeCoverage]
-public class AzureSqlEntityMovie : EntityTableData, IMovie, IEquatable<IMovie>
+public class RepositoryControlledEntityMovie : RepositoryControlledEntityTableData, IMovie, IEquatable<IMovie>
 {
     /// <summary>
     /// True if the movie won the oscar for Best Picture
@@ -62,3 +62,4 @@ public class AzureSqlEntityMovie : EntityTableData, IMovie, IEquatable<IMovie>
         && other.Title == Title
         && other.Year == Year;
 }
+
