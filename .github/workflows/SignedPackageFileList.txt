@@ -5,3 +5,4 @@
 **/CommunityToolkit.Datasync.Server.EntityFrameworkCore
 **/CommunityToolkit.Datasync.Server.InMemory
 **/CommunityToolkit.Datasync.Server.LiteDb
+**/CommunityToolkit.Datasync.Server.NSwag

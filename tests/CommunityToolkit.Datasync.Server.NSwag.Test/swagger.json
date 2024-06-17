@@ -1,0 +1,1324 @@
+{
+  
+  "openapi": "3.0.0",
+  "info": {
+    "title": "My Title",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost"
+    }
+  ],
+  "paths": {
+    "/tables/kitchenreader": {
+      "get": {
+        "tags": [
+          "KitchenReader"
+        ],
+        "summary": "The GET method is used to retrieve resource representation.  The resource is never modified.\nIn this case, an OData v4 query is accepted with the following options:\n\n\n- $count is used to return a count of entities within the search parameters within the  response.\n- $filter is used to restrict the entities to be sent.\n- $orderby is used for ordering the entities to be sent.\n- $select is used to select which properties of the entities are sent.\n- $skip is used to skip some entities\n- $top is used to limit the number of entities returned.",
+        "operationId": "KitchenReader_Query",
+        "parameters": [
+          {
+            "name": "$count",
+            "in": "query",
+            "description": "If true, return the total number of items matched by the filter",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "$filter",
+            "in": "query",
+            "description": "An OData filter describing the entities to be returned",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "$orderby",
+            "in": "query",
+            "description": "A comma-separated list of ordering instructions.  Each ordering instruction is a field name with an optional direction (asc or desc).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "$select",
+            "in": "query",
+            "description": "A comma-separated list of fields to be returned in the result set.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "$skip",
+            "in": "query",
+            "description": "The number of items in the list to skip for paging support.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "$top",
+            "in": "query",
+            "description": "The number of items in the list to return for paging support.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "__includedeleted",
+            "in": "query",
+            "description": "If true, soft-deleted items are returned as well as non-deleted items.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "A page of KitchenSink entities",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "readOnly": true,
+                      "description": "The entities in this page of results",
+                      "nullable": true,
+                      "items": {
+                        "$ref": "#/components/schemas/KitchenSink"
+                      }
+                    },
+                    "count": {
+                      "type": "integer",
+                      "readOnly": true,
+                      "description": "The count of all entities in the result set",
+                      "nullable": true
+                    },
+                    "nextLink": {
+                      "type": "string",
+                      "readOnly": true,
+                      "description": "The URI to the next page of entities",
+                      "format": "uri",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/tables/kitchenreader/{id}": {
+      "get": {
+        "tags": [
+          "KitchenReader"
+        ],
+        "summary": "Retrieves an entity from the repository.",
+        "operationId": "KitchenReader_Read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the entity to be returned.",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Conditionally execute only if the entity version does not match the provided string (RFC 9110 13.1.2).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/tables/kitchensink": {
+      "post": {
+        "tags": [
+          "KitchenSink"
+        ],
+        "summary": "Creates a new entity in the repository.",
+        "operationId": "KitchenSink_Create",
+        "parameters": [
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Conditionally execute only if the entity version does not match the provided string (RFC 9110 13.1.2).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "KitchenSink"
+        ],
+        "summary": "The GET method is used to retrieve resource representation.  The resource is never modified.\nIn this case, an OData v4 query is accepted with the following options:\n\n\n- $count is used to return a count of entities within the search parameters within the  response.\n- $filter is used to restrict the entities to be sent.\n- $orderby is used for ordering the entities to be sent.\n- $select is used to select which properties of the entities are sent.\n- $skip is used to skip some entities\n- $top is used to limit the number of entities returned.",
+        "operationId": "KitchenSink_Query",
+        "parameters": [
+          {
+            "name": "$count",
+            "in": "query",
+            "description": "If true, return the total number of items matched by the filter",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "$filter",
+            "in": "query",
+            "description": "An OData filter describing the entities to be returned",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "$orderby",
+            "in": "query",
+            "description": "A comma-separated list of ordering instructions.  Each ordering instruction is a field name with an optional direction (asc or desc).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "$select",
+            "in": "query",
+            "description": "A comma-separated list of fields to be returned in the result set.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "$skip",
+            "in": "query",
+            "description": "The number of items in the list to skip for paging support.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "$top",
+            "in": "query",
+            "description": "The number of items in the list to return for paging support.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "__includedeleted",
+            "in": "query",
+            "description": "If true, soft-deleted items are returned as well as non-deleted items.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "A page of KitchenSink entities",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "readOnly": true,
+                      "description": "The entities in this page of results",
+                      "nullable": true,
+                      "items": {
+                        "$ref": "#/components/schemas/KitchenSink"
+                      }
+                    },
+                    "count": {
+                      "type": "integer",
+                      "readOnly": true,
+                      "description": "The count of all entities in the result set",
+                      "nullable": true
+                    },
+                    "nextLink": {
+                      "type": "string",
+                      "readOnly": true,
+                      "description": "The URI to the next page of entities",
+                      "format": "uri",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/tables/kitchensink/{id}": {
+      "delete": {
+        "tags": [
+          "KitchenSink"
+        ],
+        "summary": "Requests that the repository deletes an entity or marks an entity as deleted (depending on the EnableSoftDelete option).",
+        "operationId": "KitchenSink_Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Tne ID of the entity to be deleted.",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "Conditionally execute only if the entity version matches the provided string (RFC 9110 13.1.1).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "410": {
+            "description": "Gone"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "KitchenSink"
+        ],
+        "summary": "Retrieves an entity from the repository.",
+        "operationId": "KitchenSink_Read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the entity to be returned.",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Conditionally execute only if the entity version does not match the provided string (RFC 9110 13.1.2).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "KitchenSink"
+        ],
+        "summary": "Replaces the value of an entity within the repository with new data.",
+        "operationId": "KitchenSink_Replace",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the entity to be replaced.",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "Conditionally execute only if the entity version matches the provided string (RFC 9110 13.1.1).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenSink"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "410": {
+            "description": "Gone"
+          }
+        }
+      }
+    },
+    "/tables/TodoItem": {
+      "post": {
+        "tags": [
+          "TodoItem"
+        ],
+        "summary": "Creates a new entity in the repository.",
+        "operationId": "TodoItem_Create",
+        "parameters": [
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Conditionally execute only if the entity version does not match the provided string (RFC 9110 13.1.2).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItem"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItem"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "TodoItem"
+        ],
+        "summary": "The GET method is used to retrieve resource representation.  The resource is never modified.\nIn this case, an OData v4 query is accepted with the following options:\n\n\n- $count is used to return a count of entities within the search parameters within the  response.\n- $filter is used to restrict the entities to be sent.\n- $orderby is used for ordering the entities to be sent.\n- $select is used to select which properties of the entities are sent.\n- $skip is used to skip some entities\n- $top is used to limit the number of entities returned.",
+        "operationId": "TodoItem_Query",
+        "parameters": [
+          {
+            "name": "$count",
+            "in": "query",
+            "description": "If true, return the total number of items matched by the filter",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "$filter",
+            "in": "query",
+            "description": "An OData filter describing the entities to be returned",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "$orderby",
+            "in": "query",
+            "description": "A comma-separated list of ordering instructions.  Each ordering instruction is a field name with an optional direction (asc or desc).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "$select",
+            "in": "query",
+            "description": "A comma-separated list of fields to be returned in the result set.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "$skip",
+            "in": "query",
+            "description": "The number of items in the list to skip for paging support.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "$top",
+            "in": "query",
+            "description": "The number of items in the list to return for paging support.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "__includedeleted",
+            "in": "query",
+            "description": "If true, soft-deleted items are returned as well as non-deleted items.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "A page of TodoItem entities",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "readOnly": true,
+                      "description": "The entities in this page of results",
+                      "nullable": true,
+                      "items": {
+                        "$ref": "#/components/schemas/TodoItem"
+                      }
+                    },
+                    "count": {
+                      "type": "integer",
+                      "readOnly": true,
+                      "description": "The count of all entities in the result set",
+                      "nullable": true
+                    },
+                    "nextLink": {
+                      "type": "string",
+                      "readOnly": true,
+                      "description": "The URI to the next page of entities",
+                      "format": "uri",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/tables/TodoItem/{id}": {
+      "delete": {
+        "tags": [
+          "TodoItem"
+        ],
+        "summary": "Requests that the repository deletes an entity or marks an entity as deleted (depending on the EnableSoftDelete option).",
+        "operationId": "TodoItem_Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Tne ID of the entity to be deleted.",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "Conditionally execute only if the entity version matches the provided string (RFC 9110 13.1.1).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItem"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "410": {
+            "description": "Gone"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "TodoItem"
+        ],
+        "summary": "Retrieves an entity from the repository.",
+        "operationId": "TodoItem_Read",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the entity to be returned.",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "If-None-Match",
+            "in": "header",
+            "description": "Conditionally execute only if the entity version does not match the provided string (RFC 9110 13.1.2).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItem"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "TodoItem"
+        ],
+        "summary": "Replaces the value of an entity within the repository with new data.",
+        "operationId": "TodoItem_Replace",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the entity to be replaced.",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "description": "Conditionally execute only if the entity version matches the provided string (RFC 9110 13.1.1).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItem"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItem"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition Failed",
+            "headers": {
+              "ETag": {
+                "description": "The version string of the server entity, per RFC 9110",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TodoItem"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "410": {
+            "description": "Gone"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "KitchenSink": {
+        "title": "KitchenSink",
+        "definitions": {
+          "KitchenSinkState": {
+            "type": "integer",
+            "description": "",
+            "x-enumNames": [
+              "None",
+              "Completed",
+              "Failed"
+            ],
+            "enum": [
+              0,
+              1,
+              2
+            ]
+          },
+          "EntityTableData": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/KitchenSink/definitions/BaseEntityTableData"
+              },
+              {
+                "type": "object",
+                "description": "A version of the BaseEntityTableData that is compatible with\nmost of the Entity Framework Core drivers.",
+                "additionalProperties": false,
+                "properties": {
+                  "updatedAt": {
+                    "type": "string",
+                    "description": "The date/time of the last update to the entity.",
+                    "format": "date-time",
+                    "nullable": true
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "The concurrency token for the entity.",
+                    "format": "byte"
+                  }
+                }
+              }
+            ]
+          },
+          "BaseEntityTableData": {
+            "type": "object",
+            "description": "The base class for all the Entity Framework Core based table data classes.",
+            "x-abstract": true,
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "A globally unique identifier for the entity."
+              },
+              "deleted": {
+                "type": "boolean",
+                "readOnly": true,
+                "description": "If true, the entity is deleted."
+              },
+              "updatedAt": {
+                "type": "string",
+                "readOnly": true,
+                "description": "The date/time of the last update to the entity.",
+                "format": "date-time",
+                "nullable": true
+              },
+              "version": {
+                "type": "string",
+                "readOnly": true,
+                "description": "The concurrency token for the entity.",
+                "format": "byte"
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/KitchenSink/definitions/EntityTableData"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "booleanValue": {
+                "type": "boolean"
+              },
+              "byteValue": {
+                "type": "integer",
+                "format": "byte"
+              },
+              "byteArrayValue": {
+                "type": "string",
+                "format": "byte",
+                "nullable": true
+              },
+              "charValue": {
+                "type": "string"
+              },
+              "dateOnlyValue": {
+                "type": "string",
+                "format": "date"
+              },
+              "dateTimeValue": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "dateTimeOffsetValue": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "decimalValue": {
+                "type": "number",
+                "format": "decimal"
+              },
+              "doubleValue": {
+                "type": "number",
+                "format": "double"
+              },
+              "enumValue": {
+                "$ref": "#/components/schemas/KitchenSink/definitions/KitchenSinkState"
+              },
+              "floatValue": {
+                "type": "number",
+                "format": "float"
+              },
+              "guidValue": {
+                "type": "string",
+                "format": "guid",
+                "nullable": true
+              },
+              "intValue": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "longValue": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "nullableDouble": {
+                "type": "number",
+                "format": "double",
+                "nullable": true
+              },
+              "nullableEnumValue": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/KitchenSink/definitions/KitchenSinkState"
+                  }
+                ]
+              },
+              "stringValue": {
+                "type": "string",
+                "nullable": true
+              },
+              "timeOnlyValue": {
+                "type": "string",
+                "format": "time"
+              }
+            }
+          }
+        ]
+      },
+      "TodoItem": {
+        "title": "TodoItem",
+        "definitions": {
+          "EntityTableData": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TodoItem/definitions/BaseEntityTableData"
+              },
+              {
+                "type": "object",
+                "description": "A version of the BaseEntityTableData that is compatible with\nmost of the Entity Framework Core drivers.",
+                "additionalProperties": false,
+                "properties": {
+                  "updatedAt": {
+                    "type": "string",
+                    "description": "The date/time of the last update to the entity.",
+                    "format": "date-time",
+                    "nullable": true
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "The concurrency token for the entity.",
+                    "format": "byte"
+                  }
+                }
+              }
+            ]
+          },
+          "BaseEntityTableData": {
+            "type": "object",
+            "description": "The base class for all the Entity Framework Core based table data classes.",
+            "x-abstract": true,
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "A globally unique identifier for the entity."
+              },
+              "deleted": {
+                "type": "boolean",
+                "readOnly": true,
+                "description": "If true, the entity is deleted."
+              },
+              "updatedAt": {
+                "type": "string",
+                "readOnly": true,
+                "description": "The date/time of the last update to the entity.",
+                "format": "date-time",
+                "nullable": true
+              },
+              "version": {
+                "type": "string",
+                "readOnly": true,
+                "description": "The concurrency token for the entity.",
+                "format": "byte"
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TodoItem/definitions/EntityTableData"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "title": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

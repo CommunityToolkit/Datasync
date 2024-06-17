@@ -1,6 +1,0 @@
-@CommunityToolkit.Datasync.TestService_HostAddress = http://localhost:5248
-
-GET {{CommunityToolkit.Datasync.TestService_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

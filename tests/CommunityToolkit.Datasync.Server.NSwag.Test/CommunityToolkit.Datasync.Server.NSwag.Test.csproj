@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\Shared.Build.props" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.NSwag\CommunityToolkit.Datasync.Server.NSwag.csproj" />
+    <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj" />
+    <ProjectReference Include="..\CommunityToolkit.Datasync.TestCommon\CommunityToolkit.Datasync.TestCommon.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="swagger.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="swagger.json" />
+  </ItemGroup>
+</Project>

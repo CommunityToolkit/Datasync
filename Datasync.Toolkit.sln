@@ -41,9 +41,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.TestService", "tests\CommunityToolkit.Datasync.TestService\CommunityToolkit.Datasync.TestService.csproj", "{1A3EE020-7299-4F00-A11F-06DD241EC6EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.TestCommon", "tests\CommunityToolkit.Datasync.TestCommon\CommunityToolkit.Datasync.TestCommon.csproj", "{AC514FCF-C0D8-438F-A12C-A259CEB7B43D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.TestCommon", "tests\CommunityToolkit.Datasync.TestCommon\CommunityToolkit.Datasync.TestCommon.csproj", "{AC514FCF-C0D8-438F-A12C-A259CEB7B43D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Common", "src\CommunityToolkit.Datasync.Common\CommunityToolkit.Datasync.Common.csproj", "{E1AC26CF-5C5C-400C-97F6-416D6FCF5BC7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Common", "src\CommunityToolkit.Datasync.Common\CommunityToolkit.Datasync.Common.csproj", "{E1AC26CF-5C5C-400C-97F6-416D6FCF5BC7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{2D2A6EFC-015D-4258-96D4-24C78F8C59F9}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\SignedPackageFileList.txt = .github\workflows\SignedPackageFileList.txt
+		.github\workflows\SignedTemplateFileList.txt = .github\workflows\SignedTemplateFileList.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.NSwag", "src\CommunityToolkit.Datasync.Server.NSwag\CommunityToolkit.Datasync.Server.NSwag.csproj", "{C56A5630-03D7-43EF-BC09-69CA97152CFC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.NSwag.Test", "tests\CommunityToolkit.Datasync.Server.NSwag.Test\CommunityToolkit.Datasync.Server.NSwag.Test.csproj", "{983FB40E-BA00-4055-9A8A-24E1A351FB5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +125,14 @@ Global
 		{E1AC26CF-5C5C-400C-97F6-416D6FCF5BC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1AC26CF-5C5C-400C-97F6-416D6FCF5BC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1AC26CF-5C5C-400C-97F6-416D6FCF5BC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C56A5630-03D7-43EF-BC09-69CA97152CFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C56A5630-03D7-43EF-BC09-69CA97152CFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C56A5630-03D7-43EF-BC09-69CA97152CFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C56A5630-03D7-43EF-BC09-69CA97152CFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{983FB40E-BA00-4055-9A8A-24E1A351FB5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{983FB40E-BA00-4055-9A8A-24E1A351FB5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{983FB40E-BA00-4055-9A8A-24E1A351FB5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{983FB40E-BA00-4055-9A8A-24E1A351FB5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -136,6 +154,8 @@ Global
 		{1A3EE020-7299-4F00-A11F-06DD241EC6EA} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{AC514FCF-C0D8-438F-A12C-A259CEB7B43D} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{E1AC26CF-5C5C-400C-97F6-416D6FCF5BC7} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+		{C56A5630-03D7-43EF-BC09-69CA97152CFC} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+		{983FB40E-BA00-4055-9A8A-24E1A351FB5B} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {78A935E9-8F14-448A-BEDF-360FB742F14E}
