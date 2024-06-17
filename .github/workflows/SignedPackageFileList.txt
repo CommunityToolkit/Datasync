@@ -6,3 +6,4 @@
 **/CommunityToolkit.Datasync.Server.InMemory
 **/CommunityToolkit.Datasync.Server.LiteDb
 **/CommunityToolkit.Datasync.Server.NSwag
+**/CommunityToolkit.Datasync.Server.Swashbuckle
