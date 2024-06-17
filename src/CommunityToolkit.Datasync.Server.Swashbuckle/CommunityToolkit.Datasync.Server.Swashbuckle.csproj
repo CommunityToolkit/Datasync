@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Provides necessary capabilities for supporting the Datasync server library when using Swashbuckle for creating OpenAPI definitions.</Description>
+  </PropertyGroup>
+
+  <Import Project="..\Shared.Build.props" />
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.Swashbuckle.Test" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj" />
+  </ItemGroup>
+</Project>
