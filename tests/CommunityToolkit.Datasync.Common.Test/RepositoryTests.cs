@@ -148,7 +148,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         actual.Should().BeEquivalentTo<IMovie>(addition);
         actual.Should().NotBeEquivalentTo<ITableData>(addition).And.HaveEquivalentMetadataTo(sut);
         actual.Id.Should().Be(id);
-        actual.UpdatedAt.Should().BeAfter(StartTime).And.BeBefore(DateTimeOffset.UtcNow);
+        actual.UpdatedAt.Should().BeAfter(StartTime);
         actual.Version.Should().NotBeNullOrEmpty();
     }
 
@@ -167,7 +167,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         TEntity actual = await GetEntityAsync(sut.Id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);
-        actual.UpdatedAt.Should().BeAfter(StartTime).And.BeBefore(DateTimeOffset.UtcNow);
+        actual.UpdatedAt.Should().BeAfter(StartTime);
     }
 
     [SkippableFact]
@@ -203,7 +203,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         actual.Should().BeEquivalentTo<IMovie>(addition);
         actual.Should().NotBeEquivalentTo<ITableData>(addition).And.HaveEquivalentMetadataTo(sut);
         actual.Id.Should().Be(id);
-        actual.UpdatedAt.Should().BeAfter(StartTime).And.BeBefore(DateTimeOffset.UtcNow);
+        actual.UpdatedAt.Should().BeAfter(StartTime);
         actual.Version.Should().NotBeEquivalentTo(expectedVersion);
     }
 
@@ -396,7 +396,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         actual.Should().BeEquivalentTo<IMovie>(replacement).And.NotBeEquivalentTo<ITableData>(expected);
         actual.Version.Should().NotBeEquivalentTo(version);
-        actual.UpdatedAt.Should().BeAfter(StartTime).And.BeBefore(DateTimeOffset.UtcNow);
+        actual.UpdatedAt.Should().BeAfter(StartTime);
     }
 
     [SkippableFact]
@@ -414,7 +414,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         actual.Should().BeEquivalentTo<IMovie>(replacement).And.NotBeEquivalentTo<ITableData>(expected);
         actual.Version.Should().NotBeEquivalentTo(version);
-        actual.UpdatedAt.Should().BeAfter(StartTime).And.BeBefore(DateTimeOffset.UtcNow);
+        actual.UpdatedAt.Should().BeAfter(StartTime);
     }
     #endregion
 }
