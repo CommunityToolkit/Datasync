@@ -55,9 +55,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.NSwag.Test", "tests\CommunityToolkit.Datasync.Server.NSwag.Test\CommunityToolkit.Datasync.Server.NSwag.Test.csproj", "{983FB40E-BA00-4055-9A8A-24E1A351FB5B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.Swashbuckle.Test", "tests\CommunityToolkit.Datasync.Server.Swashbuckle.Test\CommunityToolkit.Datasync.Server.Swashbuckle.Test.csproj", "{F578EC54-454F-4114-AC37-C83A7831E783}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.Swashbuckle.Test", "tests\CommunityToolkit.Datasync.Server.Swashbuckle.Test\CommunityToolkit.Datasync.Server.Swashbuckle.Test.csproj", "{F578EC54-454F-4114-AC37-C83A7831E783}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.Swashbuckle", "src\CommunityToolkit.Datasync.Server.Swashbuckle\CommunityToolkit.Datasync.Server.Swashbuckle.csproj", "{45D47A4E-AD58-40C8-B4CC-95BC888C47A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.Swashbuckle", "src\CommunityToolkit.Datasync.Server.Swashbuckle\CommunityToolkit.Datasync.Server.Swashbuckle.csproj", "{45D47A4E-AD58-40C8-B4CC-95BC888C47A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Client", "src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj", "{D3B72031-D4BD-44D3-973C-2752AB1570F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Client.Test", "tests\CommunityToolkit.Datasync.Client.Test\CommunityToolkit.Datasync.Client.Test.csproj", "{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -145,6 +149,14 @@ Global
 		{45D47A4E-AD58-40C8-B4CC-95BC888C47A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45D47A4E-AD58-40C8-B4CC-95BC888C47A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45D47A4E-AD58-40C8-B4CC-95BC888C47A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3B72031-D4BD-44D3-973C-2752AB1570F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3B72031-D4BD-44D3-973C-2752AB1570F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3B72031-D4BD-44D3-973C-2752AB1570F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3B72031-D4BD-44D3-973C-2752AB1570F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -170,6 +182,8 @@ Global
 		{983FB40E-BA00-4055-9A8A-24E1A351FB5B} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{F578EC54-454F-4114-AC37-C83A7831E783} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{45D47A4E-AD58-40C8-B4CC-95BC888C47A7} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+		{D3B72031-D4BD-44D3-973C-2752AB1570F6} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {78A935E9-8F14-448A-BEDF-360FB742F14E}
