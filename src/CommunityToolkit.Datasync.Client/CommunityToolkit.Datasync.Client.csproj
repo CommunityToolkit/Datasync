@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>The client capabilities for developing applications using the Datasync Toolkit.</Description>
+  </PropertyGroup>
+
+  <Import Project="..\Shared.Build.props" />
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CommunityToolkit.Datasync.Client.Test"/>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommunityToolkit.Datasync.Common\CommunityToolkit.Datasync.Common.csproj" />
+  </ItemGroup>
+
+</Project>

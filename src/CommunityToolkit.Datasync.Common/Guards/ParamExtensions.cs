@@ -92,7 +92,7 @@ public static partial class ParamExtensions
         if (param.Value <= value)
         {
             because ??= $"The parameter '{param.Name}' must be greater than {value}";
-            throw new ArgumentException(because, param.Name);
+            throw new ArgumentOutOfRangeException(param.Name, because);
         }
 
         return param;
@@ -111,7 +111,7 @@ public static partial class ParamExtensions
         if (param.Value < value)
         {
             because ??= $"The parameter '{param.Name}' must be greater than or equal to {value}";
-            throw new ArgumentException(because, param.Name);
+            throw new ArgumentOutOfRangeException(param.Name, because);
         }
 
         return param;
