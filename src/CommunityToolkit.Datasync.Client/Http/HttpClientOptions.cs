@@ -13,5 +13,5 @@ public class HttpClientOptions : IHttpClientOptions
     public IEnumerable<HttpMessageHandler> HttpPipeline { get; set; } = [];
 
     /// <inheritdoc />
-    public TimeSpan? HttpTimeout { get; set; } = TimeSpan.FromSeconds(60);
+    public TimeSpan HttpTimeout { get; set; } = TimeSpan.FromSeconds(60);
 }
