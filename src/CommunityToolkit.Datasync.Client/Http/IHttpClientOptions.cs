@@ -22,5 +22,5 @@ public interface IHttpClientOptions
     /// If set, the timeout to use with <see cref="HttpClient"/> connections.
     /// If not set, the default of 100,000ms (100 seconds) will be used.
     /// </summary>
-    TimeSpan? HttpTimeout { get; }
+    TimeSpan HttpTimeout { get; }
 }
