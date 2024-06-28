@@ -6,7 +6,7 @@
   <Import Project="..\Shared.Build.props" />
 
   <ItemGroup>
-    <InternalsVisibleTo Include="CommunityToolkit.Datasync.Client.Test"/>
+    <InternalsVisibleTo Include="CommunityToolkit.Datasync.Client.Test" />
   </ItemGroup>
   
   <ItemGroup>
