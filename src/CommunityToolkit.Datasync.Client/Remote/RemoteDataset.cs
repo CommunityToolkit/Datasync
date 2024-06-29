@@ -81,7 +81,7 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
             }
         }
 
-        return await GetJsonContentFromResponseAsync(responseMessage.Content, cancellationToken).ConfigureAwait(false);
+        return await GetJsonContentFromResponseAsync<T>(responseMessage.Content, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
@@ -118,19 +118,20 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
     /// <summary>
     /// Retrieves the response from the server as the provided type.
     /// </summary>
+    /// <typeparam name="U">The type of the response.</typeparam>
     /// <param name="content">The <see cref="HttpContent"/> from the response.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The content from the server.</returns>
     /// <exception cref="DatasyncException">Thrown if the server response is invalid.</exception>
     /// <exception cref="JsonException">Thrown if the JSON content is bad.</exception>
-    internal async Task<T> GetJsonContentFromResponseAsync(HttpContent content, CancellationToken cancellationToken = default)
+    internal async Task<U> GetJsonContentFromResponseAsync<U>(HttpContent content, CancellationToken cancellationToken = default) where U : notnull
     {
         string mediaType = content.Headers.ContentType?.MediaType ?? string.Empty;
         string jsonContent = await content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
         if (string.IsNullOrEmpty(mediaType) || mediaType == this.jsonMediaType.MediaType)
         {
-            return JsonSerializer.Deserialize<T>(jsonContent, SerializerOptions) ?? throw new JsonException("Invalid JSON content from server");
+            return JsonSerializer.Deserialize<U>(jsonContent, SerializerOptions) ?? throw new JsonException("Invalid JSON content from server");
         }
         
         throw new DatasyncException("Invalid Media Type from server");
