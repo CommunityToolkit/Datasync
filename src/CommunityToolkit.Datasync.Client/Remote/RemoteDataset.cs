@@ -87,31 +87,97 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
     /// <inheritdoc />
     public ValueTask<long> CountAsync(string query, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        _ = Ensure.That(query, nameof(query)).IsNotNull();
+
+        // TODO: Extract the $filter element
+
+        Page<T> result = await GetpageAsync($"{DatasetPath}?{filter}&$select=id&$skip=0&$top=1&$count=true", cancellationToken).ConfigureAwait(false);
+        return result?.Count 
+            ?? throw new DatasyncException("Expected count return from service, but received null");
     }
 
     /// <inheritdoc />
-    public ValueTask<T> GetAsync(string id, bool includeDeleted, CancellationToken cancellationToken = default)
+    public async ValueTask<T> GetAsync(string id, bool includeDeleted, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        _ = Ensure.That(id, nameof(id)).IsEntityId();
+
+        using HttpRequestMessage requestMessage = new(HttpMethod.Get, EntityPath(id));
+        using HttpResponseMessage responseMessage = await Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+        if (!responseMessage.IsSuccessStatusCode)
+        {
+            throw await DatasyncHttpException.CreateAstnc(responseMessage, cancellationToken).ConfigureAwait(false);
+        }
+
+        return await GetJsonContentFromResponseAsync<T>(responseMessage.Content, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public ValueTask<Page<T>> GetPageAsync(string pathAndQuery, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        _ = Ensure.That(pathAndQuery, nameof(pathAndQuery)).IsNotNullOrWhiteSpace();
+
+        using HttpRequestMessage requestMessage = new(HttpMethod.Get, pathAndQuery);
+        using HttpResponseMessage responseMessage = await Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+        if (!responseMessage.IsSuccessStatusCode) 
+        {
+            throw await DatasyncHttpException.CreateAsync(responseMessage, cancellationToken).ConfigureAwait(false);
+        }
+
+        return await GetJsonContentFromResponseAsync<Page<T>>(responseMessage.Content, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public Task RemoveAsync(string id, string? ifMatchVersion, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        _ = Ensure.That(id, nameof(id)).IsEntityId();
+
+        using HttpRequestMessage requestMessage = new(HttpMethod.Delete, EntityPath(id));
+        requestMessage.AddConditionalHeader(ifMatchVersion);
+
+        using HttpResponseMessage responseMessage = await Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+        if (!responseMessage.IsSuccessStatusCode)
+        {
+            if (responseMessage.StatusCode is HttpStatusCode.Conflict or HttpStatusCode.PreconditionFailed)
+            {
+                throw await ConflictException<T>.CreateAsync(responseMessage, SerializerOptions, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                throw await DatasyncHttpException.CreateAsync(responseMessage, cancellationToken).ConfigureAwait(false);
+            }
+        }
     }
 
     /// <inheritdoc />
     public Task<T> ReplaceAsync(T entity, bool force, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        _ = Ensure.That(entity, nameof(entity)).IsNotNull();
+        string id = Ensure.That(EntityTypeCache.GetEntityId(entity), nameof(entity)).IsEntityId();
+
+        using HttpRequestMessage requestMessage = new(HttpMethod.Put, EntityPath(id))
+        {
+            Content = JsonContent.Create(entity, this.jsonMediaType, SerializerOptions)
+        };
+        if (!force)
+        {
+            string version = EntityTypeCache.GetEntityVersion(entity);
+            requestMessage.AddConditionalHeader(version);
+        }
+
+        using HttpResponseMessage responseMessage = await Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
+        if (!responseMessage.IsSuccessStatusCode)
+        {
+            if (responseMessage.StatusCode is HttpStatusCode.Conflict or HttpStatusCode.PreconditionFailed)
+            {
+                throw await ConflictException<T>.CreateAsync(responseMessage, SerializerOptions, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                throw await DatasyncHttpException.CreateAsync(responseMessage, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        return await GetJsonContentFromResponseAsync<T>(responseMessage.Content, cancellationToken).ConfigureAwait(false);
     }
     #endregion
 
