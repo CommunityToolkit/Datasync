@@ -91,7 +91,7 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
 
         string queryString = BuildQueryString(query, "$select=id&$skip=0&$top=1&$count=true");
         Page<T> result = await GetPageAsync($"{DatasetPath}{queryString}", cancellationToken).ConfigureAwait(false);
-        return result?.Count ?? throw new DatasyncException("Expected count return from service, but received null");
+        return result.Count ?? throw new DatasyncException("Expected count return from service, but received null");
     }
 
     /// <inheritdoc />
@@ -209,7 +209,7 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
             query[key] = oq[key];
         }
 
-        string queryString = (query.ToString() ?? string.Empty).TrimStart('?');
+        string queryString = query.ToString()!.TrimStart('?');
         return string.IsNullOrEmpty(queryString) ? string.Empty : $"?{queryString}";
     }
 
