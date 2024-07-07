@@ -16,7 +16,7 @@ public abstract class BaseOperationTest
     /// <summary>
     /// The base address of the service.
     /// </summary>
-    protected string BaseAddress => "http://localhost:8000";
+    protected const string BaseAddress = "http://localhost:8000";
 
     /// <summary>
     /// The mock handler - holder of requests and responses
@@ -27,5 +27,5 @@ public abstract class BaseOperationTest
     /// Retrieves a new HttpClient to use for mocked HTTP calls.
     /// </summary>
     protected HttpClient GetMockClient()
-        => new HttpClient(MockHandler) { BaseAddress = new Uri(BaseAddress) };
+        => new(MockHandler) { BaseAddress = new Uri(BaseAddress) };
 }

@@ -4,14 +4,14 @@
 
 #pragma warning disable IDE0290 // Use primary constructor
 
-using CommunityToolkit.Datasync.Client.Exceptions;
 using CommunityToolkit.Datasync.Client.Models;
 using CommunityToolkit.Datasync.Common;
+using System.Collections.Specialized;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Net.Mime;
 using System.Text.Json;
+using System.Web;
 
 namespace CommunityToolkit.Datasync.Client.Remote;
 
@@ -38,7 +38,7 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
     {
         Client = Ensure.That(client, nameof(client)).IsNotNull().And.HasDatasyncEndpoint().Value;
         SerializerOptions = Ensure.That(options, nameof(options)).IsNotNull().Value;
-        DatasetPath = Ensure.That(path, nameof(path)).IsNotNullOrWhiteSpace().And.IsHttpPath().Value;
+        DatasetPath = "/" + Ensure.That(path, nameof(path)).IsHttpPath().Value.Trim('/');
     }
 
     /// <summary>
@@ -85,15 +85,13 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
     }
 
     /// <inheritdoc />
-    public ValueTask<long> CountAsync(string query, CancellationToken cancellationToken = default)
+    public async ValueTask<long> CountAsync(string query, CancellationToken cancellationToken = default)
     {
         _ = Ensure.That(query, nameof(query)).IsNotNull();
 
-        // TODO: Extract the $filter element
-
-        Page<T> result = await GetpageAsync($"{DatasetPath}?{filter}&$select=id&$skip=0&$top=1&$count=true", cancellationToken).ConfigureAwait(false);
-        return result?.Count 
-            ?? throw new DatasyncException("Expected count return from service, but received null");
+        string queryString = BuildQueryString(query, "$select=id&$skip=0&$top=1&$count=true");
+        Page<T> result = await GetPageAsync($"{DatasetPath}{queryString}", cancellationToken).ConfigureAwait(false);
+        return result?.Count ?? throw new DatasyncException("Expected count return from service, but received null");
     }
 
     /// <inheritdoc />
@@ -105,14 +103,14 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
         using HttpResponseMessage responseMessage = await Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
         if (!responseMessage.IsSuccessStatusCode)
         {
-            throw await DatasyncHttpException.CreateAstnc(responseMessage, cancellationToken).ConfigureAwait(false);
+            throw await DatasyncHttpException.CreateAsync(responseMessage, cancellationToken).ConfigureAwait(false);
         }
 
         return await GetJsonContentFromResponseAsync<T>(responseMessage.Content, cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
-    public ValueTask<Page<T>> GetPageAsync(string pathAndQuery, CancellationToken cancellationToken = default)
+    public async ValueTask<Page<T>> GetPageAsync(string pathAndQuery, CancellationToken cancellationToken = default)
     {
         _ = Ensure.That(pathAndQuery, nameof(pathAndQuery)).IsNotNullOrWhiteSpace();
 
@@ -127,12 +125,12 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
     }
 
     /// <inheritdoc />
-    public Task RemoveAsync(string id, string? ifMatchVersion, CancellationToken cancellationToken = default)
+    public async Task RemoveAsync(string id, string? ifMatchVersion, CancellationToken cancellationToken = default)
     {
         _ = Ensure.That(id, nameof(id)).IsEntityId();
 
         using HttpRequestMessage requestMessage = new(HttpMethod.Delete, EntityPath(id));
-        requestMessage.AddConditionalHeader(ifMatchVersion);
+        AddConditionalHeader(requestMessage, ifMatchVersion);
 
         using HttpResponseMessage responseMessage = await Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
         if (!responseMessage.IsSuccessStatusCode)
@@ -149,10 +147,11 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
     }
 
     /// <inheritdoc />
-    public Task<T> ReplaceAsync(T entity, bool force, CancellationToken cancellationToken = default)
+    public async Task<T> ReplaceAsync(T entity, bool force, CancellationToken cancellationToken = default)
     {
         _ = Ensure.That(entity, nameof(entity)).IsNotNull();
-        string id = Ensure.That(EntityTypeCache.GetEntityId(entity), nameof(entity)).IsEntityId();
+        string id = EntityTypeCache.GetEntityId(entity) ?? throw new ArgumentException("Id cannot be null", nameof(entity));
+        _ = Ensure.That(id!, nameof(entity)).IsEntityId();
 
         using HttpRequestMessage requestMessage = new(HttpMethod.Put, EntityPath(id))
         {
@@ -161,7 +160,7 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
         if (!force)
         {
             string version = EntityTypeCache.GetEntityVersion(entity);
-            requestMessage.AddConditionalHeader(version);
+            AddConditionalHeader(requestMessage, version);
         }
 
         using HttpResponseMessage responseMessage = await Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
@@ -180,6 +179,47 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
         return await GetJsonContentFromResponseAsync<T>(responseMessage.Content, cancellationToken).ConfigureAwait(false);
     }
     #endregion
+
+    /// <summary>
+    /// Adds a conditional header to the <paramref name="requestMessage"/> if the version is specified.
+    /// </summary>
+    /// <param name="requestMessage">The request message to modify.</param>
+    /// <param name="version">The (optional) version.</param>
+    internal static void AddConditionalHeader(HttpRequestMessage requestMessage, string? version)
+    {
+        if (!string.IsNullOrEmpty(version))
+        {
+            requestMessage.Headers.Add("If-Match", $"\"{version}\"");
+        }
+    }
+
+    /// <summary>
+    /// Builds a query string based on the source, but with the overrides that are provided.
+    /// The query string starts with a '?' if anything is returned.
+    /// </summary>
+    /// <param name="source">The source query string.</param>
+    /// <param name="overrides">The overrides query string.</param>
+    /// <returns>A new query string.</returns>
+    internal static string BuildQueryString(string source, string overrides)
+    {
+        NameValueCollection query = HttpUtility.ParseQueryString(source);
+        NameValueCollection oq = HttpUtility.ParseQueryString(overrides);
+        foreach (string key in oq.Keys)
+        {
+            query[key] = oq[key];
+        }
+
+        string queryString = (query.ToString() ?? string.Empty).TrimStart('?');
+        return string.IsNullOrEmpty(queryString) ? string.Empty : $"?{queryString}";
+    }
+
+    /// <summary>
+    /// Returns the appropriate entity path for the given ID.
+    /// </summary>
+    /// <param name="id">The ID of the request.</param>
+    /// <returns>The entity path for the request.</returns>
+    internal string EntityPath(string id)
+        => $"{DatasetPath}/{id}";
 
     /// <summary>
     /// Retrieves the response from the server as the provided type.

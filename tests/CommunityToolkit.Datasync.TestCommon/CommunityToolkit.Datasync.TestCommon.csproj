@@ -14,13 +14,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="8.0.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.*" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="8.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Spatial" Version="7.20.*" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.*" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
   </ItemGroup>
 
   <ItemGroup>

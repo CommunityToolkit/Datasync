@@ -67,7 +67,7 @@ public class Swashbuckle_Tests
     [InlineData(typeof(TC3), true, typeof(TodoItem))]
     [InlineData(typeof(TC4<TodoItem>), false, null)]
     [InlineData(typeof(TC5), true, typeof(TodoItem))]
-    public void TryGetTableEntityType_Returns_CorrectValue(Type sut, bool expectedResult, Type? expectedEntityType)
+    public void TryGetTableEntityType_Returns_CorrectValue(Type sut, bool expectedResult, Type expectedEntityType)
     {
         bool actual = DatasyncDocumentFilter.TryGetTableEntityType(sut, out Type actualEntityType);
         actual.Should().Be(expectedResult);

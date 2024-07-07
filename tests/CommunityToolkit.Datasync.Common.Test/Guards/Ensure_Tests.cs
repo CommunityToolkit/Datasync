@@ -4,15 +4,6 @@
 
 #pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
 
-
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
-#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
-
-using CommunityToolkit.Datasync.Common;
-
 namespace CommunityToolkit.Datasync.Common.Test.Guards;
 
 [ExcludeFromCodeCoverage]
@@ -217,9 +208,9 @@ public class Ensure_Tests
     }
 
     [Theory, CombinatorialData]
-    public void IsValidId_Works([CombinatorialMemberData(nameof(GetIdTestCases))] IdTestCase testCase, bool withMessage)
+    public void IsEntityId_Works([CombinatorialMemberData(nameof(GetIdTestCases))] IdTestCase testCase, bool withMessage)
     {
-        Action act = () => Ensure.That(testCase.Id, nameof(testCase)).IsValidId(withMessage ? "because" : null);
+        Action act = () => Ensure.That(testCase.Id, nameof(testCase)).IsEntityId(withMessage ? "because" : null);
         if (testCase.IsValid)
         {
             act.Should().NotThrow();
