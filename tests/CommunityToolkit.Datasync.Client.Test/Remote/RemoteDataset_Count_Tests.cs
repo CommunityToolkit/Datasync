@@ -7,6 +7,7 @@ using CommunityToolkit.Datasync.Client.Remote;
 using CommunityToolkit.Datasync.Client.Test.Helpers;
 using CommunityToolkit.Datasync.Common;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Text.Json;
 
@@ -52,8 +53,8 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
 
         HttpRequestMessage request = MockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
-        request.Method.Should().Be("GET");
-        request.RequestUri.ToString().Should().Be($"{BaseAddress}/{Path}?$filter=(stringField eq 'id')&$count=true&$top=0");
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be($"{BaseAddress}{Path}?$filter=(stringField+eq+%27id%27)&$select=id&$skip=0&$top=1&$count=true");
     }
 
     [Fact]
@@ -61,9 +62,8 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     public async Task CountItemsAsync_NoCount()
     {
         MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>());
-
-        long count = await this.dataset.CountAsync(string.Empty);
-        count.Should().Be(-1);
+        Func<Task> act = async () => await this.dataset.CountAsync(string.Empty);
+        await act.Should().ThrowAsync<DatasyncException>();
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
         count.Should().Be(42);
         HttpRequestMessage request = MockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
-        request.Method.Should().Be("GET");
-        request.RequestUri.ToString().Should().Be($"{BaseAddress}/{Path}?$count=true&$top=0");
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be($"{BaseAddress}{Path}?$select=id&$skip=0&$top=1&$count=true");
     }
 }
