@@ -29,6 +29,11 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
     private readonly MediaTypeHeaderValue jsonMediaType = new("application/json", "utf-8");
 
     /// <summary>
+    /// The parameter name to include deleted items in the request.
+    /// </summary>
+    private const string IncludeDeletedParameter = "__includedeleted";
+
+    /// <summary>
     /// Creates a new <see cref="RemoteDataset{T}"/> object using a specific client, options, and path.
     /// </summary>
     /// <param name="client">The <see cref="HttpClient"/> to use for accessing the remote dataset.</param>
@@ -97,9 +102,10 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
     /// <inheritdoc />
     public async ValueTask<T> GetAsync(string id, bool includeDeleted, CancellationToken cancellationToken = default)
     {
-        _ = Ensure.That(id, nameof(id)).IsEntityId();
+        _ = Ensure.That(id, nameof(id)).IsNotNull().And.IsEntityId();
 
-        using HttpRequestMessage requestMessage = new(HttpMethod.Get, EntityPath(id));
+        string relativeUri = includeDeleted ? $"{EntityPath(id)}?{IncludeDeletedParameter}=true" : EntityPath(id);
+        using HttpRequestMessage requestMessage = new(HttpMethod.Get, relativeUri);
         using HttpResponseMessage responseMessage = await Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
         if (!responseMessage.IsSuccessStatusCode)
         {
@@ -237,7 +243,14 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
 
         if (string.IsNullOrEmpty(mediaType) || mediaType == this.jsonMediaType.MediaType)
         {
-            return JsonSerializer.Deserialize<U>(jsonContent, SerializerOptions) ?? throw new JsonException("Invalid JSON content from server");
+            try
+            {
+                return JsonSerializer.Deserialize<U>(jsonContent, SerializerOptions) ?? throw new DatasyncException("Invalid JSON content from server");
+            }
+            catch (JsonException ex)
+            {
+                throw new DatasyncException(ex.Message, ex);
+            }
         }
         
         throw new DatasyncException("Invalid Media Type from server");

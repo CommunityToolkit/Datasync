@@ -3,29 +3,15 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Models;
-using CommunityToolkit.Datasync.Client.Remote;
 using CommunityToolkit.Datasync.Client.Test.Helpers;
-using CommunityToolkit.Datasync.Common;
 using CommunityToolkit.Datasync.TestCommon.Databases;
-using Microsoft.AspNetCore.Http;
 using System.Net;
-using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client.Test.Remote;
 
 [ExcludeFromCodeCoverage]
 public class RemoteDataset_Count_Tests : BaseOperationTest
 {
-    private const string Path = "/tables/movies";
-    private readonly RemoteDataset<ClientMovie> dataset;
-
-    public RemoteDataset_Count_Tests()
-    {
-        HttpClient mockClient = GetMockClient();
-        JsonSerializerOptions serializerOptions = new DatasyncServiceOptions().JsonSerializerOptions;
-        this.dataset = new RemoteDataset<ClientMovie>(mockClient, serializerOptions, Path);
-    }
-
     [Theory]
     [InlineData(HttpStatusCode.BadRequest)]
     [InlineData(HttpStatusCode.InternalServerError)]
@@ -36,7 +22,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     public async Task CountItemsAsync_Throws_OnBadRequest(HttpStatusCode statusCode)
     {
         MockHandler.AddResponse(statusCode);
-        Func<Task> act = async () => await this.dataset.CountAsync(string.Empty);
+        Func<Task> act = async () => await Dataset.CountAsync(string.Empty);
         (await act.Should().ThrowAsync<DatasyncHttpException>())
             .Which.StatusCode.Should().Be(statusCode);
     }
@@ -47,7 +33,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     {
         MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>() { Count = 0L });
 
-        long count = await this.dataset.CountAsync("$filter=(stringField eq 'id')");
+        long count = await Dataset.CountAsync("$filter=(stringField eq 'id')");
 
         count.Should().Be(0);
 
@@ -62,7 +48,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     public async Task CountItemsAsync_NoCount()
     {
         MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>());
-        Func<Task> act = async () => await this.dataset.CountAsync(string.Empty);
+        Func<Task> act = async () => await Dataset.CountAsync(string.Empty);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
@@ -72,7 +58,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     {
         MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>() { Count = 42 });
 
-        long count = await this.dataset.CountAsync(string.Empty);
+        long count = await Dataset.CountAsync(string.Empty);
 
         count.Should().Be(42);
         HttpRequestMessage request = MockHandler.Requests.SingleOrDefault();
