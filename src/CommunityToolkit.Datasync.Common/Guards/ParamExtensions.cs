@@ -204,12 +204,6 @@ public static partial class ParamExtensions
 
         if (Uri.TryCreate($"http://localhost{param.Value}", UriKind.Absolute, out Uri? result))
         {
-            if (result.Scheme != Uri.UriSchemeHttp && result.Host != "localhost")
-            {
-                because ??= "The path provided is not valid.";
-                throw new ArgumentException(because, param.Name);
-            }
-
             if (!string.IsNullOrEmpty(result.Query))
             {
                 because ??= "Path has embedded query string.";
