@@ -63,7 +63,7 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
 
     #region IRemoteDataset<T>
     /// <inheritdoc />
-    public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
+    public async Task<T> AddAsync(T entity, RemoteOperationOptions options, CancellationToken cancellationToken = default)
     {
         _ = Ensure.That(entity, nameof(entity)).IsNotNull();
         _ = Ensure.That(EntityTypeCache.GetEntityId(entity), nameof(entity)).IsNullOrEntityId();
@@ -90,21 +90,22 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
     }
 
     /// <inheritdoc />
-    public async ValueTask<long> CountAsync(string query, CancellationToken cancellationToken = default)
+    public async ValueTask<long> CountAsync(string query, RemoteOperationOptions options, CancellationToken cancellationToken = default)
     {
         _ = Ensure.That(query, nameof(query)).IsNotNull();
+        const string countQueryString = "$select=id&$skip=0&$top=1&$count=true";
 
-        string queryString = BuildQueryString(query, "$select=id&$skip=0&$top=1&$count=true");
+        string queryString = BuildQueryString(query, options.IncludeDeletedItems ? $"{countQueryString}&{IncludeDeletedParameter}=true" : countQueryString);
         Page<T> result = await GetPageAsync($"{DatasetPath}{queryString}", cancellationToken).ConfigureAwait(false);
         return result.Count ?? throw new DatasyncException("Expected count return from service, but received null");
     }
 
     /// <inheritdoc />
-    public async ValueTask<T> GetAsync(string id, bool includeDeleted, CancellationToken cancellationToken = default)
+    public async ValueTask<T> GetAsync(string id, RemoteOperationOptions options, CancellationToken cancellationToken = default)
     {
         _ = Ensure.That(id, nameof(id)).IsNotNull().And.IsEntityId();
 
-        string relativeUri = includeDeleted ? $"{EntityPath(id)}?{IncludeDeletedParameter}=true" : EntityPath(id);
+        string relativeUri = options.IncludeDeletedItems ? $"{EntityPath(id)}?{IncludeDeletedParameter}=true" : EntityPath(id);
         using HttpRequestMessage requestMessage = new(HttpMethod.Get, relativeUri);
         using HttpResponseMessage responseMessage = await Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
         if (!responseMessage.IsSuccessStatusCode)
@@ -131,12 +132,12 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
     }
 
     /// <inheritdoc />
-    public async Task RemoveAsync(string id, string? ifMatchVersion, CancellationToken cancellationToken = default)
+    public async Task RemoveAsync(string id, RemoteOperationOptions options, CancellationToken cancellationToken = default)
     {
-        _ = Ensure.That(id, nameof(id)).IsEntityId();
+        _ = Ensure.That(id, nameof(id)).IsNotNull().And.IsEntityId();
 
         using HttpRequestMessage requestMessage = new(HttpMethod.Delete, EntityPath(id));
-        AddConditionalHeader(requestMessage, ifMatchVersion);
+        AddConditionalHeader(requestMessage, options.RequiredVersion);
 
         using HttpResponseMessage responseMessage = await Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
         if (!responseMessage.IsSuccessStatusCode)
@@ -153,7 +154,7 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
     }
 
     /// <inheritdoc />
-    public async Task<T> ReplaceAsync(T entity, bool force, CancellationToken cancellationToken = default)
+    public async Task<T> ReplaceAsync(T entity, RemoteOperationOptions options, CancellationToken cancellationToken = default)
     {
         _ = Ensure.That(entity, nameof(entity)).IsNotNull();
         string id = EntityTypeCache.GetEntityId(entity) ?? throw new ArgumentException("Id cannot be null", nameof(entity));
@@ -163,11 +164,7 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
         {
             Content = JsonContent.Create(entity, this.jsonMediaType, SerializerOptions)
         };
-        if (!force)
-        {
-            string version = EntityTypeCache.GetEntityVersion(entity);
-            AddConditionalHeader(requestMessage, version);
-        }
+        AddConditionalHeader(requestMessage, options.RequiredVersion);
 
         using HttpResponseMessage responseMessage = await Client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
         if (!responseMessage.IsSuccessStatusCode)

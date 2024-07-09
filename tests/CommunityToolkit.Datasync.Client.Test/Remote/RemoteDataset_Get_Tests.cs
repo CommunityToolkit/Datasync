@@ -5,7 +5,6 @@
 using CommunityToolkit.Datasync.Client.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Net;
 
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
@@ -15,10 +14,13 @@ namespace CommunityToolkit.Datasync.Client.Test.Remote;
 [ExcludeFromCodeCoverage]
 public class RemoteDataset_Get_Tests : BaseOperationTest
 {
+    private RemoteOperationOptions defaultOptions = new();
+
     [Theory, CombinatorialData]
     public async Task GetItemAsync_ThrowsOnNull(bool includeDeleted)
     {
-        Func<Task> act = async () => _ = await Dataset.GetAsync(null, includeDeleted);
+        RemoteOperationOptions options = new() { IncludeDeletedItems = includeDeleted };
+        Func<Task> act = async () => _ = await Dataset.GetAsync(null, options);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
@@ -34,7 +36,7 @@ public class RemoteDataset_Get_Tests : BaseOperationTest
     [InlineData("###")]
     public async Task GetItemAsync_ThrowsOnInvalidId(string id)
     {
-        Func<Task> act = async () => _ = await Dataset.GetAsync(id, false);
+        Func<Task> act = async () => _ = await Dataset.GetAsync(id, this.defaultOptions);
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
@@ -42,7 +44,7 @@ public class RemoteDataset_Get_Tests : BaseOperationTest
     public async Task GetItemAsync_SuccessNoContent()
     {
         MockHandler.AddResponse(HttpStatusCode.OK);
-        Func<Task> act = async () => _ = await Dataset.GetAsync("1", false);
+        Func<Task> act = async () => _ = await Dataset.GetAsync("1", this.defaultOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
@@ -50,7 +52,7 @@ public class RemoteDataset_Get_Tests : BaseOperationTest
     public async Task GetItemAsync_SuccessBadJson()
     {
         MockHandler.AddResponseContent("{this-is-bad-json");
-        Func<Task> act = async () => _ = await Dataset.GetAsync("1", false);
+        Func<Task> act = async () => _ = await Dataset.GetAsync("1", this.defaultOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
@@ -66,7 +68,7 @@ public class RemoteDataset_Get_Tests : BaseOperationTest
     public async Task GetItemAsync_RequestFailed_Throws(HttpStatusCode statusCode)
     {
         MockHandler.AddResponse(statusCode);
-        Func<Task> act = async () => _ = await Dataset.GetAsync("1", false);
+        Func<Task> act = async () => _ = await Dataset.GetAsync("1", this.defaultOptions);
         (await act.Should().ThrowAsync<DatasyncHttpException>())
             .Which.StatusCode.Should().Be(statusCode);
     }
@@ -79,7 +81,7 @@ public class RemoteDataset_Get_Tests : BaseOperationTest
 
         MockHandler.AddResponse(HttpStatusCode.OK, payload);
 
-        ClientMovie actual = await Dataset.GetAsync("1", false);
+        ClientMovie actual = await Dataset.GetAsync("1", this.defaultOptions);
         actual.Should().BeEquivalentTo<IMovie>(payload);
         actual.Id.Should().Be(payload.Id);
         actual.Version.Should().Be(payload.Version);
@@ -94,12 +96,13 @@ public class RemoteDataset_Get_Tests : BaseOperationTest
     [Fact]
     public async Task GetItemAsync_FormulatesCorrectRequest_IncludeDeleted()
     {
+        RemoteOperationOptions options = new() { IncludeDeletedItems = true };
         ClientMovie payload = new() { Id = "1", Version = "1234", UpdatedAt = DateTimeOffset.UnixEpoch };
         TestData.Movies.BlackPanther.CopyTo(payload);
 
         MockHandler.AddResponse(HttpStatusCode.OK, payload);
 
-        ClientMovie actual = await Dataset.GetAsync("1", true);
+        ClientMovie actual = await Dataset.GetAsync("1", options);
         actual.Should().BeEquivalentTo<IMovie>(payload);
         actual.Id.Should().Be(payload.Id);
         actual.Version.Should().Be(payload.Version);

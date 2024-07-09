@@ -19,24 +19,25 @@ public interface IReadOnlyRemoteDataset<T> where T : notnull
     /// Count the number of items that would be returned by the provided query, without returning all the values.
     /// </summary>
     /// <param name="query">The query to execute.</param>
+    /// <param name="options">The options to use with this operation</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns the number of items that will be in the result set when the query finishes.</returns>
     /// <exception cref="DatasyncHttpException">Thrown if the response from the server does not indicate success.</exception>
     /// <exception cref="JsonException">Thrown if the response from the server is not valid JSON.</exception>
-    ValueTask<long> CountAsync(string query, CancellationToken cancellationToken = default);
+    ValueTask<long> CountAsync(string query, RemoteOperationOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieve an item from the remote dataset.
     /// </summary>
     /// <param name="id">The ID of the item to retrieve.</param>
-    /// <param name="includeDeleted">If <c>true</c>, the item will be returned even if soft-deleted.</param>
+    /// <param name="options">The options to use with this operation.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns the item when complete.</returns>
     /// <exception cref="ArgumentException">If the globally unique ID is not a valid ID.</exception>
     /// <exception cref="EntityNotFoundException">Thrown if the entity does not exist on the server.</exception>
     /// <exception cref="DatasyncHttpException">Thrown if the response from the server does not indicate success.</exception>
     /// <exception cref="JsonException">Thrown if the response from the server is not valid JSON.</exception>
-    ValueTask<T> GetAsync(string id, bool includeDeleted, CancellationToken cancellationToken = default);
+    ValueTask<T> GetAsync(string id, RemoteOperationOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a single page of items produced as a result of a query against the server.
@@ -60,19 +61,20 @@ public interface IRemoteDataset<T> : IReadOnlyRemoteDataset<T> where T : notnull
     /// Adds a new entity to the remote dataset.
     /// </summary>
     /// <param name="entity">The instance to add to the remote dataset.</param>
+    /// <param name="options">The options to use with this operation.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns the inserted data when complete.</returns>
     /// <exception cref="ArgumentException">Thrown if the entity provided is not valid (client-side evaluation).</exception>
     /// <exception cref="ConflictException{T}">Thrown if the entity already exists on the server.</exception>
     /// <exception cref="DatasyncHttpException">Thrown if the response from the server does not indicate success.</exception>
     /// <exception cref="JsonException">Thrown if the response from the server is not valid JSON.</exception>
-    Task<T> AddAsync(T entity, CancellationToken cancellationToken = default);
+    Task<T> AddAsync(T entity, RemoteOperationOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Removes an existing entity from the remote dataset.
     /// </summary>
     /// <param name="id">The globally unique ID of the entity to be removed.</param>
-    /// <param name="ifMatchVersion">If provided, the version in the remote dataset must match to be removed.</param>
+    /// <param name="options">The options to use with this operation.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns when the operation is complete.</returns>
     /// <exception cref="ArgumentException">Thrown if the globally unique ID provided is not valid.</exception>
@@ -80,13 +82,13 @@ public interface IRemoteDataset<T> : IReadOnlyRemoteDataset<T> where T : notnull
     /// <exception cref="ConflictException{T}">Thrown if there is a version mismatch on the server.</exception>
     /// <exception cref="DatasyncHttpException">Thrown if the response from the server does not indicate success.</exception>
     /// <exception cref="JsonException">Thrown if the response from the server is not valid JSON.</exception>
-    Task RemoveAsync(string id, string? ifMatchVersion, CancellationToken cancellationToken = default);
+    Task RemoveAsync(string id, RemoteOperationOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Replaces an existing entity in the remote dataset.
     /// </summary>
     /// <param name="entity">The entity to replace in the remote dataset.</param>
-    /// <param name="force">If true, version checking is not performed on the service.</param>
+    /// <param name="options">The options to use with this operation.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns the replaced data when complete.</returns>
     /// <exception cref="ArgumentException">Thrown if the entity provided is not valid.</exception>
@@ -94,5 +96,5 @@ public interface IRemoteDataset<T> : IReadOnlyRemoteDataset<T> where T : notnull
     /// <exception cref="EntityNotFoundException">Thrown if the entity does not exist on the server.</exception>
     /// <exception cref="DatasyncHttpException">Thrown if the response from the server does not indicate success.</exception>
     /// <exception cref="JsonException">Thrown if the response from the server is not valid JSON.</exception>
-    Task<T> ReplaceAsync(T entity, bool force, CancellationToken cancellationToken = default);
+    Task<T> ReplaceAsync(T entity, RemoteOperationOptions options, CancellationToken cancellationToken = default);
 }
