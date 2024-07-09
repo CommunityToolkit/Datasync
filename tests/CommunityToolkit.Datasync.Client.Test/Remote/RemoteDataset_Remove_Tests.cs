@@ -72,6 +72,8 @@ public class RemoteDataset_Remove_Tests : BaseOperationTest
         MockHandler.AddResponse(statusCode, payload);
         ConflictException<ClientMovie> ex = await Assert.ThrowsAsync<ConflictException<ClientMovie>>(() => Dataset.RemoveAsync("1", this.defaultOptions));
         ex.StatusCode.Should().Be(statusCode);
+        ex.ContentType.Should().Be("application/json");
+        ex.Payload.Should().NotBeNullOrEmpty();
         ex.ServerEntity.Should().BeEquivalentTo<IMovie>(payload);
         ex.ServerEntity.Id.Should().Be("1");
         ex.ServerEntity.Version.Should().Be("1234");
