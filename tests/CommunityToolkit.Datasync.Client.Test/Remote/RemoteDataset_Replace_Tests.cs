@@ -94,6 +94,34 @@ public class RemoteDataset_Replace_Tests : BaseOperationTest
     }
 
     [Fact]
+    public async Task ReplaceAsync_Extension_Success_FormulatesCorrectResponse()
+    {
+        const string id = "42";
+        ClientMovie payload = CreateMockMovie(id); payload.Version = "abcd";
+        ClientMovie submission = CreateMockMovie(id); submission.Version = "1234";
+        MockHandler.AddResponse(HttpStatusCode.OK, payload);
+
+        ClientMovie actual = await Dataset.ReplaceAsync(submission);
+
+        actual.Should().BeEquivalentTo<IMovie>(payload);
+        actual.Id.Should().Be(payload.Id);
+        actual.Version.Should().Be(payload.Version);
+        actual.UpdatedAt.Should().Be(payload.UpdatedAt);
+
+        MockHandler.Requests.Should().HaveCount(1);
+        HttpRequestMessage request = MockHandler.Requests[0];
+        request.Method.Should().Be(HttpMethod.Put);
+        request.RequestUri.ToString().Should().Be($"{BaseAddress}{Path}/{id}");
+        string jsonContent = await request.Content.ReadAsStringAsync();
+        string submissionContent = JsonSerializer.Serialize(submission, this.serializerOptions);
+        jsonContent.Should().Be(submissionContent);
+        
+        request.Headers.IfMatch.Should().HaveCount(1);
+        request.Headers.IfMatch.FirstOrDefault().Tag.Should().Be("\"1234\"");
+        request.Headers.IfMatch.FirstOrDefault().IsWeak.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task ReplaceAsync_SuccessNoContent()
     {
         ClientMovie submission = CreateMockMovie("42");

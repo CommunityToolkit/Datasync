@@ -71,6 +71,29 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
         jsonContent.Should().Be(submissionContent);
     }
 
+    [Fact]
+    public async Task AddAsync_Success_Id_NoOptions()
+    {
+        ClientMovie payload = CreateMockMovie("1");
+        MockHandler.AddResponse(HttpStatusCode.Created, payload);
+
+        ClientMovie submission = CreateMockMovie("42");
+        ClientMovie actual = await Dataset.AddAsync(submission);
+
+        actual.Should().BeEquivalentTo<IMovie>(payload);
+        actual.Id.Should().Be(payload.Id);
+        actual.Version.Should().Be(payload.Version);
+        actual.UpdatedAt.Should().Be(payload.UpdatedAt);
+
+        MockHandler.Requests.Should().HaveCount(1);
+        HttpRequestMessage request = MockHandler.Requests[0];
+        request.Method.Should().Be(HttpMethod.Post);
+        request.RequestUri.ToString().Should().Be($"{BaseAddress}{Path}");
+        string jsonContent = await request.Content.ReadAsStringAsync();
+        string submissionContent = JsonSerializer.Serialize(submission, this.serializerOptions);
+        jsonContent.Should().Be(submissionContent);
+    }
+
     [Theory]
     [InlineData(HttpStatusCode.OK)]
     [InlineData(HttpStatusCode.Created)]

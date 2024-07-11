@@ -22,8 +22,7 @@ public interface IReadOnlyRemoteDataset<T> where T : notnull
     /// <param name="options">The options to use with this operation</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns the number of items that will be in the result set when the query finishes.</returns>
-    /// <exception cref="DatasyncHttpException">Thrown if the response from the server does not indicate success.</exception>
-    /// <exception cref="JsonException">Thrown if the response from the server is not valid JSON.</exception>
+    /// <exception cref="DatasyncException">Thrown if the response from the server does not indicate success.</exception>
     ValueTask<long> CountAsync(string query, RemoteOperationOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -35,8 +34,7 @@ public interface IReadOnlyRemoteDataset<T> where T : notnull
     /// <returns>A task that returns the item when complete.</returns>
     /// <exception cref="ArgumentException">If the globally unique ID is not a valid ID.</exception>
     /// <exception cref="EntityNotFoundException">Thrown if the entity does not exist on the server.</exception>
-    /// <exception cref="DatasyncHttpException">Thrown if the response from the server does not indicate success.</exception>
-    /// <exception cref="JsonException">Thrown if the response from the server is not valid JSON.</exception>
+    /// <exception cref="DatasyncException">Thrown if the response from the server does not indicate success.</exception>
     ValueTask<T> GetAsync(string id, RemoteOperationOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -46,7 +44,6 @@ public interface IReadOnlyRemoteDataset<T> where T : notnull
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that returns a page of items when complete.</returns>
     /// <exception cref="UriFormatException">Thrown if the <paramref name="pathAndQuery"/> cannot be used to construct a valid URI.</exception>
-    /// <exception cref="JsonException">Thrown if the response from the server is not valid JSON.</exception>
     ValueTask<Page<T>> GetPageAsync(string pathAndQuery, CancellationToken cancellationToken = default);
 }
 
@@ -66,8 +63,7 @@ public interface IRemoteDataset<T> : IReadOnlyRemoteDataset<T> where T : notnull
     /// <returns>A task that returns the inserted data when complete.</returns>
     /// <exception cref="ArgumentException">Thrown if the entity provided is not valid (client-side evaluation).</exception>
     /// <exception cref="ConflictException{T}">Thrown if the entity already exists on the server.</exception>
-    /// <exception cref="DatasyncHttpException">Thrown if the response from the server does not indicate success.</exception>
-    /// <exception cref="JsonException">Thrown if the response from the server is not valid JSON.</exception>
+    /// <exception cref="DatasyncException">Thrown if the response from the server does not indicate success.</exception>
     Task<T> AddAsync(T entity, RemoteOperationOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -80,8 +76,7 @@ public interface IRemoteDataset<T> : IReadOnlyRemoteDataset<T> where T : notnull
     /// <exception cref="ArgumentException">Thrown if the globally unique ID provided is not valid.</exception>
     /// <exception cref="EntityNotFoundException">Thrown if the entity does not exist on the server.</exception>
     /// <exception cref="ConflictException{T}">Thrown if there is a version mismatch on the server.</exception>
-    /// <exception cref="DatasyncHttpException">Thrown if the response from the server does not indicate success.</exception>
-    /// <exception cref="JsonException">Thrown if the response from the server is not valid JSON.</exception>
+    /// <exception cref="DatasyncException">Thrown if the response from the server does not indicate success.</exception>
     Task RemoveAsync(string id, RemoteOperationOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -94,7 +89,6 @@ public interface IRemoteDataset<T> : IReadOnlyRemoteDataset<T> where T : notnull
     /// <exception cref="ArgumentException">Thrown if the entity provided is not valid.</exception>
     /// <exception cref="ConflictException{T}">Thrown if there is a version mismatch on the server.</exception>
     /// <exception cref="EntityNotFoundException">Thrown if the entity does not exist on the server.</exception>
-    /// <exception cref="DatasyncHttpException">Thrown if the response from the server does not indicate success.</exception>
-    /// <exception cref="JsonException">Thrown if the response from the server is not valid JSON.</exception>
+    /// <exception cref="DatasyncException">Thrown if the response from the server does not indicate success.</exception>
     Task<T> ReplaceAsync(T entity, RemoteOperationOptions options, CancellationToken cancellationToken = default);
 }

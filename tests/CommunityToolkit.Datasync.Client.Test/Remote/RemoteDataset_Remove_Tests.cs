@@ -13,11 +13,32 @@ namespace CommunityToolkit.Datasync.Client.Test.Remote;
 [ExcludeFromCodeCoverage]
 public class RemoteDataset_Remove_Tests : BaseOperationTest
 {
+    private static ClientMovie CreateMockMovie(string id)
+    {
+        ClientMovie movie = new() { Id = id, Version = "1234", UpdatedAt = DateTimeOffset.UnixEpoch };
+        TestData.Movies.BlackPanther.CopyTo(movie);
+        return movie;
+    }
+
     [Fact]
     public async Task RemoveAsync_ThrowsOnNull()
     {
-        Func<Task> act = async () => await Dataset.RemoveAsync(null, DefaultOperationOptions);
-        await act.Should().ThrowAsync<ArgumentNullException>();
+        Func<Task> act1 = async () => await Dataset.RemoveAsync(null, DefaultOperationOptions);
+        await act1.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [Fact]
+    public async Task RemoveAsync_Extension_ThrowsOnNull()
+    {
+        Func<Task> act2 = async () => await Dataset.RemoveAsync(null);
+        await act2.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [Fact]
+    public async Task RemoveAsync_Extension_ThrowsOnNullId()
+    {
+        Func<Task> act3 = async () => await Dataset.RemoveAsync(CreateMockMovie(null));
+        await act3.Should().ThrowAsync<ArgumentNullException>();
     }
 
     [Theory]
@@ -32,8 +53,24 @@ public class RemoteDataset_Remove_Tests : BaseOperationTest
     [InlineData("###")]
     public async Task RemoveAsync_ThrowsOnInvalidId(string id)
     {
-        Func<Task> act = async () => await Dataset.RemoveAsync(id, DefaultOperationOptions);
-        await act.Should().ThrowAsync<ArgumentException>();
+        Func<Task> act1 = async () => await Dataset.RemoveAsync(id, DefaultOperationOptions);
+        await act1.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t")]
+    [InlineData("abcdef gh")]
+    [InlineData("!!!")]
+    [InlineData("?")]
+    [InlineData(";")]
+    [InlineData("{EA235ADF-9F38-44EA-8DA4-EF3D24755767}")]
+    [InlineData("###")]
+    public async Task RemoveAsync_Extension_ThrowsOnInvalidId(string id)
+    { 
+        Func<Task> act2 = async () => await Dataset.RemoveAsync(CreateMockMovie(id));
+        await act2.Should().ThrowAsync<ArgumentException>();
     }
 
     [Theory, CombinatorialData]
@@ -46,6 +83,31 @@ public class RemoteDataset_Remove_Tests : BaseOperationTest
         HttpRequestMessage request = MockHandler.Requests[0];
         request.Method.Should().Be(HttpMethod.Delete);
         request.RequestUri.ToString().Should().Be($"{BaseAddress}{Path}/1234");
+        if (hasPrecondition)
+        {
+            request.Headers.IfMatch.Should().HaveCount(1);
+            request.Headers.IfMatch.FirstOrDefault().Tag.Should().Be("\"abcdefg\"");
+            request.Headers.IfMatch.FirstOrDefault().IsWeak.Should().BeFalse();
+        }
+        else
+        {
+            request.Headers.IfMatch.Should().HaveCount(0);
+        }
+    }
+
+    [Theory, CombinatorialData]
+    public async Task RemoveAsync_Extension_FormulatesCorrectResponse(bool hasPrecondition)
+    {
+        ClientMovie movie = CreateMockMovie("42");
+        movie.Version = hasPrecondition ? "abcdefg" : null;
+        MockHandler.AddResponse(HttpStatusCode.NoContent);
+
+        await Dataset.RemoveAsync(movie);
+
+        MockHandler.Requests.Should().HaveCount(1);
+        HttpRequestMessage request = MockHandler.Requests[0];
+        request.Method.Should().Be(HttpMethod.Delete);
+        request.RequestUri.ToString().Should().Be($"{BaseAddress}{Path}/42");
         if (hasPrecondition)
         {
             request.Headers.IfMatch.Should().HaveCount(1);

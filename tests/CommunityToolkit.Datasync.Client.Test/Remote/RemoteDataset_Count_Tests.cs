@@ -18,8 +18,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     [InlineData(HttpStatusCode.Unauthorized)]
     [InlineData(HttpStatusCode.UnavailableForLegalReasons)]
     [InlineData(HttpStatusCode.ExpectationFailed)]
-    [Trait("Method", "CountItemsAsync")]
-    public async Task CountItemsAsync_Throws_OnBadRequest(HttpStatusCode statusCode)
+    public async Task CountAsync_Throws_OnBadRequest(HttpStatusCode statusCode)
     {
         MockHandler.AddResponse(statusCode);
         Func<Task> act = async () => await Dataset.CountAsync(string.Empty, DefaultOperationOptions);
@@ -28,8 +27,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     }
 
     [Fact]
-    [Trait("Method", "CountItemsAsync")]
-    public async Task CountItemsAsync_NoItems_WithFilter()
+    public async Task CountAsync_NoItems_WithFilter()
     {
         MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>() { Count = 0L });
 
@@ -44,8 +42,37 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     }
 
     [Fact]
-    [Trait("Method", "CountItemsAsync")]
-    public async Task CountItemsAsync_NoItems_WithFilter_IncludeDeleted()
+    public async Task CountAsync_Extension_All()
+    {
+        MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>() { Count = 42L });
+
+        long count = await Dataset.CountAsync();
+
+        count.Should().Be(42L);
+
+        HttpRequestMessage request = MockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be($"{BaseAddress}{Path}?$select=id&$skip=0&$top=1&$count=true");
+    }
+
+    [Fact]
+    public async Task CountAsync_Extension_Filtered()
+    {
+        MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>() { Count = 42L });
+
+        long count = await Dataset.CountAsync("$filter=(stringField eq 'id')");
+
+        count.Should().Be(42L);
+
+        HttpRequestMessage request = MockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be($"{BaseAddress}{Path}?$filter=(stringField+eq+%27id%27)&$select=id&$skip=0&$top=1&$count=true");
+    }
+
+    [Fact]
+    public async Task CountAsync_NoItems_WithFilter_IncludeDeleted()
     {
         MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>() { Count = 0L });
         RemoteOperationOptions options = new() { IncludeDeletedItems = true };
@@ -61,8 +88,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     }
 
     [Fact]
-    [Trait("Method", "CountItemsAsync")]
-    public async Task CountItemsAsync_NoCount()
+    public async Task CountAsync_NoCount()
     {
         MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>());
         Func<Task> act = async () => await Dataset.CountAsync(string.Empty, DefaultOperationOptions);
@@ -70,8 +96,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     }
 
     [Fact]
-    [Trait("Method", "CountItemsAsync")]
-    public async Task CountItemsAsync_Count()
+    public async Task CountAsync_Count()
     {
         MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>() { Count = 42 });
 

@@ -99,6 +99,26 @@ public class RemoteDataset_Get_Tests : BaseOperationTest
     }
 
     [Fact]
+    public async Task GetAsync_Extension_FormulatesCorrectRequest()
+    {
+        ClientMovie payload = new() { Id = "1", Version = "1234", UpdatedAt = DateTimeOffset.UnixEpoch };
+        TestData.Movies.BlackPanther.CopyTo(payload);
+
+        MockHandler.AddResponse(HttpStatusCode.OK, payload);
+
+        ClientMovie actual = await Dataset.GetAsync("1");
+        actual.Should().BeEquivalentTo<IMovie>(payload);
+        actual.Id.Should().Be(payload.Id);
+        actual.Version.Should().Be(payload.Version);
+        actual.UpdatedAt.Should().Be(payload.UpdatedAt);
+
+        MockHandler.Requests.Should().HaveCount(1);
+        HttpRequestMessage request = MockHandler.Requests[0];
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be($"{BaseAddress}{Path}/1");
+    }
+
+    [Fact]
     public async Task GetAsync_FormulatesCorrectRequest_IncludeDeleted()
     {
         RemoteOperationOptions options = new() { IncludeDeletedItems = true };
