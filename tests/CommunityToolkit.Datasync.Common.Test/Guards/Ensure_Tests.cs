@@ -215,11 +215,11 @@ public class Ensure_Tests
     [InlineData("////////**********?#")]
     public void IsHttpPath_Throws(string path)
     {
-        Action act = () => Ensure.That(path, nameof(path)).IsHttpPath();
-        act.Should().Throw<ArgumentException>();
+        Action act1 = () => Ensure.That(path, nameof(path)).IsHttpPath();
+        act1.Should().Throw<ArgumentException>();
 
-        Action act = () => Ensure.That(path, nameof(path)).IsHttpPath("foo");
-        act.Should().Throw<ArgumentException>();
+        Action act2 = () => Ensure.That(path, nameof(path)).IsHttpPath("foo");
+        act2.Should().Throw<ArgumentException>();
     }
 
     [Theory, CombinatorialData]

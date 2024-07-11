@@ -38,14 +38,21 @@ public class ConflictException<T> : DatasyncHttpException where T : notnull
     /// <returns></returns>
     public static async Task<ConflictException<T>> CreateAsync(HttpResponseMessage responseMessage, JsonSerializerOptions serializerOptions, CancellationToken cancellationToken = default)
     {
-        string mediaType = responseMessage.Content.Headers.ContentType?.MediaType ?? string.Empty;
-        string content = await responseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-        return new ConflictException<T>(responseMessage.ReasonPhrase)
+        try
         {
-            StatusCode = responseMessage.StatusCode,
-            ContentType = mediaType,
-            Payload = content,
-            ServerEntity = JsonSerializer.Deserialize<T>(content, serializerOptions)
-        };
+            string mediaType = responseMessage.Content.Headers.ContentType?.MediaType ?? string.Empty;
+            string content = await responseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            return new ConflictException<T>(responseMessage.ReasonPhrase)
+            {
+                StatusCode = responseMessage.StatusCode,
+                ContentType = mediaType,
+                Payload = content,
+                ServerEntity = JsonSerializer.Deserialize<T>(content, serializerOptions)
+            };
+        }
+        catch (JsonException ex)
+        {
+            throw new DatasyncException("Invalid JSON content received from server", ex);
+        }
     }
 }

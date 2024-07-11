@@ -86,8 +86,8 @@ public class RemoteDataset_Remove_Tests : BaseOperationTest
     public async Task RemoveAsync_ConflictNoContent_FormulatesCorrectResponse(HttpStatusCode statusCode)
     {
         MockHandler.AddResponse(statusCode);
-        async Task act() => await Dataset.RemoveAsync("1", this.defaultOptions);
-        JsonException ex = await Assert.ThrowsAsync<JsonException>(act);
+        Func<Task> act = async () => await Dataset.RemoveAsync("1", this.defaultOptions);
+        await act.Should().ThrowAsync<DatasyncException>();
     }
 
     [Theory]
@@ -98,7 +98,7 @@ public class RemoteDataset_Remove_Tests : BaseOperationTest
     {
         MockHandler.AddResponseContent("{this-is-bad-json", statusCode);
         Func<Task> act = async () => await Dataset.RemoveAsync("1", this.defaultOptions);
-        await act.Should().ThrowAsync<JsonException>();
+        await act.Should().ThrowAsync<DatasyncException>();
     }
 
     [Theory]

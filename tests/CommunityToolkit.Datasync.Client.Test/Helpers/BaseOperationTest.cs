@@ -17,14 +17,14 @@ namespace CommunityToolkit.Datasync.Client.Test.Helpers;
 public abstract class BaseOperationTest
 {
     private readonly Lazy<MockDelegatingHandler> _mockHandler = new(() => new MockDelegatingHandler());
-    private readonly JsonSerializerOptions _serializerOptions = new DatasyncServiceOptions().JsonSerializerOptions;
+    protected readonly JsonSerializerOptions serializerOptions = new DatasyncServiceOptions().JsonSerializerOptions;
     private readonly RemoteDataset<ClientMovie> _dataset;
 
     protected BaseOperationTest()
     {
         HttpClient mockClient = GetMockClient();
-        this._serializerOptions = new DatasyncServiceOptions().JsonSerializerOptions;
-        this._dataset = new RemoteDataset<ClientMovie>(mockClient, this._serializerOptions, Path);
+        this.serializerOptions = new DatasyncServiceOptions().JsonSerializerOptions;
+        this._dataset = new RemoteDataset<ClientMovie>(mockClient, this.serializerOptions, Path);
     }
 
     /// <summary>
