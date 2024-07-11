@@ -6,6 +6,7 @@ using CommunityToolkit.Datasync.Client.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Models;
 using FluentAssertions.Specialized;
+using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Text.Json;
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
@@ -13,7 +14,7 @@ using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 namespace CommunityToolkit.Datasync.Client.Test.Remote;
 
 [ExcludeFromCodeCoverage]
-public class RemoteDataset_Add_Tests : BaseOperationTest
+public class RemoteDataset_Replace_Tests : BaseOperationTest
 {
     private RemoteOperationOptions defaultOptions = new();
 
@@ -25,10 +26,18 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
     }
 
     [Fact]
-    public async Task AddAsync_ThrowsOnNull()
+    public async Task ReplaceItemAsync_ThrowsOnNull()
     {
-        Func<Task> act = async () => await Dataset.AddAsync(null, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(null, this.defaultOptions);
         await act.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [Fact]
+    public async Task ReplaceItemAsync_ThrowsOnNullId()
+    {
+        ClientMovie submission = CreateMockMovie(null);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
+        await act.Should().ThrowAsync<ArgumentException>();
     }
 
     [Theory]
@@ -41,23 +50,28 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
     [InlineData(";")]
     [InlineData("{EA235ADF-9F38-44EA-8DA4-EF3D24755767}")]
     [InlineData("###")]
-    public async Task AddAsync_ThrowsOnInvalidId(string id)
+    public async Task ReplaceItemAsync_ThrowsOnInvalidId(string id)
     {
-        ClientMovie payload = CreateMockMovie(id);
-        Func<Task> act = async () => await Dataset.AddAsync(payload, this.defaultOptions);
+        ClientMovie submission = CreateMockMovie(id);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
-    [Theory]
-    [InlineData(HttpStatusCode.OK)]
-    [InlineData(HttpStatusCode.Created)]
-    public async Task AddAsync_Success_Id(HttpStatusCode statusCode)
+    [Theory, CombinatorialData]
+    public async Task ReplaceItemAsync_Success_FormulatesCorrectResponse(bool hasPrecondition)
     {
-        ClientMovie payload = CreateMockMovie("1");
-        MockHandler.AddResponse(statusCode, payload);
+        const string id = "42";
+        ClientMovie payload = CreateMockMovie(id); payload.Version = "abcd";
+        ClientMovie submission = CreateMockMovie(id); submission.Version = "1234";
+        MockHandler.AddResponse(HttpStatusCode.OK, payload);
+        RemoteOperationOptions options = new();
+        if (hasPrecondition)
+        {
+            options.RequiredVersion = submission.Version;
+        }
 
-        ClientMovie submission = CreateMockMovie("42");
-        ClientMovie actual = await Dataset.AddAsync(submission, this.defaultOptions);
+        ClientMovie actual = await Dataset.ReplaceAsync(submission, options);
+
 
         actual.Should().BeEquivalentTo<IMovie>(payload);
         actual.Id.Should().Be(payload.Id);
@@ -66,73 +80,45 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
 
         MockHandler.Requests.Should().HaveCount(1);
         HttpRequestMessage request = MockHandler.Requests[0];
-        request.Method.Should().Be(HttpMethod.Post);
-        request.RequestUri.ToString().Should().Be($"{BaseAddress}{Path}");
+        request.Method.Should().Be(HttpMethod.Put);
+        request.RequestUri.ToString().Should().Be($"{BaseAddress}{Path}/{id}");
         string jsonContent = await request.Content.ReadAsStringAsync();
         string submissionContent = JsonSerializer.Serialize(submission, this.serializerOptions);
         jsonContent.Should().Be(submissionContent);
+        if (hasPrecondition)
+        {
+            request.Headers.IfMatch.Should().HaveCount(1);
+            request.Headers.IfMatch.FirstOrDefault().Tag.Should().Be("\"1234\"");
+            request.Headers.IfMatch.FirstOrDefault().IsWeak.Should().BeFalse();
+        }
+        else
+        {
+            request.Headers.IfMatch.Should().HaveCount(0);
+        }
     }
 
-    [Theory]
-    [InlineData(HttpStatusCode.OK)]
-    [InlineData(HttpStatusCode.Created)]
-    public async Task AddAsync_Success_NullId(HttpStatusCode statusCode)
-    {
-        ClientMovie payload = CreateMockMovie("1");
-        MockHandler.AddResponse(statusCode, payload);
-
-        ClientMovie submission = CreateMockMovie(null);
-
-        ClientMovie actual = await Dataset.AddAsync(submission, this.defaultOptions);
-
-        actual.Should().BeEquivalentTo<IMovie>(payload);
-        actual.Id.Should().Be(payload.Id);
-        actual.Version.Should().Be(payload.Version);
-        actual.UpdatedAt.Should().Be(payload.UpdatedAt);
-
-        MockHandler.Requests.Should().HaveCount(1);
-        HttpRequestMessage request = MockHandler.Requests[0];
-        request.Method.Should().Be(HttpMethod.Post);
-        request.RequestUri.ToString().Should().Be($"{BaseAddress}{Path}");
-        string jsonContent = await request.Content.ReadAsStringAsync();
-        string submissionContent = JsonSerializer.Serialize(submission, this.serializerOptions);
-        jsonContent.Should().Be(submissionContent);
-    }
-
-    [Theory]
-    [InlineData(HttpStatusCode.OK)]
-    [InlineData(HttpStatusCode.Created)]
-    public async Task AddAsync_SuccessNoContent(HttpStatusCode statusCode)
+    [Fact]
+    [Trait("Method", "ReplaceItemAsync")]
+    public async Task ReplaceItemAsync_SuccessNoContent()
     {
         ClientMovie submission = CreateMockMovie("42");
-        MockHandler.AddResponse(statusCode);
+        MockHandler.AddResponse(HttpStatusCode.OK);
 
-        Func<Task> act = async () => await Dataset.AddAsync(submission, this.defaultOptions);
-        await act.Should().ThrowAsync<DatasyncException>();
-    }
-
-    [Theory]
-    [InlineData(HttpStatusCode.OK)]
-    [InlineData(HttpStatusCode.Created)]
-    public async Task AddAsync_SuccessWithBadJson_Throws(HttpStatusCode statusCode)
-    {
-        ClientMovie submission = CreateMockMovie("42");
-        MockHandler.AddResponseContent("{this-is-bad-json", statusCode);
-
-        Func<Task> act = async () => await Dataset.AddAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
     [Theory]
     [InlineData(HttpStatusCode.Conflict)]
     [InlineData(HttpStatusCode.PreconditionFailed)]
-    public async Task AddAsync_Conflict_FormulatesCorrectResponse(HttpStatusCode statusCode)
+    [Trait("Method", "ReplaceItemAsync")]
+    public async Task ReplaceItemAsync_Conflict_FormulatesCorrectResponse(HttpStatusCode statusCode)
     {
         ClientMovie payload = CreateMockMovie("1");
         MockHandler.AddResponse(statusCode, payload);
 
         ClientMovie submission = CreateMockMovie("42");
-        Func<Task> act = async () => await Dataset.AddAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
 
         ExceptionAssertions<ConflictException<ClientMovie>> ex = await act.Should().ThrowAsync<ConflictException<ClientMovie>>();
         ex.Which.StatusCode.Should().Be(statusCode);
@@ -143,22 +129,24 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
     [Theory]
     [InlineData(HttpStatusCode.Conflict)]
     [InlineData(HttpStatusCode.PreconditionFailed)]
-    public async Task AddAsync_ConflictNoContent_Throws(HttpStatusCode statusCode)
+    [Trait("Method", "ReplaceItemAsync")]
+    public async Task ReplaceItemAsync_ConflictNoContent(HttpStatusCode statusCode)
     {
         MockHandler.AddResponse(statusCode);
         ClientMovie submission = CreateMockMovie("42");
-        Func<Task> act = async () => await Dataset.AddAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
     [Theory]
     [InlineData(HttpStatusCode.Conflict)]
     [InlineData(HttpStatusCode.PreconditionFailed)]
-    public async Task AddAsync_ConflictWithBadJson_Throws(HttpStatusCode statusCode)
+    [Trait("Method", "ReplaceItemAsync")]
+    public async Task ReplaceItemAsync_ConflictWithBadJson_Throws(HttpStatusCode statusCode)
     {
         ClientMovie submission = CreateMockMovie("42");
         MockHandler.AddResponseContent("{this-is-bad-json", statusCode);
-        Func<Task> act = async () => await Dataset.AddAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
@@ -167,11 +155,12 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
     [InlineData(HttpStatusCode.MethodNotAllowed)]
     [InlineData(HttpStatusCode.Unauthorized)]
     [InlineData(HttpStatusCode.InternalServerError)]
-    public async Task AddAsync_RequestFailed_Throws(HttpStatusCode statusCode)
+    [Trait("Method", "ReplaceItemAsync")]
+    public async Task ReplaceItemAsync_RequestFailed_Throws(HttpStatusCode statusCode)
     {
         MockHandler.AddResponse(statusCode);
         ClientMovie submission = CreateMockMovie("42");
-        Func<Task> act = async () => await Dataset.AddAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
         (await act.Should().ThrowAsync<DatasyncHttpException>())
             .Which.StatusCode.Should().Be(statusCode);
     }
