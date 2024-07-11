@@ -6,7 +6,6 @@ using CommunityToolkit.Datasync.Client.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Models;
 using FluentAssertions.Specialized;
-using Microsoft.AspNetCore.Http;
 using System.Net;
 using System.Text.Json;
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
@@ -16,8 +15,6 @@ namespace CommunityToolkit.Datasync.Client.Test.Remote;
 [ExcludeFromCodeCoverage]
 public class RemoteDataset_Replace_Tests : BaseOperationTest
 {
-    private RemoteOperationOptions defaultOptions = new();
-
     private static ClientMovie CreateMockMovie(string id)
     {
         ClientMovie movie = new() { Id = id, Version = "1234", UpdatedAt = DateTimeOffset.UnixEpoch };
@@ -26,17 +23,17 @@ public class RemoteDataset_Replace_Tests : BaseOperationTest
     }
 
     [Fact]
-    public async Task ReplaceItemAsync_ThrowsOnNull()
+    public async Task ReplaceAsync_ThrowsOnNull()
     {
-        Func<Task> act = async () => await Dataset.ReplaceAsync(null, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(null, DefaultOperationOptions);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
     [Fact]
-    public async Task ReplaceItemAsync_ThrowsOnNullId()
+    public async Task ReplaceAsync_ThrowsOnNullId()
     {
         ClientMovie submission = CreateMockMovie(null);
-        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, DefaultOperationOptions);
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
@@ -50,15 +47,15 @@ public class RemoteDataset_Replace_Tests : BaseOperationTest
     [InlineData(";")]
     [InlineData("{EA235ADF-9F38-44EA-8DA4-EF3D24755767}")]
     [InlineData("###")]
-    public async Task ReplaceItemAsync_ThrowsOnInvalidId(string id)
+    public async Task ReplaceAsync_ThrowsOnInvalidId(string id)
     {
         ClientMovie submission = CreateMockMovie(id);
-        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, DefaultOperationOptions);
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
     [Theory, CombinatorialData]
-    public async Task ReplaceItemAsync_Success_FormulatesCorrectResponse(bool hasPrecondition)
+    public async Task ReplaceAsync_Success_FormulatesCorrectResponse(bool hasPrecondition)
     {
         const string id = "42";
         ClientMovie payload = CreateMockMovie(id); payload.Version = "abcd";
@@ -71,7 +68,6 @@ public class RemoteDataset_Replace_Tests : BaseOperationTest
         }
 
         ClientMovie actual = await Dataset.ReplaceAsync(submission, options);
-
 
         actual.Should().BeEquivalentTo<IMovie>(payload);
         actual.Id.Should().Be(payload.Id);
@@ -98,27 +94,25 @@ public class RemoteDataset_Replace_Tests : BaseOperationTest
     }
 
     [Fact]
-    [Trait("Method", "ReplaceItemAsync")]
-    public async Task ReplaceItemAsync_SuccessNoContent()
+    public async Task ReplaceAsync_SuccessNoContent()
     {
         ClientMovie submission = CreateMockMovie("42");
         MockHandler.AddResponse(HttpStatusCode.OK);
 
-        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, DefaultOperationOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
     [Theory]
     [InlineData(HttpStatusCode.Conflict)]
     [InlineData(HttpStatusCode.PreconditionFailed)]
-    [Trait("Method", "ReplaceItemAsync")]
-    public async Task ReplaceItemAsync_Conflict_FormulatesCorrectResponse(HttpStatusCode statusCode)
+    public async Task ReplaceAsync_Conflict_FormulatesCorrectResponse(HttpStatusCode statusCode)
     {
         ClientMovie payload = CreateMockMovie("1");
         MockHandler.AddResponse(statusCode, payload);
 
         ClientMovie submission = CreateMockMovie("42");
-        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, DefaultOperationOptions);
 
         ExceptionAssertions<ConflictException<ClientMovie>> ex = await act.Should().ThrowAsync<ConflictException<ClientMovie>>();
         ex.Which.StatusCode.Should().Be(statusCode);
@@ -129,24 +123,22 @@ public class RemoteDataset_Replace_Tests : BaseOperationTest
     [Theory]
     [InlineData(HttpStatusCode.Conflict)]
     [InlineData(HttpStatusCode.PreconditionFailed)]
-    [Trait("Method", "ReplaceItemAsync")]
-    public async Task ReplaceItemAsync_ConflictNoContent(HttpStatusCode statusCode)
+    public async Task ReplaceAsync_ConflictNoContent(HttpStatusCode statusCode)
     {
         MockHandler.AddResponse(statusCode);
         ClientMovie submission = CreateMockMovie("42");
-        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, DefaultOperationOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
     [Theory]
     [InlineData(HttpStatusCode.Conflict)]
     [InlineData(HttpStatusCode.PreconditionFailed)]
-    [Trait("Method", "ReplaceItemAsync")]
-    public async Task ReplaceItemAsync_ConflictWithBadJson_Throws(HttpStatusCode statusCode)
+    public async Task ReplaceAsync_ConflictWithBadJson_Throws(HttpStatusCode statusCode)
     {
         ClientMovie submission = CreateMockMovie("42");
         MockHandler.AddResponseContent("{this-is-bad-json", statusCode);
-        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, DefaultOperationOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
@@ -155,13 +147,21 @@ public class RemoteDataset_Replace_Tests : BaseOperationTest
     [InlineData(HttpStatusCode.MethodNotAllowed)]
     [InlineData(HttpStatusCode.Unauthorized)]
     [InlineData(HttpStatusCode.InternalServerError)]
-    [Trait("Method", "ReplaceItemAsync")]
-    public async Task ReplaceItemAsync_RequestFailed_Throws(HttpStatusCode statusCode)
+    public async Task ReplaceAsync_RequestFailed_Throws(HttpStatusCode statusCode)
     {
         MockHandler.AddResponse(statusCode);
         ClientMovie submission = CreateMockMovie("42");
-        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.ReplaceAsync(submission, DefaultOperationOptions);
         (await act.Should().ThrowAsync<DatasyncHttpException>())
             .Which.StatusCode.Should().Be(statusCode);
+    }
+
+    [Fact]
+    public async Task ReplaceAsync_NotFound_Throws()
+    {
+        MockHandler.AddResponse(HttpStatusCode.NotFound);
+        ClientMovie submission = CreateMockMovie("42");
+        Func<Task> act = async () => _ = await Dataset.ReplaceAsync(submission, DefaultOperationOptions);
+        await act.Should().ThrowAsync<EntityNotFoundException>();
     }
 }

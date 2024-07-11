@@ -46,6 +46,11 @@ public class DatasyncHttpException : DatasyncException
     /// <returns></returns>
     public static async Task<DatasyncHttpException> CreateAsync(HttpResponseMessage responseMessage, CancellationToken cancellationToken = default)
     {
+        if (responseMessage.StatusCode == HttpStatusCode.NotFound)
+        {
+            throw new EntityNotFoundException();
+        }
+
         string mediaType = responseMessage.Content.Headers.ContentType?.MediaType ?? string.Empty;
         string content = await responseMessage.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
         return new DatasyncHttpException(responseMessage.ReasonPhrase)

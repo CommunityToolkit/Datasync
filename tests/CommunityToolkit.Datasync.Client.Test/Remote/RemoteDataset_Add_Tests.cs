@@ -15,8 +15,6 @@ namespace CommunityToolkit.Datasync.Client.Test.Remote;
 [ExcludeFromCodeCoverage]
 public class RemoteDataset_Add_Tests : BaseOperationTest
 {
-    private RemoteOperationOptions defaultOptions = new();
-
     private static ClientMovie CreateMockMovie(string id)
     {
         ClientMovie movie = new() { Id = id, Version = "1234", UpdatedAt = DateTimeOffset.UnixEpoch };
@@ -27,7 +25,7 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
     [Fact]
     public async Task AddAsync_ThrowsOnNull()
     {
-        Func<Task> act = async () => await Dataset.AddAsync(null, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.AddAsync(null, DefaultOperationOptions);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
@@ -44,7 +42,7 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
     public async Task AddAsync_ThrowsOnInvalidId(string id)
     {
         ClientMovie payload = CreateMockMovie(id);
-        Func<Task> act = async () => await Dataset.AddAsync(payload, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.AddAsync(payload, DefaultOperationOptions);
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
@@ -57,7 +55,7 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
         MockHandler.AddResponse(statusCode, payload);
 
         ClientMovie submission = CreateMockMovie("42");
-        ClientMovie actual = await Dataset.AddAsync(submission, this.defaultOptions);
+        ClientMovie actual = await Dataset.AddAsync(submission, DefaultOperationOptions);
 
         actual.Should().BeEquivalentTo<IMovie>(payload);
         actual.Id.Should().Be(payload.Id);
@@ -83,7 +81,7 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
 
         ClientMovie submission = CreateMockMovie(null);
 
-        ClientMovie actual = await Dataset.AddAsync(submission, this.defaultOptions);
+        ClientMovie actual = await Dataset.AddAsync(submission, DefaultOperationOptions);
 
         actual.Should().BeEquivalentTo<IMovie>(payload);
         actual.Id.Should().Be(payload.Id);
@@ -107,7 +105,7 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
         ClientMovie submission = CreateMockMovie("42");
         MockHandler.AddResponse(statusCode);
 
-        Func<Task> act = async () => await Dataset.AddAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.AddAsync(submission, DefaultOperationOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
@@ -119,7 +117,7 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
         ClientMovie submission = CreateMockMovie("42");
         MockHandler.AddResponseContent("{this-is-bad-json", statusCode);
 
-        Func<Task> act = async () => await Dataset.AddAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.AddAsync(submission, DefaultOperationOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
@@ -132,7 +130,7 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
         MockHandler.AddResponse(statusCode, payload);
 
         ClientMovie submission = CreateMockMovie("42");
-        Func<Task> act = async () => await Dataset.AddAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.AddAsync(submission, DefaultOperationOptions);
 
         ExceptionAssertions<ConflictException<ClientMovie>> ex = await act.Should().ThrowAsync<ConflictException<ClientMovie>>();
         ex.Which.StatusCode.Should().Be(statusCode);
@@ -147,7 +145,7 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
     {
         MockHandler.AddResponse(statusCode);
         ClientMovie submission = CreateMockMovie("42");
-        Func<Task> act = async () => await Dataset.AddAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.AddAsync(submission, DefaultOperationOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
@@ -158,7 +156,7 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
     {
         ClientMovie submission = CreateMockMovie("42");
         MockHandler.AddResponseContent("{this-is-bad-json", statusCode);
-        Func<Task> act = async () => await Dataset.AddAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.AddAsync(submission, DefaultOperationOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
@@ -171,7 +169,7 @@ public class RemoteDataset_Add_Tests : BaseOperationTest
     {
         MockHandler.AddResponse(statusCode);
         ClientMovie submission = CreateMockMovie("42");
-        Func<Task> act = async () => await Dataset.AddAsync(submission, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.AddAsync(submission, DefaultOperationOptions);
         (await act.Should().ThrowAsync<DatasyncHttpException>())
             .Which.StatusCode.Should().Be(statusCode);
     }

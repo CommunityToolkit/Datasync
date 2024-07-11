@@ -160,7 +160,8 @@ public class RemoteDataset<T> : IRemoteDataset<T> where T : notnull
         string id = EntityTypeCache.GetEntityId(entity) ?? throw new ArgumentException("Id cannot be null", nameof(entity));
         _ = Ensure.That(id!, nameof(entity)).IsEntityId();
 
-        using HttpRequestMessage requestMessage = new(HttpMethod.Put, EntityPath(id))
+        string relativeUri = options.IncludeDeletedItems ? $"{EntityPath(id)}?{IncludeDeletedParameter}=true" : EntityPath(id);
+        using HttpRequestMessage requestMessage = new(HttpMethod.Put, relativeUri)
         {
             Content = JsonContent.Create(entity, this.jsonMediaType, SerializerOptions)
         };

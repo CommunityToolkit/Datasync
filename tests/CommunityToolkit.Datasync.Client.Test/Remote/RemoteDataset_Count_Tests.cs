@@ -12,8 +12,6 @@ namespace CommunityToolkit.Datasync.Client.Test.Remote;
 [ExcludeFromCodeCoverage]
 public class RemoteDataset_Count_Tests : BaseOperationTest
 {
-    private RemoteOperationOptions defaultOptions = new();
-
     [Theory]
     [InlineData(HttpStatusCode.BadRequest)]
     [InlineData(HttpStatusCode.InternalServerError)]
@@ -24,7 +22,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     public async Task CountItemsAsync_Throws_OnBadRequest(HttpStatusCode statusCode)
     {
         MockHandler.AddResponse(statusCode);
-        Func<Task> act = async () => await Dataset.CountAsync(string.Empty, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.CountAsync(string.Empty, DefaultOperationOptions);
         (await act.Should().ThrowAsync<DatasyncHttpException>())
             .Which.StatusCode.Should().Be(statusCode);
     }
@@ -35,7 +33,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     {
         MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>() { Count = 0L });
 
-        long count = await Dataset.CountAsync("$filter=(stringField eq 'id')", this.defaultOptions);
+        long count = await Dataset.CountAsync("$filter=(stringField eq 'id')", DefaultOperationOptions);
 
         count.Should().Be(0);
 
@@ -67,7 +65,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     public async Task CountItemsAsync_NoCount()
     {
         MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>());
-        Func<Task> act = async () => await Dataset.CountAsync(string.Empty, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.CountAsync(string.Empty, DefaultOperationOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
@@ -77,7 +75,7 @@ public class RemoteDataset_Count_Tests : BaseOperationTest
     {
         MockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie>() { Count = 42 });
 
-        long count = await Dataset.CountAsync(string.Empty, this.defaultOptions);
+        long count = await Dataset.CountAsync(string.Empty, DefaultOperationOptions);
 
         count.Should().Be(42);
         HttpRequestMessage request = MockHandler.Requests.SingleOrDefault();

@@ -27,6 +27,8 @@ public abstract class BaseOperationTest
         this._dataset = new RemoteDataset<ClientMovie>(mockClient, this.serializerOptions, Path);
     }
 
+    protected RemoteOperationOptions DefaultOperationOptions { get; } = new();
+
     /// <summary>
     /// The base address of the service.
     /// </summary>

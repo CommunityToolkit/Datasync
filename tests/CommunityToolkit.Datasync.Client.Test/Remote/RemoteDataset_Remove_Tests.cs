@@ -6,7 +6,6 @@ using CommunityToolkit.Datasync.Client.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Models;
 using System.Net;
-using System.Text.Json;
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Client.Test.Remote;
@@ -14,12 +13,10 @@ namespace CommunityToolkit.Datasync.Client.Test.Remote;
 [ExcludeFromCodeCoverage]
 public class RemoteDataset_Remove_Tests : BaseOperationTest
 {
-    private RemoteOperationOptions defaultOptions = new();
-
     [Fact]
     public async Task RemoveAsync_ThrowsOnNull()
     {
-        Func<Task> act = async () => await Dataset.RemoveAsync(null, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.RemoveAsync(null, DefaultOperationOptions);
         await act.Should().ThrowAsync<ArgumentNullException>();
     }
 
@@ -35,7 +32,7 @@ public class RemoteDataset_Remove_Tests : BaseOperationTest
     [InlineData("###")]
     public async Task RemoveAsync_ThrowsOnInvalidId(string id)
     {
-        Func<Task> act = async () => await Dataset.RemoveAsync(id, this.defaultOptions);
+        Func<Task> act = async () => await Dataset.RemoveAsync(id, DefaultOperationOptions);
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
@@ -70,7 +67,7 @@ public class RemoteDataset_Remove_Tests : BaseOperationTest
         ClientMovie payload = new() { Id = "1", Version = "1234", UpdatedAt = DateTimeOffset.UnixEpoch };
         TestData.Movies.BlackPanther.CopyTo(payload);
         MockHandler.AddResponse(statusCode, payload);
-        ConflictException<ClientMovie> ex = await Assert.ThrowsAsync<ConflictException<ClientMovie>>(() => Dataset.RemoveAsync("1", this.defaultOptions));
+        ConflictException<ClientMovie> ex = await Assert.ThrowsAsync<ConflictException<ClientMovie>>(() => Dataset.RemoveAsync("1", DefaultOperationOptions));
         ex.StatusCode.Should().Be(statusCode);
         ex.ContentType.Should().Be("application/json");
         ex.Payload.Should().NotBeNullOrEmpty();
@@ -86,7 +83,7 @@ public class RemoteDataset_Remove_Tests : BaseOperationTest
     public async Task RemoveAsync_ConflictNoContent_FormulatesCorrectResponse(HttpStatusCode statusCode)
     {
         MockHandler.AddResponse(statusCode);
-        Func<Task> act = async () => await Dataset.RemoveAsync("1", this.defaultOptions);
+        Func<Task> act = async () => await Dataset.RemoveAsync("1", DefaultOperationOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
@@ -97,7 +94,7 @@ public class RemoteDataset_Remove_Tests : BaseOperationTest
     public async Task RemoveAsync_ConflictWithBadJson_Throws(HttpStatusCode statusCode)
     {
         MockHandler.AddResponseContent("{this-is-bad-json", statusCode);
-        Func<Task> act = async () => await Dataset.RemoveAsync("1", this.defaultOptions);
+        Func<Task> act = async () => await Dataset.RemoveAsync("1", DefaultOperationOptions);
         await act.Should().ThrowAsync<DatasyncException>();
     }
 
@@ -110,7 +107,15 @@ public class RemoteDataset_Remove_Tests : BaseOperationTest
     public async Task RemoveAsync_RequestFailed_Throws(HttpStatusCode statusCode)
     {
         MockHandler.AddResponse(statusCode);
-        Func<Task> act = async () => await Dataset.RemoveAsync("1", this.defaultOptions);
+        Func<Task> act = async () => await Dataset.RemoveAsync("1", DefaultOperationOptions);
         (await act.Should().ThrowAsync<DatasyncHttpException>()).Which.StatusCode.Should().Be(statusCode);
+    }
+
+    [Fact]
+    public async Task RemoveAsync_NotFound_Throws()
+    {
+        MockHandler.AddResponse(HttpStatusCode.NotFound);
+        Func<Task> act = async () => await Dataset.RemoveAsync("1", DefaultOperationOptions);
+        await act.Should().ThrowAsync<EntityNotFoundException>();
     }
 }
