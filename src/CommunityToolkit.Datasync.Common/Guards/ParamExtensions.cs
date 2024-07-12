@@ -13,6 +13,26 @@ namespace CommunityToolkit.Datasync.Common;
 public static partial class ParamExtensions
 {
     /// <summary>
+    /// Checks to see if the provided <see cref="HttpClient"/> is valid for a datasync operation.
+    /// </summary>
+    /// <param name="param">The parameter to check.</param>
+    /// <param name="because">A reason to use instead of the default reason.</param>
+    /// <returns>The parameter (for chaining).</returns>
+    /// <exception cref="ArgumentException">Thrown if the provided client is not valid.</exception>
+    public static Param<HttpClient> HasDatasyncEndpoint(this Param<HttpClient> param, string? because = null)
+    {
+        Uri? baseAddress = param.Value.BaseAddress;
+        if (baseAddress == null)
+        {
+            because ??= $"The parameter '{param.Name}' must have the BaseAddress specified.";
+            throw new ArgumentException(because, param.Name);
+        }
+
+        _ = new Param<Uri>(baseAddress!, param.Name).IsDatasyncEndpoint(because);
+        return param;
+    }
+
+    /// <summary>
     /// Checks to see if a list has a specific number of elements.
     /// </summary>
     /// <typeparam name="T">The type contained within the list.</typeparam>
@@ -80,6 +100,29 @@ public static partial class ParamExtensions
         => param.IsNotNull().And.IsAbsoluteUri(because).And.IsLoopbackOrHttps(because);
 
     /// <summary>
+    /// Guards against an invalid entity ID.
+    /// </summary>
+    /// <param name="param">The parameter to check.</param>
+    /// <param name="because">A reason to use instead of the default reason.</param>
+    /// <returns>The parameter (for chaining)</returns>
+    public static Param<string> IsEntityId(this Param<string> param, string? because = null)
+    {
+        if (string.IsNullOrWhiteSpace(param.Value))
+        {
+            because ??= $"The parameter '{param.Name}' cannot be null or whitespace";
+            throw new ArgumentException(because, param.Name);
+        }
+
+        if (!RegexpConstants.EntityIdentity.IsMatch(param.Value))
+        {
+            because ??= $"The parameter '{param.Name}' is not a valid entity ID";
+            throw new ArgumentException(because, param.Name);
+        }
+
+        return param;
+    }
+
+    /// <summary>
     /// Checks that the provided integer is greater than the provided value.
     /// </summary>
     /// <param name="param">The parameter to check.</param>
@@ -144,6 +187,41 @@ public static partial class ParamExtensions
     /// <returns>The parameter (for chaining).</returns>
     public static Param<string> IsHttpHeaderName(this Param<string> param, string? because = null)
         => param.IsNotNull().And.Matches(RegexpConstants.HttpHeaderName, because ?? "The parameter must be a valid HTTP header name");
+
+    /// <summary>
+    /// Checks to ensure that the provided string is a valid HTTP path (starting with single / and ending without one).
+    /// </summary>
+    /// <param name="param">The parameter to check.</param>
+    /// <param name="because">A reason used in generating exceptions.</param>
+    /// <returns>The parameter (for chaining).</returns>
+    public static Param<string> IsHttpPath(this Param<string> param, string? because = null)
+    {
+        if (string.IsNullOrWhiteSpace(param.Value) || !param.Value.StartsWith('/'))
+        {
+            because ??= "The path provided is not valid.";
+            throw new ArgumentException(because, param.Name);
+        }
+
+        if (Uri.TryCreate($"http://localhost{param.Value}", UriKind.Absolute, out Uri? result))
+        {
+            if (!string.IsNullOrEmpty(result.Query))
+            {
+                because ??= "Path has embedded query string.";
+                throw new ArgumentException(because, param.Name);
+            }
+
+            if (!string.IsNullOrEmpty(result.Fragment))
+            {
+                because ??= "Path has embedded fragment string.";
+                throw new ArgumentException(because, param.Name);
+            }
+
+            return param;
+        }
+
+        because ??= "The path provided is not valid.";
+        throw new ArgumentException(because, param.Name);
+    }
 
     /// <summary>
     /// Checks that an integer parameter is within a specified range.
@@ -231,17 +309,17 @@ public static partial class ParamExtensions
     }
 
     /// <summary>
-    /// Guards against a string not being a valid Id.
+    /// Guards against a provided argument being either NULL or a valid Entity ID.
     /// </summary>
     /// <param name="param">The parameter to check.</param>
     /// <param name="because">A reason to use instead of the default reason.</param>
     /// <returns>The parameter (for chaining)</returns>
-    /// <exception cref="ArgumentException">Thrown if the ID is not valid.</exception>
-    public static Param<string> IsValidId(this Param<string> param, string? because = null)
+    /// <exception cref="ArgumentException"></exception>
+    public static Param<string?> IsNullOrEntityId(this Param<string?> param, string? because = null)
     {
-        if (!RegexpConstants.EntityIdentity.IsMatch(param.Value))
+        if (param.Value is not null && !RegexpConstants.EntityIdentity.IsMatch(param.Value))
         {
-            because ??= $"The parameter '{param.Name}' must be a valid Id";
+            because ??= $"The parameter '{param.Name}' must be a valid entity ID if specified.";
             throw new ArgumentException(because, param.Name);
         }
 
@@ -253,7 +331,7 @@ public static partial class ParamExtensions
     /// </summary>
     /// <param name="param">The parameter to check.</param>
     /// <param name="regularExpression">The required regular expression.</param>
-    /// <param name="because">A readon</param>
+    /// <param name="because">A reason</param>
     /// <returns>The parameter (for chaining).</returns>
     /// <exception cref="ArgumentException">Thrown if the parameter does not match the regular expression.</exception>
     public static Param<string> Matches(this Param<string> param, Regex regularExpression, string? because = null)

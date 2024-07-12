@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-#pragma warning disable IDE0058 // Expression value is never used
-
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Common;
 using System.Diagnostics.CodeAnalysis;
@@ -22,6 +20,7 @@ public class DatasyncClient : IDisposable
     protected DatasyncClient()
     {
         ClientOptions = new DatasyncClientOptions();
+        ServiceOptions = new DatasyncServiceOptions();
         Endpoint = new Uri("http://localhost/");
         HttpClientFactory = new DefaultHttpClientFactory(Endpoint, new HttpClientOptions());
     }
@@ -62,13 +61,10 @@ public class DatasyncClient : IDisposable
     /// <exception cref="UriFormatException">if the endpoint is not a valid datasync Uri.</exception>
     public DatasyncClient(Uri endpoint, DatasyncClientOptions options)
     {
-        Ensure.That(endpoint, nameof(endpoint)).IsNotNull().And.IsDatasyncEndpoint();
-        Ensure.That(options, nameof(options)).IsNotNull();
-
-        ClientOptions = options;
+        Endpoint = NormalizeEndpoint(Ensure.That(endpoint, nameof(endpoint)).IsNotNull().And.IsDatasyncEndpoint().Value);
+        ClientOptions = Ensure.That(options, nameof(options)).IsNotNull().Value;
         ServiceOptions = options.DatasyncServiceOptions;
-        Endpoint = NormalizeEndpoint(endpoint);
-        HttpClientFactory = options.HttpClientFactory ?? new DefaultHttpClientFactory(endpoint, new HttpClientOptions());
+        HttpClientFactory = options.HttpClientFactory ?? new DefaultHttpClientFactory(Endpoint, new HttpClientOptions());
     }
 
     /// <summary>

@@ -3,8 +3,6 @@
     <Description>A server-side component for implementing a datsync controller.</Description>
   </PropertyGroup>
 
-  <Import Project="..\Shared.Build.props" />
-
   <ItemGroup>
     <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.Test" />
   </ItemGroup>

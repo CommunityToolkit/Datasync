@@ -3,8 +3,6 @@
     <Description>Provides necessary capabilities for supporting the Datasync server library when using Swashbuckle for creating OpenAPI definitions.</Description>
   </PropertyGroup>
 
-  <Import Project="..\Shared.Build.props" />
-
   <ItemGroup>
     <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.Swashbuckle.Test" />
   </ItemGroup>

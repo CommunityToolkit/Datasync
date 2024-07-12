@@ -4,14 +4,7 @@
 
 #pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
 
-
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
-#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
-
-using CommunityToolkit.Datasync.Common;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 namespace CommunityToolkit.Datasync.Common.Test.Guards;
 
@@ -85,7 +78,7 @@ public class Ensure_Tests
     #endregion
 
     [Theory, CombinatorialData]
-    public void HasCount_works([CombinatorialRange(0, 5)] int count, bool withMessage)
+    public void HasCount_Works([CombinatorialRange(0, 5)] int count, bool withMessage)
     {
         IList<int> sut = new List<int>([1, 2, 3]);
         bool shouldThrow = count != 3;
@@ -98,6 +91,16 @@ public class Ensure_Tests
         {
             act.Should().NotThrow();
         }
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("foo")]
+    public void HasDatasyncEndpoint_Throws_NoBaseAddress(string because)
+    {
+        HttpClient client = new();
+        Action act = () => _ = Ensure.That(client, nameof(client)).HasDatasyncEndpoint(because);
+        act.Should().Throw<ArgumentException>();
     }
 
     [Theory, CombinatorialData]
@@ -202,6 +205,23 @@ public class Ensure_Tests
         }
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("foo")]
+    [InlineData("/?foo=bar")]
+    [InlineData("/#foo")]
+    [InlineData("////////**********?#")]
+    public void IsHttpPath_Throws(string path)
+    {
+        Action act1 = () => Ensure.That(path, nameof(path)).IsHttpPath();
+        act1.Should().Throw<ArgumentException>();
+
+        Action act2 = () => Ensure.That(path, nameof(path)).IsHttpPath("foo");
+        act2.Should().Throw<ArgumentException>();
+    }
+
     [Theory, CombinatorialData]
     public void IsInRange_Works([CombinatorialRange(0, 10)] int sut, bool withMessage)
     {
@@ -217,9 +237,9 @@ public class Ensure_Tests
     }
 
     [Theory, CombinatorialData]
-    public void IsValidId_Works([CombinatorialMemberData(nameof(GetIdTestCases))] IdTestCase testCase, bool withMessage)
+    public void IsEntityId_Works([CombinatorialMemberData(nameof(GetIdTestCases))] IdTestCase testCase, bool withMessage)
     {
-        Action act = () => Ensure.That(testCase.Id, nameof(testCase)).IsValidId(withMessage ? "because" : null);
+        Action act = () => Ensure.That(testCase.Id, nameof(testCase)).IsEntityId(withMessage ? "because" : null);
         if (testCase.IsValid)
         {
             act.Should().NotThrow();
@@ -228,6 +248,28 @@ public class Ensure_Tests
         {
             act.Should().Throw<ArgumentException>();
         }
+    }
+
+    [Theory, CombinatorialData]
+    public void IsNullOrEntityId_Works([CombinatorialMemberData(nameof(GetIdTestCases))] IdTestCase testCase, bool withMessage)
+    {
+        Action act = () => Ensure.That(testCase.Id, nameof(testCase)).IsNullOrEntityId(withMessage ? "because" : null);
+        if (testCase.IsValid)
+        {
+            act.Should().NotThrow();
+        }
+        else
+        {
+            act.Should().Throw<ArgumentException>();
+        }
+    }
+
+    [Fact]
+    public void IsNullOrEntityId_WithNull_Works()
+    {
+        string id = null;
+        Action act = () => Ensure.That(id, nameof(id)).IsNullOrEntityId();
+        act.Should().NotThrow();
     }
 
     [Theory, CombinatorialData]

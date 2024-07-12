@@ -3,8 +3,6 @@
     <Description>An Entity Framework Core based repository for use with the Datasync Toolkit.</Description>
   </PropertyGroup>
 
-  <Import Project="..\Shared.Build.props" />
-
   <ItemGroup>
     <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test" />
   </ItemGroup>
