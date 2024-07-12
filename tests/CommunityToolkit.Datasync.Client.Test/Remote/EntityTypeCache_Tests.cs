@@ -48,6 +48,22 @@ public class EntityTypeCache_Tests
     }
 
     [Fact]
+    public void EntityTypeCache_GetByteVersion_Empty()
+    {
+        StringId_ByteVersion sut = new() { Id = "1234", Version = [] };
+        string actual = EntityTypeCache.GetEntityVersion(sut);
+        actual.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void EntityTypeCache_GetByteVersion_Null()
+    {
+        StringId_ByteVersion sut = new() { Id = "1234", Version = null };
+        string actual = EntityTypeCache.GetEntityVersion(sut);
+        actual.Should().BeEmpty();
+    }
+
+    [Fact]
     public void EntityTypeCache_GetNoVersion()
     {
         StringId_NoVersion sut = new() { Id = "1234" };
