@@ -3,8 +3,6 @@
     <Description>The client capabilities for developing applications using the Datasync Toolkit.</Description>
   </PropertyGroup>
 
-  <Import Project="..\Shared.Build.props" />
-
   <ItemGroup>
     <InternalsVisibleTo Include="CommunityToolkit.Datasync.Client.Test" />
   </ItemGroup>

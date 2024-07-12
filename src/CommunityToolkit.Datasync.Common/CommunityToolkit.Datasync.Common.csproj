@@ -3,8 +3,6 @@
     <Description>Abstractions for developing applications using the Datasync Toolkit.</Description>
   </PropertyGroup>
 
-  <Import Project="..\Shared.Build.props" />
-
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Core.Spatial" Version="1.1.0" />
   </ItemGroup>

@@ -5,12 +5,13 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{84AD662A-4B9E-4E64-834D-72529FB7FCE5}"
 	ProjectSection(SolutionItems) = preProject
-		src\Shared.Build.props = src\Shared.Build.props
+		src\Directory.Build.props = src\Directory.Build.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D59F1489-5D74-4F52-B78B-88037EAB2838}"
 	ProjectSection(SolutionItems) = preProject
-		tests\Shared.Build.props = tests\Shared.Build.props
+		tests\Directory.Build.props = tests\Directory.Build.props
+		tests\EFCore.Packages.props = tests\EFCore.Packages.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.Abstractions", "src\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj", "{852F8266-603E-4FC6-A5CB-E492E747924F}"
@@ -59,9 +60,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Server.Swashbuckle", "src\CommunityToolkit.Datasync.Server.Swashbuckle\CommunityToolkit.Datasync.Server.Swashbuckle.csproj", "{45D47A4E-AD58-40C8-B4CC-95BC888C47A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Client", "src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj", "{D3B72031-D4BD-44D3-973C-2752AB1570F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Client", "src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj", "{D3B72031-D4BD-44D3-973C-2752AB1570F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Client.Test", "tests\CommunityToolkit.Datasync.Client.Test\CommunityToolkit.Datasync.Client.Test.csproj", "{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Client.Test", "tests\CommunityToolkit.Datasync.Client.Test\CommunityToolkit.Datasync.Client.Test.csproj", "{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

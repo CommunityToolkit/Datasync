@@ -3,11 +3,9 @@
     <Description>A repository for the server-side of the Datasync Toolkit that uses Automapper.</Description>
   </PropertyGroup>
 
-  <Import Project="../Shared.Build.props"/>
-
   <ItemGroup>
     <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.Test"/>
-    <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.Automappter.Test"/>
+    <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.Automapper.Test"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -1,5 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\Shared.Build.props" />
+<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Common\CommunityToolkit.Datasync.Common.csproj" />
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj" />

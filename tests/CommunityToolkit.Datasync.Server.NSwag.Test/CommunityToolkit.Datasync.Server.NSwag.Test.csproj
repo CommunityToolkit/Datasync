@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\Shared.Build.props" />
   <ItemGroup>
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.NSwag\CommunityToolkit.Datasync.Server.NSwag.csproj" />

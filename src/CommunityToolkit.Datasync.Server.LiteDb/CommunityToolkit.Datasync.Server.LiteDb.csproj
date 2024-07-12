@@ -3,8 +3,6 @@
     <Description>A repository for the server-side of the Datasync Toolkit that uses LiteDb for storage.</Description>
   </PropertyGroup>
 
-  <Import Project="../Shared.Build.props" />
-
   <ItemGroup>
     <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.Test" />
     <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.LiteDb.Test" />
