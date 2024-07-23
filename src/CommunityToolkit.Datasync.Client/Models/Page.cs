@@ -7,7 +7,7 @@ namespace CommunityToolkit.Datasync.Client.Models;
 /// <summary>
 /// The model for the response from a query operation.
 /// </summary>
-public class Page<T> where T : notnull
+public class Page<T>
 {
     /// <summary>
     /// The items in a page.
@@ -23,5 +23,5 @@ public class Page<T> where T : notnull
     /// <summary>
     /// The Uri to the nexty page in the result set.
     /// </summary>
-    public string NextLink { get; set; } = string.Empty;
+    public string? NextLink { get; set; }
 }

@@ -28,6 +28,4 @@ public static class FluentHttpExceptionAssertions
         current.Subject.First().StatusCode.Should().Be(statusCode, because, becauseArgs);
         return new AndConstraint<ExceptionAssertions<HttpException>>(current);
     }
-
-
 }

@@ -8,7 +8,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace CommunityToolkit.Datasync.Client.Test.Helpers;
+namespace CommunityToolkit.Datasync.TestCommon.Mocks;
 
 /// <summary>
 /// A delegating handler for mocking responses.
@@ -61,10 +61,7 @@ public class MockDelegatingHandler : DelegatingHandler
     /// </summary>
     public static async Task<HttpRequestMessage> CloneRequest(HttpRequestMessage request)
     {
-        HttpRequestMessage clone = new(request.Method, request.RequestUri) 
-        { 
-            Version = request.Version 
-        };
+        HttpRequestMessage clone = new(request.Method, request.RequestUri) { Version = request.Version };
         request.Headers.ToList().ForEach(header => clone.Headers.TryAddWithoutValidation(header.Key, header.Value));
 
         if (request.Content != null)
@@ -73,7 +70,6 @@ public class MockDelegatingHandler : DelegatingHandler
             await request.Content.CopyToAsync(ms).ConfigureAwait(false);
             ms.Position = 0;
             clone.Content = new StreamContent(ms);
-
             request.Content.Headers?.ToList().ForEach(header => clone.Content.Headers.Add(header.Key, header.Value));
         }
 
@@ -141,8 +137,7 @@ public class MockDelegatingHandler : DelegatingHandler
         if (disposing)
         {
             this.requestLock.Dispose();
+            base.Dispose(disposing);
         }
-
-        base.Dispose(disposing);
     }
 }
