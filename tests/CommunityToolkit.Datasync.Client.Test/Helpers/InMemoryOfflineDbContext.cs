@@ -34,6 +34,22 @@ public class InMemoryOfflineDbContext(DbContextOptions<InMemoryOfflineDbContext>
     protected override HttpClient GetHttpClient()
         => new(this._handler) { BaseAddress = new Uri("http://localhost/") };
 
+    /// <summary>
+    /// Sets the relative URI to the endpoint for a specific type.
+    /// </summary>
+    /// <param name="entityType"></param>
+    /// <returns></returns>
+    protected override Uri GetDatasyncUriForEntityType(Type entityType)
+    {
+        string entityName = entityType.Name.ToLowerInvariant();
+        if (entityName.StartsWith("client"))
+        {
+            entityName = entityName[6..];
+        }
+
+        return new Uri($"/tables/{entityName}", UriKind.Relative);
+    }
+
     protected virtual void Dispose(bool disposing)
     {
         if (disposing)

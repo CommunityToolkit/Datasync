@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Common.Guards;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace CommunityToolkit.Datasync.Common;
@@ -221,6 +222,39 @@ public static partial class ParamExtensions
 
         because ??= "The path provided is not valid.";
         throw new ArgumentException(because, param.Name);
+    }
+
+    /// <summary>
+    /// Checks to ensure that the provided string is a valid HTTP path (starting with single / and ending without one).
+    /// </summary>
+    /// <param name="param">The parameter to check.</param>
+    /// <param name="because">A reason used in generating exceptions.</param>
+    /// <returns>The parameter (for chaining).</returns>
+    public static Param<Uri> IsHttpPath(this Param<Uri> param, string? because = null)
+    {
+        _ = Ensure.That(param.Value.ToString(), param.Name).IsHttpPath(because);
+        return param;
+    }
+
+    /// <summary>
+    /// Checks to ensure that the provided string is a valid HTTP query parameter for the datasync service.
+    /// </summary>
+    /// <param name="param">The parameter to check.</param>
+    /// <param name="because">A reason used in generating exceptions.</param>
+    /// <returns>The parameter (for chaining).</returns>
+    public static Param<string> IsHttpQueryParameter(this Param<string> param, string? because = null)
+    {
+        if (string.IsNullOrWhiteSpace(param.Value))
+        {
+            throw new ArgumentNullException(param.Name);
+        }
+
+        if (param.Value.StartsWith('$') || param.Value.StartsWith("__"))
+        {
+            throw new ArgumentException(because ?? $"Query parameter {param.Value} cannot start with a reserved character.", param.Name);
+        }
+
+        return param;
     }
 
     /// <summary>

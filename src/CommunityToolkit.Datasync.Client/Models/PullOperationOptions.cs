@@ -9,4 +9,9 @@ namespace CommunityToolkit.Datasync.Client;
 /// </summary>
 public class PullOperationOptions
 {
+    /// <summary>
+    /// If set, this is used as a query ID.  The query ID is a key to store a delta-token.  If not set, the query ID 
+    /// will be generated from the table name.
+    /// </summary>
+    public string QueryId { get; set; } = string.Empty;
 }

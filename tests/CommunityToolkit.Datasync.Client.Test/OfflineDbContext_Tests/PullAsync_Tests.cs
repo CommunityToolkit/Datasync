@@ -60,8 +60,7 @@ public class PullAsync_Tests
         context.HttpHandler.AddResponse(HttpStatusCode.OK, new Page<ClientMovie> { Items = expectedMovies });
 
         // Do the PullAsync
-        PullOperationOptions options = new() { /* TODO: Set up a single query process for the context.Movies */ };
-        PullResult result = await context.PullAsync(options);
+        PullResult result = await context.PullAsync<ClientMovie>();
 
         // Check that the PullResult is successful.
         result.IsSuccessful.Should().BeTrue();
