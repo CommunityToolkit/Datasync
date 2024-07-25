@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-namespace CommunityToolkit.Datasync.Client.Models;
+namespace CommunityToolkit.Datasync.Client;
 
 /// <summary>
 /// The model for the response from a query operation.

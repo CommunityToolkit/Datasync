@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Context;
 using CommunityToolkit.Datasync.Client.Models;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Mocks;
@@ -27,27 +28,12 @@ public class InMemoryOfflineDbContext(DbContextOptions<InMemoryOfflineDbContext>
     // Expose the mock handler for our GetHttpClient()
     public MockDelegatingHandler HttpHandler { get => this._handler; }
 
-    /// <summary>
-    /// Selects a HttpClient for using to communicate with the remote service.
-    /// </summary>
-    /// <remarks>Returns a mocked service.</remarks>
-    protected override HttpClient GetHttpClient()
-        => new(this._handler) { BaseAddress = new Uri("http://localhost/") };
-
-    /// <summary>
-    /// Sets the relative URI to the endpoint for a specific type.
-    /// </summary>
-    /// <param name="entityType"></param>
-    /// <returns></returns>
-    protected override Uri GetDatasyncUriForEntityType(Type entityType)
+    protected override void OnDatasyncInitialization(DatasyncContextBuilder contextBuilder)
     {
-        string entityName = entityType.Name.ToLowerInvariant();
-        if (entityName.StartsWith("client"))
-        {
-            entityName = entityName[6..];
-        }
-
-        return new Uri($"/tables/{entityName}", UriKind.Relative);
+        contextBuilder
+            .SetDatasyncEndpoint("http://localhost")
+            .Entity<ClientMovie>(ctx => { ctx.Endpoint = new Uri("/tables/movies", UriKind.Relative); });
+        base.OnDatasyncInitialization(contextBuilder);
     }
 
     protected virtual void Dispose(bool disposing)

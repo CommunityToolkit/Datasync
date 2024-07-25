@@ -2,11 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Context;
+using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Models;
 using CommunityToolkit.Datasync.Client.Query;
 using CommunityToolkit.Datasync.Common;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace CommunityToolkit.Datasync.Client;
 
@@ -72,7 +73,7 @@ public abstract partial class OfflineDbContext : DbContext
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The results of the pull operation when complete.</returns>
     public ValueTask<PullResult> PullAsync<TEntity>(CancellationToken cancellationToken = default) where TEntity : class
-        => PullAsync(new DatasyncQueryable<TEntity>(GetDatasyncUriForEntityType(typeof(TEntity))), new PullOperationOptions(), cancellationToken);
+        => PullAsync<TEntity>(new PullOperationOptions(), cancellationToken);
 
     /// <summary>
     /// The main pull operation for data synchronization.
@@ -92,7 +93,14 @@ public abstract partial class OfflineDbContext : DbContext
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The results of the pull operation when complete.</returns>
     public ValueTask<PullResult> PullAsync<TEntity>(PullOperationOptions options, CancellationToken cancellationToken = default) where TEntity : class
-        => PullAsync(new DatasyncQueryable<TEntity>(GetDatasyncUriForEntityType(typeof(TEntity))), options, cancellationToken);
+    {
+        if (!DatasyncContext.EntityContextMap.TryGetValue(typeof(TEntity), out DatasyncEntityContext? entityContext))
+        {
+            throw new DatasyncException($"Invalid entity type for data synchronization: ${typeof(TEntity).Name}");
+        }
+
+        return PullAsync(new DatasyncQueryable<TEntity>(entityContext.Endpoint), options, cancellationToken);
+    }
 
     /// <summary>
     /// The main pull operation for data synchronization.
@@ -104,16 +112,32 @@ public abstract partial class OfflineDbContext : DbContext
     /// <returns>The results of the pull operation when complete.</returns>
     public async ValueTask<PullResult> PullAsync<TEntity>(IDatasyncQueryable<TEntity> query, PullOperationOptions options, CancellationToken cancellationToken = default) where TEntity : class
     {
-        // Ensure that the entity type is a valid entity type and has a valid model.
-        _ = Model.FindEntityType(typeof(TEntity)) ?? throw new InvalidOperationException($"Invalid entity type {typeof(TEntity).Name}");
+        if (!DatasyncContext.EntityContextMap.TryGetValue(typeof(TEntity), out DatasyncEntityContext? entityContext))
+        {
+            throw new DatasyncException($"Invalid entity type for data synchronization: ${typeof(TEntity).Name}");
+        }
+
+        // Get the OData Client for this request
+        IDatasyncClient<TEntity> datasyncClient = DatasyncContext.CreateDatasyncClient<TEntity>();
+        PullResult result = new();
 
         // Retrieve the SynchronizationSetMetadata for the entity type or query operation.
         SynchronizationSetMetadata? metadata = await GetSynchronizationSetMetadata(typeof(TEntity), options.QueryId, cancellationToken).ConfigureAwait(false);
         DateTimeOffset deltaToken = metadata?.DeltaToken ?? DateTimeOffset.UnixEpoch;
 
-        // Convert the query into an OData query string.
-        string queryString = query.ToDatasyncQueryString(deltaToken);
+        // Execute the query, returning an async enumerable of pages.
+        DatasyncQueryOptions queryOptions = new() { RetrieveEntitiesUpdatedSince = metadata?.DeltaToken };
+        IAsyncEnumerable<Page<TEntity>> pages = datasyncClient.Query(query, queryOptions).AsPages();
 
-        throw new NotImplementedException();
+        // Loop over each page, updating the database context for the new records
+        await foreach(Page<TEntity> page in pages)
+        {
+            //  - force inject each entity into the table (over-writing anything that is there)
+            //  - update the synchronizationsetmetadata for the table
+            //  - savechangesasync
+            //  - update the pullresult
+        }
+
+        return result;
     }
 }

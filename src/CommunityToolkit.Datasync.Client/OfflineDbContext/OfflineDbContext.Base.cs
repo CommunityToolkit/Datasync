@@ -2,9 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common;
+using CommunityToolkit.Datasync.Client.Context;
+using CommunityToolkit.Datasync.Client.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client;
 
@@ -21,14 +21,17 @@ namespace CommunityToolkit.Datasync.Client;
 public abstract partial class OfflineDbContext : DbContext
 {
     /// <summary>
-    /// A default <see cref="HttpClient"/> that requires the user to specify absolute URIs when asked.
+    /// The list of system table entities used by the OfflineDbContext that should not be configurable by the user for datasync services.
     /// </summary>
-    private readonly Lazy<HttpClient> _defaultHttpClient = new(() => new HttpClient());
+    private static readonly Type[] DatasyncSystemTables = [
+        typeof(SynchronizationSetMetadata)
+    ];
 
     /// <summary>
-    /// A default <see cref="JsonSerializerOptions"/> implementation that matches the default service serializer options.
+    /// The <see cref="DatasyncContext"/> contains the information on how to communicate with the
+    /// datasync service and how to map entities to endpoints.
     /// </summary>
-    private readonly Lazy<JsonSerializerOptions> _defaultJsonSerializerOptions = new(() => new DatasyncServiceOptions().JsonSerializerOptions);
+    private readonly Lazy<DatasyncContext> _datasyncContext;
 
     /// <summary>
     /// Initializes a new instance of the DbContext class. The <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/>
@@ -36,6 +39,7 @@ public abstract partial class OfflineDbContext : DbContext
     /// </summary>
     public OfflineDbContext() : base()
     {
+        this._datasyncContext = new Lazy<DatasyncContext>(() => BuildDatasyncContext());
     }
 
     /// <summary>
@@ -45,7 +49,13 @@ public abstract partial class OfflineDbContext : DbContext
     /// <param name="options">The options for this context</param>
     public OfflineDbContext(DbContextOptions options) : base(options)
     {
+        this._datasyncContext = new Lazy<DatasyncContext>(() => BuildDatasyncContext());
     }
+
+    /// <summary>
+    /// The currently configure <see cref="DatasyncContext"/> for this database context.
+    /// </summary>
+    internal DatasyncContext DatasyncContext { get => this._datasyncContext.Value; }
 
     /// <inheritdoc />
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -66,35 +76,23 @@ public abstract partial class OfflineDbContext : DbContext
     }
 
     /// <summary>
-    /// Retrieves the absolute or relative URI for the datasync service endpoint handling the entity type.
+    /// Provides a hook that allows the developer to configure the DatasyncContext used in
+    /// communicating with the datasync service.
     /// </summary>
-    /// <remarks>
-    /// If a relative URI is returned, then it is combined with the <see cref="HttpClient.BaseAddress"/> of the
-    /// <see cref="HttpClient"/> returned by <see cref="GetHttpClient"/>.  By default, the URI is constructed
-    /// with a format of <c>/tables/{entityType}s</c>.  For example, if the <paramref name="entityType"/> is
-    /// <c>Movie</c>, then the URI will be the relative Uri <c>/tables/movies</c>.
-    /// </remarks>
-    /// <param name="entityType">The entity type to process.</param>
-    /// <returns>The absolute or relative URI for the entity type</returns>
-    protected virtual Uri GetDatasyncUriForEntityType(Type entityType)
-        => new($"/tables/{entityType.Name.ToLowerInvariant()}s", UriKind.Relative);
+    /// <param name="contextBuilder">The <see cref="DatasyncContextBuilder"/> that is being used to configure the service.</param>
+    protected virtual void OnDatasyncInitialization(DatasyncContextBuilder contextBuilder)
+    {
+    }
 
     /// <summary>
-    /// A method used by synchronization methods to get a <see cref="HttpClient"/> that will be used
-    /// to communicate with the remote service.
+    /// Builds the <see cref="DatasyncContext"/> for this set of offline tables.
     /// </summary>
-    /// <remarks>
-    /// The default implementation creates a standard <see cref="HttpClient"/> and uses the same client for
-    /// all communications for the lifetime of the context.  It assumes that <see cref="GetDatasyncUriForEntityType(Type)"/>
-    /// returns absolute URIs.
-    /// </remarks>
-    /// <returns>A <see cref="HttpClient"/> that is configured for communicating with the remote service.</returns>
-    protected virtual HttpClient GetHttpClient() => this._defaultHttpClient.Value;
-
-    /// <summary>
-    /// Retrieves the options used for serializing the deserializing the content going to or coming from a
-    /// datasync service.  You should never have to change this.
-    /// </summary>
-    /// <returns>The <see cref="JsonSerializerOptions"/> to use for JSON serialization and deserialization.</returns>
-    protected virtual JsonSerializerOptions GetJsonSerializerOptions() => this._defaultJsonSerializerOptions.Value;
+    /// <returns>A <see cref="DatasyncContext"/> for the database context.</returns>
+    internal DatasyncContext BuildDatasyncContext()
+    {
+        List<Type> entityTypes = Model.GetEntityTypes().Select(x => x.ClrType).Except(DatasyncSystemTables).ToList();
+        DatasyncContextBuilder contextBuilder = new(entityTypes);
+        OnDatasyncInitialization(contextBuilder);
+        return contextBuilder.Build();
+    }
 }
