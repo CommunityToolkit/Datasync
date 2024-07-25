@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj" />
-    <ProjectReference Include="..\CommunityToolkit.Datasync.Common.Test\CommunityToolkit.Datasync.Common.Test.csproj" />
   </ItemGroup>
 </Project>

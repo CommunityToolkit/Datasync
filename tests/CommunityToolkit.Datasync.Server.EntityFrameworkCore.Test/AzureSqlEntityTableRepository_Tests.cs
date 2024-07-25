@@ -24,7 +24,7 @@ public class AzureSqlEntityTableRepository_Tests : RepositoryTests<AzureSqlEntit
         if (!string.IsNullOrEmpty(this.connectionString))
         {
             this._context = new Lazy<AzureSqlDbContext>(() => AzureSqlDbContext.CreateContext(this.connectionString, output));
-            this.movies = Context.Movies.AsNoTracking().ToList();
+            this.movies = [.. Context.Movies.AsNoTracking()];
         }
     }
 

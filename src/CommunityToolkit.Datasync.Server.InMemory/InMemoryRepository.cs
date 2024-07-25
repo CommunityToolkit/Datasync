@@ -2,8 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common;
-using CommunityToolkit.Datasync.Common.Http;
+using CommunityToolkit.Datasync.Server.Abstractions.Http;
 using System.Collections.Concurrent;
 using System.Text.Json;
 
@@ -20,7 +19,6 @@ namespace CommunityToolkit.Datasync.Server.InMemory;
 public class InMemoryRepository<TEntity> : IRepository<TEntity> where TEntity : InMemoryTableData
 {
     private readonly ConcurrentDictionary<string, TEntity> _entities = new();
-    private static readonly Lazy<JsonSerializerOptions> jsonSerializerOptions = new(() => new DatasyncServiceOptions().JsonSerializerOptions);
 
     /// <summary>
     /// Creates a new empty <see cref="InMemoryRepository{TEntity}"/> repository instance.
@@ -76,10 +74,7 @@ public class InMemoryRepository<TEntity> : IRepository<TEntity> where TEntity : 
     /// <param name="entity">The entity to clone.</param>
     /// <returns>A copy of the entity.</returns>
     protected static TEntity Disconnect(TEntity entity)
-    {
-        string json = JsonSerializer.Serialize(entity, jsonSerializerOptions.Value);
-        return JsonSerializer.Deserialize<TEntity>(json, jsonSerializerOptions.Value)!;
-    }
+        => entity.Clone();
 
     /// <summary>
     /// Removes an entity from the repository store.

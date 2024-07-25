@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.LiteDb\CommunityToolkit.Datasync.Server.LiteDb.csproj" />
-    <ProjectReference Include="..\CommunityToolkit.Datasync.Common.Test\CommunityToolkit.Datasync.Common.Test.csproj" />
+    <ProjectReference Include="..\CommunityToolkit.Datasync.TestCommon\CommunityToolkit.Datasync.TestCommon.csproj" />
   </ItemGroup>
 </Project>

@@ -10,7 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CommunityToolkit.Datasync.Common\CommunityToolkit.Datasync.Common.csproj" />
     <ProjectReference Include="..\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj" />
   </ItemGroup>
 </Project>

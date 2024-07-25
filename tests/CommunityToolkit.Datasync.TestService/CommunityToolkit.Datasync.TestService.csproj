@@ -8,7 +8,7 @@
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.InMemory\CommunityToolkit.Datasync.Server.InMemory.csproj" />
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj" />
-    <ProjectReference Include="..\CommunityToolkit.Datasync.Common.Test\CommunityToolkit.Datasync.Common.Test.csproj" />
+    <ProjectReference Include="..\CommunityToolkit.Datasync.TestCommon\CommunityToolkit.Datasync.TestCommon.csproj" />
   </ItemGroup>
   
   <Import Project="..\EFCore.Packages.props" />

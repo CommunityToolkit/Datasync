@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>The client capabilities for developing applications using the Datasync Toolkit.</Description>
   </PropertyGroup>
@@ -11,9 +11,4 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\CommunityToolkit.Datasync.Common\CommunityToolkit.Datasync.Common.csproj" />
-  </ItemGroup>
-
 </Project>

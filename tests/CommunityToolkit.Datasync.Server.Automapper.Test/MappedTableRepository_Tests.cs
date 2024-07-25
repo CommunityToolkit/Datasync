@@ -3,9 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using AutoMapper;
-using CommunityToolkit.Datasync.Common.Test;
 using CommunityToolkit.Datasync.Server.Automapper.Test.Helpers;
 using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
+using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;

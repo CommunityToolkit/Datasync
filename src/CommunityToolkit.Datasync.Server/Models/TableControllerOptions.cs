@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Common;
 using Microsoft.AspNetCore.Http;
 
 namespace CommunityToolkit.Datasync.Server;
@@ -47,7 +46,8 @@ public class TableControllerOptions
         get => this._maxTop;
         set 
         {
-            Ensure.That(value, nameof(MaxTop)).IsInRange(1, MAX_TOP); 
+            ArgumentOutOfRangeException.ThrowIfLessThan(value, 1, nameof(MaxTop));
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(value, MAX_TOP, nameof(MaxTop));
             this._maxTop = value;
         }
     }
@@ -59,8 +59,9 @@ public class TableControllerOptions
     {
         get => this._pageSize;
         set 
-        { 
-            Ensure.That(value, nameof(MaxTop)).IsInRange(1, MAX_PAGESIZE); 
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(value, 1, nameof(PageSize));
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(value, MAX_PAGESIZE, nameof(PageSize));
             this._pageSize = value; 
         }
     }
