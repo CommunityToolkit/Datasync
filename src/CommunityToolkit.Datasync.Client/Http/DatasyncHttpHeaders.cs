@@ -10,12 +10,6 @@ namespace CommunityToolkit.Datasync.Client.Http;
 internal class DatasyncHttpHeaders
 {
     /// <summary>
-    /// The conditional "If-Match" header.
-    /// </summary>
-    internal const string IfMatch = "If-Match";
-
-
-    /// <summary>
     /// The <c>User-Agent</c> header name (so we don't need to bring in a NuGet for it)
     /// </summary>
     internal const string UserAgent = "User-Agent";

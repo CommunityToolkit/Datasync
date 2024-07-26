@@ -47,7 +47,7 @@ public class HttpClientFactory(HttpClientOptions options) : IHttpClientFactory
         HttpClient client = new(rootHandler)
         {
             BaseAddress = IsHttpEndpoint(options.Endpoint) ? options.Endpoint : null,
-            Timeout = options.HttpTimeout
+            Timeout = options.Timeout
         };
 
         client.AddHeaderIfNotNullOrWhiteSpace(DatasyncHttpHeaders.UserAgent, options.UserAgent);
@@ -99,11 +99,7 @@ public class HttpClientFactory(HttpClientOptions options) : IHttpClientFactory
     internal static HttpMessageHandler GetDefaultHttpClientHandler()
     {
         HttpClientHandler handler = new();
-        if (handler.SupportsAutomaticDecompression)
-        {
-            handler.AutomaticDecompression = DecompressionMethods.All;
-        }
-
+        handler.SetAutomaticDecompression(handler.SupportsAutomaticDecompression);
         return handler;
     }
 

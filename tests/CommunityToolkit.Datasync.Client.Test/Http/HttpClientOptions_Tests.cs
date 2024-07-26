@@ -14,22 +14,22 @@ public class HttpClientOptions_Tests
     {
         HttpClientOptions options = new();
         options.HttpPipeline.Should().BeEmpty();
-        options.HttpTimeout.Should().Be(TimeSpan.FromSeconds(60));
+        options.Timeout.Should().Be(TimeSpan.FromSeconds(60));
         options.UserAgent.Should().StartWith("Datasync/");
     }
 
     [Fact]
-    public void HttpTimeout_CanRoundtrip()
+    public void Timeout_CanRoundtrip()
     {
-        HttpClientOptions options = new() { HttpTimeout = TimeSpan.FromSeconds(30) };
-        options.HttpTimeout.Should().Be(TimeSpan.FromSeconds(30));
+        HttpClientOptions options = new() { Timeout = TimeSpan.FromSeconds(30) };
+        options.Timeout.Should().Be(TimeSpan.FromSeconds(30));
     }
 
     [Fact]
-    public void HttpTimeout_ThrowsWhenNeeded()
+    public void Timeout_ThrowsWhenNeeded()
     {
         HttpClientOptions options = new();
-        Action act = () => options.HttpTimeout = TimeSpan.Zero;
+        Action act = () => options.Timeout = TimeSpan.Zero;
         act.Should().Throw<ArgumentException>();
     }
 

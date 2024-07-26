@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Reflection.Metadata.Ecma335;
-
 namespace CommunityToolkit.Datasync.Client.Http;
 
 /// <summary>
@@ -39,20 +37,6 @@ public class HttpClientOptions
     public IEnumerable<HttpMessageHandler> HttpPipeline { get; set; } = [];
 
     /// <summary>
-    /// If set, the timeout to use with <see cref="HttpClient"/> connections.
-    /// If not set, the default of 660 seconds will be used.
-    /// </summary>
-    public TimeSpan HttpTimeout
-    {
-        get => this._timeout;
-        set
-        {
-            ArgumentOutOfRangeException.ThrowIfLessThan(value.TotalSeconds, 1, nameof(HttpTimeout));
-            this._timeout = value;
-        }
-    }
-
-    /// <summary>
     /// If set, use this as the installation ID.  The installation ID
     /// is sent to the remote server in the <c>ZUMO-INSTALLATION-ID</c>
     /// header.
@@ -74,6 +58,20 @@ public class HttpClientOptions
     {
         get => this._protocolVersion;
         set => this._protocolVersion = value.Trim();
+    }
+
+    /// <summary>
+    /// If set, the timeout to use with <see cref="HttpClient"/> connections.
+    /// If not set, the default of 660 seconds will be used.
+    /// </summary>
+    public TimeSpan Timeout
+    {
+        get => this._timeout;
+        set
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(value.TotalSeconds, 1, nameof(Timeout));
+            this._timeout = value;
+        }
     }
 
     /// <summary>
