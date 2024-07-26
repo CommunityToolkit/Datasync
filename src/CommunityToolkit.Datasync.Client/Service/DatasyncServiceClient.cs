@@ -1,0 +1,256 @@
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
+
+using CommunityToolkit.Datasync.Client.Query;
+using System.Linq.Expressions;
+using System.Text.Json;
+
+namespace CommunityToolkit.Datasync.Client.Service;
+
+/// <summary>
+/// The concrete implementation of the <see cref="IDatasyncServiceClient{TEntity}"/> interface
+/// for HTTP datasync services.
+/// </summary>
+/// <typeparam name="TEntity">The type of entity being processed by this service client.</typeparam>
+internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity>
+{
+    /// <summary>
+    /// Creates a new <see cref="DatasyncServiceClient{TEntity}"/> with the normal information required for 
+    /// communicating with a datasync service.
+    /// </summary>
+    /// <param name="endpoint">The endpoint of the table controller that processes the entity.</param>
+    /// <param name="client">The <see cref="HttpClient"/> to use for communication.</param>
+    /// <param name="serializerOptions">The <see cref="JsonSerializerOptions"/> to use for serializing and deserializing content.</param>
+    /// <exception cref="UriFormatException">Thrown if the endpoint is not valid.</exception>
+    public DatasyncServiceClient(Uri endpoint, HttpClient client, JsonSerializerOptions serializerOptions)
+    {
+        ThrowIf.IsNotValidEndpoint(endpoint, nameof(endpoint));
+        ArgumentNullException.ThrowIfNull(client, nameof(client));
+        ArgumentNullException.ThrowIfNull(serializerOptions, nameof(serializerOptions));
+
+        Endpoint = endpoint;
+        Client = client;
+        JsonSerializerOptions = serializerOptions;
+    }
+
+    /// <summary>
+    /// The endpoint of the table controller that processes the entity.
+    /// </summary>
+    internal Uri Endpoint { get; }
+
+    /// <summary>
+    /// The <see cref="HttpClient"/> to use for communication.
+    /// </summary>
+    internal HttpClient Client { get; }
+
+    /// <summary>
+    /// The <see cref="JsonSerializerOptions"/> to use for serializing and deserializing content.
+    /// </summary>
+    internal JsonSerializerOptions JsonSerializerOptions { get; }
+
+    /// <summary>
+    /// Creates a service client from another service client, only changing the type of the entity.
+    /// </summary>
+    /// <typeparam name="U">The new type of the entity.</typeparam>
+    /// <returns>The replaced service client.</returns>
+    public IReadOnlyDatasyncServiceClient<U> ToServiceClient<U>()
+        => new DatasyncServiceClient<U>(Endpoint, Client, JsonSerializerOptions);
+
+    /// <summary>
+    /// Adds an entity to the remote service dataset.
+    /// </summary>
+    /// <param name="entity">The entity to be added to the remote service dataset.</param>
+    /// <param name="options">The options for the operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>A service response containing the added entity.</returns>
+    /// <exception cref="ConflictException{TEntity}">Thrown if the entity already exists in the remote service dataset.</exception>
+    public async ValueTask<ServiceResponse<TEntity>> AddAsync(TEntity entity, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="IDatasyncQueryable{TEntity}"/> for the current table.
+    /// </summary>
+    /// <returns>An <see cref="IDatasyncQueryable{TEntity}"/> the will return all items in the current table.</returns>
+    public IDatasyncQueryable<TEntity> AsQueryable()
+        => new DatasyncQueryable<TEntity>(this, Array.Empty<TEntity>().AsQueryable(), new Dictionary<string, string>(), false);
+
+    /// <summary>
+    /// Asynchronously returns the number of entities that will be returned by the provided query.
+    /// </summary>
+    /// <param name="query">Tne query to execute.</param>
+    /// <param name="options">The options for the operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The service response containing the count of entities that will be returned by the provided query.</returns>
+    public async ValueTask<ServiceResponse<int>> CountAsync(IDatasyncQueryable<TEntity> query, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Asynchronously returns the requested entity.
+    /// </summary>
+    /// <param name="id">Tne globally unique ID of the entity to be retrieved.</param>
+    /// <param name="options">The options for the operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The service response containing the requested entity.</returns>
+    public async ValueTask<ServiceResponse<TEntity>> GetAsync(string id, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Ensure the query will get the deleted records.
+    /// </summary>
+    /// <param name="enabled">If <c>true</c>, enables this request.</param>
+    /// <returns>The composed query object.</returns>
+    public IDatasyncQueryable<TEntity> IncludeDeletedItems(bool enabled = true)
+        => AsQueryable().IncludeDeletedItems(enabled);
+
+    /// <summary>
+    /// Ensure the query will get the total count for all the records that would have been returned
+    /// ignoring any take paging/limit clause specified by client or server.
+    /// </summary>
+    /// <param name="enabled">If <c>true</c>, enables this requst.</param>
+    /// <returns>The composed query object.</returns>
+    public IDatasyncQueryable<TEntity> IncludeTotalCount(bool enabled = true)
+        => AsQueryable().IncludeTotalCount(enabled);
+
+    /// <summary>
+    /// Asynchronously returns the number of entities that will be returned by the provided query.
+    /// </summary>
+    /// <param name="query">Tne query to execute.</param>
+    /// <param name="options">The options for the operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The service response containing the count of entities that will be returned by the provided query.</returns>
+    public async ValueTask<ServiceResponse<long>> LongCountAsync(IDatasyncQueryable<TEntity> query, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Applies the specified ascending order clause to the source query.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the member being ordered by.</typeparam>
+    /// <param name="keySelector">The expression selecting the member to order by.</param>
+    /// <returns>The composed query object.</returns>
+    public IDatasyncQueryable<TEntity> OrderBy<TKey>(Expression<Func<TEntity, TKey>> keySelector)
+        => AsQueryable().OrderBy(keySelector);
+
+    /// <summary>
+    /// Applies the specified descending order clause to the source query.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the member being ordered by.</typeparam>
+    /// <param name="keySelector">The expression selecting the member to order by.</param>
+    /// <returns>The composed query object.</returns>
+    public IDatasyncQueryable<TEntity> OrderByDescending<TKey>(Expression<Func<TEntity, TKey>> keySelector)
+        => AsQueryable().OrderByDescending(keySelector);
+
+    /// <summary>
+    /// Returns the asynchronous list of entities matching the query.
+    /// </summary>
+    /// <param name="query">Tne query to execute.</param>
+    /// <param name="options">The options for the operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>An <see cref="IAsyncPageable{TEntity}"/> for the results that can be asynchronously iterated over.</returns>
+    public IAsyncPageable<TEntity> Query(IDatasyncQueryable<TEntity> query, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Removes an entity from the remote service dataset.
+    /// </summary>
+    /// <param name="id">The globally unique ID for the entity to be removed from the remote service dataset.</param>
+    /// <param name="options">The options for the operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>A service response.</returns>
+    /// <exception cref="ConflictException{TEntity}">Thrown if a version is provided and does not match the service version in the remote service dataset.</exception>
+    public async ValueTask<ServiceResponse> RemoveAsync(string id, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Replaced an entity in the remote service dataset.
+    /// </summary>
+    /// <param name="entity">The entity to be replaced in the remote service dataset.</param>
+    /// <param name="options">The options for the operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>A service response containing the replaced entity.</returns>
+    /// <exception cref="ConflictException{TEntity}">Thrown if a version is provided and does not match the service version in the remote service dataset.</exception>
+    public async ValueTask<ServiceResponse<TEntity>> ReplaceAsync(TEntity entity, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Applies the specified selection to the source query.
+    /// </summary>
+    /// <typeparam name="U">Type representing the projected result of the query.</typeparam>
+    /// <param name="selector">The selector function.</param>
+    /// <returns>The composed query object.</returns>
+    public IDatasyncQueryable<U> Select<U>(Expression<Func<TEntity, U>> selector)
+        => AsQueryable().Select(selector);
+
+    /// <summary>
+    /// Applies the specified skip clause to the source query.
+    /// </summary>
+    /// <param name="count">The number to skip.</param>
+    /// <returns>The composed query object.</returns>
+    public IDatasyncQueryable<TEntity> Skip(int count)
+        => AsQueryable().Skip(count);
+
+    /// <summary>
+    /// Applies the specified take clause to the source query.
+    /// </summary>
+    /// <param name="count">The number to take.</param>
+    /// <returns>The composed query object.</returns>
+    public IDatasyncQueryable<TEntity> Take(int count)
+        => AsQueryable().Take(count);
+
+    /// <summary>
+    /// Applies the specified ascending order clause to the source query.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the member being ordered by.</typeparam>
+    /// <param name="keySelector">The expression selecting the member to order by.</param>
+    /// <returns>The composed query object.</returns>
+    public IDatasyncQueryable<TEntity> ThenBy<TKey>(Expression<Func<TEntity, TKey>> keySelector)
+        => AsQueryable().ThenBy(keySelector);
+
+    /// <summary>
+    /// Applies the specified descending order clause to the source query.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the member being ordered by.</typeparam>
+    /// <param name="keySelector">The expression selecting the member to order by.</param>
+    /// <returns>The composed query object.</returns>
+    public IDatasyncQueryable<TEntity> ThenByDescending<TKey>(Expression<Func<TEntity, TKey>> keySelector)
+        => AsQueryable().ThenByDescending(keySelector);
+
+    /// <summary>
+    /// Applies the specified filter predicate to the source query.
+    /// </summary>
+    /// <param name="predicate">The filter predicate.</param>
+    /// <returns>The composed query object.</returns>
+    public IDatasyncQueryable<TEntity> Where(Expression<Func<TEntity, bool>> predicate)
+        => AsQueryable().Where(predicate);
+
+    /// <summary>
+    /// Adds the parameter to the list of user-defined parameters to send with the request.
+    /// </summary>
+    /// <param name="key">The parameter key</param>
+    /// <param name="value">The parameter value</param>
+    /// <returns>The composed query object.</returns>
+    public IDatasyncQueryable<TEntity> WithParameter(string key, string value)
+        => AsQueryable().WithParameter(key, value);
+
+    /// <summary>
+    /// Applies to the source query the specified string key-value pairs to be used as user-defined parameters with the request URI query string.
+    /// </summary>
+    /// <param name="parameters">The parameters to apply.</param>
+    /// <returns>The composed query object.</returns>
+    public IDatasyncQueryable<TEntity> WithParameters(IEnumerable<KeyValuePair<string, string>> parameters)
+        => AsQueryable().WithParameters(parameters);
+}
