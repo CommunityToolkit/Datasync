@@ -165,6 +165,13 @@ internal class DatasyncQueryable<TEntity> : IDatasyncQueryable<TEntity>
     }
 
     /// <summary>
+    /// Converts the current query into an OData v4 query string.
+    /// </summary>
+    /// <returns></returns>
+    public string ToODataQueryString()
+        => new QueryTranslator<TEntity>(this).Translate().ToODataQueryString(QueryParameters);
+
+    /// <summary>
     /// Applies the specified filter predicate to the source query.
     /// </summary>
     /// <param name="predicate">The filter predicate.</param>

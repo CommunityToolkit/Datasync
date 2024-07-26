@@ -36,4 +36,10 @@ public interface IDatasyncQueryable<TEntity> : IDatasyncQueryMethods<TEntity>
     /// If <c>true</c>, include the total count of items that will be returned with this query (without considering paging).
     /// </summary>
     bool RequestTotalCount { get; }
+
+    /// <summary>
+    /// Converts the current query into an OData v4 query string.
+    /// </summary>
+    /// <returns>An OData query string.</returns>
+    string ToODataQueryString();
 }
