@@ -38,4 +38,15 @@ internal class OrderByNode(QueryNode expression, OrderByDirection direction)
     /// A direction for the ordering.
     /// </summary>
     internal OrderByDirection Direction { get; } = direction;
+
+    /// <summary>
+    /// Convert this ordering node into an OData string representation.
+    /// </summary>
+    /// <returns>The OData string</returns>
+    public string ToODataString()
+    {
+        string field = ODataExpressionVisitor.ToODataString(Expression);
+        string direction = Direction == OrderByDirection.Ascending ? "" : " desc";
+        return $"{field}{direction}";
+    }
 }

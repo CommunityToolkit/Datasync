@@ -67,7 +67,7 @@ internal class QueryTranslator<TEntity>
     {
         if (IsValidLambdaExpression(expression, out LambdaExpression? lambda))
         {
-            QueryNode filter = FilterBuildingExpressionVisitor.Compile(lambda.Body, JsonSerializerOptions);
+            QueryNode filter = FilterBuildingExpressionVisitor.Compile(lambda.Body, JsonSerializerOptions)!;
             if (QueryDescription.Filter != null)
             {
                 QueryDescription.Filter = new BinaryOperatorNode(BinaryOperatorKind.And, QueryDescription.Filter, filter);

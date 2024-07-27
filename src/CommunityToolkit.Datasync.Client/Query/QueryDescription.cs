@@ -59,8 +59,49 @@ internal class QueryDescription
     /// Converts the provided query description into an OData query string.
     /// </summary>
     /// <returns>An OData v4 query string.</returns>
-    internal string ToODataQueryString()
+    /// <summary>
+    /// Converts the query structure into a standard OData URI protocol for queries.
+    /// </summary>
+    /// <returns>A URI query string representing the query.</returns>
+    public string ToODataQueryString()
     {
-        throw new NotImplementedException();
+        List<string> queryFragments = [];
+
+        if (Filter != null)
+        {
+            queryFragments.Add($"{ODataQueryParameters.Filter}={Uri.EscapeDataString(ODataExpressionVisitor.ToODataString(Filter))}");
+        }
+
+        if (Ordering.Count > 0)
+        {
+            queryFragments.Add($"{ODataQueryParameters.OrderBy}={string.Join(",", Ordering.Select(o => o.ToODataString()))}");
+        }
+
+        if (Skip >= 0)
+        {
+            queryFragments.Add($"{ODataQueryParameters.Skip}={Skip}");
+        }
+
+        if (Top.HasValue && Top >= 0)
+        {
+            queryFragments.Add($"{ODataQueryParameters.Top}={Top}");
+        }
+
+        if (Selections.Count > 0)
+        {
+            queryFragments.Add($"{ODataQueryParameters.Select}={string.Join(",", Selections.OrderBy(field => field).Select(Uri.EscapeDataString))}");
+        }
+
+        if (RequestTotalCount)
+        {
+            queryFragments.Add($"{ODataQueryParameters.Count}=true");
+        }
+
+        foreach (KeyValuePair<string, string> kv in QueryParameters)
+        {
+            queryFragments.Add($"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}");
+        }
+
+        return string.Join("&", queryFragments);
     }
 }

@@ -53,4 +53,25 @@ internal static class BinaryOperatorKindExtensions
         ExpressionType.Subtract => BinaryOperatorKind.Subtract,
         _ => throw new NotSupportedException($"The operator '{type}' is not supported in the 'Where' query expression")
     };
+
+    /// <summary>
+    /// Converts the <see cref="BinaryOperatorKind"/> to an OData operator.
+    /// </summary>
+    internal static string ToODataString(this BinaryOperatorKind kind) => kind switch
+    {
+        BinaryOperatorKind.Or => "or",
+        BinaryOperatorKind.And => "and",
+        BinaryOperatorKind.Equal => "eq",
+        BinaryOperatorKind.NotEqual => "ne",
+        BinaryOperatorKind.GreaterThan => "gt",
+        BinaryOperatorKind.GreaterThanOrEqual => "ge",
+        BinaryOperatorKind.LessThan => "lt",
+        BinaryOperatorKind.LessThanOrEqual => "le",
+        BinaryOperatorKind.Add => "add",
+        BinaryOperatorKind.Subtract => "sub",
+        BinaryOperatorKind.Multiply => "mul",
+        BinaryOperatorKind.Divide => "div",
+        BinaryOperatorKind.Modulo => "mod",
+        _ => throw new NotSupportedException($"'{kind}' is not supported in a 'Where' table query expression.")
+    };
 }

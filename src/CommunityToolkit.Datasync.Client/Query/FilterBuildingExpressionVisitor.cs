@@ -231,8 +231,8 @@ internal class FilterBuildingExpressionVisitor
         }
 
         // Is this member actually a function that looks like a property (e.g. string.Length)
-        var key = new MemberInfoKey(node.Member);
-        var methodName = InstanceProperties.GetMethodName(key);
+        MemberInfoKey key = new(node.Member);
+        string? methodName = InstanceProperties.GetMethodName(key);
         if (methodName != null)
         {
             FunctionCallNode fnCallNode = new(methodName);
@@ -262,9 +262,9 @@ internal class FilterBuildingExpressionVisitor
             //
             if (baseDefinition.Equals(startsWithMethod) && node.Arguments.Count == 2 && node.Arguments[1].Type == typeof(StringComparison))
             {
-                var callNode = new FunctionCallNode("startswith");
+                FunctionCallNode callNode = new("startswith");
                 FilterExpression.Push(callNode);
-                VisitStringComparisonExpression(callNode, node);
+                _ = VisitStringComparisonExpression(callNode, node);
                 return node;
             }
 
@@ -273,9 +273,9 @@ internal class FilterBuildingExpressionVisitor
             //
             if (baseDefinition.Equals(endsWithMethod) && node.Arguments.Count == 2 && node.Arguments[1].Type == typeof(StringComparison))
             {
-                var callNode = new FunctionCallNode("endswith");
+                FunctionCallNode callNode = new("endswith");
                 FilterExpression.Push(callNode);
-                VisitStringComparisonExpression(callNode, node);
+                _ = VisitStringComparisonExpression(callNode, node);
                 return node;
             }
 
@@ -284,10 +284,10 @@ internal class FilterBuildingExpressionVisitor
             //
             if (baseDefinition.Equals(equals1Method) && node.Arguments.Count == 1)
             {
-                var equalityNode = new BinaryOperatorNode(BinaryOperatorKind.Equal);
+                BinaryOperatorNode equalityNode = new(BinaryOperatorKind.Equal);
                 FilterExpression.Push(equalityNode);
-                Visit(node.Object);
-                Visit(node.Arguments[0]);
+                _ = Visit(node.Object!);
+                _ = Visit(node.Arguments[0]);
                 SetChildren(equalityNode);
                 return node;
             }
@@ -297,9 +297,9 @@ internal class FilterBuildingExpressionVisitor
             //
             if (baseDefinition.Equals(equals2Method) && node.Arguments.Count == 2 && node.Arguments[1].Type == typeof(StringComparison))
             {
-                var equalityNode = new BinaryOperatorNode(BinaryOperatorKind.Equal);
+                BinaryOperatorNode equalityNode = new(BinaryOperatorKind.Equal);
                 FilterExpression.Push(equalityNode);
-                VisitStringComparisonExpression(equalityNode, node);
+                _ = VisitStringComparisonExpression(equalityNode, node);
                 return node;
             }
 
@@ -308,10 +308,10 @@ internal class FilterBuildingExpressionVisitor
             //
             if (baseDefinition.Equals(arrayContainsMethod) && node.Arguments.Count == 2 && node.Arguments[0].Type == typeof(string[]))
             {
-                var callNode = new FunctionCallNode("in");
+                FunctionCallNode callNode = new("in");
                 FilterExpression.Push(callNode);
-                Visit(node.Arguments[0]);
-                Visit(node.Arguments[1]);
+                _ = Visit(node.Arguments[0]);
+                _ = Visit(node.Arguments[1]);
                 SetChildren(callNode);
                 return node;
             }
@@ -319,8 +319,8 @@ internal class FilterBuildingExpressionVisitor
             //
             // Anything in the MethodNames table (which has a direct relationship to the OData representation)
             //
-            var key = new MemberInfoKey(node.Method);
-            if (MethodNames.TryGetValue(key, out string methodName, out bool isStatic))
+            MemberInfoKey key = new(node.Method);
+            if (MethodNames.TryGetValue(key, out string? methodName, out bool isStatic))
             {
                 FunctionCallNode fnCallNode = new(methodName);
                 FilterExpression.Push(fnCallNode);
@@ -352,7 +352,8 @@ internal class FilterBuildingExpressionVisitor
     /// <summary>
     /// Process a two-argument string-expression (startsWith, endsWith)
     /// </summary>
-    /// <param name="node">The node to visit</param>
+    /// <param name="queryNode">The query node that we are creating.</param>
+    /// <param name="node">The expression to visit</param>
     /// <returns>The visited node</returns>
     internal Expression VisitStringComparisonExpression(QueryNode queryNode, MethodCallExpression node)
     {
@@ -361,21 +362,21 @@ internal class FilterBuildingExpressionVisitor
         {
             case StringComparison.Ordinal:
             case StringComparison.InvariantCulture:
-                Visit(node.Object);
-                Visit(node.Arguments[0]);
+                _ = Visit(node.Object!);
+                _ = Visit(node.Arguments[0]);
                 SetChildren(queryNode);
                 return node;
 
             case StringComparison.OrdinalIgnoreCase:
             case StringComparison.InvariantCultureIgnoreCase:
-                var arg1 = new FunctionCallNode("tolower");
+                FunctionCallNode arg1 = new("tolower");
                 FilterExpression.Push(arg1);
-                Visit(node.Object);
+                _ = Visit(node.Object!);
                 SetChildren(arg1);
 
-                var arg2 = new FunctionCallNode("tolower");
+                FunctionCallNode arg2 = new("tolower");
                 FilterExpression.Push(arg2);
-                Visit(node.Arguments[0]);
+                _ = Visit(node.Arguments[0]);
                 SetChildren(arg2);
 
                 SetChildren(queryNode);
@@ -396,7 +397,7 @@ internal class FilterBuildingExpressionVisitor
     {
         // Get the StringComparison argument by visiting the node.
         // Don't leave it on the stack!
-        Visit(node);
+        _ = Visit(node);
         QueryNode comparisonNode = FilterExpression.Pop();
 
         // We expect it to be a constant node of type StringComparison
@@ -419,22 +420,24 @@ internal class FilterBuildingExpressionVisitor
         switch (node.NodeType)
         {
             case ExpressionType.Not:
-                Visit(node.Operand);
+                _ = Visit(node.Operand);
                 FilterExpression.Push(new UnaryOperatorNode(UnaryOperatorKind.Not, FilterExpression.Pop()));
                 break;
             case ExpressionType.Quote:
-                Visit(node.Operand);
+                _ = Visit(node.Operand);
                 break;
             case ExpressionType.Convert:
                 if (!IsConversionImplicit(node, node.Operand.Type, node.Type))
                 {
                     throw new NotSupportedException($"Implicit conversion from '{node.Operand.Type}' to '{node.Type}' is not supported by a 'Where' {node.NodeType}' clause.");
                 }
-                Visit(node.Operand);
+
+                _ = Visit(node.Operand);
                 break;
             default:
                 throw new NotSupportedException($"The operator '{node.NodeType}' is not supported in a 'Where' clause");
         }
+
         return node;
     }
 
@@ -446,7 +449,7 @@ internal class FilterBuildingExpressionVisitor
     /// <param name="to">The type to convert to</param>
     /// <returns>True if there is an implicit conversion</returns>
     internal bool IsConversionImplicit(UnaryExpression node, Type from, Type to)
-        => GetTableMemberName(node.Operand, ContractResolver) != null && ImplicitConversions.IsImplicitConversion(from, to);
+        => GetTableMemberName(node.Operand, SerializerOptions) != null && ImplicitConversions.IsImplicitConversion(from, to);
 
     /// <summary>
     /// Checks if the provided binary expression is an enum.
