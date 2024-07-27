@@ -10,6 +10,23 @@ namespace CommunityToolkit.Datasync.Client;
 internal static class ThrowIf
 {
     /// <summary>
+    /// Returns if the parameter does not have the required number of elements.
+    /// </summary>
+    /// <typeparam name="T">The type of the iterator in the parameter.</typeparam>
+    /// <param name="values">The values being counted.</param>
+    /// <param name="count">The expected count.</param>
+    /// <param name="paramName">The name of the parameter.</param>
+    /// <exception cref="ArgumentException">Thrown if the count does not match.</exception>
+    internal static void CountMismatch<T>(IEnumerable<T> values, int count, string paramName)
+    {
+        ArgumentNullException.ThrowIfNull(values, paramName);
+        if (values.Count() != count)
+        {
+            throw new ArgumentException($"Parameter {paramName} should have {count} items.");
+        }
+    }
+
+    /// <summary>
     /// Returns if the parameter is a valid endpoint for a Datasync service.
     /// </summary>
     /// <remarks>

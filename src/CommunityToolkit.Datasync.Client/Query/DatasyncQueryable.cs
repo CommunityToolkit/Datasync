@@ -169,7 +169,7 @@ internal class DatasyncQueryable<TEntity> : IDatasyncQueryable<TEntity>
     /// </summary>
     /// <returns></returns>
     public string ToODataQueryString()
-        => new QueryTranslator<TEntity>(this).Translate().ToODataQueryString(QueryParameters);
+        => new QueryTranslator<TEntity>(this).Translate().ToODataQueryString();
 
     /// <summary>
     /// Applies the specified filter predicate to the source query.
