@@ -2,13 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+// Reflection and LINQ requires a lot of null manipulation, so we opt for
+// a generalized "nullable" option here to allow us to do that.
+#nullable disable
+
 using System.Reflection;
 
-namespace CommunityToolkit.Datasync.Client.Query;
+namespace CommunityToolkit.Datasync.Client.Query.Linq;
 
 /// <summary>
-/// A version of <see cref="MemberInfo"/> that can be used as a key in
-/// an <see cref="IDictionary{TKey, TValue}"/> object.
+/// A version of <see cref="MemberInfo"/> that can be used as a key in an <see cref="IDictionary{TKey, TValue}"/> object.
 /// </summary>
 internal class MemberInfoKey : IEquatable<MemberInfoKey>
 {
@@ -26,7 +29,7 @@ internal class MemberInfoKey : IEquatable<MemberInfoKey>
     public MemberInfoKey(MemberInfo memberInfo)
     {
         this.memberName = memberInfo.Name;
-        this.type = memberInfo.DeclaringType!;
+        this.type = memberInfo.DeclaringType;
 
         if (memberInfo is MethodInfo asMethod)
         {
@@ -63,14 +66,14 @@ internal class MemberInfoKey : IEquatable<MemberInfoKey>
         this.parameters = parameters;
     }
 
+    #region IEquatable<T>
     /// <summary>
     /// Compares two <see cref="MemberInfoKey"/> objects for equality
     /// </summary>
     /// <param name="other">The object for comparison</param>
     /// <returns>True if the object matches</returns>
-    public bool Equals(MemberInfoKey? other)
-        => other != null
-        && other.type == this.type 
+    public bool Equals(MemberInfoKey other)
+        => other.type == this.type 
         && other.isMethod == this.isMethod 
         && other.isInstance == this.isInstance
         && string.Equals(other.memberName, this.memberName, StringComparison.Ordinal)
@@ -82,7 +85,7 @@ internal class MemberInfoKey : IEquatable<MemberInfoKey>
     /// </summary>
     /// <param name="obj">The object for comparison</param>
     /// <returns>True if the object matches</returns>
-    public override bool Equals(object? obj) 
+    public override bool Equals(object obj)
         => obj is MemberInfoKey other && Equals(other);
 
     /// <summary>
@@ -92,4 +95,5 @@ internal class MemberInfoKey : IEquatable<MemberInfoKey>
     /// <returns>The hash code for the object</returns>
     public override int GetHashCode() 
         => this.memberName.GetHashCode() | this.type.GetHashCode();
+    #endregion
 }

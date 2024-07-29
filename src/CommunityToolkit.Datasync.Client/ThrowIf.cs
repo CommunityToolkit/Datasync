@@ -56,4 +56,21 @@ internal static class ThrowIf
             throw new UriFormatException($"'{paramName}' must use HTTP protocol");
         }
     }
+
+    /// <summary>
+    /// Throws if the provided enumeration is null or empty.
+    /// </summary>
+    /// <typeparam name="T">The generic type enumeration</typeparam>
+    /// <param name="value">The value of the enumeration.</param>
+    /// <param name="paramName">The name of the parameter.</param>
+    /// <exception cref="ArgumentNullException">if the enumeration is null.</exception>
+    /// <exception cref="ArgumentException">if the enumeration is empty.</exception>
+    internal static void NullOrEmpty<T>(IEnumerable<T> value, string paramName)
+    {
+        ArgumentNullException.ThrowIfNull(value, paramName);
+        if (!value.Any())
+        {
+            throw new ArgumentException("Argument is empty.", paramName);
+        }
+    }
 }

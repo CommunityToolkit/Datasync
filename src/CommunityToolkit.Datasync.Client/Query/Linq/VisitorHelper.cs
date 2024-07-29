@@ -2,11 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+// Reflection and LINQ requires a lot of null manipulation, so we opt for
+// a generalized "nullable" option here to allow us to do that.
 #nullable disable
 
 using System.Linq.Expressions;
 
-namespace CommunityToolkit.Datasync.Client.Query;
+namespace CommunityToolkit.Datasync.Client.Query.Linq;
 
 /// <summary>
 /// Visit all the members of specific types of expression tree nodes.  This
@@ -81,7 +83,7 @@ internal sealed class VisitorHelper : ExpressionVisitor
     /// <param name="expression">The expression to visit.</param>
     /// <returns>The visisted expression.</returns>
     public override Expression Visit(Expression expression)
-        => this.visitor != null ? this.visitor(expression, base.Visit) : base.Visit(expression);
+        => this.visitor != null ? this.visitor(expression, e => base.Visit(e)) : base.Visit(expression);
 
     /// <summary>
     /// Visit member access.
@@ -89,5 +91,5 @@ internal sealed class VisitorHelper : ExpressionVisitor
     /// <param name="expression">The expression to visit.</param>
     /// <returns>The visited expression.</returns>
     protected override Expression VisitMember(MemberExpression expression)
-        => this.memberVisitor != null ? this.memberVisitor(expression, base.VisitMember) : base.VisitMember(expression);
+        => this.memberVisitor != null ? this.memberVisitor(expression, e => base.VisitMember(e)) : base.VisitMember(expression);
 }

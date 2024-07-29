@@ -2,7 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-namespace CommunityToolkit.Datasync.Client.Query;
+namespace CommunityToolkit.Datasync.Client.Query.OData;
+
+/// <summary>
+/// The names of the various OData query parameters that the datasync service supports.
+/// </summary>
 internal class ODataQueryParameters
 {
     /// <summary>
@@ -19,7 +23,7 @@ internal class ODataQueryParameters
     /// See http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part2-url-conventions/odata-v4.0-errata03-os-part2-url-conventions-complete.html#_Toc453752361
     /// </summary>
     public const string OrderBy = "$orderby";
-    
+
     /// <summary>
     /// See http://docs.oasis-open.org/odata/odata/v4.0/errata03/os/complete/part2-url-conventions/odata-v4.0-errata03-os-part2-url-conventions-complete.html#_Toc453752360
     /// </summary>

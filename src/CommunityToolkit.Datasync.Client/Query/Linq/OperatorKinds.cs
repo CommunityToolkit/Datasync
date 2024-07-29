@@ -4,32 +4,41 @@
 
 using System.Linq.Expressions;
 
-namespace CommunityToolkit.Datasync.Client.Query;
+namespace CommunityToolkit.Datasync.Client.Query.Linq;
 
 /// <summary>
 /// Enumerator of the supported binary operators.
 /// </summary>
 internal enum BinaryOperatorKind
 {
-    Or,
+    Add,
     And,
+    Divide,
     Equal,
-    NotEqual,
     GreaterThan,
     GreaterThanOrEqual,
     LessThan,
     LessThanOrEqual,
-    Add,
-    Subtract,
+    Modulo,
     Multiply,
-    Divide,
-    Modulo
+    NotEqual,
+    Or,
+    Subtract
 }
 
 /// <summary>
-/// A set of conversion extensions for the <see cref="BinaryOperatorKind"/> enum.
+/// Enumeration of the supported unary operators.
 /// </summary>
-internal static class BinaryOperatorKindExtensions
+internal enum UnaryOperatorKind
+{
+    Negate,
+    Not
+}
+
+/// <summary>
+/// A set of extension methods for converting to/from operator kinds.
+/// </summary>
+internal static class OperatorKindExtensions
 {
     /// <summary>
     /// Convert an <see cref="ExpressionType"/> into a <see cref="BinaryOperatorKind"/>
@@ -53,25 +62,5 @@ internal static class BinaryOperatorKindExtensions
         ExpressionType.Subtract => BinaryOperatorKind.Subtract,
         _ => throw new NotSupportedException($"The operator '{type}' is not supported in the 'Where' query expression")
     };
-
-    /// <summary>
-    /// Converts the <see cref="BinaryOperatorKind"/> to an OData operator.
-    /// </summary>
-    internal static string ToODataString(this BinaryOperatorKind kind) => kind switch
-    {
-        BinaryOperatorKind.Or => "or",
-        BinaryOperatorKind.And => "and",
-        BinaryOperatorKind.Equal => "eq",
-        BinaryOperatorKind.NotEqual => "ne",
-        BinaryOperatorKind.GreaterThan => "gt",
-        BinaryOperatorKind.GreaterThanOrEqual => "ge",
-        BinaryOperatorKind.LessThan => "lt",
-        BinaryOperatorKind.LessThanOrEqual => "le",
-        BinaryOperatorKind.Add => "add",
-        BinaryOperatorKind.Subtract => "sub",
-        BinaryOperatorKind.Multiply => "mul",
-        BinaryOperatorKind.Divide => "div",
-        BinaryOperatorKind.Modulo => "mod",
-        _ => throw new NotSupportedException($"'{kind}' is not supported in a 'Where' table query expression.")
-    };
 }
+
