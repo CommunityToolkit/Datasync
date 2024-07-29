@@ -67,7 +67,7 @@ internal class ODataExpressionVisitor : QueryNodeVisitor<QueryNode>
     /// <summary>
     /// You cannot instantiate this - access the visitor through the static methods.
     /// </summary>
-    protected ODataExpressionVisitor()
+    internal ODataExpressionVisitor()
     {
     }
 
@@ -187,13 +187,7 @@ internal class ODataExpressionVisitor : QueryNodeVisitor<QueryNode>
     /// <param name="node">The node to visit</param>
     protected void Accept(QueryNode parent, QueryNode node)
     {
-        if (node == null)
-        {
-            throw new ArgumentException($"Parent {parent.Kind} is not complete.", nameof(node));
-        }
-        else
-        {
-            node.Accept(this);
-        }
+        ArgumentNullException.ThrowIfNull(node, nameof(node));
+        node.Accept(this);
     }
 }

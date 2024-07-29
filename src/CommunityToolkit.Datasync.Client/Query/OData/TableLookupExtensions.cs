@@ -75,7 +75,7 @@ internal static class TableLookupExtensions
     /// <summary>
     /// The format for the TimeOnly type
     /// </summary>
-    private const string TimeOnlyFormat = "hh:mm:ss";
+    private const string TimeOnlyFormat = "HH:mm:ss.fff";
 
     /// <summary>
     /// Converts an object into the supported constant type.
@@ -177,7 +177,7 @@ internal static class TableLookupExtensions
                 formattedString = string.Format("{0:D}", (Guid)value);
                 return $"cast({formattedString},Edm.Guid)";
             default:
-                return $"'{value.ToString()?.Replace("'", "''")}'";
+                return $"'{value.ToString()!.Replace("'", "''")}'";
         }
     }
 }

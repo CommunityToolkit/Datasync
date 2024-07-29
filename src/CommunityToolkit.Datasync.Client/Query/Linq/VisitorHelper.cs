@@ -6,6 +6,7 @@
 // a generalized "nullable" option here to allow us to do that.
 #nullable disable
 
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace CommunityToolkit.Datasync.Client.Query.Linq;
@@ -82,6 +83,7 @@ internal sealed class VisitorHelper : ExpressionVisitor
     /// </summary>
     /// <param name="expression">The expression to visit.</param>
     /// <returns>The visisted expression.</returns>
+    [ExcludeFromCodeCoverage]
     public override Expression Visit(Expression expression)
         => this.visitor != null ? this.visitor(expression, e => base.Visit(e)) : base.Visit(expression);
 
@@ -90,6 +92,7 @@ internal sealed class VisitorHelper : ExpressionVisitor
     /// </summary>
     /// <param name="expression">The expression to visit.</param>
     /// <returns>The visited expression.</returns>
+    [ExcludeFromCodeCoverage]
     protected override Expression VisitMember(MemberExpression expression)
         => this.memberVisitor != null ? this.memberVisitor(expression, e => base.VisitMember(e)) : base.VisitMember(expression);
 }

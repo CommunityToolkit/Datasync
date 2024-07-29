@@ -28,7 +28,7 @@ internal class QueryDescription
     /// <summary>
     /// The list of expressions that specify the ordering constraints requested by the query.
     /// </summary>
-    public List<OrderByNode> Ordering { get; set; } = [];
+    public List<OrderByNode> Ordering { get; } = [];
 
     /// <summary>
     /// The type of the argument to the projection (i.e. the type that should be deserialized).
@@ -45,7 +45,7 @@ internal class QueryDescription
     /// <summary>
     /// The list of fields that should be selected from the items in the table.
     /// </summary>
-    public IList<string> Selection { get; private set; } = [];
+    public IList<string> Selection { get; } = [];
 
     /// <summary>
     /// The number of elements to skip
