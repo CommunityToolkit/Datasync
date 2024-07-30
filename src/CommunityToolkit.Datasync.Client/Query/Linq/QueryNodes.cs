@@ -114,7 +114,8 @@ internal sealed class ConstantNode(object value) : QueryNode
 internal sealed class ConvertNode(QueryNode source, Type targetType) : QueryNode
 {
     /// <inheritdoc/>
-    public override T Accept<T>(QueryNodeVisitor<T> visitor) => visitor.Visit(this);
+    public override T Accept<T>(QueryNodeVisitor<T> visitor)
+        => visitor.Visit(this);
 
     /// <inheritdoc />
     public override QueryNodeKind Kind => QueryNodeKind.Convert;

@@ -43,19 +43,19 @@ internal sealed class FilterBuildingExpressionVisitor
     #endregion
 
     // MethodInfo for string.Concat(string, string)
-    private static readonly MethodInfo concatMethod = typeof(string).GetRuntimeMethod("Concat", [typeof(string), typeof(string)]);
+    private static readonly MethodInfo concatMethod = typeof(string).GetRuntimeMethod(nameof(string.Concat), [typeof(string), typeof(string)]);
     // MethodInfo for string.StartsWith(string, StringComparison)
-    private static readonly MethodInfo startsWithMethod = typeof(string).GetRuntimeMethod("StartsWith", [typeof(string), typeof(StringComparison)]);
+    private static readonly MethodInfo startsWithMethod = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(string), typeof(StringComparison)]);
     // MethodInfo for string.EndsWith(string, StringComparison)
-    private static readonly MethodInfo endsWithMethod = typeof(string).GetRuntimeMethod("EndsWith", [typeof(string), typeof(StringComparison)]);
+    private static readonly MethodInfo endsWithMethod = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(string), typeof(StringComparison)]);
     // MethodInfo for string.Equals(string)
-    private static readonly MethodInfo equals1Method = typeof(string).GetRuntimeMethod("Equals", [typeof(string)]);
+    private static readonly MethodInfo equals1Method = typeof(string).GetRuntimeMethod(nameof(string.Equals), [typeof(string)]);
     // MethodInfo for string.Equals(string, StringComparison)
-    private static readonly MethodInfo equals2Method = typeof(string).GetRuntimeMethod("Equals", [typeof(string), typeof(StringComparison)]);
+    private static readonly MethodInfo equals2Method = typeof(string).GetRuntimeMethod(nameof(string.Equals), [typeof(string), typeof(StringComparison)]);
     // MethodInfo for IEnumerable<string>.Contains(string) - generic extension method
-    private static readonly MethodInfo arrayContainsMethod = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == "Contains" && m.GetParameters().Length == 2).MakeGenericMethod(typeof(string));
+    private static readonly MethodInfo arrayContainsMethod = typeof(Enumerable).GetRuntimeMethods().Single(m => m.Name == nameof(Enumerable.Contains) && m.GetParameters().Length == 2).MakeGenericMethod(typeof(string));
     // MethodInfo for string.ToString()
-    private static readonly MethodInfo toStringMethod = typeof(object).GetTypeInfo().GetDeclaredMethod("ToString");
+    private static readonly MethodInfo toStringMethod = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(Object.ToString));
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FilterBuildingExpressionVisitor"/>
@@ -63,8 +63,8 @@ internal sealed class FilterBuildingExpressionVisitor
     /// <param name="namingPolicy">The <see cref="JsonNamingPolicy"/> to use to determine property names from members used with expressions.</param>
     internal FilterBuildingExpressionVisitor(JsonNamingPolicy namingPolicy) : base()
     {
-        ArgumentNullException.ThrowIfNull(namingPolicy, nameof(namingPolicy));
         NamingPolicy = namingPolicy;
+        Visit = DefaultVisit;
     }
 
     /// <summary>
@@ -76,6 +76,16 @@ internal sealed class FilterBuildingExpressionVisitor
     /// The accumulator for the <see cref="QueryNode"/> representing the filter in the expression tree.
     /// </summary>
     internal Stack<QueryNode> FilterExpression { get; } = new();
+
+    /// <summary>
+    /// The mechanism for determining the table member name.
+    /// </summary>
+    internal Func<Expression, JsonNamingPolicy, string> GetMemberName { get; set; } = GetTableMemberName;
+
+    /// <summary>
+    /// The mechanism for calling the Visitor.
+    /// </summary>
+    internal Func<Expression, Expression> Visit { get; set; }
 
     /// <summary>
     /// Compiles an expression tree representing the predicate for a filter into a query node stack.
@@ -99,8 +109,6 @@ internal sealed class FilterBuildingExpressionVisitor
     internal static string GetTableMemberName(Expression expression, JsonNamingPolicy namingPolicy)
     {
         ArgumentNullException.ThrowIfNull(expression, nameof(expression));
-        ArgumentNullException.ThrowIfNull(namingPolicy, nameof(namingPolicy));
-
         if (expression is MemberExpression member)
         {
             if (member.Expression.NodeType == ExpressionType.Parameter)
@@ -108,10 +116,10 @@ internal sealed class FilterBuildingExpressionVisitor
                 return namingPolicy?.ConvertName(member.Member.Name) ?? member.Member.Name;
             }
 
-            if (member.Expression.NodeType == ExpressionType.Convert && member.Member.MemberType == MemberTypes.Property)
-            {
-                return namingPolicy?.ConvertName(member.Member.Name) ?? member.Member.Name;
-            }
+            //if (member.Expression.NodeType == ExpressionType.Convert && member.Member.MemberType == MemberTypes.Property)
+            //{
+            //    return namingPolicy?.ConvertName(member.Member.Name) ?? member.Member.Name;
+            //}
         }
 
         return null;
@@ -122,7 +130,7 @@ internal sealed class FilterBuildingExpressionVisitor
     /// </summary>
     /// <param name="node">The node to visit</param>
     /// <returns>The visited node.</returns>
-    internal Expression Visit(Expression node)
+    internal Expression DefaultVisit(Expression node)
     {
         if (node == null)
         {
@@ -165,6 +173,8 @@ internal sealed class FilterBuildingExpressionVisitor
 
             case ExpressionType.Convert: // TODO: Validate that this is the correct mechanism and not a ConvertExpression instead!
             case ExpressionType.Not:
+            case ExpressionType.Negate:
+            case ExpressionType.NegateChecked:
             case ExpressionType.Quote:
                 return VisitUnaryExpression((UnaryExpression)node);
 
@@ -222,7 +232,7 @@ internal sealed class FilterBuildingExpressionVisitor
     private MemberExpression VisitMemberExpression(MemberExpression node)
     {
         // Is the member the name of a member?
-        string memberName = GetTableMemberName(node, NamingPolicy);
+        string memberName = GetMemberName(node, NamingPolicy);
         if (memberName != null)
         {
             FilterExpression.Push(new MemberAccessNode(null, memberName));
@@ -442,7 +452,14 @@ internal sealed class FilterBuildingExpressionVisitor
     /// <param name="to">The type to convert to</param>
     /// <returns>True if there is an implicit conversion</returns>
     internal bool IsConversionImplicit(UnaryExpression node, Type from, Type to)
-        => GetTableMemberName(node.Operand, NamingPolicy) != null && ImplicitConversions.IsImplicitConversion(from, to);
+    {
+        if (GetMemberName(node.Operand, NamingPolicy) != null)
+        {
+            return ImplicitConversions.IsImplicitConversion(from, to);
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// Checks if the provided binary expression is an enum.
@@ -480,7 +497,15 @@ internal sealed class FilterBuildingExpressionVisitor
     /// <param name="expression">The expression to check</param>
     /// <returns>True if an enum.</returns>
     internal static bool IsEnumExpression(UnaryExpression expression)
-        => expression.NodeType == ExpressionType.Convert && expression.Operand.Type.GetTypeInfo().IsEnum;
+    {
+        if (expression.NodeType == ExpressionType.Convert)
+        {
+            return expression.Operand.Type.GetTypeInfo().IsEnum;
+        }
+
+        return false;
+    }
+    //    => expression.NodeType == ExpressionType.Convert && expression.Operand.Type.GetTypeInfo().IsEnum;
 
     /// <summary>
     /// Each <see cref="QueryNode"/> has a <see cref="QueryNode.SetChildren(IList{QueryNode})"/> method.  This

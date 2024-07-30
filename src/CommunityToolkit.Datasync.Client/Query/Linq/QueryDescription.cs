@@ -38,8 +38,11 @@ internal class QueryDescription
     /// <summary>
     /// The collection of projections that should be applied to each element of the query.
     /// </summary>
-    internal List<Delegate> Projections { get; set; } = [];
+    internal List<Delegate> Projections { get; } = [];
 
+    /// <summary>
+    /// The additional user-defined query parameters to add to the query string.
+    /// </summary>
     internal IDictionary<string, string> QueryParameters { get; set; } = new Dictionary<string, string>();
 
     /// <summary>

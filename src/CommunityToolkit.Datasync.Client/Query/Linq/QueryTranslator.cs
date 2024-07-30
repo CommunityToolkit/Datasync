@@ -50,6 +50,11 @@ internal class QueryTranslator<T>
     internal JsonNamingPolicy NamingPolicy { get; }
 
     /// <summary>
+    /// Replacable function for GetTableMemberName.
+    /// </summary>
+    internal Func<MemberExpression, JsonNamingPolicy, string> GetTableMemberName { get; set; } = DefaultGetTableMemberName;
+
+    /// <summary>
     /// Translates an expression tree into a compiled query description that can be turned into
     /// whatever form is required.
     /// </summary>
@@ -128,7 +133,7 @@ internal class QueryTranslator<T>
                 break;
 
             default:
-                throw new NotSupportedException($"'{expression.Method.Name}' caluse in query expression is not supported.");
+                throw new NotSupportedException($"'{methodName}' caluse in query expression is not supported.");
         }
     }
 
@@ -136,7 +141,7 @@ internal class QueryTranslator<T>
     /// Add a filtering expression to the query.
     /// </summary>
     /// <param name="expression">A Where method call expression.</param>
-    internal protected void AddFilter(MethodCallExpression expression)
+    internal void AddFilter(MethodCallExpression expression)
     {
         if (expression.IsValidLambdaExpression(out LambdaExpression lambda))
         {
@@ -162,13 +167,11 @@ internal class QueryTranslator<T>
     /// <param name="expression">An ordering method call expression</param>
     /// <param name="ascending">True if the ordering is ascending, false otherwise</param>
     /// <param name="prepend">True to prepend the ordering to the list</param>
-    internal protected void AddOrdering(MethodCallExpression expression, bool ascending, bool prepend)
+    internal void AddOrdering(MethodCallExpression expression, bool ascending, bool prepend)
     {
-        // We only allow keySelectors that are x => x.member expressions (i.e. MemberAccessNode).
-        // Anything else will result in a NotSupportedException
         if (expression.IsValidLambdaExpression(out LambdaExpression lambda) && lambda!.Body is MemberExpression memberExpression)
         {
-            string memberName = FilterBuildingExpressionVisitor.GetTableMemberName(memberExpression, NamingPolicy);
+            string memberName = GetTableMemberName(memberExpression, NamingPolicy);
             if (memberName != null)
             {
                 OrderByNode node = new(new MemberAccessNode(null, memberName), ascending);
@@ -180,19 +183,19 @@ internal class QueryTranslator<T>
                 {
                     QueryDescription.Ordering.Add(node);
                 }
+
+                return;
             }
         }
-        else
-        {
-            throw new NotSupportedException($"'{expression?.Method.Name}' query expressions must consist of members only.");
-        }
+        
+        throw new NotSupportedException($"'{expression?.Method.Name}' query expressions must consist of members only.");
     }
 
     /// <summary>
     /// Add a projection to the query
     /// </summary>
     /// <param name="expression">A Select Method Call expression</param>
-    internal protected void AddProjection(MethodCallExpression expression)
+    internal void AddProjection(MethodCallExpression expression)
     {
         // We only allow projections consisting of Select(x => ...).  Anything else throws a NotSupportedException
         if (expression.IsValidLambdaExpression(out LambdaExpression lambda) && lambda!.Parameters.Count == 1)
@@ -203,7 +206,7 @@ internal class QueryTranslator<T>
                 QueryDescription.ProjectionArgumentType = lambda.Parameters[0].Type;
                 foreach (MemberExpression memberExpression in lambda.Body.GetMemberExpressions())
                 {
-                    string memberName = FilterBuildingExpressionVisitor.GetTableMemberName(memberExpression, NamingPolicy);
+                    string memberName = GetTableMemberName(memberExpression, NamingPolicy);
                     if (memberName != null)
                     {
                         QueryDescription.Selection.Add(memberName);
@@ -236,23 +239,31 @@ internal class QueryTranslator<T>
     /// </summary>
     /// <param name="expression">The method call expression.</param>
     /// <returns>The count argument</returns>
-    internal protected static int GetCountArgument(MethodCallExpression expression)
+    internal static int GetCountArgument(MethodCallExpression expression)
     {
-        Expression deepest = expression;
-
-        // We only allow Skip(x) expressions.  Anything else will result in an exception.
-        if (expression?.Arguments.Count >= 2)
+        if (expression != null)
         {
-            if (expression.Arguments[1] is ConstantExpression constant)
+            if (expression.Arguments.Count >= 2)
             {
-                deepest = constant;
-                if (constant.Value is int @int)
+                if (expression.Arguments[1] is ConstantExpression constant)
                 {
-                    return @int;
+                    if (constant.Value is int @int)
+                    {
+                        return @int;
+                    }
                 }
             }
         }
 
-        throw new NotSupportedException($"'{expression?.Method?.Name}' query expressions must consist of a single integer, not '{deepest?.ToString()}'.");
+        throw new NotSupportedException("'Skip' and 'Take' methods must use a single integer.");
     }
+
+    /// <summary>
+    /// The default version of GetTableMemberName that calls the expression visitor version.
+    /// </summary>
+    /// <param name="memberExpression">The MemberExpression that needs to be translated.</param>
+    /// <param name="namingPolicy">The naming policy to translate.</param>
+    /// <returns></returns>
+    internal static string DefaultGetTableMemberName(MemberExpression memberExpression, JsonNamingPolicy namingPolicy)
+        => FilterBuildingExpressionVisitor.GetTableMemberName(memberExpression, namingPolicy);
 }

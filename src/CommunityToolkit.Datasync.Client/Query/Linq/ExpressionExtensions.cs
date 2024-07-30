@@ -6,6 +6,7 @@
 // a generalized "nullable" option here to allow us to do that.
 #nullable disable
 
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace CommunityToolkit.Datasync.Client.Query.Linq;
@@ -100,15 +101,22 @@ internal static class ExpressionExtensions
     /// <param name="expression">The expression</param>
     /// <param name="lambdaExpression">The lambda expression equivalent</param>
     /// <returns>True if a lambda expression</returns>
-    internal static bool IsValidLambdaExpression(this MethodCallExpression expression, out LambdaExpression lambdaExpression)
+    internal static bool IsValidLambdaExpression(this MethodCallExpression expression, [NotNullWhen(true)] out LambdaExpression lambdaExpression)
     {
-        lambdaExpression = null;
-        if (expression?.Arguments.Count >= 2 && expression.Arguments[1].StripQuote() is LambdaExpression lambda)
+        if (expression != null)
         {
-            lambdaExpression = lambda;
+            if (expression.Arguments.Count >= 2)
+            {
+                if (expression.Arguments[1].StripQuote() is LambdaExpression lambda)
+                {
+                    lambdaExpression = lambda;
+                    return true;
+                }
+            }
         }
 
-        return lambdaExpression != null;
+        lambdaExpression = null;
+        return false;
     }
 
     /// <summary>

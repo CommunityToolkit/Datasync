@@ -129,6 +129,56 @@ public class IDatasyncQueryable_Tests
             "$orderby=stringValue desc,byteValue desc"
         );
     }
+
+    [Fact]
+    public void Linq_OrderBy_InvalidMember()
+    {
+        ExecuteUnsupportedQueryTest<NotSupportedException>(
+            x => x.OrderBy(m => m.IntValue % 7)
+        );
+    }
+
+    [Fact]
+    public void Linq_OrderByDescending_InvalidMember()
+    {
+        ExecuteUnsupportedQueryTest<NotSupportedException>(
+            x => x.OrderByDescending(m => m.IntValue % 7)
+        );
+    }
+    #endregion
+
+    #region Select
+    [Fact]
+    public void Linq_Select_Anonymous()
+    {
+        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
+        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
+        string query = client.AsQueryable().Select(m => new { m.Id, m.StringValue }).ToODataQueryString();
+        string actual = Uri.UnescapeDataString(query);
+        actual.Should().Be("$select=id,stringValue");
+    }
+
+    [Fact]
+    public void Linq_Select_Anonymous_NullNamingPolicy()
+    {
+        JsonSerializerOptions serializerOptions = new();
+        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
+        string query = client.AsQueryable().Select(m => new { m.Id, m.StringValue }).ToODataQueryString();
+        string actual = Uri.UnescapeDataString(query);
+        actual.Should().Be("$select=Id,StringValue");
+    }
+
+    [Fact]
+    public void Linq_Select_Named()
+    {
+        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
+        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
+        string query = client.AsQueryable().Select(m => new NamedSelectClass() { Id = m.Id, StringValue = m.StringValue }).ToODataQueryString();
+        string actual = Uri.UnescapeDataString(query);
+        actual.Should().Be("$select=id,stringValue");
+    }
+
+    // TODO: Required Additional Parameters
     #endregion
 
     #region Skip
@@ -319,28 +369,6 @@ public class IDatasyncQueryable_Tests
         ExecuteQueryTest(
             x => x.Where(m => m.ByteValue <= comparison),
             "$filter=(byteValue le 42)"
-        );
-    }
-    #endregion
-
-    #region Character Comparisons
-    [Fact(Skip = "Implicit conversion to int32 - need to dig into this")]
-    public void Linq_Where_Char_Equal()
-    {
-        char comparison = 'a';
-        ExecuteQueryTest(
-            x => x.Where(m => m.CharValue == comparison),
-            "$filter=(charValue eq 'a')"
-        );
-    }
-
-    [Fact(Skip = "Implicit conversion to int32 - need to dig into this")]
-    public void Linq_Where_Char_NotEqual()
-    {
-        char comparison = 'a';
-        ExecuteQueryTest(
-            x => x.Where(m => m.CharValue != comparison),
-            "$filter=(charValue ne 'a')"
         );
     }
     #endregion
@@ -1071,6 +1099,64 @@ public class IDatasyncQueryable_Tests
     }
     #endregion
 
+    #region Decimal Comparisons
+    [Fact]
+    public void Linq_Where_DecimalCeiling()
+    {
+        ExecuteQueryTest(
+            x => x.Where(m => Math.Ceiling(m.DecimalValue) == 2.0M),
+            "$filter=(ceiling(decimalValue) eq 2.0M)"
+        );
+    }
+
+    [Fact]
+    public void Linq_Where_DecimalFloor()
+    {
+        ExecuteQueryTest(
+            x => x.Where(m => Math.Floor(m.DecimalValue) == 42M),
+            "$filter=(floor(decimalValue) eq 42M)"
+        );
+    }
+
+    [Fact]
+    public void Linq_Where_DecimalRound()
+    {
+        ExecuteQueryTest(
+            x => x.Where(m => Math.Round(m.DecimalValue) == 42M),
+            "$filter=(round(decimalValue) eq 42M)"
+        );
+    }
+    #endregion
+
+    #region Double Comparisons
+    [Fact]
+    public void Linq_Where_DoubleCeiling()
+    {
+        ExecuteQueryTest(
+            x => x.Where(m => Math.Ceiling(m.DoubleValue) == 2),
+            "$filter=(ceiling(doubleValue) eq 2.0)"
+        );
+    }
+
+    [Fact]
+    public void Linq_Where_DoubleFloor()
+    {
+        ExecuteQueryTest(
+            x => x.Where(m => Math.Floor(m.DoubleValue) == 42),
+            "$filter=(floor(doubleValue) eq 42.0)"
+        );
+    }
+
+    [Fact]
+    public void Linq_Where_DoubleRound()
+    {
+        ExecuteQueryTest(
+            x => x.Where(m => Math.Round(m.DoubleValue) == 42),
+            "$filter=(round(doubleValue) eq 42.0)"
+        );
+    }
+    #endregion
+
     #region Enum Comparisons
     [Fact]
     public void Linq_Where_Enum_Equal()
@@ -1087,6 +1173,15 @@ public class IDatasyncQueryable_Tests
         ExecuteQueryTest(
             x => x.Where(m => m.EnumValue != KitchenSinkState.Completed),
             "$filter=(enumValue ne 'Completed')"
+        );
+    }
+
+    [Fact]
+    public void Linq_Where_Enum_Equal_Reversed()
+    {
+        ExecuteQueryTest(
+            x => x.Where(m => KitchenSinkState.Completed == m.EnumValue),
+            "$filter=(enumValue eq 'Completed')"
         );
     }
     #endregion
@@ -1170,6 +1265,15 @@ public class IDatasyncQueryable_Tests
     #endregion
 
     #region String Comparisons
+    [Fact]
+    public void Linq_Where_StringConcat()
+    {
+        ExecuteQueryTest(
+            x => x.Where(m => m.StringValue + "er" == "lager"),
+            "$filter=(concat(stringValue,'er') eq 'lager')"
+        );
+    }
+
     [Fact]
     public void Linq_Where_Equals_null()
     {
@@ -1578,7 +1682,131 @@ public class IDatasyncQueryable_Tests
             "$filter=((intValue gt 1900) or booleanValue)"
         );
     }
+
+    [Fact]
+    public void Linq_Multiple_Where()
+    {
+        ExecuteQueryTest(
+            x => x.Where(m => m.IntValue > 1900).Where(m => m.IntValue < 2000),
+            "$filter=((intValue gt 1900) and (intValue lt 2000))"
+        );
+    }
     #endregion
+
+    #region Unsupported Operations
+    [Fact]
+    public void Linq_Where_Call_Unsupported()
+    {
+        ExecuteUnsupportedQueryTest<NotSupportedException>(
+            x => x.Where(m => m.ByteArrayValue.LongCount() > 0)
+        );
+    }
+
+    [Fact]
+    public void Linq_Where_InvalidMathMethod_Unsupported()
+    {
+        ExecuteUnsupportedQueryTest<NotSupportedException>(
+            x => x.Where(m => Math.Sqrt(m.DoubleValue) == 4.0)
+        );
+    }
+
+    [Fact]
+    public void Linq_Where_InvalidStringComparison_Unsupported()
+    {
+        ExecuteUnsupportedQueryTest<NotSupportedException>(
+            x => x.Where(m => m.StringValue.Equals("er", StringComparison.CurrentCultureIgnoreCase))
+        );
+    }
+
+    [Fact]
+    public void Linq_Where_VariableStringComparison_Unsupported()
+    {
+        ExecuteUnsupportedQueryTest<NotSupportedException>(
+            x => x.Where(m => m.StringValue.Equals("er", m.BooleanValue ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase))
+        );
+    }
+
+    [Fact]
+    public void Linq_Where_TimeProperties_Unsupported()
+    {
+        ExecuteUnsupportedQueryTest<NotSupportedException>(
+            x => x.Where(m => m.DateTimeOffsetValue.Microsecond > 0)
+        );
+    }
+    #endregion
+    #endregion
+
+    #region WithParameter
+    [Fact]
+    public void Linq_WithParameter_SetsParameter()
+    {
+        ExecuteQueryTest(
+            x => x.WithParameter("foo", "bar"),
+            "foo=bar"
+        );
+    }
+
+    [Fact]
+    public void Linq_WithParameter_OverwritesParameter()
+    {
+        ExecuteQueryTest(
+            x => x.WithParameter("foo", "bar").WithParameter("foo", "baz"),
+            "foo=baz"
+        );
+    }
+
+    [Fact]
+    public void Linq_WithParameter_MultiParameter()
+    {
+        ExecuteQueryTest(
+            x => x.WithParameter("foo", "bar").WithParameter("bar", "baz"),
+            "bar=baz&foo=bar"
+        );
+    }
+
+    [Fact]
+    public void Linq_WithParameter_Exceptions()
+    {
+        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
+        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
+        Action act1 = () => _ = client.AsQueryable().WithParameter("$foo", "bar");
+        act1.Should().Throw<ArgumentException>();
+
+        Action act2 = () => _ = client.AsQueryable().WithParameter("__foo", "bar");
+        act2.Should().Throw<ArgumentException>();
+    }
+    #endregion
+
+    #region WithParameters
+    [Fact]
+    public void Linq_WithParameters_SetsAllParameters()
+    {
+        Dictionary<string, string> dict = new()
+        {
+            { "foo", "bar" },
+            { "bar", "baz" }
+        };
+
+        ExecuteQueryTest(
+            x => x.WithParameters(dict),
+            "bar=baz&foo=bar"
+        );
+    }
+
+    [Fact]
+    public void Linq_WithParameters_OverwritesParameters()
+    {
+        Dictionary<string, string> dict = new()
+        {
+            { "foo", "bar" },
+            { "bar", "baz" }
+        };
+
+        ExecuteQueryTest(
+            x => x.WithParameter("bar", "not").WithParameters(dict),
+            "bar=baz&foo=bar"
+        );
+    }
     #endregion
 
     private static void ExecuteQueryTest(Func<IDatasyncQueryable<ClientKitchenSink>, IDatasyncQueryable<ClientKitchenSink>> linq, string expected)
@@ -1588,5 +1816,19 @@ public class IDatasyncQueryable_Tests
         IDatasyncQueryable<ClientKitchenSink> query = linq.Invoke(client.AsQueryable());
         string actual = Uri.UnescapeDataString(query.ToODataQueryString());
         actual.Should().Be(expected);
+    }
+
+    private static void ExecuteUnsupportedQueryTest<TException>(Func<IDatasyncQueryable<ClientKitchenSink>, IDatasyncQueryable<ClientKitchenSink>> linq) where TException : Exception
+    {
+        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
+        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
+        Action act = () => linq.Invoke(client.AsQueryable()).ToODataQueryString();
+        act.Should().Throw<TException>();
+    }
+
+    internal class NamedSelectClass
+    {
+        public string Id { get; set; }
+        public string StringValue { get; set; }
     }
 }

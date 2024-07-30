@@ -52,9 +52,9 @@ internal static class QueryDescriptionExtensions
             queryFragments.Add($"{ODataQueryParameters.Count}=true");
         }
 
-        foreach (KeyValuePair<string, string> kv in value.QueryParameters)
+        foreach (string paramKey in value.QueryParameters.Keys.OrderBy(x => x))
         {
-            queryFragments.Add($"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value)}");
+            queryFragments.Add($"{Uri.EscapeDataString(paramKey)}={Uri.EscapeDataString(value.QueryParameters[paramKey])}");
         }
 
         return string.Join("&", queryFragments);

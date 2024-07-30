@@ -63,7 +63,12 @@ public static class ImplicitConversions
     {
         Type uFrom = Unwrap(from), uTo = Unwrap(to);
 
-        if (uFrom == uTo || uFrom.GetTypeInfo().IsEnum)
+        if (uFrom == uTo)
+        {
+            return true;
+        }
+
+        if (uFrom.GetTypeInfo().IsEnum)
         {
             return true;
         }
