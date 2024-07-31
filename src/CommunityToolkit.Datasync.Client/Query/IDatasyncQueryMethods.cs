@@ -12,7 +12,7 @@ namespace CommunityToolkit.Datasync.Client.Query;
 /// or an <see cref="IDatasyncServiceClient{TEntity}"/> for querying a remote datasync service.
 /// </summary>
 /// <typeparam name="TEntity">The type of entity being queried.</typeparam>
-public interface IDatasyncQueryMethods<TEntity>
+public interface IDatasyncQueryMethods<TEntity> where TEntity : class
 {
     /// <summary>
     /// Ensure the query will get the deleted records.
@@ -51,7 +51,7 @@ public interface IDatasyncQueryMethods<TEntity>
     /// <typeparam name="U">Type representing the projected result of the query.</typeparam>
     /// <param name="selector">The selector function.</param>
     /// <returns>The composed query object.</returns>
-    IDatasyncQueryable<U> Select<U>(Expression<Func<TEntity, U>> selector);
+    IDatasyncQueryable<U> Select<U>(Expression<Func<TEntity, U>> selector) where U : class;
 
     /// <summary>
     /// Applies the specified skip clause to the source query.

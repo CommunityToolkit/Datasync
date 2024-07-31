@@ -21,7 +21,7 @@ public class ServiceResponse
     /// <param name="responseMessage">The <see cref="HttpResponseMessage"/> used for generating this service response.</param>
     internal ServiceResponse(HttpResponseMessage responseMessage)
     {
-        ReasonPhrase = responseMessage.ReasonPhrase ?? string.Empty;
+        ReasonPhrase = responseMessage.ReasonPhrase;
         StatusCode = (int)responseMessage.StatusCode;
         CopyHeaders(responseMessage.Headers);
         CopyHeaders(responseMessage.Content.Headers);
@@ -44,6 +44,11 @@ public class ServiceResponse
     public bool HasContent { get; }
 
     /// <summary>
+    /// If <c>true</c>, the service request was rejected because of a conflict.
+    /// </summary>
+    public bool IsConflictStatusCode { get => StatusCode is 409 or 412; }
+
+    /// <summary>
     /// If <c>true</c>, the service request was considered completed successfully.
     /// </summary>
     public bool IsSuccessful { get => StatusCode is >= 200 and <= 299; }
@@ -51,7 +56,7 @@ public class ServiceResponse
     /// <summary>
     /// The reason phrase that was provided in the response.
     /// </summary>
-    public string ReasonPhrase { get; }
+    public string? ReasonPhrase { get; }
 
     /// <summary>
     /// The HTTP status code for this response.
@@ -105,5 +110,24 @@ public class ServiceResponse<TEntity>(HttpResponseMessage responseMessage) : Ser
     internal async Task SetValueFromContentAsync(JsonSerializerOptions options, CancellationToken cancellationToken = default)
     {
         Value = await JsonSerializer.DeserializeAsync<TEntity>(ContentStream, options, cancellationToken);
+    }
+
+    /// <summary>
+    /// Creates a <see cref="ServiceResponse{TEntity}"/> with a deserialized value.
+    /// </summary>
+    /// <param name="responseMessage">The <see cref="HttpResponseMessage"/> for this response.</param>
+    /// <param name="serializerOptions">The <see cref="JsonSerializerOptions"/> to use for deserialization.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The service response.</returns>
+    /// <exception cref="JsonException">Thrown if the content cannot be deserialized into the value.</exception>
+    public static async Task<ServiceResponse<TEntity>> CreateAsync(HttpResponseMessage responseMessage, JsonSerializerOptions serializerOptions, CancellationToken cancellationToken = default)
+    {
+        ServiceResponse<TEntity> result = new(responseMessage);
+        if (result.HasContent)
+        {
+            await result.SetValueFromContentAsync(serializerOptions, cancellationToken);
+        }
+
+        return result;
     }
 }

@@ -69,16 +69,40 @@ internal static class EntityResolver
             }
 
             UpdatedAtPropertyInfo = props.SingleOrDefault(x => x.Name.Equals(nameof(EntityMetadata.UpdatedAt), StringComparison.Ordinal));
-            if (UpdatedAtPropertyInfo != null && UpdatedAtPropertyInfo.PropertyType != typeof(DateTimeOffset))
+            if (UpdatedAtPropertyInfo != null && !HasType(UpdatedAtPropertyInfo.PropertyType, [ typeof(DateTimeOffset) ]))
             {
                 throw new DatasyncException($"Property type '{type.Name}'.UpdatedAt must be a 'DateTimeOffset' type.");
             }
 
             VersionPropertyInfo = props.SingleOrDefault(x => x.Name.Equals(nameof(EntityMetadata.Version), StringComparison.Ordinal));
-            if (VersionPropertyInfo != null && (VersionPropertyInfo.PropertyType != typeof(string) || VersionPropertyInfo.PropertyType != typeof(byte[])))
+            if (VersionPropertyInfo != null && !HasType(VersionPropertyInfo.PropertyType, [ typeof(string), typeof(byte[]) ]))
             {
                 throw new DatasyncException($"Property type '{type.Name}'.Version must be either a string or byte array.");
             }
+        }
+
+        /// <summary>
+        /// Determines if the given type is one of the valid types, including nullable versions of the types.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="validTypes"></param>
+        /// <returns></returns>
+        internal static bool HasType(Type type, Type[] validTypes)
+        {
+            foreach (Type t in validTypes)
+            {
+                if (type == t)
+                {
+                    return true;
+                }
+
+                if (t.IsValueType && type == typeof(Nullable<>).MakeGenericType(t))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

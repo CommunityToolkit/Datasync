@@ -17,7 +17,7 @@ namespace CommunityToolkit.Datasync.Client.Query;
 /// pattern we support on a datasync service.  You can use the <see cref="IDatasyncQueryable{TEntity}"/> instance
 /// to build up a query using normal LINQ patterns.
 /// </remarks>
-internal class DatasyncQueryable<TEntity> : IDatasyncQueryable<TEntity>
+internal class DatasyncQueryable<TEntity> : IDatasyncQueryable<TEntity> where TEntity : class
 {
     /// <summary>
     /// Creates a new instance of the <see cref="DatasyncQueryable{TEntity}"/> class.
@@ -115,7 +115,7 @@ internal class DatasyncQueryable<TEntity> : IDatasyncQueryable<TEntity>
     /// <typeparam name="U">Type representing the projected result of the query.</typeparam>
     /// <param name="selector">The selector function.</param>
     /// <returns>The composed query object.</returns>
-    public IDatasyncQueryable<U> Select<U>(Expression<Func<TEntity, U>> selector)
+    public IDatasyncQueryable<U> Select<U>(Expression<Func<TEntity, U>> selector) where U : class
         => new DatasyncQueryable<U>(ServiceClient.ToServiceClient<U>(), Queryable.Select(selector), QueryParameters, RequestTotalCount);
 
     /// <summary>

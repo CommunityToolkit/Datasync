@@ -20,7 +20,7 @@ namespace CommunityToolkit.Datasync.Client.Query.Linq;
 /// This code is based on the concepts discussed in <see href="http://blogs.msdn.com/b/mattwar/archive/2008/11/18/linq-links.aspx"/>.
 /// </remarks>
 /// <typeparam name="T">The type of the model used in the query.</typeparam>
-internal class QueryTranslator<T>
+internal class QueryTranslator<T> where T : class
 {
     /// <summary>
     /// Creates a new <see cref="QueryTranslator{T}"/> based on the provided query.

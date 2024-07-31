@@ -15,7 +15,7 @@ namespace CommunityToolkit.Datasync.Client;
 /// pattern we support on a datasync service.  You can use the <see cref="IDatasyncQueryable{TEntity}"/>
 /// instance to build up a query using normal LINQ patterns.
 /// </remarks>
-public interface IDatasyncQueryable<TEntity> : IDatasyncQueryMethods<TEntity>
+public interface IDatasyncQueryable<TEntity> : IDatasyncQueryMethods<TEntity> where TEntity : class
 {
     /// <summary>
     /// The service connection for this query.

@@ -71,13 +71,33 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// <exception cref="ConflictException{TEntity}">Thrown if the entity already exists in the remote service dataset.</exception>
     public async ValueTask<ServiceResponse<TEntity>> AddAsync(TEntity entity, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(options, nameof(options));
+
         EntityMetadata metadata = EntityResolver.GetEntityMetadata<TEntity>(entity);
         ThrowIf.EntityIdIsInvalid(metadata.Id, nameof(metadata), because: "The value of the 'Id' property must be null or valid.", allowNull: true);
         ThrowIf.IsNotNullOrEmpty(metadata.Version, nameof(metadata), "The value of the 'Version' property must be null or empty.");
         ThrowIf.IsNotNull(metadata.UpdatedAt, nameof(metadata), "The value of the 'UpdatedAt' property must be null.");
 
         using HttpResponseMessage response = await Client.PostAsJsonAsync(Endpoint, entity, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
-        return CreateServiceResponse(response);
+        ServiceResponse<TEntity> result = await ServiceResponse<TEntity>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+
+        if (result.IsConflictStatusCode)
+        {
+            throw new ConflictException<TEntity>(entity, result);
+        }
+
+        if (!result.IsSuccessful)
+        {
+            throw new DatasyncHttpException(result);
+        }
+
+        if (!result.HasContent)
+        {
+            throw new DatasyncException(ServiceErrorMessages.NoContent);
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -202,7 +222,7 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// <typeparam name="U">Type representing the projected result of the query.</typeparam>
     /// <param name="selector">The selector function.</param>
     /// <returns>The composed query object.</returns>
-    public IDatasyncQueryable<U> Select<U>(Expression<Func<TEntity, U>> selector)
+    public IDatasyncQueryable<U> Select<U>(Expression<Func<TEntity, U>> selector) where U : class
         => AsQueryable().Select(selector);
 
     /// <summary>
