@@ -3,7 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Query;
+using CommunityToolkit.Datasync.Client.Query.Linq;
+using CommunityToolkit.Datasync.Client.Serialization;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client.Service;
@@ -13,7 +17,7 @@ namespace CommunityToolkit.Datasync.Client.Service;
 /// for HTTP datasync services.
 /// </summary>
 /// <typeparam name="TEntity">The type of entity being processed by this service client.</typeparam>
-internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity>
+internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> where TEntity : class
 {
     /// <summary>
     /// Creates a new <see cref="DatasyncServiceClient{TEntity}"/> with the normal information required for 
@@ -54,7 +58,7 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity>
     /// </summary>
     /// <typeparam name="U">The new type of the entity.</typeparam>
     /// <returns>The replaced service client.</returns>
-    public IReadOnlyDatasyncServiceClient<U> ToServiceClient<U>()
+    public IReadOnlyDatasyncServiceClient<U> ToServiceClient<U>() where U : class
         => new DatasyncServiceClient<U>(Endpoint, Client, JsonSerializerOptions);
 
     /// <summary>
@@ -67,7 +71,13 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity>
     /// <exception cref="ConflictException{TEntity}">Thrown if the entity already exists in the remote service dataset.</exception>
     public async ValueTask<ServiceResponse<TEntity>> AddAsync(TEntity entity, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        EntityMetadata metadata = EntityResolver.GetEntityMetadata<TEntity>(entity);
+        ThrowIf.EntityIdIsInvalid(metadata.Id, nameof(metadata), because: "The value of the 'Id' property must be null or valid.", allowNull: true);
+        ThrowIf.IsNotNullOrEmpty(metadata.Version, nameof(metadata), "The value of the 'Version' property must be null or empty.");
+        ThrowIf.IsNotNull(metadata.UpdatedAt, nameof(metadata), "The value of the 'UpdatedAt' property must be null.");
+
+        using HttpResponseMessage response = await Client.PostAsJsonAsync(Endpoint, entity, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+        return CreateServiceResponse(response);
     }
 
     /// <summary>

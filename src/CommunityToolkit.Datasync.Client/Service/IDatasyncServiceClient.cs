@@ -10,7 +10,7 @@ namespace CommunityToolkit.Datasync.Client.Service;
 /// A read-only version of the service client that talks to a datasync service.
 /// </summary>
 /// <typeparam name="TEntity">The type of entity being transferred.</typeparam>
-public interface IReadOnlyDatasyncServiceClient<TEntity> : IDatasyncQueryMethods<TEntity>
+public interface IReadOnlyDatasyncServiceClient<TEntity> : IDatasyncQueryMethods<TEntity> where TEntity : class
 {
     /// <summary>
     /// Creates a new <see cref="IDatasyncQueryable{TEntity}"/> for the current table.
@@ -59,14 +59,14 @@ public interface IReadOnlyDatasyncServiceClient<TEntity> : IDatasyncQueryMethods
     /// </summary>
     /// <typeparam name="U">The type of the new entity.</typeparam>
     /// <returns>A service client for handling the new entity.</returns>
-    IReadOnlyDatasyncServiceClient<U> ToServiceClient<U>();
+    IReadOnlyDatasyncServiceClient<U> ToServiceClient<U>() where U : class;
 }
 
 /// <summary>
 /// A read/write version of the service client that talks to a datasync service.
 /// </summary>
 /// <typeparam name="TEntity">The type of entity being transferred</typeparam>
-public interface IDatasyncServiceClient<TEntity> : IReadOnlyDatasyncServiceClient<TEntity>
+public interface IDatasyncServiceClient<TEntity> : IReadOnlyDatasyncServiceClient<TEntity> where TEntity : class
 {
     /// <summary>
     /// Adds an entity to the remote service dataset.
