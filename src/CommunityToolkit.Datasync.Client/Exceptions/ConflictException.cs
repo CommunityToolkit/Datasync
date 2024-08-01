@@ -15,12 +15,12 @@ namespace CommunityToolkit.Datasync.Client;
 /// </remarks>
 /// <param name="clientEntity">The client entity that was sent to the server.</param>
 /// <param name="serviceResponse">The response from the server.</param>
-public class ConflictException<TEntity>(TEntity clientEntity, ServiceResponse<TEntity> serviceResponse) : DatasyncHttpException(serviceResponse)
+public class ConflictException<TEntity>(TEntity? clientEntity, ServiceResponse<TEntity> serviceResponse) : DatasyncHttpException(serviceResponse)
 {
     /// <summary>
     /// The client entity that was sent to the server.
     /// </summary>
-    public TEntity ClientEntity { get; } = clientEntity;
+    public TEntity? ClientEntity { get; } = clientEntity;
 
     /// <summary>
     /// The entity that is stored on the server.

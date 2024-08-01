@@ -3,10 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Query;
-using CommunityToolkit.Datasync.Client.Query.Linq;
+using CommunityToolkit.Datasync.Client.Query.OData;
 using CommunityToolkit.Datasync.Client.Serialization;
-using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -54,6 +55,11 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     internal JsonSerializerOptions JsonSerializerOptions { get; }
 
     /// <summary>
+    /// The media type for application/json.
+    /// </summary>
+    internal MediaTypeHeaderValue jsonMediaType = MediaTypeHeaderValue.Parse("application/json");
+
+    /// <summary>
     /// Creates a service client from another service client, only changing the type of the entity.
     /// </summary>
     /// <typeparam name="U">The new type of the entity.</typeparam>
@@ -79,7 +85,12 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
         ThrowIf.IsNotNullOrEmpty(metadata.Version, nameof(metadata), "The value of the 'Version' property must be null or empty.");
         ThrowIf.IsNotNull(metadata.UpdatedAt, nameof(metadata), "The value of the 'UpdatedAt' property must be null.");
 
-        using HttpResponseMessage response = await Client.PostAsJsonAsync(Endpoint, entity, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+        using HttpRequestMessage request = new(HttpMethod.Post, Endpoint)
+        {
+            Content = JsonContent.Create<TEntity>(entity, this.jsonMediaType, JsonSerializerOptions)
+        };
+
+        using HttpResponseMessage response = await Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
         ServiceResponse<TEntity> result = await ServiceResponse<TEntity>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
 
         if (result.IsConflictStatusCode)
@@ -128,11 +139,27 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// <returns>The service response containing the requested entity.</returns>
     public async ValueTask<ServiceResponse<TEntity>> GetAsync(string id, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
     {
-        ThrowIf.EntityIdIsInvalid(id, nameof(id), because: "The entity ID must be valid.");
+        ArgumentNullException.ThrowIfNull(id, nameof(id));
         ArgumentNullException.ThrowIfNull(options, nameof(options));
+        ThrowIf.EntityIdIsInvalid(id, nameof(id), because: "The entity ID must be valid.");
 
-        using HttpResponseMessage response = await Client.GetAsync(new Uri(Endpoint, id), cancellationToken).ConfigureAwait(false);
+        Uri requestUri = BuildUri(id, options);
+        using HttpRequestMessage request = new(HttpMethod.Get, requestUri);
+
+        using HttpResponseMessage response = await Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
         ServiceResponse<TEntity> result = await ServiceResponse<TEntity>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+
+        if (result.StatusCode == 404)
+        {
+            if (options.ThrowIfMissing)
+            {
+                throw new EntityDoesNotExistException(result) { Endpoint = Endpoint, Id = id };
+            }
+            else
+            {
+                return result;
+            }
+        }
 
         if (!result.IsSuccessful)
         {
@@ -145,6 +172,18 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Asynchronously returns a single page of results based on the provided query.
+    /// </summary>
+    /// <param name="query">The query to execute on the service.</param>
+    /// <param name="options">The options for the operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns></returns>
+    public async ValueTask<ServiceResponse<Page<TEntity>>> GetPageAsync(IDatasyncQueryable<TEntity> query, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -216,7 +255,44 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// <exception cref="ConflictException{TEntity}">Thrown if a version is provided and does not match the service version in the remote service dataset.</exception>
     public async ValueTask<ServiceResponse> RemoveAsync(string id, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(id, nameof(id));
+        ArgumentNullException.ThrowIfNull(options, nameof(options));
+        ThrowIf.EntityIdIsInvalid(id, nameof(id), because: "The entity ID must be valid.");
+
+        Uri requestUri = BuildUri(id, options);
+        using HttpRequestMessage request = new(HttpMethod.Delete, requestUri);
+        if (!string.IsNullOrWhiteSpace(options.Version))
+        {
+            ThrowIf.IsInvalidETag(options.Version, nameof(options.Version), ServiceErrorMessages.InvalidVersion);
+            request.Headers.IfMatch.Add(new EntityTagHeaderValue($"\"{options.Version}\""));
+        }
+
+        using HttpResponseMessage response = await Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        if (response.StatusCode is HttpStatusCode.Conflict or HttpStatusCode.PreconditionFailed)
+        {
+            ServiceResponse<TEntity> conflictResult = await ServiceResponse<TEntity>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+            throw new ConflictException<TEntity>(null, conflictResult);
+        }
+
+        ServiceResponse result = new(response);
+        if (result.StatusCode == 404)
+        {
+            if (options.ThrowIfMissing)
+            {
+                throw new EntityDoesNotExistException(result) { Endpoint = Endpoint, Id = id };
+            }
+            else
+            {
+                return result;
+            }
+        }
+
+        if (!result.IsSuccessful)
+        {
+            throw new DatasyncHttpException(result);
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -229,7 +305,54 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// <exception cref="ConflictException{TEntity}">Thrown if a version is provided and does not match the service version in the remote service dataset.</exception>
     public async ValueTask<ServiceResponse<TEntity>> ReplaceAsync(TEntity entity, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(entity, nameof(entity));
+        ArgumentNullException.ThrowIfNull(options, nameof(options));
+
+        EntityMetadata metadata = EntityResolver.GetEntityMetadata<TEntity>(entity);
+        ThrowIf.EntityIdIsInvalid(metadata.Id, nameof(metadata), because: "The value of the 'Id' property must be null or valid.");
+
+        Uri requestUri = BuildUri(metadata.Id!, options);
+        using HttpRequestMessage request = new(HttpMethod.Put, requestUri)
+        {
+            Content = JsonContent.Create<TEntity>(entity, this.jsonMediaType, JsonSerializerOptions)
+        };
+        if (!string.IsNullOrWhiteSpace(options.Version))
+        {
+            ThrowIf.IsInvalidETag(options.Version, nameof(options.Version), ServiceErrorMessages.InvalidVersion);
+            request.Headers.IfMatch.Add(new EntityTagHeaderValue($"\"{options.Version}\""));
+        }
+
+        using HttpResponseMessage response = await Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        ServiceResponse<TEntity> result = await ServiceResponse<TEntity>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+
+        if (result.IsConflictStatusCode)
+        {
+            throw new ConflictException<TEntity>(entity, result);
+        }
+
+        if (result.StatusCode == 404)
+        {
+            if (options.ThrowIfMissing)
+            {
+                throw new EntityDoesNotExistException(result) { Endpoint = Endpoint, Id = metadata.Id! };
+            }
+            else
+            {
+                return result;
+            }
+        }
+
+        if (!result.IsSuccessful)
+        {
+            throw new DatasyncHttpException(result);
+        }
+
+        if (!result.HasContent)
+        {
+            throw new DatasyncException(ServiceErrorMessages.NoContent);
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -299,4 +422,26 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// <returns>The composed query object.</returns>
     public IDatasyncQueryable<TEntity> WithParameters(IEnumerable<KeyValuePair<string, string>> parameters)
         => AsQueryable().WithParameters(parameters);
+
+    /// <summary>
+    /// Builds the URI for a specific ID.
+    /// </summary>
+    /// <param name="id">The ID of the entity.</param>
+    /// <param name="options">Any specific options that should be used.</param>
+    /// <returns></returns>
+    internal Uri BuildUri(string id, DatasyncServiceOptions options)
+    {
+        UriBuilder builder = new(Endpoint);
+
+        List<string> queryParts = [];
+        if (options.IncludeDeleted)
+        {
+            queryParts.Add($"{ODataQueryParameters.IncludeDeleted}=true");
+        }
+
+        builder.Path = $"{builder.Path.TrimEnd('/')}/{id}";
+        builder.Query = string.Join("&", queryParts);
+        builder.Fragment = string.Empty;
+        return builder.Uri;
+    }
 }

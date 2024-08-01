@@ -37,6 +37,15 @@ public interface IReadOnlyDatasyncServiceClient<TEntity> : IDatasyncQueryMethods
     ValueTask<ServiceResponse<TEntity>> GetAsync(string id, DatasyncServiceOptions options, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Asynchronously returns a single page of results based on the provided query.
+    /// </summary>
+    /// <param name="query">The query to execute on the service.</param>
+    /// <param name="options">The options for the operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns></returns>
+    ValueTask<ServiceResponse<Page<TEntity>>> GetPageAsync(IDatasyncQueryable<TEntity> query, DatasyncServiceOptions options, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Asynchronously returns the number of entities that will be returned by the provided query.
     /// </summary>
     /// <param name="query">Tne query to execute.</param>

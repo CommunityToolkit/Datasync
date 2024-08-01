@@ -19,6 +19,12 @@ internal static class ThrowIf
     private static readonly Regex EntityIdentity = new("^[a-zA-Z0-9][a-zA-Z0-9_.|:-]{0,126}$", RegexOptions.Compiled);
 
     /// <summary>
+    /// An ETag is defined here: https://httpwg.org/specs/rfc9110.html#field.etag but becomes
+    /// 0x21, 0x23-0x7E
+    /// </summary>
+    private static readonly Regex ValidETag = new("^[\x21\x23-\x7E]{0,126}$", RegexOptions.Compiled);
+
+    /// <summary>
     /// Returns if the parameter does not have the required number of elements.
     /// </summary>
     /// <typeparam name="T">The type of the iterator in the parameter.</typeparam>
@@ -58,6 +64,22 @@ internal static class ThrowIf
         // value is non-null at this point.
         if (!EntityIdentity.IsMatch(value))
         {
+            throw new ArgumentException(because, paramName);
+        }
+    }
+
+    /// <summary>
+    /// Throws if the value is not a valid ETag according to https://httpwg.org/specs/rfc9110.html#field.etag
+    /// </summary>
+    /// <param name="value">The value to check.</param>
+    /// <param name="paramName">The parameter name.</param>
+    /// <param name="because">The reason.</param>
+    /// <exception cref="ArgumentException">Thrown if the value is not valid.</exception>
+    internal static void IsInvalidETag(string value, string paramName, string? because = null)
+    {
+        if (!ValidETag.IsMatch(value))
+        {
+            because ??= "The version is invalid";
             throw new ArgumentException(because, paramName);
         }
     }
