@@ -128,7 +128,23 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// <returns>The service response containing the requested entity.</returns>
     public async ValueTask<ServiceResponse<TEntity>> GetAsync(string id, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ThrowIf.EntityIdIsInvalid(id, nameof(id), because: "The entity ID must be valid.");
+        ArgumentNullException.ThrowIfNull(options, nameof(options));
+
+        using HttpResponseMessage response = await Client.GetAsync(new Uri(Endpoint, id), cancellationToken).ConfigureAwait(false);
+        ServiceResponse<TEntity> result = await ServiceResponse<TEntity>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+
+        if (!result.IsSuccessful)
+        {
+            throw new DatasyncHttpException(result);
+        }
+
+        if (!result.HasContent)
+        {
+            throw new DatasyncException(ServiceErrorMessages.NoContent);
+        }
+
+        return result;
     }
 
     /// <summary>
