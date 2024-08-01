@@ -181,9 +181,28 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// <param name="options">The options for the operation.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns></returns>
-    public async ValueTask<ServiceResponse<Page<TEntity>>> GetPageAsync(IDatasyncQueryable<TEntity> query, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
+    public async ValueTask<ServiceResponse<Page<TEntity>>> GetPageAsync(string query, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        ArgumentNullException.ThrowIfNull(options, nameof(options));
+
+        Uri requestUri = new UriBuilder(Endpoint) { Query = query }.Uri;
+        using HttpRequestMessage request = new(HttpMethod.Get, requestUri);
+
+        using HttpResponseMessage response = await Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        ServiceResponse<Page<TEntity>> result = await ServiceResponse<Page<TEntity>>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+
+        if (!result.IsSuccessful)
+        {
+            throw new DatasyncHttpException(result);
+        }
+
+        if (!result.HasContent)
+        {
+            throw new DatasyncException(ServiceErrorMessages.NoContent);
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -428,7 +447,7 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// </summary>
     /// <param name="id">The ID of the entity.</param>
     /// <param name="options">Any specific options that should be used.</param>
-    /// <returns></returns>
+    /// <returns>The request URI for the ID.</returns>
     internal Uri BuildUri(string id, DatasyncServiceOptions options)
     {
         UriBuilder builder = new(Endpoint);

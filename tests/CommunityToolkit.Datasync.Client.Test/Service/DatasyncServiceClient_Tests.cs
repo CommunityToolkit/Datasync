@@ -27,6 +27,13 @@ namespace CommunityToolkit.Datasync.Client.Test.Service;
 [ExcludeFromCodeCoverage]
 public class DatasyncServiceClient_Tests : IDisposable
 {
+    #region Helpers
+    internal class NamedSelectClass
+    {
+        public string Id { get; set; }
+        public string StringValue { get; set; }
+    }
+
     private readonly MockDelegatingHandler mockHandler = new();
 
     private readonly ClientKitchenSink successfulKitchenSink = new()
@@ -54,6 +61,95 @@ public class DatasyncServiceClient_Tests : IDisposable
         options.Using<TimeOnly>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1.Milliseconds())).WhenTypeIs<TimeOnly>();
         return options;
     };
+
+    private static void ExecuteQueryTest(Func<IDatasyncServiceClient<ClientKitchenSink>, IDatasyncQueryable<ClientKitchenSink>> linq, string expected)
+    {
+        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
+        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
+        IDatasyncQueryable<ClientKitchenSink> query = linq.Invoke(client);
+        string actual = Uri.UnescapeDataString(query.ToODataQueryString());
+        actual.Should().Be(expected);
+    }
+
+    private static void ExecuteUnsupportedQueryTest<TException>(Func<IDatasyncServiceClient<ClientKitchenSink>, IDatasyncQueryable<ClientKitchenSink>> linq) where TException : Exception
+    {
+        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
+        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
+        Action act = () => linq.Invoke(client).ToODataQueryString();
+        act.Should().Throw<TException>();
+    }
+
+    private DatasyncServiceClient<T> GetMockClient<T>() where T : class
+    {
+        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
+        string tableName = typeof(T).Name.ToLowerInvariant();
+        if (tableName.StartsWith("client"))
+        {
+            tableName = tableName["client".Length..];
+        }
+
+        HttpClientOptions options = new()
+        {
+            Endpoint = new Uri("http://localhost"),
+            HttpPipeline = [this.mockHandler]
+        };
+
+        HttpClientFactory factory = new(options);
+        HttpClient client = factory.CreateClient();
+        DatasyncServiceClient<T> serviceClient = new(new Uri(options.Endpoint, $"/tables/{tableName}"), client, serializerOptions);
+        return serviceClient;
+    }
+
+    private static HttpResponseMessage GetSuccessfulResponse(ClientKitchenSink entity, HttpStatusCode code = HttpStatusCode.OK)
+    {
+        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
+        string json = JsonSerializer.Serialize(entity, serializerOptions);
+
+        HttpResponseMessage response = new(code)
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        };
+
+        if (entity.Id != null)
+        {
+            response.Headers.Location = new Uri($"http://localhost/tables/kitchensink/{entity.Id}");
+        }
+
+        if (entity.Version != null)
+        {
+            response.Headers.ETag = new EntityTagHeaderValue($"\"{entity.Version}\"");
+        }
+
+        return response;
+    }
+
+    private static HttpResponseMessage GetBadJsonResponse(HttpStatusCode code = HttpStatusCode.OK)
+    {
+        HttpResponseMessage response = new(code) { Content = new StringContent("{bad-json", Encoding.UTF8, "application/json") };
+        return response;
+    }
+
+    private Page<ClientKitchenSink> CreatePage(int count, long? totalCount = null, string nextLink = null)
+    {
+        List<ClientKitchenSink> items = [];
+        for (int i = 0; i < count; i++)
+        {
+            ClientKitchenSink item = new()
+            {
+                Id = Guid.NewGuid().ToString(),
+                UpdatedAt = DateTime.UtcNow.AddDays(-i),
+                Version = Convert.ToBase64String(Guid.NewGuid().ToByteArray()),
+                Deleted = false,
+                TimeOnlyValue = TimeOnly.FromDateTime(DateTime.UtcNow.AddHours(-i))
+            };
+            items.Add(item);
+        }
+
+        Page<ClientKitchenSink> page = new() { Items = items, Count = totalCount, NextLink = nextLink };
+        this.mockHandler.AddResponse(HttpStatusCode.OK, page);
+        return page;
+    }
+    #endregion
 
     #region AddAsync
     [Fact]
@@ -322,6 +418,145 @@ public class DatasyncServiceClient_Tests : IDisposable
         ex.ServiceResponse.Should().NotBeNull();
         ex.ServiceResponse.StatusCode.Should().Be((int)code);
         ex.ServiceResponse.IsSuccessful.Should().BeFalse();
+    }
+    #endregion
+
+    #region GetPageAsync
+    [Fact]
+    public async Task GetPageAsync_Throws_On_Null()
+    {
+        string query = null;
+        DatasyncServiceOptions options = new();
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Func<Task> act = async () => _ = await client.GetPageAsync(query, options);
+        await act.Should().ThrowAsync<ArgumentNullException>();
+
+        query = "$filter=booleanValue";
+        options = null;
+        await act.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("$filter=booleanValue")]
+    public async Task GetPageAsync_Success_ItemsOnly(string query)
+    {
+        string expectedUri = string.IsNullOrEmpty(query) ? "http://localhost/tables/kitchensink" : $"http://localhost/tables/kitchensink?{query}";
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse<Page<ClientKitchenSink>> response = await client.GetPageAsync(query, new DatasyncServiceOptions());
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be(expectedUri);
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().NotBeNull().And.BeEquivalentTo(page, (options) =>
+        {
+            options.Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1.Milliseconds())).WhenTypeIs<DateTimeOffset>();
+            options.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1.Milliseconds())).WhenTypeIs<DateTime>();
+            options.Using<TimeOnly>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1.Milliseconds())).WhenTypeIs<TimeOnly>();
+            return options;
+        });
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("$filter=booleanValue")]
+    public async Task GetPageAsync_Success_Items_TotalCount(string query)
+    {
+        string expectedUri = string.IsNullOrEmpty(query) ? "http://localhost/tables/kitchensink" : $"http://localhost/tables/kitchensink?{query}";
+        Page<ClientKitchenSink> page = CreatePage(5, 20L);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse<Page<ClientKitchenSink>> response = await client.GetPageAsync(query, new DatasyncServiceOptions());
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be(expectedUri);
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().NotBeNull().And.BeEquivalentTo(page, (options) =>
+        {
+            options.Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1.Milliseconds())).WhenTypeIs<DateTimeOffset>();
+            options.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1.Milliseconds())).WhenTypeIs<DateTime>();
+            options.Using<TimeOnly>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1.Milliseconds())).WhenTypeIs<TimeOnly>();
+            return options;
+        });
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("$filter=booleanValue")]
+    public async Task GetPageAsync_Success_Items_NextLink(string query)
+    {
+        string expectedUri = string.IsNullOrEmpty(query) ? "http://localhost/tables/kitchensink" : $"http://localhost/tables/kitchensink?{query}";
+        Page<ClientKitchenSink> page = CreatePage(5, null, "$filter=booleanValue&$skip=5");
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse<Page<ClientKitchenSink>> response = await client.GetPageAsync(query, new DatasyncServiceOptions());
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be(expectedUri);
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().NotBeNull().And.BeEquivalentTo(page, (options) =>
+        {
+            options.Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1.Milliseconds())).WhenTypeIs<DateTimeOffset>();
+            options.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1.Milliseconds())).WhenTypeIs<DateTime>();
+            options.Using<TimeOnly>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1.Milliseconds())).WhenTypeIs<TimeOnly>();
+            return options;
+        });
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.BadRequest)]
+    [InlineData(HttpStatusCode.NotModified)]
+    [InlineData(HttpStatusCode.MethodNotAllowed)]
+    [InlineData(HttpStatusCode.Unauthorized)]
+    [InlineData(HttpStatusCode.InternalServerError)]
+    [InlineData(HttpStatusCode.Conflict)]
+    [InlineData(HttpStatusCode.PreconditionFailed)]
+    public async Task GetPageAsync_Error(HttpStatusCode code)
+    {
+        this.mockHandler.AddResponse(code);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Func<Task> act = async () => _ = await client.GetPageAsync("", new DatasyncServiceOptions());
+        DatasyncHttpException ex = (await act.Should().ThrowAsync<DatasyncHttpException>()).Subject.First();
+
+        ex.ServiceResponse.Should().NotBeNull();
+        ex.ServiceResponse.StatusCode.Should().Be((int)code);
+        ex.ServiceResponse.IsSuccessful.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task GetPageAsync_SuccessNoContent()
+    {
+        this.mockHandler.AddResponse(HttpStatusCode.OK);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+
+        Func<Task> act = async () => _ = await client.GetPageAsync("", new DatasyncServiceOptions());
+        await act.Should().ThrowAsync<DatasyncException>();
     }
     #endregion
 
@@ -2465,79 +2700,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     }
     #endregion
 
-    private static void ExecuteQueryTest(Func<IDatasyncServiceClient<ClientKitchenSink>, IDatasyncQueryable<ClientKitchenSink>> linq, string expected)
-    {
-        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
-        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
-        IDatasyncQueryable<ClientKitchenSink> query = linq.Invoke(client);
-        string actual = Uri.UnescapeDataString(query.ToODataQueryString());
-        actual.Should().Be(expected);
-    }
-
-    private static void ExecuteUnsupportedQueryTest<TException>(Func<IDatasyncServiceClient<ClientKitchenSink>, IDatasyncQueryable<ClientKitchenSink>> linq) where TException : Exception
-    {
-        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
-        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
-        Action act = () => linq.Invoke(client).ToODataQueryString();
-        act.Should().Throw<TException>();
-    }
-
-    private DatasyncServiceClient<T> GetMockClient<T>() where T : class
-    {
-        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
-        string tableName = typeof(T).Name.ToLowerInvariant();
-        if (tableName.StartsWith("client"))
-        {
-            tableName = tableName["client".Length..];
-        }
-
-        HttpClientOptions options = new() 
-        {
-            Endpoint = new Uri("http://localhost"),
-            HttpPipeline = [this.mockHandler]
-        };
-
-        HttpClientFactory factory = new(options);
-        HttpClient client = factory.CreateClient();
-        DatasyncServiceClient<T> serviceClient = new(new Uri(options.Endpoint, $"/tables/{tableName}"), client, serializerOptions);
-        return serviceClient;
-    }
-
-    private static HttpResponseMessage GetSuccessfulResponse(ClientKitchenSink entity, HttpStatusCode code = HttpStatusCode.OK)
-    {
-        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
-        string json = JsonSerializer.Serialize(entity, serializerOptions);
-
-        HttpResponseMessage response = new(code)
-        {
-            Content = new StringContent(json, Encoding.UTF8, "application/json")
-        };
-
-        if (entity.Id != null)
-        {
-            response.Headers.Location = new Uri($"http://localhost/tables/kitchensink/{entity.Id}");
-        }
-
-        if (entity.Version != null)
-        {
-            response.Headers.ETag = new EntityTagHeaderValue($"\"{entity.Version}\"");
-        }
-
-        return response;
-    }
-
-    private static HttpResponseMessage GetBadJsonResponse(HttpStatusCode code = HttpStatusCode.OK)
-    {
-        HttpResponseMessage response = new(code) { Content = new StringContent("{bad-json", Encoding.UTF8, "application/json") };
-        return response;
-    }
-
-    internal class NamedSelectClass
-    {
-        public string Id { get; set; }
-        public string StringValue { get; set; }
-    }
-
+    #region Tear down
     protected virtual void Dispose(bool disposing)
     {
         if (disposing)
@@ -2552,4 +2715,5 @@ public class DatasyncServiceClient_Tests : IDisposable
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+    #endregion
 }
