@@ -34,7 +34,7 @@ internal static class DatasyncSerializer
             new TimeOnlyConverter(),
             new MicrosoftSpatialGeoJsonConverter()
         },
-        DefaultIgnoreCondition = JsonIgnoreCondition.Never,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
         DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
         IgnoreReadOnlyFields = true,
         IgnoreReadOnlyProperties = true,
@@ -42,6 +42,6 @@ internal static class DatasyncSerializer
         NumberHandling = JsonNumberHandling.AllowReadingFromString,
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        ReadCommentHandling = JsonCommentHandling.Skip
+        ReadCommentHandling = JsonCommentHandling.Skip,
     };
 }

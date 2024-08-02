@@ -210,7 +210,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         this.mockHandler.Responses.Add(GetSuccessfulResponse(this.successfulKitchenSink, code));
         ClientKitchenSink entity = new() { Id = "1", StringValue = "abc" };
-        string expected = """{"booleanValue":false,"intValue":0,"longValue":0,"decimalValue":0,"doubleValue":0,"floatValue":0,"nullableDouble":null,"charValue":"\u0000","stringValue":"abc","byteValue":0,"byteArrayValue":null,"enumValue":"None","nullableEnumValue":null,"guidValue":null,"dateTimeValue":"0001-01-01T08:00:00.000Z","dateTimeOffsetValue":"0001-01-01T00:00:00.000Z","dateOnlyValue":"0001-01-01","timeOnlyValue":"00:00:00.000","pointValue":null,"id":"1","updatedAt":null,"version":null,"deleted":false}""";
+        string expected = """{"stringValue":"abc","id":"1"}""";
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
 
         Func<Task> act = async () => _ = await client.AddAsync(entity, new DatasyncServiceOptions());
