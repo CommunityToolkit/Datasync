@@ -18,7 +18,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 namespace CommunityToolkit.Datasync.Client.Service;
 
 /// <summary>
-/// The concrete implementation of the <see cref="IDatasyncServiceClient{TEntity}"/> interface
+/// The concrete implementation of the <see cref="IDatasyncServiceClient{TEntity}"/> interface.
 /// for HTTP datasync services.
 /// </summary>
 /// <typeparam name="TEntity">The type of entity being processed by this service client.</typeparam>
@@ -460,7 +460,7 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
 
         if (options.ThrowIfMissing)
         {
-            throw new EntityDoesNotExistException(result) { Endpoint = Endpoint, Id = id };
+            throw new EntityDoesNotExistException(result, Endpoint, id);
         }
 
         return true;
