@@ -1,9 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <Description>Abstractions for developing applications using the Datasync Toolkit.</Description>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Core.Spatial" Version="1.1.0" />
-  </ItemGroup>
-</Project>

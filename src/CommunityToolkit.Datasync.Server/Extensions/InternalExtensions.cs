@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using Azure.Core.Serialization;
-using CommunityToolkit.Datasync.Common.Json;
+using CommunityToolkit.Datasync.Server.Abstractions.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.Extensions.Primitives;

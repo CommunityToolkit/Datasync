@@ -5,5 +5,3 @@
 global using FluentAssertions;
 global using System.Diagnostics.CodeAnalysis;
 global using Xunit;
-
-global using CommunityToolkit.Datasync.Common.Test;

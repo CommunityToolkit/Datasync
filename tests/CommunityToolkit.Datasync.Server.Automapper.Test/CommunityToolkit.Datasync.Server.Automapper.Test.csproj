@@ -2,6 +2,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.Automapper\CommunityToolkit.Datasync.Server.Automapper.csproj" />
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="..\CommunityToolkit.Datasync.Common.Test\CommunityToolkit.Datasync.Common.Test.csproj" />
+    <ProjectReference Include="..\CommunityToolkit.Datasync.TestCommon\CommunityToolkit.Datasync.TestCommon.csproj" />
   </ItemGroup>
 </Project>

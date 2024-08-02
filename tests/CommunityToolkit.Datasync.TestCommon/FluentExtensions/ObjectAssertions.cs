@@ -30,6 +30,25 @@ public static class FluentObjectAssertions
         return new AndConstraint<ObjectAssertions>(current);
     }
 
+    public static AndConstraint<ObjectAssertions> BeHttpGet(this ObjectAssertions current, string uri, string because = "", params object[] becauseArgs)
+    {
+        Execute.Assertion
+            .BecauseOf(because, becauseArgs)
+            .ForCondition(current.Subject is HttpRequestMessage)
+            .FailWith("Expected object to be an HttpRequestMessage", current.Subject);
+        HttpRequestMessage sut = (HttpRequestMessage)current.Subject;
+        Execute.Assertion
+            .BecauseOf(because, becauseArgs)
+            .ForCondition(sut.Method == HttpMethod.Get)
+            .FailWith("Expected HttpRequestMessage to have Method == GET, but found {0}", sut.Method);
+        Execute.Assertion
+            .BecauseOf(because, becauseArgs)
+            .ForCondition(sut.RequestUri.ToString() == uri)
+            .FailWith("Expected HttpRequestMessage to have RequestUri == {0}, but found {1}", uri, sut.RequestUri.ToString());
+
+        return new AndConstraint<ObjectAssertions>(current);
+    }
+
     /// <summary>
     /// Checks that the current object is a <see cref="JsonElement"/> that is a boolean with the specified value.
     /// </summary>

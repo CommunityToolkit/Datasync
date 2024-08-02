@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <DotnetVersion>8.0.0</DotnetVersion>
-    <EntityFrameworkCoreVersion>8.0.6</EntityFrameworkCoreVersion>
+    <EntityFrameworkCoreVersion>8.0.7</EntityFrameworkCoreVersion>
   </PropertyGroup>
 
   <ItemGroup>
