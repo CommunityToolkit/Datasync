@@ -10,9 +10,14 @@ namespace CommunityToolkit.Datasync.Client.Service;
 internal static class ServiceErrorMessages
 {
     /// <summary>
+    /// The content received from the service was invalid.
+    /// </summary>
+    internal static string InvalidContent = "The content received from the service is invalid.";
+
+    /// <summary>
     /// Provided version is invalid.
     /// </summary>
-    internal static string InvalidVersion = "The version string cannot contain illegal characters";
+    internal static string InvalidVersion = "The version string cannot contain illegal characters.";
 
     /// <summary>
     /// Server expected to send content, but returned a successful response without content.

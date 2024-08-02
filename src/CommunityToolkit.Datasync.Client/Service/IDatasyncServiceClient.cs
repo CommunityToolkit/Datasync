@@ -58,10 +58,8 @@ public interface IReadOnlyDatasyncServiceClient<TEntity> : IDatasyncQueryMethods
     /// Returns the asynchronous list of entities matching the query.
     /// </summary>
     /// <param name="query">Tne query to execute.</param>
-    /// <param name="options">The options for the operation.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>An <see cref="IAsyncPageable{TEntity}"/> for the results that can be asynchronously iterated over.</returns>
-    IAsyncPageable<TEntity> Query(IDatasyncQueryable<TEntity> query, DatasyncServiceOptions options, CancellationToken cancellationToken = default);
+    IAsyncPageable<TEntity> Query(IDatasyncQueryable<TEntity> query);
 
     /// <summary>
     /// Creates a service client for handling a different entity but using the same settings.

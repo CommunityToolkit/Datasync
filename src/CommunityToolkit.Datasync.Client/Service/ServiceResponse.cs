@@ -34,6 +34,19 @@ public class ServiceResponse
     }
 
     /// <summary>
+    /// Creates a new <see cref="ServiceResponse"/> based on the provided <see cref="ServiceResponse"/>.
+    /// </summary>
+    /// <param name="response">The <see cref="ServiceResponse"/> used for generating this service response.</param>
+    internal ServiceResponse(ServiceResponse response)
+    {
+        ReasonPhrase = response.ReasonPhrase;
+        StatusCode = response.StatusCode;
+        ContentStream = response.ContentStream;
+        HasContent = response.HasContent;
+        this._headers = new Dictionary<string, string>(response.Headers);
+    }
+
+    /// <summary>
     /// The content of the response as a resettable stream.
     /// </summary>
     public Stream ContentStream { get; }
@@ -44,6 +57,11 @@ public class ServiceResponse
     public bool HasContent { get; }
 
     /// <summary>
+    /// The collection of HTTP headers sent as part of the response.
+    /// </summary>
+    public IDictionary<string, string> Headers { get => this._headers; }
+
+    /// <summary>
     /// If <c>true</c>, the service request was rejected because of a conflict.
     /// </summary>
     public bool IsConflictStatusCode { get => StatusCode is 409 or 412; }
@@ -51,7 +69,11 @@ public class ServiceResponse
     /// <summary>
     /// If <c>true</c>, the service request was considered completed successfully.
     /// </summary>
-    public bool IsSuccessful { get => StatusCode is >= 200 and <= 299; }
+    /// <remarks>
+    /// Datasync service has a constrained view of what is successful that 
+    /// deliberately does not match HTTP semantics.
+    /// </remarks>
+    public bool IsSuccessful { get => StatusCode is 200 or 201 or 204; }
 
     /// <summary>
     /// The reason phrase that was provided in the response.
@@ -83,13 +105,46 @@ public class ServiceResponse
             this._headers[item.Key] = item.Value.First();
         }
     }
+
+    /// <summary>
+    /// Helper method to throw the right exception if an error is returned by the service.
+    /// </summary>
+    /// <exception cref="DatasyncHttpException">Thrown if an error is returned by the service.</exception>
+    public void ThrowIfNotSuccessful(bool throwOnNotFound = true, bool requireContent = false)
+    {
+        if (!IsSuccessful && (StatusCode != 404 || throwOnNotFound))
+        {
+            throw new DatasyncHttpException(this);
+        }
+
+        if (requireContent && !HasContent)
+        {
+            throw new DatasyncException(ServiceErrorMessages.NoContent);
+        }
+    }
 }
 
 /// <summary>
 /// A response from a remote datasync service that potentially includes deserialized content.
 /// </summary>
-public class ServiceResponse<TEntity>(HttpResponseMessage responseMessage) : ServiceResponse(responseMessage)
+public class ServiceResponse<TEntity> : ServiceResponse
 {
+    /// <summary>
+    /// Creates a new <see cref="ServiceResponse{TEntity}"/> based on a <see cref="HttpResponseMessage"/>.
+    /// </summary>
+    /// <param name="responseMessage">The <see cref="HttpResponseMessage"/> to use in creating the <see cref="ServiceResponse{TEntity}"/>.</param>
+    internal ServiceResponse(HttpResponseMessage responseMessage) : base(responseMessage)
+    {
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="ServiceResponse{TEntity}"/> based on a <see cref="ServiceResponse"/>.
+    /// </summary>
+    /// <param name="response">The source <see cref="ServiceResponse"/> object.</param>
+    internal ServiceResponse(ServiceResponse response) : base(response)
+    {
+    }
+
     /// <summary>
     /// If <c>true</c>, then the service response has value.
     /// </summary>
@@ -129,5 +184,17 @@ public class ServiceResponse<TEntity>(HttpResponseMessage responseMessage) : Ser
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Helper method to throw the right exception if the service indicates that a conflict has occurred.
+    /// </summary>
+    /// <exception cref="ConflictException{TEntity}">Thrown if the service indicates that a conflict has occurred.</exception>
+    public void ThrowIfConflict(TEntity entity)
+    {
+        if (IsConflictStatusCode)
+        {
+            throw new ConflictException<TEntity>(entity, this);
+        }
     }
 }

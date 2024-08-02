@@ -17,7 +17,17 @@ public class TimeOnlyConverter : JsonConverter<TimeOnly>
 
     /// <inheritdoc />
     public override TimeOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        => TimeOnly.Parse(reader.GetString() ?? string.Empty);
+    {
+        string? token = reader.GetString();
+        if (string.IsNullOrEmpty(token))
+        {
+            return TimeOnly.MinValue;
+        }
+        else
+        {
+            return TimeOnly.Parse(token);
+        }
+    }
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, TimeOnly value, JsonSerializerOptions options)

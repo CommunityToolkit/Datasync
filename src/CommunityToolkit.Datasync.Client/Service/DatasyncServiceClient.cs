@@ -2,14 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Paging;
 using CommunityToolkit.Datasync.Client.Query;
+using CommunityToolkit.Datasync.Client.Query.Linq;
 using CommunityToolkit.Datasync.Client.Query.OData;
 using CommunityToolkit.Datasync.Client.Serialization;
+using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CommunityToolkit.Datasync.Client.Service;
 
@@ -92,22 +96,8 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
 
         using HttpResponseMessage response = await Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
         ServiceResponse<TEntity> result = await ServiceResponse<TEntity>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
-
-        if (result.IsConflictStatusCode)
-        {
-            throw new ConflictException<TEntity>(entity, result);
-        }
-
-        if (!result.IsSuccessful)
-        {
-            throw new DatasyncHttpException(result);
-        }
-
-        if (!result.HasContent)
-        {
-            throw new DatasyncException(ServiceErrorMessages.NoContent);
-        }
-
+        result.ThrowIfConflict(entity);
+        result.ThrowIfNotSuccessful(requireContent: true);
         return result;
     }
 
@@ -127,7 +117,22 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// <returns>The service response containing the count of entities that will be returned by the provided query.</returns>
     public async ValueTask<ServiceResponse<int>> CountAsync(IDatasyncQueryable<TEntity> query, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        ArgumentNullException.ThrowIfNull(options, nameof(options));
+        QueryDescription queryDescription = new QueryTranslator<TEntity>(query).Translate();
+        
+        // Make our query as efficient as possible for the specific task.
+        queryDescription.Ordering.Clear();
+        queryDescription.Selection.Clear();
+        queryDescription.Skip = 0;
+        queryDescription.Top = 0;
+
+        // Make sure we request the total count
+        queryDescription.RequestTotalCount = true;
+
+        ServiceResponse<Page<TEntity>> result = await GetPageAsync(queryDescription.ToODataQueryString(), options, cancellationToken).ConfigureAwait(false);
+        result.ThrowIfNotSuccessful(requireContent: true);
+        return new ServiceResponse<int>(result) { Value = (int)GetCountOrThrow(result) };
     }
 
     /// <summary>
@@ -148,29 +153,12 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
 
         using HttpResponseMessage response = await Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
         ServiceResponse<TEntity> result = await ServiceResponse<TEntity>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
-
-        if (result.StatusCode == 404)
+        if (IsNotFound(id, result, options))
         {
-            if (options.ThrowIfMissing)
-            {
-                throw new EntityDoesNotExistException(result) { Endpoint = Endpoint, Id = id };
-            }
-            else
-            {
-                return result;
-            }
+            return result;
         }
-
-        if (!result.IsSuccessful)
-        {
-            throw new DatasyncHttpException(result);
-        }
-
-        if (!result.HasContent)
-        {
-            throw new DatasyncException(ServiceErrorMessages.NoContent);
-        }
-
+        
+        result.ThrowIfNotSuccessful(requireContent: true);
         return result;
     }
 
@@ -191,17 +179,7 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
 
         using HttpResponseMessage response = await Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
         ServiceResponse<Page<TEntity>> result = await ServiceResponse<Page<TEntity>>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
-
-        if (!result.IsSuccessful)
-        {
-            throw new DatasyncHttpException(result);
-        }
-
-        if (!result.HasContent)
-        {
-            throw new DatasyncException(ServiceErrorMessages.NoContent);
-        }
-
+        result.ThrowIfNotSuccessful(requireContent: true);
         return result;
     }
 
@@ -231,7 +209,22 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// <returns>The service response containing the count of entities that will be returned by the provided query.</returns>
     public async ValueTask<ServiceResponse<long>> LongCountAsync(IDatasyncQueryable<TEntity> query, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        ArgumentNullException.ThrowIfNull(options, nameof(options));
+        QueryDescription queryDescription = new QueryTranslator<TEntity>(query).Translate();
+
+        // Make our query as efficient as possible for the specific task.
+        queryDescription.Ordering.Clear();
+        queryDescription.Selection.Clear();
+        queryDescription.Skip = 0;
+        queryDescription.Top = 0;
+
+        // Make sure we request the total count
+        queryDescription.RequestTotalCount = true;
+
+        ServiceResponse<Page<TEntity>> result = await GetPageAsync(queryDescription.ToODataQueryString(), options, cancellationToken).ConfigureAwait(false);
+        result.ThrowIfNotSuccessful(requireContent: true);
+        return new ServiceResponse<long>(result) { Value = GetCountOrThrow(result) };
     }
 
     /// <summary>
@@ -256,12 +249,13 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// Returns the asynchronous list of entities matching the query.
     /// </summary>
     /// <param name="query">Tne query to execute.</param>
-    /// <param name="options">The options for the operation.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>An <see cref="IAsyncPageable{TEntity}"/> for the results that can be asynchronously iterated over.</returns>
-    public IAsyncPageable<TEntity> Query(IDatasyncQueryable<TEntity> query, DatasyncServiceOptions options, CancellationToken cancellationToken = default)
+    public IAsyncPageable<TEntity> Query(IDatasyncQueryable<TEntity> query)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        QueryDescription queryDescription = new QueryTranslator<TEntity>(query).Translate();
+        Uri requestUri = new UriBuilder(Endpoint) { Query = queryDescription.ToODataQueryString() }.Uri;
+        return new FuncAsyncPageable<TEntity>((string? nextLink) => GetNextPageAsync(nextLink ?? requestUri.PathAndQuery));
     }
 
     /// <summary>
@@ -294,23 +288,12 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
         }
 
         ServiceResponse result = new(response);
-        if (result.StatusCode == 404)
+        if (IsNotFound(id, result, options))
         {
-            if (options.ThrowIfMissing)
-            {
-                throw new EntityDoesNotExistException(result) { Endpoint = Endpoint, Id = id };
-            }
-            else
-            {
-                return result;
-            }
+            return result;
         }
 
-        if (!result.IsSuccessful)
-        {
-            throw new DatasyncHttpException(result);
-        }
-
+        result.ThrowIfNotSuccessful();
         return result;
     }
 
@@ -343,34 +326,13 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
 
         using HttpResponseMessage response = await Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
         ServiceResponse<TEntity> result = await ServiceResponse<TEntity>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
-
-        if (result.IsConflictStatusCode)
+        if (IsNotFound(metadata.Id!, result, options))
         {
-            throw new ConflictException<TEntity>(entity, result);
+            return result;
         }
 
-        if (result.StatusCode == 404)
-        {
-            if (options.ThrowIfMissing)
-            {
-                throw new EntityDoesNotExistException(result) { Endpoint = Endpoint, Id = metadata.Id! };
-            }
-            else
-            {
-                return result;
-            }
-        }
-
-        if (!result.IsSuccessful)
-        {
-            throw new DatasyncHttpException(result);
-        }
-
-        if (!result.HasContent)
-        {
-            throw new DatasyncException(ServiceErrorMessages.NoContent);
-        }
-
+        result.ThrowIfConflict(entity);
+        result.ThrowIfNotSuccessful(requireContent: true);
         return result;
     }
 
@@ -462,5 +424,73 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
         builder.Query = string.Join("&", queryParts);
         builder.Fragment = string.Empty;
         return builder.Uri;
+    }
+
+    /// <summary>
+    /// Helper method to convert the total count from a page response into a value,
+    /// throwing the right error if it didn't get returned.
+    /// </summary>
+    /// <param name="response">The <see cref="ServiceResponse{TEntity}"/> object.</param>
+    /// <returns>The long count.</returns>
+    /// <exception cref="DatasyncException">If the <see cref="ServiceResponse{TEntity}"/> does not contain the count.</exception>
+    internal static long GetCountOrThrow(ServiceResponse<Page<TEntity>> response)
+    {
+        if (response.Value?.Count == null)
+        {
+            throw new DatasyncException(ServiceErrorMessages.InvalidContent);
+        }
+
+        return (long)response.Value.Count;
+    }
+
+    /// <summary>
+    /// A helper method for the logic of the 404 Handling.
+    /// </summary>
+    /// <param name="id">The ID being requested.</param>
+    /// <param name="result">The result from the service.</param>
+    /// <param name="options">The options passed into the operation.</param>
+    /// <returns>true if the entity was not found.</returns>
+    /// <exception cref="EntityDoesNotExistException">Thrown if the exception was requested instead.</exception>
+    internal bool IsNotFound(string id, ServiceResponse result, DatasyncServiceOptions options)
+    {
+        if (result.StatusCode != 404)
+        {
+            return false;
+        }
+
+        if (options.ThrowIfMissing)
+        {
+            throw new EntityDoesNotExistException(result) { Endpoint = Endpoint, Id = id };
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// The paging function for a paged query.
+    /// </summary>
+    /// <param name="queryOrContinuationToken">During the first run, this will be the query; thereafter, it will be the continuation token.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>A page of results from the service.</returns>
+    internal async ValueTask<Page<TEntity>> GetNextPageAsync(string queryOrContinuationToken, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(queryOrContinuationToken, nameof(queryOrContinuationToken));
+        UriBuilder requestUriBuilder = new(Endpoint);
+        if (queryOrContinuationToken.Contains('?'))
+        {
+            string[] parts = queryOrContinuationToken.Split('?');
+            requestUriBuilder.Path = parts[0];
+            requestUriBuilder.Query = parts[1];
+        }
+        else
+        {
+            requestUriBuilder.Path = queryOrContinuationToken;
+        }
+
+        using HttpRequestMessage request = new(HttpMethod.Get, requestUriBuilder.Uri);
+        using HttpResponseMessage response = await Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        ServiceResponse<Page<TEntity>> result = await ServiceResponse<Page<TEntity>>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
+        result.ThrowIfNotSuccessful(requireContent: true);
+        return result.Value!;
     }
 }

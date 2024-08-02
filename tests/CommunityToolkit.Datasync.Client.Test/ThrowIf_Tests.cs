@@ -22,4 +22,39 @@ public class ThrowIf_Tests
         Action act = () => ThrowIf.IsNotValidEndpoint(endpoint, nameof(endpoint));
         act.Should().NotThrow();
     }
+
+    [Theory]
+    [InlineData("\"")]
+    [InlineData("\t")]
+    [InlineData("\x7F")]
+    public void ThrowIf_IsInvalidETag_Throws(string etag)
+    {
+        Action act = () => ThrowIf.IsInvalidETag(etag, nameof(etag));
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public void ThrowIf_IsNotNull_Throws()
+    {
+        string sut = "something";
+        Action act = () => ThrowIf.IsNotNull(sut, nameof(sut));
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void ThrowIf_IsNotNullOrEmpty_Passes(string sut)
+    {
+        Action act = () => ThrowIf.IsNotNullOrEmpty(sut, nameof(sut));
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void ThrowIf_IsNotNullOrEmpty_Throws()
+    {
+        string sut = "something";
+        Action act = () => ThrowIf.IsNotNullOrEmpty(sut, nameof(sut));
+        act.Should().Throw<ArgumentException>();
+    }
 }

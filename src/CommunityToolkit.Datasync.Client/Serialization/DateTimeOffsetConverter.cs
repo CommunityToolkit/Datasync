@@ -17,7 +17,17 @@ public class DateTimeOffsetConverter : JsonConverter<DateTimeOffset>
 
     /// <inheritdoc />
     public override DateTimeOffset Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        => DateTimeOffset.Parse(reader.GetString() ?? string.Empty);
+    {
+        string? token = reader.GetString();
+        if (string.IsNullOrEmpty(token))
+        {
+            return DateTimeOffset.MinValue;
+        }
+        else
+        {
+            return DateTimeOffset.Parse(token);
+        }
+    }
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, DateTimeOffset value, JsonSerializerOptions options)

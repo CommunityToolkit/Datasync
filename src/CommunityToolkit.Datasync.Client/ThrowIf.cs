@@ -75,11 +75,10 @@ internal static class ThrowIf
     /// <param name="paramName">The parameter name.</param>
     /// <param name="because">The reason.</param>
     /// <exception cref="ArgumentException">Thrown if the value is not valid.</exception>
-    internal static void IsInvalidETag(string value, string paramName, string? because = null)
+    internal static void IsInvalidETag(string value, string paramName, string? because = "The version is invalid")
     {
         if (!ValidETag.IsMatch(value))
         {
-            because ??= "The version is invalid";
             throw new ArgumentException(because, paramName);
         }
     }
