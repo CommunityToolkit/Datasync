@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Query;
-using CommunityToolkit.Datasync.Client.Service;
 
 namespace CommunityToolkit.Datasync.Client;
 

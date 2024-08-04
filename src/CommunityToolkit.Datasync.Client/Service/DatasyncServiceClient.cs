@@ -7,15 +7,14 @@ using CommunityToolkit.Datasync.Client.Query;
 using CommunityToolkit.Datasync.Client.Query.Linq;
 using CommunityToolkit.Datasync.Client.Query.OData;
 using CommunityToolkit.Datasync.Client.Serialization;
-using Microsoft.Extensions.Options;
+using CommunityToolkit.Datasync.Client.Service;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
-namespace CommunityToolkit.Datasync.Client.Service;
+namespace CommunityToolkit.Datasync.Client;
 
 /// <summary>
 /// The concrete implementation of the <see cref="IDatasyncServiceClient{TEntity}"/> interface.
