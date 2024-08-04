@@ -4,7 +4,7 @@
 
 using CommunityToolkit.Datasync.Client.Query;
 
-namespace CommunityToolkit.Datasync.Client.Service;
+namespace CommunityToolkit.Datasync.Client;
 
 /// <summary>
 /// A read-only version of the service client that talks to a datasync service.

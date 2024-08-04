@@ -2,11 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Service;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
-namespace CommunityToolkit.Datasync.Client.Service;
+namespace CommunityToolkit.Datasync.Client;
 
 /// <summary>
 /// A response from a remote datasync service.
