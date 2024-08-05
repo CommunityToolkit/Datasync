@@ -154,7 +154,7 @@ public static class IDatasyncServiceClientExtensions
     /// <param name="source">The source service client.</param>
     /// <param name="cancellationToken">The optional cancellation token to be used for cancelling the sequence at any time.</param>
     /// <returns>A <see cref="ConcurrentObservableCollection{T}"/> containing all the elements of the source sequence.</returns>
-    public static ValueTask<ConcurrentObservableCollection<TSource>> ToObservableCollection<TSource>(this IReadOnlyDatasyncServiceClient<TSource> source, CancellationToken cancellationToken = default) where TSource : class
+    public static ValueTask<ConcurrentObservableCollection<TSource>> ToObservableCollectionAsync<TSource>(this IReadOnlyDatasyncServiceClient<TSource> source, CancellationToken cancellationToken = default) where TSource : class
         => source.ToAsyncEnumerable().ToDatasyncObservableCollectionAsync(cancellationToken);
 
     /// <summary>
@@ -165,7 +165,7 @@ public static class IDatasyncServiceClientExtensions
     /// <param name="collection">The <see cref="ConcurrentObservableCollection{T}"/> to update.</param>
     /// <param name="cancellationToken">The optional cancellation token to be used for cancelling the sequence at any time.</param>
     /// <returns>The <see cref="ConcurrentObservableCollection{T}"/> passed in containing all the elements of the source sequence (replacing the old content).</returns>
-    public static ValueTask<ConcurrentObservableCollection<TSource>> ToObservableCollection<TSource>(this IReadOnlyDatasyncServiceClient<TSource> source, ConcurrentObservableCollection<TSource> collection, CancellationToken cancellationToken = default) where TSource : class
+    public static ValueTask<ConcurrentObservableCollection<TSource>> ToObservableCollectionAsync<TSource>(this IReadOnlyDatasyncServiceClient<TSource> source, ConcurrentObservableCollection<TSource> collection, CancellationToken cancellationToken = default) where TSource : class
         => source.ToAsyncEnumerable().ToDatasyncObservableCollectionAsync(collection, cancellationToken);
 
     /// <summary>

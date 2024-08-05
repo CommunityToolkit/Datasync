@@ -5,10 +5,11 @@
 // We want to test when devs do wierd things that the warnings protect against.
 #pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
 
-using Azure.Core;
+// ConcurrentObservableCollection cannot be simplified.
+#pragma warning disable IDE0028 // Simplify collection initialization
+
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Serialization;
-using CommunityToolkit.Datasync.Client.Service;
 using CommunityToolkit.Datasync.Client.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
@@ -203,6 +204,31 @@ public class DatasyncServiceClient_Tests : IDisposable
         response.Value.Should().NotBeNull().And.BeEquivalentTo(this.successfulKitchenSink, this.entityEquivalentOptions);
     }
 
+    [Fact]
+    public async Task AddAsync_Success_Extn()
+    {
+        this.mockHandler.Responses.Add(GetSuccessfulResponse(this.successfulKitchenSink, HttpStatusCode.Created));
+        ClientKitchenSink entity = new() { Id = "1", StringValue = "abc" };
+        string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse<ClientKitchenSink> response = await client.AddAsync(entity);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Post);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(201);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().NotBeNull().And.BeEquivalentTo(this.successfulKitchenSink, this.entityEquivalentOptions);
+    }
+
     [Theory]
     [InlineData(HttpStatusCode.Conflict)]
     [InlineData(HttpStatusCode.PreconditionFailed)]
@@ -339,6 +365,60 @@ public class DatasyncServiceClient_Tests : IDisposable
     }
 
     [Fact]
+    public async Task CountAsync_Success_WithQuery_QueryExtn()
+    {
+        _ = CreatePage(0, 42L);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        int response = await client.Where(x => x.StringValue == "abc").CountAsync();
+        response.Should().Be(42);
+    }
+
+    [Fact]
+    public async Task CountAsync_Success_WithQuery_Extension()
+    {
+        _ = CreatePage(0, 42L);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        IDatasyncQueryable<ClientKitchenSink> query = client.Where(x => x.StringValue == "abc");
+        ServiceResponse<int> response = await client.CountAsync(query);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().Be(42);
+    }
+
+    [Fact]
+    public async Task CountAsync_Success_NoQuery_Extension()
+    {
+        _ = CreatePage(0, 42L);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse<int> response = await client.CountAsync();
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$top=0&$count=true");
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().Be(42);
+    }
+
+    [Fact]
     public async Task CountAsync_Success_SkipTopSelect()
     {
         _ = CreatePage(0, 42L);
@@ -432,6 +512,29 @@ public class DatasyncServiceClient_Tests : IDisposable
         string id = Guid.NewGuid().ToString("N");
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         ServiceResponse<ClientKitchenSink> response = await client.GetAsync(id, new DatasyncServiceOptions());
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{id}");
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().NotBeNull().And.BeEquivalentTo(this.successfulKitchenSink, this.entityEquivalentOptions);
+    }
+
+    [Fact]
+    public async Task GetAsync_Success_Extn()
+    {
+        this.mockHandler.Responses.Add(GetSuccessfulResponse(this.successfulKitchenSink, HttpStatusCode.OK));
+        string id = Guid.NewGuid().ToString("N");
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse<ClientKitchenSink> response = await client.GetAsync(id);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -802,6 +905,60 @@ public class DatasyncServiceClient_Tests : IDisposable
     }
 
     [Fact]
+    public async Task LongCountAsync_Success_WithQuery_QueryExtn()
+    {
+        _ = CreatePage(0, 42L);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        long response = await client.Where(x => x.StringValue == "abc").LongCountAsync();
+        response.Should().Be(42);
+    }
+
+    [Fact]
+    public async Task LongCountAsync_Success_WithQuery_Extn()
+    {
+        _ = CreatePage(0, 42L);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        IDatasyncQueryable<ClientKitchenSink> query = client.Where(x => x.StringValue == "abc");
+        ServiceResponse<long> response = await client.LongCountAsync(query);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().Be(42);
+    }
+
+    [Fact]
+    public async Task LongCountAsync_Success_NoQuery_Extn()
+    {
+        _ = CreatePage(0, 42L);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse<long> response = await client.LongCountAsync();
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$top=0&$count=true");
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().Be(42);
+    }
+
+    [Fact]
     public async Task LongCountAsync_Success_SkipTopSelect()
     {
         _ = CreatePage(0, 42L);
@@ -1134,12 +1291,62 @@ public class DatasyncServiceClient_Tests : IDisposable
     }
 
     [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task RemoveAsync_Extn_Throws(bool force)
+    {
+        ClientKitchenSink entity = new() { Id = null };
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Func<Task> act = async () => _ = await client.RemoveAsync(entity, force);
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task RemoveAsync_Extn2_Throws()
+    {
+        ClientKitchenSink entity = new() { Id = null };
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Func<Task> act = async () => _ = await client.RemoveAsync(entity);
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Theory]
     [MemberData(nameof(ClientTestData.InvalidIds), MemberType = typeof(ClientTestData))]
     public async Task RemoveAsync_Throws_InvalidId(string id)
     {
         DatasyncServiceOptions options = new();
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         Func<Task> act = async () => _ = await client.RemoveAsync(id, options);
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Theory]
+    [MemberData(nameof(ClientTestData.InvalidIds), MemberType = typeof(ClientTestData))]
+    public async Task RemoveAsync_Extn_Throws_InvalidId_Forced(string id)
+    {
+        ClientKitchenSink entity = new() { Id = id };
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Func<Task> act = async () => _ = await client.RemoveAsync(entity, true);
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Theory]
+    [MemberData(nameof(ClientTestData.InvalidIds), MemberType = typeof(ClientTestData))]
+    public async Task RemoveAsync_Extn_Throws_InvalidId_Unforced(string id)
+    {
+        ClientKitchenSink entity = new() { Id = id };
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Func<Task> act = async () => _ = await client.RemoveAsync(entity, false);
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Theory]
+    [MemberData(nameof(ClientTestData.InvalidIds), MemberType = typeof(ClientTestData))]
+    public async Task RemoveAsync_Extn2_Throws_InvalidId(string id)
+    {
+        ClientKitchenSink entity = new() { Id = id };
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Func<Task> act = async () => _ = await client.RemoveAsync(entity);
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
@@ -1165,6 +1372,27 @@ public class DatasyncServiceClient_Tests : IDisposable
     }
 
     [Fact]
+    public async Task RemoveAsync_Extn_Success()
+    {
+        this.mockHandler.AddResponse(HttpStatusCode.NoContent);
+        ClientKitchenSink entity = new() { Id = Guid.NewGuid().ToString("N") };
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse response = await client.RemoveAsync(entity, true);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Delete);
+        request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeFalse();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(204);
+    }
+
+    [Fact]
     public async Task RemoveAsync_SetsVersion()
     {
         this.mockHandler.AddResponse(HttpStatusCode.NoContent);
@@ -1178,6 +1406,72 @@ public class DatasyncServiceClient_Tests : IDisposable
         request.Method.Should().Be(HttpMethod.Delete);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{id}");
         request.Should().HaveHeader("If-Match", "\"abcdefg1234\"");
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeFalse();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(204);
+    }
+
+    [Fact]
+    public async Task RemoveAsync_Extn_Unforced_SetsVersion()
+    {
+        this.mockHandler.AddResponse(HttpStatusCode.NoContent);
+        ClientKitchenSink entity = new() { Id = Guid.NewGuid().ToString("N"), Version = "abcdefg1234" };
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse response = await client.RemoveAsync(entity, false);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Delete);
+        request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
+        request.Should().HaveHeader("If-Match", "\"abcdefg1234\"");
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeFalse();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(204);
+    }
+
+    [Fact]
+    public async Task RemoveAsync_Extn2_SetsVersion()
+    {
+        this.mockHandler.AddResponse(HttpStatusCode.NoContent);
+        ClientKitchenSink entity = new() { Id = Guid.NewGuid().ToString("N"), Version = "abcdefg1234" };
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse response = await client.RemoveAsync(entity);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Delete);
+        request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
+        request.Should().HaveHeader("If-Match", "\"abcdefg1234\"");
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeFalse();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(204);
+    }
+
+    [Fact]
+    public async Task RemoveAsync_Extn_Forced_SetsVersion()
+    {
+        this.mockHandler.AddResponse(HttpStatusCode.NoContent);
+        ClientKitchenSink entity = new() { Id = Guid.NewGuid().ToString("N"), Version = "abcdefg1234" };
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse response = await client.RemoveAsync(entity, true);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Delete);
+        request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
+        request.Should().NotHaveHeader("If-Match");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeFalse();
@@ -1298,6 +1592,39 @@ public class DatasyncServiceClient_Tests : IDisposable
         await act.Should().ThrowAsync<ArgumentException>();
     }
 
+    [Theory]
+    [MemberData(nameof(ClientTestData.InvalidIds), MemberType = typeof(ClientTestData))]
+    public async Task ReplaceAsync_Extn_Forced_Throws_InvalidId(string id)
+    {
+        ClientKitchenSink entity = new() { Id = id, StringValue = "abc" };
+        DatasyncServiceOptions options = new();
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Func<Task> act = async () => _ = await client.ReplaceAsync(entity, true);
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Theory]
+    [MemberData(nameof(ClientTestData.InvalidIds), MemberType = typeof(ClientTestData))]
+    public async Task ReplaceAsync_Extn_Unforced_Throws_InvalidId(string id)
+    {
+        ClientKitchenSink entity = new() { Id = id, StringValue = "abc" };
+        DatasyncServiceOptions options = new();
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Func<Task> act = async () => _ = await client.ReplaceAsync(entity, false);
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Theory]
+    [MemberData(nameof(ClientTestData.InvalidIds), MemberType = typeof(ClientTestData))]
+    public async Task ReplaceAsync_Extn_Default_Throws_InvalidId(string id)
+    {
+        ClientKitchenSink entity = new() { Id = id, StringValue = "abc" };
+        DatasyncServiceOptions options = new();
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Func<Task> act = async () => _ = await client.ReplaceAsync(entity);
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
     [Fact]
     public async Task ReplaceAsync_Success()
     {
@@ -1324,6 +1651,56 @@ public class DatasyncServiceClient_Tests : IDisposable
     }
 
     [Fact]
+    public async Task ReplaceAsync_Extn_Forced_Success()
+    {
+        this.mockHandler.Responses.Add(GetSuccessfulResponse(this.successfulKitchenSink, HttpStatusCode.OK));
+        ClientKitchenSink entity = new() { Id = "1", StringValue = "abc" };
+        string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, true);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Put);
+        request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
+        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().NotBeNull().And.BeEquivalentTo(this.successfulKitchenSink, this.entityEquivalentOptions);
+    }
+
+    [Fact]
+    public async Task ReplaceAsync_Extn_Default_Success()
+    {
+        this.mockHandler.Responses.Add(GetSuccessfulResponse(this.successfulKitchenSink, HttpStatusCode.OK));
+        ClientKitchenSink entity = new() { Id = "1", StringValue = "abc" };
+        string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Put);
+        request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
+        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().NotBeNull().And.BeEquivalentTo(this.successfulKitchenSink, this.entityEquivalentOptions);
+    }
+
+    [Fact]
     public async Task ReplaceAsync_SetsVersion()
     {
         this.mockHandler.Responses.Add(GetSuccessfulResponse(this.successfulKitchenSink, HttpStatusCode.OK));
@@ -1332,6 +1709,84 @@ public class DatasyncServiceClient_Tests : IDisposable
         DatasyncServiceOptions options = new() { Version = "abcdefg1234" };
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, options);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Put);
+        request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
+        request.Should().HaveHeader("If-Match", "\"abcdefg1234\"");
+        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().NotBeNull().And.BeEquivalentTo(this.successfulKitchenSink, this.entityEquivalentOptions);
+    }
+
+    [Fact]
+    public async Task ReplaceAsync_Extn_Forced_SetsVersion()
+    {
+        this.mockHandler.Responses.Add(GetSuccessfulResponse(this.successfulKitchenSink, HttpStatusCode.OK));
+        ClientKitchenSink entity = new() { Id = "1", Version = "abcdefg1234", StringValue = "abc" };
+        string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, true);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Put);
+        request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
+        request.Should().NotHaveHeader("If-Match");
+        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().NotBeNull().And.BeEquivalentTo(this.successfulKitchenSink, this.entityEquivalentOptions);
+    }
+
+    [Fact]
+    public async Task ReplaceAsync_Extn_Unforced_SetsVersion()
+    {
+        this.mockHandler.Responses.Add(GetSuccessfulResponse(this.successfulKitchenSink, HttpStatusCode.OK));
+        ClientKitchenSink entity = new() { Id = "1", Version = "abcdefg1234", StringValue = "abc" };
+        string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, false);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Put);
+        request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
+        request.Should().HaveHeader("If-Match", "\"abcdefg1234\"");
+        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+
+        response.Should().NotBeNull();
+        response.HasContent.Should().BeTrue();
+        response.IsConflictStatusCode.Should().BeFalse();
+        response.IsSuccessful.Should().BeTrue();
+        response.ReasonPhrase.Should().NotBeNullOrEmpty();
+        response.StatusCode.Should().Be(200);
+        response.HasValue.Should().BeTrue();
+        response.Value.Should().NotBeNull().And.BeEquivalentTo(this.successfulKitchenSink, this.entityEquivalentOptions);
+    }
+
+    [Fact]
+    public async Task ReplaceAsync_Extn_Default_SetsVersion()
+    {
+        this.mockHandler.Responses.Add(GetSuccessfulResponse(this.successfulKitchenSink, HttpStatusCode.OK));
+        ClientKitchenSink entity = new() { Id = "1", Version = "abcdefg1234", StringValue = "abc" };
+        string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -1517,6 +1972,349 @@ public class DatasyncServiceClient_Tests : IDisposable
             x => x.Skip(40).Skip(2),
             "$skip=42"
         );
+    }
+    #endregion
+
+    #region ToArrayAsync
+    [Fact]
+    public async Task ToArrayAsync_Table()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ClientKitchenSink[] actualItems = await client.ToArrayAsync();
+
+        actualItems.Should().BeEquivalentTo(page.Items);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+    }
+
+    [Fact]
+    public async Task ToArrayAsync_Query()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ClientKitchenSink[] actualItems = await client.Where(x => x.StringValue == "abc").ToArrayAsync();
+
+        actualItems.Should().BeEquivalentTo(page.Items);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+    }
+    #endregion
+
+    #region ToAsyncEnumerable
+    [Fact]
+    public async Task ToAsyncEnumerable_Table()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        IAsyncEnumerable<ClientKitchenSink> result = client.ToAsyncEnumerable();
+        List<ClientKitchenSink> actualItems = await result.ToListAsync();
+
+        actualItems.Should().BeEquivalentTo(page.Items);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+    }
+
+    [Fact]
+    public async Task ToAsyncEnumerable_Query()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        IAsyncEnumerable<ClientKitchenSink> result = client.Where(x => x.StringValue == "abc").ToAsyncEnumerable();
+        List<ClientKitchenSink> actualItems = await result.ToListAsync();
+
+        actualItems.Should().BeEquivalentTo(page.Items);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+    }
+    #endregion
+
+    #region ToAsyncPageable
+    [Fact]
+    public async Task ToAsyncPageable_Table()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5, 42L);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        IAsyncPageable<ClientKitchenSink> pagedResult = client.ToAsyncPageable();
+        Page<ClientKitchenSink> firstPage = await pagedResult.AsPages().FirstAsync();
+        List<ClientKitchenSink> actualItems = firstPage.Items.ToList();
+
+        actualItems.Should().BeEquivalentTo(page.Items);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+    }
+
+    [Fact]
+    public async Task ToAsyncPageable_Query()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5, 42L);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        IAsyncPageable<ClientKitchenSink> pagedResult = client.Where(x => x.StringValue == "abc").ToAsyncPageable();
+        Page<ClientKitchenSink> firstPage = await pagedResult.AsPages().FirstAsync();
+        List<ClientKitchenSink> actualItems = firstPage.Items.ToList();
+
+        actualItems.Should().BeEquivalentTo(page.Items);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+    }
+    #endregion
+
+    #region ToDictionaryAsync
+    [Fact]
+    public async Task ToDictionaryAsync_FirstForm_Table()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Dictionary<string, ClientKitchenSink> actualItems = await client.ToDictionaryAsync(x => x.Id);
+        Dictionary<string, ClientKitchenSink> expectedItems = page.Items.ToDictionary(x => x.Id);
+
+        actualItems.Should().BeEquivalentTo(expectedItems);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+    }
+
+    [Fact]
+    public async Task ToDictionaryAsync_SecondForm_Table()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Dictionary<string, ClientKitchenSink> actualItems = await client.ToDictionaryAsync(x => x.Id, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, ClientKitchenSink> expectedItems = page.Items.ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
+
+        actualItems.Should().BeEquivalentTo(expectedItems);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+    }
+
+    [Fact]
+    public async Task ToDictionaryAsync_FirstForm_Query()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Dictionary<string, ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToDictionaryAsync(x => x.Id);
+        Dictionary<string, ClientKitchenSink> expectedItems = page.Items.ToDictionary(x => x.Id);
+
+        actualItems.Should().BeEquivalentTo(expectedItems);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+    }
+
+    [Fact]
+    public async Task ToDictionaryAsync_SecondForm_Query()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        Dictionary<string, ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToDictionaryAsync(x => x.Id, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, ClientKitchenSink> expectedItems = page.Items.ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
+
+        actualItems.Should().BeEquivalentTo(expectedItems);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+    }
+    #endregion
+
+    #region ToHashSetAsync
+    [Fact]
+    public async Task ToHashSetAsync_FirstForm_Table()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        HashSet<ClientKitchenSink> actualItems = await client.ToHashSetAsync();
+        HashSet<ClientKitchenSink> expectedItems = page.Items.ToHashSet();
+
+        actualItems.Should().BeEquivalentTo(expectedItems);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+    }
+
+    [Fact]
+    public async Task ToHashSetAsync_SecondForm_Table()
+    {
+        IEqualityComparer<ClientKitchenSink> comparer = new ClientKitchenSinkComparer();
+
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        HashSet<ClientKitchenSink> actualItems = await client.ToHashSetAsync(comparer);
+        HashSet<ClientKitchenSink> expectedItems = page.Items.ToHashSet(comparer);
+
+        actualItems.Should().BeEquivalentTo(expectedItems);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+    }
+
+    [Fact]
+    public async Task ToHashSetAsync_FirstForm_Query()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        HashSet<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToHashSetAsync();
+        HashSet<ClientKitchenSink> expectedItems = page.Items.ToHashSet();
+
+        actualItems.Should().BeEquivalentTo(expectedItems);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+    }
+
+    [Fact]
+    public async Task ToHashSetAsync_SecondForm_Query()
+    {
+        IEqualityComparer<ClientKitchenSink> comparer = new ClientKitchenSinkComparer();
+
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        HashSet<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToHashSetAsync(comparer);
+        HashSet<ClientKitchenSink> expectedItems = page.Items.ToHashSet(comparer);
+
+        actualItems.Should().BeEquivalentTo(expectedItems);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+    }
+
+    class ClientKitchenSinkComparer : IEqualityComparer<ClientKitchenSink>
+    {
+        public bool Equals(ClientKitchenSink x, ClientKitchenSink y)
+            => string.Equals(x.Id, y.Id, StringComparison.OrdinalIgnoreCase);
+
+        public int GetHashCode([DisallowNull] ClientKitchenSink obj)
+            => obj.Id.GetHashCode();
+    }
+    #endregion
+
+    #region ToListAsync
+    [Fact]
+    public async Task ToListAsync_Table()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        List<ClientKitchenSink> actualItems = await client.ToListAsync();
+
+        actualItems.Should().BeEquivalentTo(page.Items);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+    }
+
+    [Fact]
+    public async Task ToListAsync_Query()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        List<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToListAsync();
+
+        actualItems.Should().BeEquivalentTo(page.Items);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+    }
+    #endregion
+
+    #region ToObservableCollectionAsync
+    [Fact]
+    public async Task ToObservableCollectionAsync_NewCollection_Table()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ConcurrentObservableCollection<ClientKitchenSink> actualItems = await client.ToObservableCollectionAsync();
+
+        actualItems.Should().BeEquivalentTo(page.Items);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+    }
+
+    [Fact]
+    public async Task ToObservableCollectionAsync_ExistingCollection_Table()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ConcurrentObservableCollection<ClientKitchenSink> collection = new();
+        ConcurrentObservableCollection<ClientKitchenSink> actualItems = await client.ToObservableCollectionAsync(collection);
+
+        actualItems.Should().BeSameAs(collection).And.BeEquivalentTo(page.Items);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+    }
+
+    [Fact]
+    public async Task ToObservableCollectionAsync_NewCollection_Query()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ConcurrentObservableCollection<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToObservableCollectionAsync();
+
+        actualItems.Should().BeEquivalentTo(page.Items);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+    }
+
+    [Fact]
+    public async Task ToObservableCollectionAsync_ExistingCollection_Query()
+    {
+        Page<ClientKitchenSink> page = CreatePage(5);
+        DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
+        ConcurrentObservableCollection<ClientKitchenSink> collection = new();
+        ConcurrentObservableCollection<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToObservableCollectionAsync(collection);
+
+        actualItems.Should().BeSameAs(collection).And.BeEquivalentTo(page.Items);
+
+        HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.Method.Should().Be(HttpMethod.Get);
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
     }
     #endregion
 

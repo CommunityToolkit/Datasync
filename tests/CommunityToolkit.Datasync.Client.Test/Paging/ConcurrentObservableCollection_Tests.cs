@@ -2,8 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.TestCommon.Databases;
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0305 // Simplify collection initialization
 
+using CommunityToolkit.Datasync.Client.Paging;
+using CommunityToolkit.Datasync.TestCommon.Databases;
+using NSubstitute;
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Client.Test.Paging;
@@ -19,6 +23,13 @@ public class ConcurrentObservableCollection_Tests
         List<InMemoryMovie> seed = TestData.Movies.OfType<InMemoryMovie>().ToList();
         this.movies = new ConcurrentObservableCollection<InMemoryMovie>(seed);
         this.movies.CollectionChanged += (sender, e) => this.collectionChangedCallCount++;
+    }
+
+    [Fact]
+    public void DefaultCtor_Creates_EmptyCollection()
+    {
+        ConcurrentObservableCollection<InMemoryMovie> sut = new();
+        sut.Should().BeEmpty();
     }
 
     [Fact]
@@ -168,5 +179,41 @@ public class ConcurrentObservableCollection_Tests
         bool actual = this.movies.ReplaceIf(t => t.Id == item.Id, item);
         actual.Should().BeFalse();
         this.movies.Should().HaveCount(count).And.NotContain(item);
+    }
+
+    [Fact]
+    public void DispatchCallback_DispatchesToSynchronizationContext()
+    {
+        int contextCaller = 0;
+        int functionCaller = 0;
+
+        void dispatcher(object p) { functionCaller++; }
+
+        ISynchronizationContext context = Substitute.For<ISynchronizationContext>();
+        context.IsCurrentContext().Returns(false);
+        context.When(x => x.Send(Arg.Any<SendOrPostCallback>(), Arg.Any<object>())).Do(x => contextCaller++);
+
+        ConcurrentObservableCollection<InMemoryMovie>.DispatchCallback(context, dispatcher, new object());
+
+        contextCaller.Should().Be(1);
+        functionCaller.Should().Be(0);
+    }
+
+    [Fact]
+    public void DispatchCallback_DispatchesLocally()
+    {
+        int contextCaller = 0;
+        int functionCaller = 0;
+
+        void dispatcher(object p) { functionCaller++; }
+
+        ISynchronizationContext context = Substitute.For<ISynchronizationContext>();
+        context.IsCurrentContext().Returns(true);
+        context.When(x => x.Send(Arg.Any<SendOrPostCallback>(), Arg.Any<object>())).Do(x => contextCaller++);
+
+        ConcurrentObservableCollection<InMemoryMovie>.DispatchCallback(context, dispatcher, new object());
+
+        contextCaller.Should().Be(0);
+        functionCaller.Should().Be(1);
     }
 }

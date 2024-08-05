@@ -18,7 +18,6 @@ public static class IDatasyncQueryableExtensions
     /// <returns>A task that represents the asynchronous operation. The task result contains the number of elements that would be returned by the query.</returns>
     public static async ValueTask<int> CountAsync<TSource>(this IDatasyncQueryable<TSource> query, CancellationToken cancellationToken = default) where TSource : class
     {
-        ArgumentNullException.ThrowIfNull(query, nameof(query));
         ServiceResponse<int> response = await query.ServiceClient.CountAsync(query, new DatasyncServiceOptions(), cancellationToken).ConfigureAwait(false);
         return response.Value;
     }
@@ -32,7 +31,6 @@ public static class IDatasyncQueryableExtensions
     /// <returns>A task that represents the asynchronous operation. The task result contains the number of elements that would be returned by the query.</returns>
     public static async ValueTask<long> LongCountAsync<TSource>(this IDatasyncQueryable<TSource> query, CancellationToken cancellationToken = default) where TSource : class
     {
-        ArgumentNullException.ThrowIfNull(query, nameof(query));
         ServiceResponse<long> response = await query.ServiceClient.LongCountAsync(query, new DatasyncServiceOptions(), cancellationToken ).ConfigureAwait(false);
         return response.Value;
     }
@@ -54,10 +52,7 @@ public static class IDatasyncQueryableExtensions
     /// <param name="query">The query to execute on the remote service..</param>
     /// <returns>The async-enumerable sequence whose elements are pulled from the result set.</returns>
     public static IAsyncEnumerable<TSource> ToAsyncEnumerable<TSource>(this IDatasyncQueryable<TSource> query) where TSource : class
-    {
-        ArgumentNullException.ThrowIfNull(query, nameof(query));
-        return query.ServiceClient.Query(query);
-    }
+        => query.ServiceClient.Query(query);
 
     /// <summary>
     /// Executes a query on the remote service, returning the results as an async-enumerable sequence.
@@ -136,7 +131,7 @@ public static class IDatasyncQueryableExtensions
     /// <param name="query">The source table query.</param>
     /// <param name="cancellationToken">The optional cancellation token to be used for cancelling the sequence at any time.</param>
     /// <returns>A <see cref="ConcurrentObservableCollection{T}"/> containing all the elements of the source sequence.</returns>
-    public static ValueTask<ConcurrentObservableCollection<TSource>> ToObservableCollection<TSource>(this IDatasyncQueryable<TSource> query, CancellationToken cancellationToken = default) where TSource : class
+    public static ValueTask<ConcurrentObservableCollection<TSource>> ToObservableCollectionAsync<TSource>(this IDatasyncQueryable<TSource> query, CancellationToken cancellationToken = default) where TSource : class
         => query.ToAsyncEnumerable().ToDatasyncObservableCollectionAsync(cancellationToken);
 
     /// <summary>
@@ -147,6 +142,6 @@ public static class IDatasyncQueryableExtensions
     /// <param name="collection">The <see cref="ConcurrentObservableCollection{T}"/> to update.</param>
     /// <param name="cancellationToken">The optional cancellation token to be used for cancelling the sequence at any time.</param>
     /// <returns>The <see cref="ConcurrentObservableCollection{T}"/> passed in containing all the elements of the source sequence (replacing the old content).</returns>
-    public static ValueTask<ConcurrentObservableCollection<TSource>> ToObservableCollection<TSource>(this IDatasyncQueryable<TSource> query, ConcurrentObservableCollection<TSource> collection, CancellationToken cancellationToken = default) where TSource : class
+    public static ValueTask<ConcurrentObservableCollection<TSource>> ToObservableCollectionAsync<TSource>(this IDatasyncQueryable<TSource> query, ConcurrentObservableCollection<TSource> collection, CancellationToken cancellationToken = default) where TSource : class
         => query.ToAsyncEnumerable().ToDatasyncObservableCollectionAsync(collection, cancellationToken);
 }
