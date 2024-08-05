@@ -73,40 +73,6 @@ internal static class IAsyncEnumerableExtensions
     }
 
     /// <summary>
-    /// Converts an async-enumerable sequence to an enumerable sequence.
-    /// </summary>
-    /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-    /// <param name="source">An async-enumerable sequence to convert to an enumerable sequence.</param>
-    /// <returns>The enumerable sequence containing the elements in the async-enumerable sequence.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="source"/> is null.</exception>
-    internal static IEnumerable<TSource> ToDatasyncEnumerable<TSource>(this IAsyncEnumerable<TSource> source)
-    {
-        ArgumentNullException.ThrowIfNull(source, nameof(source));
-        return Core(source);
-
-        static IEnumerable<TSource> Core(IAsyncEnumerable<TSource> source)
-        {
-            IAsyncEnumerator<TSource> e = source.GetAsyncEnumerator(default);
-            try
-            {
-                while (true)
-                {
-                    if (!DatasyncWait(e.MoveNextAsync()))
-                    {
-                        break;
-                    }
-
-                    yield return e.Current;
-                }
-            }
-            finally
-            {
-                DatasyncWait(e.DisposeAsync());
-            }
-        }
-    }
-
-    /// <summary>
     /// Creates a hash set from an async-enumerable sequence.
     /// </summary>
     /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
@@ -186,33 +152,6 @@ internal static class IAsyncEnumerableExtensions
         List<TSource> list = await source.ToDatasyncListAsync(cancellationToken).ConfigureAwait(false);
         existingCollection.ReplaceAll(list);
         return existingCollection;
-    }
-
-    // NB: ValueTask and ValueTask<T> do not have to support blocking on a call to GetResult when backed by
-    //     an IValueTaskSource or IValueTaskSource<T> implementation. Convert to a Task or Task<T> to do so
-    //     in case the task hasn't completed yet.
-
-    private static void DatasyncWait(ValueTask task)
-    {
-        ValueTaskAwaiter awaiter = task.GetAwaiter();
-        if (!awaiter.IsCompleted)
-        {
-            task.AsTask().GetAwaiter().GetResult();
-            return;
-        }
-
-        awaiter.GetResult();
-    }
-
-    private static T DatasyncWait<T>(ValueTask<T> task)
-    {
-        ValueTaskAwaiter<T> awaiter = task.GetAwaiter();
-        if (!awaiter.IsCompleted)
-        {
-            return task.AsTask().GetAwaiter().GetResult();
-        }
-
-        return awaiter.GetResult();
     }
 }
 

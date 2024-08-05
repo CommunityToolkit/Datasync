@@ -5,6 +5,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="CommunityToolkit.Datasync.Client.Test" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2"/>
   </ItemGroup>
 
   <ItemGroup>

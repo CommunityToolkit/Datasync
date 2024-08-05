@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Paging;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -151,34 +152,38 @@ public class ConcurrentObservableCollection<T> : ObservableCollection<T>
     /// </summary>
     /// <param name="e">The event arguments</param>
     protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
-    {
-        if (SynchronizationContext.Current == this.context)
-        {
-            RaiseCollectionChanged(e);
-        }
-        else
-        {
-            this.context.Send(RaiseCollectionChanged, e);
-        }
-    }
+        => DispatchCallback(new SynchronizationContextAdapter(this.context), RaiseCollectionChanged, e);
 
     /// <summary>
     /// Event trigger to indicate that a property has changed in a thread-safe way.
     /// </summary>
     /// <param name="e">The event arguments</param>
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+        => DispatchCallback(new SynchronizationContextAdapter(this.context), RaisePropertyChanged, e);
+
+    /// <summary>
+    /// Dispatches the callback to the synchronization context.  If the synchronization context is
+    /// the current one, we can avoid a dispatch and just call the callback directly.
+    /// </summary>
+    /// <param name="context">The context to send the request to.</param>
+    /// <param name="callback">The callback method.</param>
+    /// <param name="param">The parameter for the callback method.</param>
+    internal static void DispatchCallback(ISynchronizationContext context, SendOrPostCallback callback, object? param)
     {
-        if (SynchronizationContext.Current == this.context)
+        if (context.IsCurrentContext())
         {
-            RaisePropertyChanged(e);
+            callback(param);
         }
         else
         {
-            this.context.Send(RaisePropertyChanged, e);
+            context.Send(callback, param);
         }
     }
 
-    [ExcludeFromCodeCoverage]
+    /// <summary>
+    /// Raises the <see cref="OnCollectionChanged(NotifyCollectionChangedEventArgs)"/> event on this collection.
+    /// </summary>
+    /// <param name="param"></param>
     private void RaiseCollectionChanged(object? param)
     {
         if (!this.suppressNotification)
@@ -187,7 +192,10 @@ public class ConcurrentObservableCollection<T> : ObservableCollection<T>
         }
     }
 
-    [ExcludeFromCodeCoverage]
+    /// <summary>
+    /// Raises the <see cref="OnPropertyChanged(PropertyChangedEventArgs)"/> event on this collection.
+    /// </summary>
+    /// <param name="param"></param>
     private void RaisePropertyChanged(object? param)
     {
         base.OnPropertyChanged((PropertyChangedEventArgs)param!);

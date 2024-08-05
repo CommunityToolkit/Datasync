@@ -20,10 +20,10 @@ public class EntityDoesNotExistException(ServiceResponse serviceResponse, Uri en
     /// <summary>
     /// The endpoint of the table that was used for the entity.
     /// </summary>
-    public Uri Endpoint { get; set; } = endpoint;
+    public Uri Endpoint { get; } = endpoint;
 
     /// <summary>
     /// The ID of the entity that is missing.
     /// </summary>
-    public string Id { get; set; } = id;
+    public string Id { get; } = id;
 }
