@@ -12,8 +12,19 @@ namespace CommunityToolkit.Datasync.Client;
 /// </summary>
 public class DatasyncSynchronizationContextBuilder
 {
+    /// <summary>
+    /// When set, the <see cref="IHttpClientFactory"/> to use for <see cref="HttpClient"/> generation.
+    /// </summary>
     private IHttpClientFactory? httpClientFactory;
+
+    /// <summary>
+    /// When set, the <see cref="HttpClient"/> to use for all connections.
+    /// </summary>
     private HttpClient? httpClient;
+
+    /// <summary>
+    /// When set, the <see cref="Uri"/> mapping to the datasync service endpoint.
+    /// </summary>
     private Uri? endpoint;
 
     /// <summary>
@@ -74,7 +85,6 @@ public class DatasyncSynchronizationContextBuilder
         if (HasHttpClientGenerator)
         {
             throw new DatasyncException(ServiceErrorMessages.HttpClientGeneratorAlreadySet);
-            
         }
     }
 }
