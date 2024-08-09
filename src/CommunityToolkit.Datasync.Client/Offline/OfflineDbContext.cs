@@ -2,13 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Client.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Diagnostics;
-using System.Reflection;
 
 namespace CommunityToolkit.Datasync.Client.Offline;
 
@@ -57,9 +55,9 @@ public abstract class OfflineDbContext : DbContext
     internal bool _disposedValue;
 
     /// <summary>
-    /// A mapping of all the entities that are allowed to be synchronized in this context.
+    /// The operations queue manager.
     /// </summary>
-    internal Dictionary<string, Type> DatasyncEntityMap { get; } = [];
+    internal OperationsQueueManager QueueManager { get; }
 
     /// <summary>
     /// The operations queue.  This is used to store pending requests to the datasync service.
@@ -78,6 +76,7 @@ public abstract class OfflineDbContext : DbContext
     /// </remarks>
     protected OfflineDbContext() : base()
     {
+        QueueManager = new(this);
     }
 
     /// <summary>
@@ -92,6 +91,7 @@ public abstract class OfflineDbContext : DbContext
     /// <param name="options">The options for this context.</param>
     protected OfflineDbContext(DbContextOptions options) : base(options)
     {
+        QueueManager = new(this);
     }
 
     /// <summary>
@@ -238,7 +238,7 @@ public abstract class OfflineDbContext : DbContext
     /// </exception>
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
-        UpdateOperationsQueue();
+        QueueManager.UpdateOperationsQueue();
         return base.SaveChanges(acceptAllChangesOnSuccess);
     }
 
@@ -317,99 +317,11 @@ public abstract class OfflineDbContext : DbContext
     ///     This is usually because the data in the database has been modified since it was loaded into memory.
     /// </exception>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
     {
-        UpdateOperationsQueue();
-        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        await QueueManager.UpdateOperationsQueueAsync(cancellationToken).ConfigureAwait(false);
+        return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken).ConfigureAwait(false);
     }
-
-    /// <summary>
-    /// Initializes the value of the <see cref="DatasyncEntityMap"/> - this provides the mapping 
-    /// of entity name to type, which is required for operating the operations queue.
-    /// </summary>
-    /// <remarks>
-    /// An entity is "synchronization ready" if:
-    /// 
-    /// * It is a property on this context
-    /// * The property is public and a <see cref="DbSet{TEntity}"/>.
-    /// * The property does not have a <see cref="DoNotSynchronizeAttribute"/> specified.
-    /// * The entity type is defined in the model.
-    /// * The entity type has an Id, UpdatedAt, and Version property (according to the <see cref="EntityResolver"/>).
-    /// </remarks>
-    internal void InitializeDatasyncEntityMap()
-    {
-        Type[] modelEntities = Model.GetEntityTypes().Select(m => m.ClrType).ToArray();
-        Type[] synchronizableEntities = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(IsSynchronizationEntity)
-            .Select(p => p.PropertyType.GetGenericArguments()[0])
-            .Where(m => modelEntities.Contains(m))
-            .ToArray();
-        foreach (Type entityType in synchronizableEntities)
-        {
-            DatasyncException.ThrowIfNullOrEmpty(entityType.FullName, $"Offline entity {entityType.Name} must be a valid reference type.");
-            EntityResolver.EntityPropertyInfo propInfo = EntityResolver.GetEntityPropertyInfo(entityType);
-            DatasyncException.ThrowIfNull(propInfo.UpdatedAtPropertyInfo, $"Offline entity {entityType.Name} does not have an UpdatedAt property.");
-            DatasyncException.ThrowIfNull(propInfo.VersionPropertyInfo, $"Offline entity {entityType.Name} does not have a Version property.");
-            DatasyncEntityMap.Add(entityType.FullName!, entityType);
-        }
-    }
-
-    /// <summary>
-    /// Determines if the provided property is a synchronizable property.  
-    /// </summary>
-    /// <remarks>
-    /// An entity is "synchronization ready" if:
-    /// 
-    /// * It is a property on this context
-    /// * The property is public and a <see cref="DbSet{TEntity}"/>.
-    /// * The property does not have a <see cref="DoNotSynchronizeAttribute"/> specified.
-    /// </remarks>
-    /// <param name="property">The <see cref="PropertyInfo"/> for the property to check.</param>
-    /// <returns><c>true</c> if the property is synchronizable; <c>false</c> otherwise.</returns>
-    internal bool IsSynchronizationEntity(PropertyInfo property)
-    {
-        if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
-        {
-            if (property.GetCustomAttribute<DoNotSynchronizeAttribute>() == null)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Iterates through each of the changes in the dataset prior to calling <see cref="DbContext.SaveChangesAsync(bool, CancellationToken)"/>
-    /// or <see cref="DbContext.SaveChanges(bool)"/> to add each change to the operations queue.
-    /// </summary>
-    internal void UpdateOperationsQueue()
-    {
-        CheckDisposed();
-        InitializeDatasyncEntityMap();
-
-        if (ChangeTracker.AutoDetectChangesEnabled)
-        {
-            ChangeTracker.DetectChanges();
-        }
-
-        // Get the list of relevant changes from the change tracker:
-        List<EntityEntry> entitiesInScope = ChangeTracker.Entries()
-            .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
-            .Where(e => DatasyncEntityMap.ContainsKey(GetNullScope(e.Entity.GetType().FullName)))
-            .ToList();
-
-        // Rest of the tracker here.
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// a helper method for returning the empty string instead of null when there is a nullable string.
-    /// </summary>
-    /// <param name="nullableString">The nullable string</param>
-    /// <returns>The non-nullable string.</returns>
-    internal static string GetNullScope(string? nullableString)
-        => nullableString ?? string.Empty;
 
     #region IDisposable
     /// <summary>
@@ -439,6 +351,7 @@ public abstract class OfflineDbContext : DbContext
         {
             if (disposing)
             {
+                QueueManager.Dispose();
                 base.Dispose();
             }
 

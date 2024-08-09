@@ -4,6 +4,9 @@
 
 #nullable enable
 
+#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0052 // Remove unused private members
+
 using CommunityToolkit.Datasync.Client.Serialization;
 
 namespace CommunityToolkit.Datasync.Client.Test.Serialization;
@@ -11,6 +14,7 @@ namespace CommunityToolkit.Datasync.Client.Test.Serialization;
 [ExcludeFromCodeCoverage]
 public class EntityResolver_Tests
 {
+    #region GetEntityPropertyInfo(Type)
     [Theory]
     [InlineData(typeof(Resolver_PrivI))]
     [InlineData(typeof(Resolver_StaticI))]
@@ -69,7 +73,9 @@ public class EntityResolver_Tests
         EntityResolver.EntityPropertyInfo sut = EntityResolver.GetEntityPropertyInfo(typeof(Resolver_I_OU_OSV));
         sut.Should().BeSameAs(propInfo);
     }
+    #endregion
 
+    #region GetEntityMetadata<T>(T)
     [Fact]
     public void EntityResolver_OSV_GetEntityMetadata()
     {
@@ -133,6 +139,83 @@ public class EntityResolver_Tests
         metadata.UpdatedAt.Should().BeNull();
         metadata.Version.Should().BeNull();
     }
+    #endregion
+
+    #region GetEntityMetadata(object, Type)
+    [Fact]
+    public void EntityResolver_OSV_GetEntityMetadata2()
+    {
+        Resolver_I_OU_OSV entity = new()
+        {
+            Id = "1234",
+            UpdatedAt = DateTime.Parse("1977-05-04T10:37:45.867Z"),
+            Version = "1.0.0"
+        };
+
+        EntityMetadata metadata = EntityResolver.GetEntityMetadata(entity, entity.GetType());
+
+        metadata.Id.Should().Be(entity.Id);
+        metadata.UpdatedAt.Should().Be(entity.UpdatedAt);
+        metadata.Version.Should().Be(entity.Version);
+    }
+
+    [Fact]
+    public void EntityResolver_OSV_GetEntityMetadata2_Nulls()
+    {
+        Resolver_I_OU_OSV entity = new()
+        {
+            Id = "1234"
+        };
+
+        EntityMetadata metadata = EntityResolver.GetEntityMetadata(entity, entity.GetType());
+
+        metadata.Id.Should().Be(entity.Id);
+        metadata.UpdatedAt.Should().BeNull();
+        metadata.Version.Should().BeNull();
+    }
+
+    [Fact]
+    public void EntityResolver_OBV_GetEntityMetadata2()
+    {
+        Resolver_I_OU_OBV entity = new()
+        {
+            Id = "1234",
+            UpdatedAt = DateTime.Parse("1977-05-04T10:37:45.867Z"),
+            Version = Guid.NewGuid().ToByteArray()
+        };
+
+        EntityMetadata metadata = EntityResolver.GetEntityMetadata(entity, entity.GetType());
+
+        metadata.Id.Should().Be(entity.Id);
+        metadata.UpdatedAt.Should().Be(entity.UpdatedAt);
+        metadata.Version.Should().Be(Convert.ToBase64String(entity.Version));
+    }
+
+    [Fact]
+    public void EntityResolver_OBV_GetEntityMetadata2_Nulls()
+    {
+        Resolver_I_OU_OBV entity = new()
+        {
+            Id = "1234"
+        };
+
+        EntityMetadata metadata = EntityResolver.GetEntityMetadata(entity, entity.GetType());
+
+        metadata.Id.Should().Be(entity.Id);
+        metadata.UpdatedAt.Should().BeNull();
+        metadata.Version.Should().BeNull();
+    }
+    #endregion
+
+    #region EntityIdIsValid(string, bool)
+    [Theory]
+    [InlineData(null, true, true)]
+    [InlineData(null, false, false)]
+    public void EntityIdIsValid_Works(string? sut, bool allowNull, bool expected)
+    {
+        EntityResolver.EntityIdIsValid(sut, allowNull).Should().Be(expected);
+    }
+    #endregion
 
     #region Bad Entity Types
     class Resolver_PrivI

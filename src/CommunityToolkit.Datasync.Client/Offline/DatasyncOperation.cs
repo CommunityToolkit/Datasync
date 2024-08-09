@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace CommunityToolkit.Datasync.Client.Offline;
 
 /// <summary>
@@ -69,7 +71,7 @@ public record DatasyncOperation
     /// The sequence number for the operation.  This is incremented for each
     /// new operation to a different entity.
     /// </summary>
-    public required int Sequence { get; set; }
+    public required long Sequence { get; set; }
 
     /// <summary>
     /// The version number for the operation.  This is incremented as multiple
