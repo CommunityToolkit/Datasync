@@ -26,4 +26,32 @@ public class DatasyncException : Exception
     public DatasyncException(string? message, Exception? innerException) : base(message, innerException)
     {
     }
+
+    /// <summary>
+    /// A helper method to throw the <see cref="DatasyncException"/> if the value is null.
+    /// </summary>
+    /// <param name="value">The value to check.</param>
+    /// <param name="message">The message for this exception.</param>
+    /// <exception cref="DatasyncException">Thrown if <paramref name="value"/> is null.</exception>
+    internal static void ThrowIfNull(object? value, string? message)
+    {
+        if (value is null)
+        {
+            throw new DatasyncException(message);
+        }
+    }
+
+    /// <summary>
+    /// A helper method to throw the <see cref="DatasyncException"/> if the value is null or empty.
+    /// </summary>
+    /// <param name="value">The value to check.</param>
+    /// <param name="message">The message for this exception.</param>
+    /// <exception cref="DatasyncException">Thrown if <paramref name="value"/> is null or empty.</exception>
+    internal static void ThrowIfNullOrEmpty(string? value, string? message)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            throw new DatasyncException(message);
+        }
+    }
 }

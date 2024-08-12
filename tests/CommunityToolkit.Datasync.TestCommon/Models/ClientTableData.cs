@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Server;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CommunityToolkit.Datasync.TestCommon.Models;
 
@@ -27,8 +29,13 @@ public class ClientTableData
         }
     }
 
+    [Key]
     public string Id { get; set; }
+
+    [Column(TypeName = "INTEGER")]
     public DateTimeOffset? UpdatedAt { get; set; }
+
     public string Version { get; set; }
+
     public bool Deleted { get; set; }
 }

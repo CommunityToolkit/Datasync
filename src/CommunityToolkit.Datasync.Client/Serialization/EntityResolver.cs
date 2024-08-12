@@ -2,7 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
+
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace CommunityToolkit.Datasync.Client.Serialization;
 
@@ -15,6 +18,27 @@ internal static class EntityResolver
     /// The internal cache of entity property information.
     /// </summary>
     internal static Dictionary<Type, EntityPropertyInfo> cache = [];
+
+    /// <summary>
+    /// The regular expression for an entity identity property.
+    /// </summary>
+    private static readonly Regex EntityIdentity = new("^[a-zA-Z0-9][a-zA-Z0-9_.|:-]{0,126}$", RegexOptions.Compiled);
+
+    /// <summary>
+    /// Returns true if the provided value is a valid entity ID.
+    /// </summary>
+    /// <param name="value">The value to check.</param>
+    /// <param name="allowNull">If <c>true</c>, null is a valid value for the entity ID.</param>
+    /// <returns><c>true</c> if the entity ID is valid; <c>false</c> otherwise.</returns>
+    internal static bool EntityIdIsValid(string? value, bool allowNull = false)
+    {
+        if (value is null && allowNull)
+        {
+            return true;
+        }
+
+        return value is not null && EntityIdentity.IsMatch(value);
+    }
 
     /// <summary>
     /// Retrieves the EntityPropertyInfo for a specific type.
@@ -41,6 +65,15 @@ internal static class EntityResolver
     /// <returns>The metadata for the entity.</returns>
     internal static EntityMetadata GetEntityMetadata<TEntity>(TEntity entity) where TEntity : class
         => GetEntityPropertyInfo(typeof(TEntity)).GetEntityMetadata(entity);
+
+    /// <summary>
+    /// Retrieves the <see cref="EntityMetadata"/> for the given entity.
+    /// </summary>
+    /// <param name="entity">The entity.</param>
+    /// <param name="entityType">The type of the entity.</param>
+    /// <returns>The metadata for the entity.</returns>
+    internal static EntityMetadata GetEntityMetadata(object entity, Type entityType)
+        => GetEntityPropertyInfo(entityType).GetEntityMetadata(entity);
 
     /// <summary>
     /// The class for handling a single type.

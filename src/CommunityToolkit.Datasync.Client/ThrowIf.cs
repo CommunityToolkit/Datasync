@@ -4,6 +4,7 @@
 
 #pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
 
+using CommunityToolkit.Datasync.Client.Serialization;
 using System.Text.RegularExpressions;
 
 namespace CommunityToolkit.Datasync.Client;
@@ -13,11 +14,6 @@ namespace CommunityToolkit.Datasync.Client;
 /// </summary>
 internal static class ThrowIf
 {
-    /// <summary>
-    /// The regular expression for an entity identity property.
-    /// </summary>
-    private static readonly Regex EntityIdentity = new("^[a-zA-Z0-9][a-zA-Z0-9_.|:-]{0,126}$", RegexOptions.Compiled);
-
     /// <summary>
     /// An ETag is defined here: https://httpwg.org/specs/rfc9110.html#field.etag but becomes
     /// 0x21, 0x23-0x7E
@@ -51,18 +47,7 @@ internal static class ThrowIf
     /// <exception cref="ArgumentException">Thrown if the value is not valid.</exception>
     internal static void EntityIdIsInvalid(string? value, string paramName, string because = "Argument is invalid", bool allowNull = false)
     {
-        if (string.IsNullOrEmpty(value))
-        {
-            if (!allowNull)
-            {
-                throw new ArgumentException(because, paramName);
-            }
-
-            return;
-        }
-
-        // value is non-null at this point.
-        if (!EntityIdentity.IsMatch(value))
+        if (!EntityResolver.EntityIdIsValid(value, allowNull))
         {
             throw new ArgumentException(because, paramName);
         }

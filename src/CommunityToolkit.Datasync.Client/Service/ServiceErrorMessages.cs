@@ -10,6 +10,11 @@ namespace CommunityToolkit.Datasync.Client.Service;
 internal static class ServiceErrorMessages
 {
     /// <summary>
+    /// The HttpClient generator has already been set.
+    /// </summary>
+    internal static string HttpClientGeneratorAlreadySet = "The HttpClient generator has already been set.";
+
+    /// <summary>
     /// The content received from the service was invalid.
     /// </summary>
     internal static string InvalidContent = "The content received from the service is invalid.";
@@ -18,6 +23,11 @@ internal static class ServiceErrorMessages
     /// Provided version is invalid.
     /// </summary>
     internal static string InvalidVersion = "The version string cannot contain illegal characters.";
+
+    /// <summary>
+    /// When initializing the datasync service connector, no HttpClient generator was created.
+    /// </summary>
+    internal static string NoHttpClientGenerator = "No HttpClient generator was configured in the OnDatasyncInitializing() method of your OfflineDbContext.";
 
     /// <summary>
     /// Server expected to send content, but returned a successful response without content.
