@@ -35,7 +35,7 @@ public enum OperationState
 /// <summary>
 /// An entity representing a pending operation against an entity set.
 /// </summary>
-public record DatasyncOperation
+public class DatasyncOperation
 {
     /// <summary>
     /// A unique ID for the operation.

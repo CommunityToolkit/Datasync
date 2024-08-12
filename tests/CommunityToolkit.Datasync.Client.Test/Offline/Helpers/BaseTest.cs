@@ -21,6 +21,9 @@ public abstract class BaseTest
         DbContextOptionsBuilder<TestDbContext> optionsBuilder = new DbContextOptionsBuilder<TestDbContext>()
             .UseSqlite(connection);
         TestDbContext context = new(optionsBuilder.Options) { Connection = connection };
+
+        // Ensure the database is created.
+        context.Database.EnsureCreated();
         return context;
     }
 }

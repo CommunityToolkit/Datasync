@@ -77,10 +77,9 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
         }
 
         Type[] modelEntities = context.Model.GetEntityTypes().Select(m => m.ClrType).ToArray();
-        Type[] synchronizableEntities = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
+        Type[] synchronizableEntities = context.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(IsSynchronizationEntity)
             .Select(p => p.PropertyType.GetGenericArguments()[0])
-            .Where(m => modelEntities.Contains(m))
             .ToArray();
         foreach (Type entityType in synchronizableEntities)
         {
@@ -226,12 +225,17 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
         }
 
         // Get the list of relevant changes from the change tracker:
-        IEnumerable<EntityEntry> entitiesInScope = context.ChangeTracker.Entries()
+        List<EntityEntry> entitiesInScope = context.ChangeTracker.Entries()
             .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
-            .Where(e => DatasyncEntityMap.ContainsKey(NullAsEmpty(e.Entity.GetType().FullName)));
+            .Where(e => DatasyncEntityMap.ContainsKey(NullAsEmpty(e.Entity.GetType().FullName)))
+            .ToList();
 
-        // Get the current sequence ID.
-        long sequenceId = await context.DatasyncOperationsQueue.MaxAsync(x => x.Sequence, cancellationToken).ConfigureAwait(false);
+        // Get the current sequence ID.  Note that ORDERBY/TOP is generally faster than aggregate functions in databases.
+        // The .FirstOrDefaultAsync() returns default(long) which is 0L.
+        long sequenceId = await context.DatasyncOperationsQueue
+            .OrderByDescending(x => x.Sequence)
+            .Select(x => x.Sequence)
+            .FirstOrDefaultAsync(cancellationToken);
 
         // Rest of the tracker here.
         foreach (EntityEntry entry in entitiesInScope)
