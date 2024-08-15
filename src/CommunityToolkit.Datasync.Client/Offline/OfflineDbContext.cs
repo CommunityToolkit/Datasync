@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -55,9 +56,19 @@ public abstract class OfflineDbContext : DbContext
     internal bool _disposedValue;
 
     /// <summary>
+    /// The value of the initialized offline options builder.
+    /// </summary>
+    internal DatasyncOfflineOptionsBuilder? offlineOptionsBuilder = null;
+
+    /// <summary>
     /// The operations queue manager.
     /// </summary>
     internal OperationsQueueManager QueueManager { get; }
+
+    /// <summary>
+    /// The lock for datasync initialization.
+    /// </summary>
+    internal DisposableLock DatasyncInitializationLock { get; } = new DisposableLock();
 
     /// <summary>
     /// The operations queue.  This is used to store pending requests to the datasync service.
@@ -166,6 +177,35 @@ public abstract class OfflineDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+    }
+
+    /// <summary>
+    ///     Override this method to configure the datasync service connections for each entity.
+    /// </summary>
+    /// <param name="optionsBuilder">
+    ///     The builder being used to construct the datasync service options for this context.
+    /// </param>
+    protected abstract void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder);
+
+    /// <summary>
+    /// Retrieves the offline options to use for a specific entity type.
+    /// </summary>
+    /// <param name="type">The entity type.</param>
+    /// <returns>The offline options to use for the entity type.</returns>
+    internal DatasyncOfflineOptions GetOfflineOptions(Type type)
+    {
+        ArgumentNullException.ThrowIfNull(type, nameof(type));
+        using (DatasyncInitializationLock.AcquireLock())
+        {
+            if (this.offlineOptionsBuilder == null)
+            {
+                QueueManager.InitializeEntityMap();
+                this.offlineOptionsBuilder = new DatasyncOfflineOptionsBuilder(QueueManager.EntityMap.Values);
+                OnDatasyncInitialization(this.offlineOptionsBuilder);
+            }
+        }
+
+        return this.offlineOptionsBuilder.GetOfflineOptions(type);
     }
 
     /// <summary>
@@ -414,9 +454,6 @@ public abstract class OfflineDbContext : DbContext
 
         return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken).ConfigureAwait(false);
     }
-
-    #region SaveChanges without adding to queue
-    #endregion
 
     #region IDisposable
     /// <summary>

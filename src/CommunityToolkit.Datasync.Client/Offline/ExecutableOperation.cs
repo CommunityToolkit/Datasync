@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Net.Http.Headers;
+
 namespace CommunityToolkit.Datasync.Client.Offline;
 
 /// <summary>
@@ -10,11 +12,39 @@ namespace CommunityToolkit.Datasync.Client.Offline;
 internal abstract class ExecutableOperation
 {
     /// <summary>
+    /// The JSON media type.
+    /// </summary>
+    internal MediaTypeHeaderValue JsonMediaType { get; } = MediaTypeHeaderValue.Parse("application/json");
+
+    /// <summary>
+    /// Converts a base address + relative/absolute URI into the appropriate URI for the datasync service.
+    /// </summary>
+    /// <param name="baseAddress">The base address from the client.</param>
+    /// <param name="relativeOrAbsoluteUri">A relative or absolute URI</param>
+    /// <returns></returns>
+    internal static Uri MakeAbsoluteUri(Uri? baseAddress, Uri relativeOrAbsoluteUri)
+    {
+        if (relativeOrAbsoluteUri.IsAbsoluteUri)
+        {
+            return relativeOrAbsoluteUri;
+        }
+
+        if (baseAddress != null && baseAddress.IsAbsoluteUri)
+        {
+            return new Uri(baseAddress, relativeOrAbsoluteUri);
+        }
+
+        throw new UriFormatException("Invalid combination of baseAddress and relativeUri");
+    }
+
+    /// <summary>
     /// Performs the push operation, returning the result of the push operation.
     /// </summary>
+    /// <param name="client">The <see cref="HttpClient"/> to use for communicating with the datasync service.</param>
+    /// <param name="endpoint">The fully-qualified URI to the table endpoint.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The result of the push operation (async).</returns>
-    internal abstract Task<PushOperationResult> ExecuteAsync(CancellationToken cancellationToken = default);
+    internal abstract Task<ServiceResponse> ExecuteAsync(HttpClient client, Uri endpoint, CancellationToken cancellationToken = default);
 
 #pragma warning disable IDE0060 // Remove unused parameter - cancellationToken is kept for API consistency.
     /// <summary>
@@ -40,9 +70,22 @@ internal abstract class ExecutableOperation
 /// <param name="operation">The operation to execute.</param>
 internal class AddOperation(DatasyncOperation operation) : ExecutableOperation
 {
-    internal override Task<PushOperationResult> ExecuteAsync(CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Performs the push operation, returning the result of the push operation.
+    /// </summary>
+    /// <param name="client">The <see cref="HttpClient"/> to use for communicating with the datasync service.</param>
+    /// <param name="endpoint">The fully-qualified URI to the table endpoint.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The result of the push operation (async).</returns>
+    internal override async Task<ServiceResponse> ExecuteAsync(HttpClient client, Uri endpoint, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        endpoint = MakeAbsoluteUri(client.BaseAddress, endpoint);
+        using HttpRequestMessage request = new(HttpMethod.Post, endpoint)
+        {
+            Content = new StringContent(operation.Item, JsonMediaType)
+        };
+        using HttpResponseMessage response = await client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        return new ServiceResponse(response);
     }
 }
 
@@ -52,7 +95,14 @@ internal class AddOperation(DatasyncOperation operation) : ExecutableOperation
 /// <param name="operation">The operation to execute.</param>
 internal class DeleteOperation(DatasyncOperation operation) : ExecutableOperation
 {
-    internal override Task<PushOperationResult> ExecuteAsync(CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Performs the push operation, returning the result of the push operation.
+    /// </summary>
+    /// <param name="client">The <see cref="HttpClient"/> to use for communicating with the datasync service.</param>
+    /// <param name="endpoint">The fully-qualified URI to the table endpoint.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The result of the push operation (async).</returns>
+    internal override Task<ServiceResponse> ExecuteAsync(HttpClient client, Uri endpoint, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
@@ -64,7 +114,14 @@ internal class DeleteOperation(DatasyncOperation operation) : ExecutableOperatio
 /// <param name="operation">The operation to execute.</param>
 internal class ReplaceOperation(DatasyncOperation operation) : ExecutableOperation
 {
-    internal override Task<PushOperationResult> ExecuteAsync(CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Performs the push operation, returning the result of the push operation.
+    /// </summary>
+    /// <param name="client">The <see cref="HttpClient"/> to use for communicating with the datasync service.</param>
+    /// <param name="endpoint">The fully-qualified URI to the table endpoint.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The result of the push operation (async).</returns>
+    internal override Task<ServiceResponse> ExecuteAsync(HttpClient client, Uri endpoint, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

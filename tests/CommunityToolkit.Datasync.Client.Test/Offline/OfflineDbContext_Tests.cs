@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+#pragma warning disable IDE0305 // Simplify collection initialization
+
 using CommunityToolkit.Datasync.Client.Offline;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Test.Offline.Helpers;
@@ -20,6 +22,27 @@ public class OfflineDbContext_Tests : BaseTest
     {
         TestDbContext context = new();
         context.QueueManager.Should().NotBeNull();
+    }
+    #endregion
+
+    #region GetOfflineOptions
+    [Fact]
+    public void GetOfflineOptions_Null()
+    {
+        TestDbContext context = CreateContext();
+        Action act = () => _ = context.GetOfflineOptions(null);
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void GetOfflineOptions_Works()
+    {
+        TestDbContext context = CreateContext();
+        DatasyncOfflineOptions actual = context.GetOfflineOptions(typeof(ClientMovie));
+
+        actual.HttpClient.Should().NotBeNull();
+        actual.HttpClient.BaseAddress.ToString().Should().Be("https://test.zumo.net/");
+        actual.Endpoint.ToString().Should().Be("/tables/movies");
     }
     #endregion
 

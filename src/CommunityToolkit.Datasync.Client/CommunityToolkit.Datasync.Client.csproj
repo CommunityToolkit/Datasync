@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>The client capabilities for developing applications using the Datasync Toolkit.</Description>
   </PropertyGroup>

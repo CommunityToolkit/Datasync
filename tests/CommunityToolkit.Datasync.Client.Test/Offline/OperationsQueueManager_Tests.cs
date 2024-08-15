@@ -24,13 +24,13 @@ public class OperationsQueueManager_Tests : BaseTest
     }
     #endregion
 
-    #region InitializeDatasyncEntityMap
+    #region InitializeEntityMap
     [Fact]
     public void InitializeDatasyncEntityMap_Works()
     {
         TestDbContext context = CreateContext();
         OperationsQueueManager sut = context.QueueManager;
-        sut.InitializeDatasyncEntityMap();
+        sut.InitializeEntityMap();
 
         Dictionary<string, Type> expected = new()
         {
@@ -38,7 +38,7 @@ public class OperationsQueueManager_Tests : BaseTest
             { typeof(Entity3).FullName, typeof(Entity3) }
         };
 
-        sut.DatasyncEntityMap.Should().NotBeNullOrEmpty().And.BeEquivalentTo(expected);
+        sut.EntityMap.Should().NotBeNullOrEmpty().And.BeEquivalentTo(expected);
     }
     #endregion
 

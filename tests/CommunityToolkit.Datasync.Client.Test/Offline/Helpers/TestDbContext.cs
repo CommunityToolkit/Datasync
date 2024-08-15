@@ -25,6 +25,17 @@ public class TestDbContext : OfflineDbContext
     {
     }
 
+    protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder
+            .UseEndpoint(new Uri("https://test.zumo.net/"))
+            .Entity<ClientMovie>(c =>
+            {
+                c.ClientName = "movies";
+                c.Endpoint = new Uri("/tables/movies", UriKind.Relative);
+            });
+    }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
