@@ -125,6 +125,24 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
         => nullableString ?? string.Empty;
 
     /// <summary>
+    /// Executes a push operation for a single entity.
+    /// </summary>
+    /// <param name="operation">The operation to push.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>A task that resolves to the operation result when the operation is completed.</returns>
+    internal async Task<PushOperationResult> PushOperation(DatasyncOperation operation, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(operation, nameof(operation));
+
+        // TODO: Wrap this in an AsyncLock for the operation OperationId.
+        ExecutableOperation op = await ExecutableOperation.CreateAsync(operation, cancellationToken).ConfigureAwait(false);
+        // TODO: Need to somehow get the HttpClient and endpoint information to get the table endpoint.
+        PushOperationResult result = await op.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+
+        return result;
+    }
+
+    /// <summary>
     /// Converts the EntityState to an OperationKind.
     /// </summary>
     /// <param name="entityState">The <see cref="EntityState"/> to convert.</param>
