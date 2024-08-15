@@ -2,7 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Service;
+using Microsoft.Extensions.Options;
+using System.Net;
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client.Offline;
 
@@ -26,12 +30,15 @@ internal abstract class ExecutableOperation
     {
         if (relativeOrAbsoluteUri.IsAbsoluteUri)
         {
-            return relativeOrAbsoluteUri;
+            return new Uri($"{relativeOrAbsoluteUri.ToString().TrimEnd('/')}/");
         }
 
-        if (baseAddress != null && baseAddress.IsAbsoluteUri)
+        if (baseAddress != null)
         {
-            return new Uri(baseAddress, relativeOrAbsoluteUri);
+            if (baseAddress.IsAbsoluteUri)
+            {
+                return new Uri($"{new Uri(baseAddress, relativeOrAbsoluteUri).ToString().TrimEnd('/')}/");
+            }
         }
 
         throw new UriFormatException("Invalid combination of baseAddress and relativeUri");
@@ -102,9 +109,17 @@ internal class DeleteOperation(DatasyncOperation operation) : ExecutableOperatio
     /// <param name="endpoint">The fully-qualified URI to the table endpoint.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The result of the push operation (async).</returns>
-    internal override Task<ServiceResponse> ExecuteAsync(HttpClient client, Uri endpoint, CancellationToken cancellationToken = default)
+    internal override async Task<ServiceResponse> ExecuteAsync(HttpClient client, Uri endpoint, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        endpoint = MakeAbsoluteUri(client.BaseAddress, endpoint);
+        using HttpRequestMessage request = new(HttpMethod.Delete, new Uri(endpoint, operation.ItemId));
+        if (!string.IsNullOrEmpty(operation.EntityVersion))
+        {
+            request.Headers.IfMatch.Add(new EntityTagHeaderValue($"\"{operation.EntityVersion}\""));
+        }
+
+        using HttpResponseMessage response = await client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        return new ServiceResponse(response);
     }
 }
 
@@ -121,8 +136,19 @@ internal class ReplaceOperation(DatasyncOperation operation) : ExecutableOperati
     /// <param name="endpoint">The fully-qualified URI to the table endpoint.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The result of the push operation (async).</returns>
-    internal override Task<ServiceResponse> ExecuteAsync(HttpClient client, Uri endpoint, CancellationToken cancellationToken = default)
+    internal override async Task<ServiceResponse> ExecuteAsync(HttpClient client, Uri endpoint, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        endpoint = MakeAbsoluteUri(client.BaseAddress, endpoint);
+        using HttpRequestMessage request = new(HttpMethod.Put, new Uri(endpoint, operation.ItemId))
+        {
+            Content = new StringContent(operation.Item, JsonMediaType)
+        };
+        if (!string.IsNullOrEmpty(operation.EntityVersion))
+        {
+            request.Headers.IfMatch.Add(new EntityTagHeaderValue($"\"{operation.EntityVersion}\""));
+        }
+
+        using HttpResponseMessage response = await client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        return new ServiceResponse(response);
     }
 }

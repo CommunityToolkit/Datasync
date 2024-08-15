@@ -141,17 +141,17 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
     /// <param name="operation">The operation to push.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A task that resolves to the operation result when the operation is completed.</returns>
-    internal async Task<ServiceResponse> PushOperation(DatasyncOperation operation, CancellationToken cancellationToken)
+    internal async Task<ServiceResponse> PushOperationAsync(DatasyncOperation operation, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(operation, nameof(operation));
 
+        InitializeEntityMap();
         DatasyncOfflineOptions offlineOptions = context.GetOfflineOptions(EntityMap[operation.EntityType]);
         string lockId = $"push-operation-{operation.Id}";
         using (await LockManager.AcquireLockAsync(lockId, cancellationToken).ConfigureAwait(false))
         {
             ExecutableOperation op = await ExecutableOperation.CreateAsync(operation, cancellationToken).ConfigureAwait(false);
-            ServiceResponse result = await op.ExecuteAsync(offlineOptions.HttpClient, offlineOptions.Endpoint, cancellationToken).ConfigureAwait(false);
-            return result;
+            return await op.ExecuteAsync(offlineOptions.HttpClient, offlineOptions.Endpoint, cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -285,6 +285,7 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
                 State = OperationState.Pending,
                 EntityType = NullAsEmpty(entityType.FullName),
                 ItemId = metadata.Id!,
+                EntityVersion = metadata.Version ?? string.Empty,
                 Item = JsonSerializer.Serialize(entry.Entity, entityType, JsonSerializerOptions),
                 Sequence = sequenceId,
                 Version = 0

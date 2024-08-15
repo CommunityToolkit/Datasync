@@ -177,7 +177,6 @@ public class DatasyncOfflineOptionsBuilder_Tests
         act.Should().Throw<DatasyncException>();
     }
 
-
     [Fact]
     public void GetOfflineOptions_Defaults()
     {

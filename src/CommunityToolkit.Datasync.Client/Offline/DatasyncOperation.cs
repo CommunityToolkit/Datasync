@@ -63,6 +63,11 @@ public class DatasyncOperation
     public required string ItemId { get; set; }
 
     /// <summary>
+    /// The version of the entity currently downloaded from the service.
+    /// </summary>
+    public required string EntityVersion { get; set; }
+
+    /// <summary>
     /// The JSON-encoded representation of the Item.
     /// </summary>
     public required string Item { get; set; }

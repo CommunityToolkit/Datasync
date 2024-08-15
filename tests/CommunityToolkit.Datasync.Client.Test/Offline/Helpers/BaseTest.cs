@@ -4,6 +4,8 @@
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Net.Http.Headers;
 
 namespace CommunityToolkit.Datasync.Client.Test.Offline.Helpers;
 
@@ -13,7 +15,6 @@ public abstract class BaseTest
     /// <summary>
     /// Creates a version of the TestDbContext backed by SQLite.
     /// </summary>
-    /// <returns></returns>
     protected static TestDbContext CreateContext()
     {
         SqliteConnection connection = new("Data Source=:memory:");
@@ -25,5 +26,18 @@ public abstract class BaseTest
         // Ensure the database is created.
         context.Database.EnsureCreated();
         return context;
+    }
+
+    /// <summary>
+    /// Creates a response message based on code and content.
+    /// </summary>
+    protected static HttpResponseMessage GetResponse(string content, HttpStatusCode code)
+    {
+        HttpResponseMessage response = new(code)
+        {
+            Content = new StringContent(content, MediaTypeHeaderValue.Parse("application/json"))
+        };
+        return response;
+
     }
 }

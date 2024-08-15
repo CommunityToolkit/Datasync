@@ -4,8 +4,10 @@
 
 #pragma warning disable IDE0051 // Remove unused private members
 
+using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Offline;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Mocks;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,8 +29,13 @@ public class TestDbContext : OfflineDbContext
 
     protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
     {
+        HttpClientOptions clientOptions = new()
+        {
+            Endpoint = new Uri("https://test.zumo.net"),
+            HttpPipeline = [ Handler ]
+        };
         optionsBuilder
-            .UseEndpoint(new Uri("https://test.zumo.net/"))
+            .UseHttpClientOptions(clientOptions)
             .Entity<ClientMovie>(c =>
             {
                 c.ClientName = "movies";
@@ -49,6 +56,8 @@ public class TestDbContext : OfflineDbContext
     }
 
     internal SqliteConnection Connection { get; set; }
+
+    internal MockDelegatingHandler Handler { get; set; } = new();
 
     public DbSet<ClientMovie> Movies => Set<ClientMovie>();
 
