@@ -2,9 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
+
 using CommunityToolkit.Datasync.Server.NSwag.Test.Service;
 using CommunityToolkit.Datasync.TestCommon;
-using FluentAssertions.Specialized;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.TestHost;
 using NSwag;
