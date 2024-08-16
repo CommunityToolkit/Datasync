@@ -17,6 +17,11 @@ namespace CommunityToolkit.Datasync.Client.Offline;
 internal static class LockManager
 {
     /// <summary>
+    /// The name of the shared synchronization lock.
+    /// </summary>
+    internal const string synchronizationLockName = "synclock";
+
+    /// <summary>
     /// The underlying async lock dictionary to use.
     /// </summary>
     internal static Lazy<AsyncLockDictionary> lockDictionary = new(() => new AsyncLockDictionary());

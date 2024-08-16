@@ -2,12 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client.Offline;
 
@@ -206,6 +209,141 @@ public abstract class OfflineDbContext : DbContext
         }
 
         return this.offlineOptionsBuilder.GetOfflineOptions(type);
+    }
+
+    /// <summary>
+    ///     Pushes entities from the all synchronizable entity types to the remote service.
+    /// </summary>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The results of the push operation.</returns>
+    public Task<PushOperationResult> PushAsync(CancellationToken cancellationToken = default)
+        => PushAsync(QueueManager.GetSynchronizableEntityTypes(), new PushOptions(), cancellationToken);
+
+    /// <summary>
+    ///     Pushes entities from the all synchronizable entity types to the remote service.
+    /// </summary>
+    /// <param name="pushOptions">The options to use for this push operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The results of the push operation.</returns>
+    [ExcludeFromCodeCoverage]
+    public Task<PushOperationResult> PushAsync(PushOptions pushOptions, CancellationToken cancellationToken = default)
+        => PushAsync(QueueManager.GetSynchronizableEntityTypes(), pushOptions, cancellationToken);
+
+    /// <summary>
+    ///     Pushes entities from the selected entity types to the remote service.
+    /// </summary>
+    /// <param name="entityTypes">The entity types in scope for this push operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The results of the push operation.</returns>
+    [ExcludeFromCodeCoverage]
+    public Task<PushOperationResult> PushAsync(IEnumerable<Type> entityTypes, CancellationToken cancellationToken = default)
+        => PushAsync(entityTypes, new PushOptions(), cancellationToken);
+
+    /// <summary>
+    ///     Pushes entities from the selected entity types to the remote service.
+    /// </summary>
+    /// <param name="entityTypes">The entity types in scope for this push operation.</param>
+    /// <param name="pushOptions">The options to use for this push operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The results of the push operation.</returns>
+    public virtual async Task<PushOperationResult> PushAsync(IEnumerable<Type> entityTypes, PushOptions pushOptions, CancellationToken cancellationToken = default)
+    {
+        ArgumentValidationException.ThrowIfNotValid(pushOptions, nameof(pushOptions));
+
+        if (pushOptions.AutoSave)
+        {
+            // Make sure the queued entities are up to date.
+            _ = SaveChanges(acceptAllChangesOnSuccess: true);
+        }
+
+        using IDisposable syncLock = await LockManager.AcquireLockAsync(LockManager.synchronizationLockName, cancellationToken).ConfigureAwait(false);
+
+        // Gets the list of EntityTypeNames for the synchronizable entities in the list.
+        List<string> entityTypeNames = QueueManager.GetSynchronizableEntityTypes(entityTypes).Select(t => t.FullName!).ToList();
+        if (entityTypeNames.Count == 0)
+        {
+            throw new DatasyncException("Provide at least one synchronizable entity type for push operations.");
+        }
+
+        // Gets the list of queued operations that are in-scope
+        List<DatasyncOperation> queuedOperations = await DatasyncOperationsQueue
+            .Where(x => entityTypeNames.Contains(x.EntityType) && x.State != OperationState.Completed)
+            .ToListAsync(cancellationToken).ConfigureAwait(false);
+        if (queuedOperations.Count == 0)
+        {
+            return new PushOperationResult();
+        }
+
+        // Pushes the list of queued operations to the remote service.
+        PushOperationResult pushResult = new();
+        QueueHandler<DatasyncOperation> queueHandler = new(pushOptions.ParallelOperations, async (operation) =>
+        {
+            ServiceResponse? response = await PushOperationAsync(operation, cancellationToken).ConfigureAwait(false);
+            pushResult.AddOperationResult(operation.Id, response);
+        });
+        queueHandler.EnqueueRange(queuedOperations);
+        await queueHandler.WhenComplete();
+
+        if (pushOptions.AutoSave)
+        {
+            _ = SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+        }
+        
+        return pushResult;
+    }
+
+    /// <summary>
+    /// Pushes a single operation in the context of a lock, updating the database at the same time.
+    /// </summary>
+    /// <param name="operation">The operation to execute.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The result of the operation.</returns>
+    internal async Task<ServiceResponse?> PushOperationAsync(DatasyncOperation operation, CancellationToken cancellationToken = default) 
+    {
+        string lockId = $"push-op-{operation.Id}";
+        using IDisposable operationLock = await LockManager.AcquireLockAsync(lockId, cancellationToken).ConfigureAwait(false);
+
+        Type entityType = QueueManager.GetSynchronizableEntityType(operation.EntityType)
+            ?? throw new DatasyncException($"Type '{operation.EntityType}' is not a synchronizable type.");
+        DatasyncOfflineOptions options = GetOfflineOptions(entityType);
+
+        ExecutableOperation op = await ExecutableOperation.CreateAsync(operation, cancellationToken).ConfigureAwait(false);
+        ServiceResponse response = await op.ExecuteAsync(options.HttpClient, options.Endpoint, cancellationToken).ConfigureAwait(false);
+
+        if (response.IsSuccessful)
+        {
+            if (operation.Kind != OperationKind.Delete)
+            {
+                object? newValue = JsonSerializer.Deserialize(response.ContentStream, entityType, DatasyncSerializer.JsonSerializerOptions);
+                object? oldValue = await FindAsync(entityType, [ operation.ItemId ], cancellationToken).ConfigureAwait(false);
+                ReplaceDatabaseValue(oldValue, newValue);
+            }
+
+            _ = DatasyncOperationsQueue.Remove(operation);
+            return null;
+        }
+
+        operation.LastAttempt = DateTimeOffset.UtcNow;
+        operation.HttpStatusCode = response.StatusCode;
+        operation.State = OperationState.Failed;
+        _ = Update(operation);
+        return response;
+    }
+
+    /// <summary>
+    /// Internal helper - replaces an old value of an entity in the database with a new value.
+    /// </summary>
+    /// <param name="oldValue">The old value.</param>
+    /// <param name="newValue">The new value.</param>
+    internal void ReplaceDatabaseValue(object? oldValue, object? newValue)
+    {
+        if (oldValue is null || newValue is null)
+        {
+            throw new DatasyncException("Internal Datasync Error: invalid values for replacement.");
+        }
+
+        EntityEntry tracker = Entry(oldValue);
+        tracker.CurrentValues.SetValues(newValue);
     }
 
     /// <summary>

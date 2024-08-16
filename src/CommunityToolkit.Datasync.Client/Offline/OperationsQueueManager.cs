@@ -62,6 +62,38 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
     }
 
     /// <summary>
+    /// Returns the list of types  that are "synchronizable".
+    /// </summary>
+    /// <returns>The list of allowed synchronizable types.</returns>
+    internal IEnumerable<Type> GetSynchronizableEntityTypes()
+    {
+        InitializeEntityMap();
+        return EntityMap.Values;
+    }
+
+    /// <summary>
+    /// Returns the list of types from the allowed types that are "synchronizable".
+    /// </summary>
+    /// <param name="allowedTypes">The list of allowed types.</param>
+    /// <returns>The list of allowed synchronizable types.</returns>
+    internal IEnumerable<Type> GetSynchronizableEntityTypes(IEnumerable<Type> allowedTypes)
+    {
+        InitializeEntityMap();
+        return allowedTypes.Where(x => EntityMap.ContainsValue(x));
+    }
+
+    /// <summary>
+    /// Returns the associated type for the operation queue name.
+    /// </summary>
+    /// <param name="fullName">The name of the type.</param>
+    /// <returns>The type.</returns>
+    internal Type? GetSynchronizableEntityType(string fullName)
+    {
+        InitializeEntityMap();
+        return EntityMap.TryGetValue(fullName, out Type? entityType) ? entityType : null;
+    }
+
+    /// <summary>
     /// Initializes the value of the <see cref="EntityMap"/> - this provides the mapping 
     /// of entity name to type, which is required for operating the operations queue.
     /// </summary>
@@ -134,26 +166,6 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
     /// <returns>The non-nullable string.</returns>
     internal static string NullAsEmpty(string? nullableString)
         => nullableString ?? string.Empty;
-
-    /// <summary>
-    /// Executes a push operation for a single entity.
-    /// </summary>
-    /// <param name="operation">The operation to push.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>A task that resolves to the operation result when the operation is completed.</returns>
-    internal async Task<ServiceResponse> PushOperationAsync(DatasyncOperation operation, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(operation, nameof(operation));
-
-        InitializeEntityMap();
-        DatasyncOfflineOptions offlineOptions = context.GetOfflineOptions(EntityMap[operation.EntityType]);
-        string lockId = $"push-operation-{operation.Id}";
-        using (await LockManager.AcquireLockAsync(lockId, cancellationToken).ConfigureAwait(false))
-        {
-            ExecutableOperation op = await ExecutableOperation.CreateAsync(operation, cancellationToken).ConfigureAwait(false);
-            return await op.ExecuteAsync(offlineOptions.HttpClient, offlineOptions.Endpoint, cancellationToken).ConfigureAwait(false);
-        }
-    }
 
     /// <summary>
     /// Converts the EntityState to an OperationKind.
@@ -248,6 +260,9 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
     public async Task UpdateOperationsQueueAsync(CancellationToken cancellationToken = default)
     {
         CheckDisposed();
+
+        using IDisposable syncLock = await LockManager.AcquireLockAsync(LockManager.synchronizationLockName, cancellationToken).ConfigureAwait(false);
+
         InitializeEntityMap();
 
         if (context.ChangeTracker.AutoDetectChangesEnabled)
