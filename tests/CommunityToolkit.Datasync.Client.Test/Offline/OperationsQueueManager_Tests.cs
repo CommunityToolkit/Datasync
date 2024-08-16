@@ -24,13 +24,69 @@ public class OperationsQueueManager_Tests : BaseTest
     }
     #endregion
 
-    #region InitializeDatasyncEntityMap
+    #region GetSynchronizableEntityTypes
+    [Fact]
+    public void GetSynchronizableEntityTypes_NoArg()
+    {
+        TestDbContext context = CreateContext();
+        OperationsQueueManager sut = context.QueueManager;
+        List<Type> expectedTypes = [typeof(ClientMovie), typeof(Entity3)];
+
+        sut.GetSynchronizableEntityTypes().Should().BeEquivalentTo(expectedTypes);
+    }
+
+    [Fact]
+    public void GetSynchronizableEntityTypes_Empty()
+    {
+        TestDbContext context = CreateContext();
+        OperationsQueueManager sut = context.QueueManager;
+        List<Type> allowedTypes = [];
+        List<Type> expectedTypes = [];
+
+        sut.GetSynchronizableEntityTypes(allowedTypes).Should().BeEquivalentTo(expectedTypes);
+    }
+
+    [Fact]
+    public void GetSynchronizableEntityTypes_None()
+    {
+        TestDbContext context = CreateContext();
+        OperationsQueueManager sut = context.QueueManager;
+        List<Type> allowedTypes = [typeof(Entity1), typeof(Entity4)];
+        List<Type> expectedTypes = [];
+
+        sut.GetSynchronizableEntityTypes(allowedTypes).Should().BeEquivalentTo(expectedTypes);
+    }
+
+    [Fact]
+    public void GetSynchronizableEntityTypes_Some()
+    {
+        TestDbContext context = CreateContext();
+        OperationsQueueManager sut = context.QueueManager;
+        List<Type> allowedTypes = [typeof(Entity1), typeof(ClientMovie), typeof(Entity4)];
+        List<Type> expectedTypes = [typeof(ClientMovie)];
+
+        sut.GetSynchronizableEntityTypes(allowedTypes).Should().BeEquivalentTo(expectedTypes);
+    }
+
+    [Fact]
+    public void GetSynchronizableEntityTypes_All()
+    {
+        TestDbContext context = CreateContext();
+        OperationsQueueManager sut = context.QueueManager;
+        List<Type> allowedTypes = [typeof(Entity3), typeof(ClientMovie)];
+        List<Type> expectedTypes = [typeof(ClientMovie), typeof(Entity3)];
+
+        sut.GetSynchronizableEntityTypes(allowedTypes).Should().BeEquivalentTo(expectedTypes);
+    }
+    #endregion
+
+    #region InitializeEntityMap
     [Fact]
     public void InitializeDatasyncEntityMap_Works()
     {
         TestDbContext context = CreateContext();
         OperationsQueueManager sut = context.QueueManager;
-        sut.InitializeDatasyncEntityMap();
+        sut.InitializeEntityMap();
 
         Dictionary<string, Type> expected = new()
         {
@@ -38,7 +94,7 @@ public class OperationsQueueManager_Tests : BaseTest
             { typeof(Entity3).FullName, typeof(Entity3) }
         };
 
-        sut.DatasyncEntityMap.Should().NotBeNullOrEmpty().And.BeEquivalentTo(expected);
+        sut.EntityMap.Should().NotBeNullOrEmpty().And.BeEquivalentTo(expected);
     }
     #endregion
 

@@ -104,9 +104,7 @@ public class DatasyncServiceClient_Tests : IDisposable
 
     private static HttpResponseMessage GetSuccessfulResponse(ClientKitchenSink entity, HttpStatusCode code = HttpStatusCode.OK)
     {
-        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
-        string json = JsonSerializer.Serialize(entity, serializerOptions);
-
+        string json = DatasyncSerializer.Serialize(entity);
         HttpResponseMessage response = new(code)
         {
             Content = new StringContent(json, Encoding.UTF8, "application/json")

@@ -19,6 +19,24 @@ internal static class DatasyncSerializer
     internal static JsonSerializerOptions JsonSerializerOptions { get => _initializer.Value; }
 
     /// <summary>
+    /// Serializes an object using the serializer options.
+    /// </summary>
+    /// <typeparam name="T">The type of the object.</typeparam>
+    /// <param name="obj">The object.</param>
+    /// <returns>The serialized version of the object.</returns>
+    internal static string Serialize<T>(T obj)
+        => JsonSerializer.Serialize(obj, JsonSerializerOptions);
+
+    /// <summary>
+    /// Serializes an object using the serializer options.
+    /// </summary>
+    /// <param name="obj">The object.</param>
+    /// <param name="objType">The type of the object.</param>
+    /// <returns>The serialized version of the object.</returns>
+    internal static string Serialize(object obj, Type objType)
+        => JsonSerializer.Serialize(obj, objType, JsonSerializerOptions);
+
+    /// <summary>
     /// Internal method to create a new <see cref="JsonSerializerOptions"/> object for serializing and deserializing
     /// content in the service.  You should never have to call this.
     /// </summary>

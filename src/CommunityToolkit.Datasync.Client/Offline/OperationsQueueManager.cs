@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Serialization;
+using CommunityToolkit.Datasync.Client.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -27,7 +28,12 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
     /// <summary>
     /// The internal entity map for mapping entities that have been determined to be valid synchronization targets.
     /// </summary>
-    internal Dictionary<string, Type> DatasyncEntityMap { get; } = [];
+    internal Dictionary<string, Type> EntityMap { get; } = [];
+
+    /// <summary>
+    /// The lock for writing to the entity map.
+    /// </summary>
+    private readonly DisposableLock entityMapLock = new();
 
     /// <summary>
     /// The JSON Serializer Options to use in serializing and deserializing content.
@@ -56,7 +62,39 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
     }
 
     /// <summary>
-    /// Initializes the value of the <see cref="DatasyncEntityMap"/> - this provides the mapping 
+    /// Returns the list of types  that are "synchronizable".
+    /// </summary>
+    /// <returns>The list of allowed synchronizable types.</returns>
+    internal IEnumerable<Type> GetSynchronizableEntityTypes()
+    {
+        InitializeEntityMap();
+        return EntityMap.Values;
+    }
+
+    /// <summary>
+    /// Returns the list of types from the allowed types that are "synchronizable".
+    /// </summary>
+    /// <param name="allowedTypes">The list of allowed types.</param>
+    /// <returns>The list of allowed synchronizable types.</returns>
+    internal IEnumerable<Type> GetSynchronizableEntityTypes(IEnumerable<Type> allowedTypes)
+    {
+        InitializeEntityMap();
+        return allowedTypes.Where(x => EntityMap.ContainsValue(x));
+    }
+
+    /// <summary>
+    /// Returns the associated type for the operation queue name.
+    /// </summary>
+    /// <param name="fullName">The name of the type.</param>
+    /// <returns>The type.</returns>
+    internal Type? GetSynchronizableEntityType(string fullName)
+    {
+        InitializeEntityMap();
+        return EntityMap.TryGetValue(fullName, out Type? entityType) ? entityType : null;
+    }
+
+    /// <summary>
+    /// Initializes the value of the <see cref="EntityMap"/> - this provides the mapping 
     /// of entity name to type, which is required for operating the operations queue.
     /// </summary>
     /// <remarks>
@@ -68,26 +106,31 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
     /// * The entity type is defined in the model.
     /// * The entity type has an Id, UpdatedAt, and Version property (according to the <see cref="EntityResolver"/>).
     /// </remarks>
-    internal void InitializeDatasyncEntityMap()
+    internal void InitializeEntityMap()
     {
-        if (DatasyncEntityMap.Count > 0)
+        if (EntityMap.Count > 0)
         {
-            // Fast return if the entity map has already been primed.
             return;
         }
 
-        Type[] modelEntities = context.Model.GetEntityTypes().Select(m => m.ClrType).ToArray();
-        Type[] synchronizableEntities = context.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(IsSynchronizationEntity)
-            .Select(p => p.PropertyType.GetGenericArguments()[0])
-            .ToArray();
-        foreach (Type entityType in synchronizableEntities)
+        using (this.entityMapLock.AcquireLock())
         {
-            DatasyncException.ThrowIfNullOrEmpty(entityType.FullName, $"Offline entity {entityType.Name} must be a valid reference type.");
-            EntityResolver.EntityPropertyInfo propInfo = EntityResolver.GetEntityPropertyInfo(entityType);
-            DatasyncException.ThrowIfNull(propInfo.UpdatedAtPropertyInfo, $"Offline entity {entityType.Name} does not have an UpdatedAt property.");
-            DatasyncException.ThrowIfNull(propInfo.VersionPropertyInfo, $"Offline entity {entityType.Name} does not have a Version property.");
-            DatasyncEntityMap.Add(entityType.FullName!, entityType);
+            if (EntityMap.Count == 0)
+            {
+                Type[] modelEntities = context.Model.GetEntityTypes().Select(m => m.ClrType).ToArray();
+                Type[] synchronizableEntities = context.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(IsSynchronizationEntity)
+                    .Select(p => p.PropertyType.GetGenericArguments()[0])
+                    .ToArray();
+                foreach (Type entityType in synchronizableEntities)
+                {
+                    DatasyncException.ThrowIfNullOrEmpty(entityType.FullName, $"Offline entity {entityType.Name} must be a valid reference type.");
+                    EntityResolver.EntityPropertyInfo propInfo = EntityResolver.GetEntityPropertyInfo(entityType);
+                    DatasyncException.ThrowIfNull(propInfo.UpdatedAtPropertyInfo, $"Offline entity {entityType.Name} does not have an UpdatedAt property.");
+                    DatasyncException.ThrowIfNull(propInfo.VersionPropertyInfo, $"Offline entity {entityType.Name} does not have a Version property.");
+                    EntityMap.Add(entityType.FullName!, entityType);
+                }
+            }
         }
     }
 
@@ -217,7 +260,10 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
     public async Task UpdateOperationsQueueAsync(CancellationToken cancellationToken = default)
     {
         CheckDisposed();
-        InitializeDatasyncEntityMap();
+
+        using IDisposable syncLock = await LockManager.AcquireLockAsync(LockManager.synchronizationLockName, cancellationToken).ConfigureAwait(false);
+
+        InitializeEntityMap();
 
         if (context.ChangeTracker.AutoDetectChangesEnabled)
         {
@@ -227,7 +273,7 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
         // Get the list of relevant changes from the change tracker:
         List<EntityEntry> entitiesInScope = context.ChangeTracker.Entries()
             .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
-            .Where(e => DatasyncEntityMap.ContainsKey(NullAsEmpty(e.Entity.GetType().FullName)))
+            .Where(e => EntityMap.ContainsKey(NullAsEmpty(e.Entity.GetType().FullName)))
             .ToList();
 
         // Get the current sequence ID.  Note that ORDERBY/TOP is generally faster than aggregate functions in databases.
@@ -254,6 +300,7 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
                 State = OperationState.Pending,
                 EntityType = NullAsEmpty(entityType.FullName),
                 ItemId = metadata.Id!,
+                EntityVersion = metadata.Version ?? string.Empty,
                 Item = JsonSerializer.Serialize(entry.Entity, entityType, JsonSerializerOptions),
                 Sequence = sequenceId,
                 Version = 0
@@ -300,7 +347,7 @@ internal class OperationsQueueManager(OfflineDbContext context) : IDisposable
         {
             if (disposing)
             {
-                // Remove any managed content here.
+                this.entityMapLock.Dispose();
             }
 
             this._disposedValue = true;
