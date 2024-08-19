@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Http;
+using CommunityToolkit.Datasync.Client.Offline.Internal;
 
 namespace CommunityToolkit.Datasync.Client.Offline;
 
@@ -105,25 +106,26 @@ public class DatasyncOfflineOptionsBuilder
     }
 
     /// <summary>
-    /// Retrieves the offline options for the entity type.
+    /// Converts the builder into a read-only set of options.
     /// </summary>
-    /// <param name="entityType">The entity type.</param>
-    /// <returns>The offline options for the entity type.</returns>
-    internal DatasyncOfflineOptions GetOfflineOptions(Type entityType)
+    /// <returns>The offline options built from this builder.</returns>
+    internal OfflineOptions Build()
     {
-        ArgumentNullException.ThrowIfNull(entityType, nameof(entityType));
         if (this._httpClientFactory == null)
         {
             throw new DatasyncException($"Datasync service connection is not set.");
         }
 
-        if (!this._entities.TryGetValue(entityType.FullName!, out EntityOfflineOptions? options))
+        OfflineOptions result = new()
         {
-            throw new DatasyncException($"Entity is not synchronizable.");
+            HttpClientFactory = this._httpClientFactory
+        };
+        foreach (EntityOfflineOptions entity in this._entities.Values)
+        {
+            result.AddEntity(entity.EntityType, entity.ClientName, entity.Endpoint);
         }
 
-        HttpClient client = this._httpClientFactory.CreateClient(options.ClientName);
-        return new DatasyncOfflineOptions(client, options.Endpoint);
+        return result;
     }
 
     /// <summary>
