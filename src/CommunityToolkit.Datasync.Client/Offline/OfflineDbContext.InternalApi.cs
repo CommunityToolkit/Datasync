@@ -122,6 +122,15 @@ public partial class OfflineDbContext
         }
 
         /// <summary>
+        /// Retrieves the list of queued operations for the service.
+        /// </summary>
+        /// <param name="entityTypeNames">The list of entity types that are in scope.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>The list of queued operations.</returns>
+        internal Task<List<DatasyncOperation>> GetQueuedOperationsAsync(List<string> entityTypeNames, CancellationToken cancellationToken = default)
+            => this._context.DatasyncOperationsQueue.Where(x => entityTypeNames.Contains(x.EntityType) && x.State != OperationState.Completed).ToListAsync(cancellationToken);
+
+        /// <summary>
         /// Returns the associated type for the operation queue name.
         /// </summary>
         /// <param name="fullName">The name of the type.</param>
@@ -181,10 +190,9 @@ public partial class OfflineDbContext
             ArgumentNullException.ThrowIfNull(entityTypes, nameof(entityTypes));
             ArgumentValidationException.ThrowIfNotValid(pushOptions, nameof(pushOptions));
             List<string> entityTypeNames = GetSynchronizableEntityTypes(entityTypes).Select(x => x.FullName!).ToList();
-            PushOperationResult result = new();
             if (entityTypeNames.Count == 0)
             {
-                return result;
+                return new PushOperationResult();
             }
 
             if (pushOptions.AutoSave)
@@ -193,10 +201,21 @@ public partial class OfflineDbContext
             }
 
             using IDisposable syncLock = await LockManager.AcquireSynchronizationLockAsync(cancellationToken).ConfigureAwait(false);
-
-            List<DatasyncOperation> queuedOperations = await this._context.DatasyncOperationsQueue
-                .Where(x => entityTypeNames.Contains(x.EntityType) && x.State != OperationState.Completed)
-                .ToListAsync(cancellationToken).ConfigureAwait(false);
+            return await PushAsyncInner(entityTypeNames, pushOptions, cancellationToken).ConfigureAwait(false);
+        }
+        
+        /// <summary>
+        /// This is the same as <see cref="PushAsync(IEnumerable{Type}, PushOptions, CancellationToken)"/>, but without the lock.  This is so that it
+        /// can be re-used as part of the PullAsync operation which also requires a synchronization lock.
+        /// </summary>
+        /// <param name="entityTypeNames">The list of entity type names that are being pushed.</param>
+        /// <param name="pushOptions">The push options.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>The push result.</returns>
+        internal async Task<PushOperationResult> PushAsyncInner(List<string> entityTypeNames, PushOptions pushOptions, CancellationToken cancellationToken = default)
+        {
+            PushOperationResult result = new();
+            List<DatasyncOperation> queuedOperations = await GetQueuedOperationsAsync(entityTypeNames, cancellationToken).ConfigureAwait(false);
             if (queuedOperations.Count == 0)
             {
                 return result;

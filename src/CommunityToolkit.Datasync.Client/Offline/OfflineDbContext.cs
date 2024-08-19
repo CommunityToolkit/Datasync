@@ -74,6 +74,12 @@ public abstract partial class OfflineDbContext : DbContext
     public DbSet<DatasyncOperation> DatasyncOperationsQueue => Set<DatasyncOperation>();
 
     /// <summary>
+    /// The store for delta-tokens, which are used to keep track of the last synchronization time.
+    /// </summary>
+    [DoNotSynchronize]
+    public DbSet<DatasyncDeltaToken> DatasyncDeltaTokenStore => Set<DatasyncDeltaToken>();
+
+    /// <summary>
     /// The JSON Serializer Options to use in serializing and deserializing content.
     /// </summary>
     protected JsonSerializerOptions JsonSerializerOptions { get; set; } = DatasyncSerializer.JsonSerializerOptions;
@@ -190,7 +196,7 @@ public abstract partial class OfflineDbContext : DbContext
     protected abstract void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder);
 
     /// <summary>
-    ///     Pushes entities from the all synchronizable entity types to the remote service.
+    ///     Pushes entities from all synchronizable entity types to the remote service.
     /// </summary>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The results of the push operation.</returns>
@@ -198,7 +204,7 @@ public abstract partial class OfflineDbContext : DbContext
         => PushAsync(this._internalApi.GetSynchronizableEntityTypes(), new PushOptions(), cancellationToken);
 
     /// <summary>
-    ///     Pushes entities from the all synchronizable entity types to the remote service.
+    ///     Pushes entities from all synchronizable entity types to the remote service.
     /// </summary>
     /// <param name="pushOptions">The options to use for this push operation.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>

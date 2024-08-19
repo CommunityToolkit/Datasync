@@ -140,13 +140,13 @@ public class DatasyncOfflineOptionsBuilder
         public Type EntityType { get => entityType; }
 
         /// <summary>
-        /// The endpoint for the entity type.
-        /// </summary>
-        public Uri Endpoint { get; set; } = new Uri($"/tables/{entityType.Name.ToLowerInvariant()}", UriKind.Relative);
-
-        /// <summary>
         /// The name of the client to use when requesting a <see cref="HttpClient"/>.
         /// </summary>
         public string ClientName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The endpoint for the entity type.
+        /// </summary>
+        public Uri Endpoint { get; set; } = new Uri($"/tables/{entityType.Name.ToLowerInvariant()}", UriKind.Relative);
     }
 }

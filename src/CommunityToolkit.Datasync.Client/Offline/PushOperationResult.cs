@@ -12,8 +12,8 @@ namespace CommunityToolkit.Datasync.Client.Offline;
 /// </summary>
 public class PushOperationResult
 {
-    private int _completedOperations = 0;
-    private readonly ConcurrentDictionary<string, ServiceResponse> _failedOperations = new();
+    internal int _completedOperations = 0;
+    internal readonly ConcurrentDictionary<string, ServiceResponse> _failedOperations = new();
 
     /// <summary>
     /// The number of completed operations.
