@@ -272,7 +272,6 @@ public class DbSetExtension_Tests : BaseTest
 
         context.DatasyncOperationsQueue.Should().HaveCount(1);
     }
-    #endregion
 
     [Fact]
     public async Task PushAsync_Throws_NonOffline()
@@ -281,4 +280,16 @@ public class DbSetExtension_Tests : BaseTest
         Func<Task> act = async () => _ = await context.Movies.PushAsync();
         await act.Should().ThrowAsync<DatasyncException>();
     }
+    #endregion
+
+    #region AsNullableEmptyString()
+    [Theory]
+    [InlineData(null, "")]
+    [InlineData("", "")]
+    [InlineData("foo", "foo")]
+    public void NullAsEmpty_Works(string value, string expected)
+    {
+        value.AsNullableEmptyString().Should().Be(expected);
+    }
+    #endregion
 }

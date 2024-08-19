@@ -42,4 +42,12 @@ public static class DbSetExtensions
             throw new DatasyncException("DbContext for this dataset is not an OfflineDbContext.");
         }
     }
+
+    /// <summary>
+    /// Converts the string to an empty string if null.
+    /// </summary>
+    /// <param name="value">The value to convert.</param>
+    /// <returns>The converted value.</returns>
+    public static string AsNullableEmptyString(this string? value)
+        => value ?? string.Empty;
 }

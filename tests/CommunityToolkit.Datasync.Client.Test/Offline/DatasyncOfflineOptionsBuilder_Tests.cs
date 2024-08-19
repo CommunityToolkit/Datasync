@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Offline;
+using CommunityToolkit.Datasync.Client.Offline.Internal;
 using CommunityToolkit.Datasync.Client.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using NSubstitute;
@@ -157,41 +158,30 @@ public class DatasyncOfflineOptionsBuilder_Tests
     }
 
     [Fact]
-    public void GetOfflineOptions_NoClientFactory()
+    public void Build_NoClientFactory()
     {
         Type[] entityTypes = [typeof(ClientMovie), typeof(ClientKitchenSink)];
         DatasyncOfflineOptionsBuilder sut = new(entityTypes);
 
-        Action act = () => _ = sut.GetOfflineOptions(typeof(ClientMovie));
+        Action act = () => _ = sut.Build();
         act.Should().Throw<DatasyncException>();
     }
 
     [Fact]
-    public void GetOfflineOptions_InvalidEntityType()
-    {
-        Type[] entityTypes = [typeof(ClientMovie), typeof(ClientKitchenSink)];
-        DatasyncOfflineOptionsBuilder sut = new(entityTypes);
-        sut.UseEndpoint(new Uri("http://localhost"));
-
-        Action act = () => _ = sut.GetOfflineOptions(typeof(InMemoryMovie));
-        act.Should().Throw<DatasyncException>();
-    }
-
-    [Fact]
-    public void GetOfflineOptions_Defaults()
+    public void Build_Defaults()
     {
         Type[] entityTypes = [typeof(ClientMovie), typeof(ClientKitchenSink)];
         DatasyncOfflineOptionsBuilder sut = new(entityTypes);
         HttpClient client = new();
 
         sut.UseHttpClient(client);
-        DatasyncOfflineOptions options = sut.GetOfflineOptions(typeof(ClientMovie));
-        options.Endpoint.ToString().Should().Be("/tables/clientmovie");
-        options.HttpClient.Should().BeSameAs(client);
+        OfflineOptions options = sut.Build();
+        options.GetEndpoint(typeof(ClientMovie)).ToString().Should().Be("/tables/clientmovie");
+        options.GetClient(typeof(ClientMovie)).Should().BeSameAs(client);
     }
 
     [Fact]
-    public void GetOfflineOptions_Sets()
+    public void Build_Sets()
     {
         Type[] entityTypes = [typeof(ClientMovie), typeof(ClientKitchenSink)];
         DatasyncOfflineOptionsBuilder sut = new(entityTypes);
@@ -205,9 +195,9 @@ public class DatasyncOfflineOptionsBuilder_Tests
             opt.Endpoint = new Uri("http://localhost/foo");
         });
 
-        DatasyncOfflineOptions options = sut.GetOfflineOptions(typeof(ClientMovie));
-        options.HttpClient.Should().NotBeNull();
-        options.Endpoint.ToString().Should().Be("http://localhost/foo");
+        OfflineOptions options = sut.Build();
+        options.GetClient(typeof(ClientMovie)).Should().NotBeNull();
+        options.GetEndpoint(typeof(ClientMovie)).ToString().Should().Be("http://localhost/foo");
 
         factory.Received().CreateClient("foo");
     }

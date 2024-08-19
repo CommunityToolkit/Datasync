@@ -2,9 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Client.Threading;
-
-namespace CommunityToolkit.Datasync.Client.Offline;
+namespace CommunityToolkit.Datasync.Client.Threading;
 
 /// <summary>
 /// A manager for disposable locks that are used throughout the offline
@@ -34,4 +32,12 @@ internal static class LockManager
     /// <returns>An <see cref="IDisposable"/> that can be used to release the lock.</returns>
     internal static Task<IDisposable> AcquireLockAsync(string key, CancellationToken cancellationToken)
         => lockDictionary.Value.AcquireLockAsync(key, cancellationToken);
+
+    /// <summary>
+    /// Acquire a disposable lock for synchronization events.
+    /// </summary>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>An <see cref="IDisposable"/> that can be used to release the lock.</returns>
+    internal static Task<IDisposable> AcquireSynchronizationLockAsync(CancellationToken cancellationToken = default)
+        => lockDictionary.Value.AcquireLockAsync(synchronizationLockName, cancellationToken);
 }

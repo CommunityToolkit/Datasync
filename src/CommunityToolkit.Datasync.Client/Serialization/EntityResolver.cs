@@ -4,6 +4,7 @@
 
 #pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
 
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -17,7 +18,7 @@ internal static class EntityResolver
     /// <summary>
     /// The internal cache of entity property information.
     /// </summary>
-    internal static Dictionary<Type, EntityPropertyInfo> cache = [];
+    internal static ConcurrentDictionary<Type, EntityPropertyInfo> cache = [];
 
     /// <summary>
     /// The regular expression for an entity identity property.
@@ -46,16 +47,7 @@ internal static class EntityResolver
     /// <param name="type">The type to be processed.</param>
     /// <returns>The <see cref="EntityPropertyInfo"/> for a given type.</returns>
     internal static EntityPropertyInfo GetEntityPropertyInfo(Type type)
-    {
-        if (cache.TryGetValue(type, out EntityPropertyInfo? entityPropertyInfo))
-        {
-            return entityPropertyInfo;
-        }
-
-        EntityPropertyInfo createdInfo = new(type);
-        cache.Add(type, createdInfo);
-        return createdInfo;
-    }
+        => cache.GetOrAdd(type, t => new EntityPropertyInfo(t));
 
     /// <summary>
     /// Retrieves the <see cref="EntityMetadata"/> for the given entity.
