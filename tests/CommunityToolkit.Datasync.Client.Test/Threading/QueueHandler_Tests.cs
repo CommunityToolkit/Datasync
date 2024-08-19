@@ -47,7 +47,9 @@ public class QueueHandler_Tests
         accId.Should().HaveCount(nElements);
         accTh.Should().HaveCount(nElements);
         accTh.AsEnumerable().Distinct().Should().HaveCount(nThreads);
-        (endTime - startTime).TotalSeconds.Should().BeLessThanOrEqualTo((nElements / nThreads) + 2);
+        // This just makes sure that the amount of time is "of the right order of magnitude" since CI systems
+        // are notoriously bad at correct timings.  We just don't want it to be 10x the expected time.
+        (endTime - startTime).TotalSeconds.Should().BeLessThanOrEqualTo((nElements / nThreads) + 5);
     }
 
     [Theory(Timeout = 30000)]
