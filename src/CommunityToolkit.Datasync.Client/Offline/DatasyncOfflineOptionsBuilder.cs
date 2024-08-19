@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Offline.Internal;
+using CommunityToolkit.Datasync.Client.Query.Linq;
 
 namespace CommunityToolkit.Datasync.Client.Offline;
 
@@ -83,8 +84,21 @@ public class DatasyncOfflineOptionsBuilder
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="configure">A configuration function for the entity.</param>
     /// <returns>The current builder for chaining.</returns>
-    public DatasyncOfflineOptionsBuilder Entity<TEntity>(Action<EntityOfflineOptions> configure) 
-        => Entity(typeof(TEntity), configure);
+    public DatasyncOfflineOptionsBuilder Entity<TEntity>(Action<EntityOfflineOptions<TEntity>> configure) where TEntity : class
+    {
+        ArgumentNullException.ThrowIfNull(configure, nameof(configure));
+        if (!this._entities.TryGetValue(typeof(TEntity).FullName!, out EntityOfflineOptions? options))
+        {
+            throw new DatasyncException($"Entity is not synchronizable.");
+        }
+
+        EntityOfflineOptions<TEntity> entity = new();
+        configure(entity);
+        options.ClientName = entity.ClientName;
+        options.Endpoint = entity.Endpoint;
+        options.QueryDescription = new QueryTranslator<TEntity>(entity.Query).Translate();
+        return this;
+    }
 
     /// <summary>
     /// Configures the specified entity type for offline operations.
@@ -120,9 +134,10 @@ public class DatasyncOfflineOptionsBuilder
         {
             HttpClientFactory = this._httpClientFactory
         };
+
         foreach (EntityOfflineOptions entity in this._entities.Values)
         {
-            result.AddEntity(entity.EntityType, entity.ClientName, entity.Endpoint);
+            result.AddEntity(entity.EntityType, entity.ClientName, entity.Endpoint, entity.QueryDescription);
         }
 
         return result;
@@ -148,5 +163,37 @@ public class DatasyncOfflineOptionsBuilder
         /// The endpoint for the entity type.
         /// </summary>
         public Uri Endpoint { get; set; } = new Uri($"/tables/{entityType.Name.ToLowerInvariant()}", UriKind.Relative);
+
+        /// <summary>
+        /// The query description for the entity type - may be null (to mean "pull everything").
+        /// </summary>
+        internal QueryDescription? QueryDescription { get; set; }
+    }
+
+    /// <summary>
+    /// A typed version of the <see cref="EntityOfflineOptions"/> for setting up queries.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of entity being stored.</typeparam>
+    public class EntityOfflineOptions<TEntity>() where TEntity : class
+    {
+        /// <summary>
+        /// The entity type being configured.
+        /// </summary>
+        public Type EntityType { get => typeof(TEntity); }
+
+        /// <summary>
+        /// The name of the client to use when requesting a <see cref="HttpClient"/>.
+        /// </summary>
+        public string ClientName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The endpoint for the entity type.
+        /// </summary>
+        public Uri Endpoint { get; set; } = new Uri($"/tables/{typeof(TEntity).Name.ToLowerInvariant()}", UriKind.Relative);
+
+        /// <summary>
+        /// The query used to pull the data from the service.
+        /// </summary>
+        public IDatasyncPullQuery<TEntity> Query = new DatasyncPullQuery<TEntity>();
     }
 }

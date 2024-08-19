@@ -6,7 +6,8 @@
 // a generalized "nullable" option here to allow us to do that.
 #nullable disable
 
-using CommunityToolkit.Datasync.Client.Service;
+using CommunityToolkit.Datasync.Client.Offline;
+using CommunityToolkit.Datasync.Client.Serialization;
 using System.Linq.Expressions;
 using System.Text.Json;
 
@@ -29,15 +30,27 @@ internal class QueryTranslator<T> where T : class
     internal QueryTranslator(IDatasyncQueryable<T> query)
     {
         ArgumentNullException.ThrowIfNull(query, nameof(query));
-        Query = query;
+        Query = query.Queryable;
         QueryDescription = new() { QueryParameters = query.QueryParameters, RequestTotalCount = query.RequestTotalCount };
         NamingPolicy = ((DatasyncServiceClient<T>)query.ServiceClient).JsonSerializerOptions.PropertyNamingPolicy;
     }
 
     /// <summary>
+    /// Creates a new <see cref="QueryTranslator{T}"/> based on the provided query.
+    /// </summary>
+    /// <param name="query">The <see cref="IDatasyncPullQuery{TEntity}"/> to translate.</param>
+    internal QueryTranslator(IDatasyncPullQuery<T> query)
+    {
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        Query = query.Queryable;
+        QueryDescription = new() { QueryParameters = query.QueryParameters, RequestTotalCount = false };
+        NamingPolicy = DatasyncSerializer.JsonSerializerOptions.PropertyNamingPolicy;
+    }
+
+    /// <summary>
     /// The source query.
     /// </summary>
-    internal IDatasyncQueryable<T> Query { get; }
+    internal IQueryable<T> Query { get; }
 
     /// <summary>
     /// The destination query description.
@@ -61,7 +74,7 @@ internal class QueryTranslator<T> where T : class
     /// <returns>A compiled <see cref="QueryDescription"/> object.</returns>
     internal QueryDescription Translate()
     {
-        Expression expression = Query.Queryable.Expression.PartiallyEvaluate();
+        Expression expression = Query.Expression.PartiallyEvaluate();
         if (expression is MethodCallExpression methodCall)
         {
             VisitMethodCall(methodCall);
