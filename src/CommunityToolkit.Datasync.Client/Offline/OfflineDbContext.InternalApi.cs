@@ -52,6 +52,15 @@ public partial class OfflineDbContext
         }
 
         /// <summary>
+        /// Counts the number of queued operations for the service.
+        /// </summary>
+        /// <param name="entityTypeNames">The list of entity types that are in scope.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>The count of queued operations.</returns>
+        internal Task<int> CountQueuedOperationsAsync(List<string> entityTypeNames, CancellationToken cancellationToken = default)
+            => this._context.DatasyncOperationsQueue.CountAsync(x => entityTypeNames.Contains(x.EntityType) && x.State != OperationState.Completed, cancellationToken);
+
+        /// <summary>
         /// Retrieves the list of synchronizable entities that are available for datasync operations.
         /// </summary>
         /// <remarks>
@@ -151,7 +160,7 @@ public partial class OfflineDbContext
         /// <param name="allowedTypes">The list of allowed types.</param>
         /// <returns>The list of allowed synchronizable types.</returns>
         internal IEnumerable<Type> GetSynchronizableEntityTypes(IEnumerable<Type> allowedTypes)
-            => allowedTypes.Where(x => this._entityMap.ContainsValue(x));
+            => allowedTypes.Where(this._entityMap.ContainsValue);
 
         /// <summary>
         /// Determines if the provided property is a synchronizable property.
@@ -176,6 +185,55 @@ public partial class OfflineDbContext
             }
 
             return false;
+        }
+
+        /// <summary>
+        ///     Pulls entities from the remote service and stores in the local database.
+        /// </summary>
+        /// <param name="entityTypes">The list of entity types to pull.</param>
+        /// <param name="pullOptions">The options to use for this pull operation.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A task that resolves when the operation is complete.</returns>
+        internal async Task PullAsync(IEnumerable<Type> entityTypes, PullOptions pullOptions, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(entityTypes, nameof(entityTypes));
+            ArgumentValidationException.ThrowIfNotValid(pullOptions, nameof(pullOptions));
+            List<Type> synchronizableTypes = GetSynchronizableEntityTypes(entityTypes).ToList();
+            if (synchronizableTypes.Count == 0)
+            {
+                return;
+            }
+
+            if (pullOptions.AutoSave)
+            {
+                _ = await this._context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            using IDisposable syncLock = await LockManager.AcquireSynchronizationLockAsync(cancellationToken).ConfigureAwait(false);
+
+            List<string> synchronizableTypeNames = synchronizableTypes.Select(x => x.FullName!).ToList();
+            int queueCount = await CountQueuedOperationsAsync(synchronizableTypeNames, cancellationToken).ConfigureAwait(false);
+            if (queueCount > 0)
+            {
+                throw new DatasyncException("Queued operations must be pushed to service before a pull operation");
+            }
+
+            await PullAsyncInner(synchronizableTypeNames, pullOptions, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        ///     Pulls entities from the remote service and stores in the local database.
+        /// </summary>
+        /// <remarks>
+        ///     Inner version assumes that the queue is checked and the synchronization lock is applied.
+        /// </remarks>
+        /// <param name="entityTypes">The list of entity types to pull.</param>
+        /// <param name="pullOptions">The options to use for this pull operation.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A task that resolves when the operation is complete.</returns>
+        internal Task PullAsyncInner(List<string> entityTypes, PullOptions pullOptions, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

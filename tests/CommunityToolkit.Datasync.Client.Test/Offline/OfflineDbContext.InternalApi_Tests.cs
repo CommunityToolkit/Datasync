@@ -95,6 +95,60 @@ public class OfflineDbContext_InternalApi_Tests : BaseTest
     }
     #endregion
 
+    #region PullAsync
+    [Fact]
+    public async Task PullAsync_BadPullOptions()
+    {
+        TestDbContext context = CreateContext();
+        PullOptions options = new() { ParallelOperations = 0 };
+        Type[] entityTypes = [typeof(ClientMovie)];
+
+        Func<Task> act = async () => await context._internalApi.PullAsync(entityTypes, options);
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task PullAsync_NoSynchronizableEntities(int nItems)
+    {
+        TestDbContext context = CreateContext();
+        PullOptions options = new();
+        List<Type> allowedTypes = [typeof(Entity1), typeof(Entity2), typeof(Entity4)];
+        Type[] entityTypes = allowedTypes.Take(nItems).ToArray();
+
+        Func<Task> act = async () => await context._internalApi.PullAsync(entityTypes, options);
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task PullAsync_PendingOperations()
+    {
+        TestDbContext context = CreateContext();
+        PullOptions options = new();
+        Type[] entityTypes = [typeof(ClientMovie)];
+        string itemJson = """{"id":"123"}""";
+        DatasyncOperation op = new()
+        {
+            Id = Guid.NewGuid().ToString(),
+            Kind = OperationKind.Add,
+            State = OperationState.Pending,
+            EntityType = typeof(ClientMovie).FullName,
+            ItemId = "123",
+            EntityVersion = string.Empty,
+            Item = itemJson,
+            Sequence = 0,
+            Version = 0
+        };
+        context.DatasyncOperationsQueue.Add(op);
+        context.SaveChanges();
+
+        Func<Task> act = async () => await context._internalApi.PullAsync(entityTypes, options);
+        await act.Should().ThrowAsync<DatasyncException>();
+    }
+    #endregion
+
     #region PushAsync
     [Fact]
     public async Task PushAsync_BadPushOptions()
