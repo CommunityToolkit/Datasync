@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Offline.Internal;
+using CommunityToolkit.Datasync.Client.Query.Linq;
+using CommunityToolkit.Datasync.Client.Query.OData;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Threading;
 using Microsoft.EntityFrameworkCore;
@@ -59,6 +61,38 @@ public partial class OfflineDbContext
         /// <returns>The count of queued operations.</returns>
         internal Task<int> CountQueuedOperationsAsync(List<string> entityTypeNames, CancellationToken cancellationToken = default)
             => this._context.DatasyncOperationsQueue.CountAsync(x => entityTypeNames.Contains(x.EntityType) && x.State != OperationState.Completed, cancellationToken);
+
+        /// <summary>
+        /// Returns the query node associated with a query for the last updated timestamp.  This is used
+        /// in pull operations.
+        /// </summary>
+        /// <param name="entityType">The entity type for the entity being queried.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+        /// <returns></returns>
+        internal Task<QueryNode?> GetDeltaTokenQueryNodeAsync(Type entityType, CancellationToken cancellationToken = default)
+            => GetDeltaTokenQueryNodeAsync(entityType.FullName!, cancellationToken);
+
+        /// <summary>
+        /// Returns the query node associated with a query for the last updated timestamp.  This is used
+        /// in pull operations.
+        /// </summary>
+        /// <param name="queryId">The ID of the delta-token.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+        /// <returns></returns>
+        internal async Task<QueryNode?> GetDeltaTokenQueryNodeAsync(string queryId, CancellationToken cancellationToken = default)
+        {
+            DatasyncDeltaToken? token = await this._context.DatasyncDeltaTokenStore.FindAsync([queryId], cancellationToken);
+            if (token is not null)
+            {
+                return new BinaryOperatorNode(BinaryOperatorKind.GreaterThanOrEqual)
+                {
+                    LeftOperand = new MemberAccessNode(null, "updatedAt"),
+                    RightOperand = new ConstantNode(new DateTimeOffset(token.Sequence, TimeSpan.Zero))
+                };
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// Retrieves the list of synchronizable entities that are available for datasync operations.
@@ -218,7 +252,7 @@ public partial class OfflineDbContext
                 throw new DatasyncException("Queued operations must be pushed to service before a pull operation");
             }
 
-            await PullAsyncInner(synchronizableTypeNames, pullOptions, cancellationToken).ConfigureAwait(false);
+            await PullAsyncInner(synchronizableTypes, pullOptions, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -231,9 +265,45 @@ public partial class OfflineDbContext
         /// <param name="pullOptions">The options to use for this pull operation.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         /// <returns>A task that resolves when the operation is complete.</returns>
-        internal Task PullAsyncInner(List<string> entityTypes, PullOptions pullOptions, CancellationToken cancellationToken = default)
+        internal async Task PullAsyncInner(List<Type> entityTypes, PullOptions pullOptions, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            QueueHandler<ServicePullOperation> servicePullQueue = new(pullOptions.ParallelOperations, async op =>
+            {
+                PullOperation pullOp = new(op.EntityType, this._context.JsonSerializerOptions);
+                ServiceResponse<Page<object>> sr = await pullOp.GetPageAsync(op.Client, op.Endpoint, op.QueryString, cancellationToken).ConfigureAwait(false);
+                if (sr.IsSuccessful && sr.HasValue)
+                {
+                    // TODO: Process a successful request
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    // TODO: Process a failed request
+                    throw new NotImplementedException();
+                }
+            });
+
+            foreach (Type entityType in entityTypes)
+            {
+                QueryDescription description = this._offlineOptions.Value.GetQuery(entityType);
+                QueryNode? deltaNode = await GetDeltaTokenQueryNodeAsync(entityType, cancellationToken).ConfigureAwait(false);
+                if (deltaNode is not null)
+                {
+                    description.Filter = description.Filter is null ? deltaNode : new BinaryOperatorNode(BinaryOperatorKind.And, description.Filter, deltaNode);
+                }
+                
+                ServicePullOperation operation = new()
+                {
+                    EntityType = entityType,
+                    Client = this._offlineOptions.Value.GetClient(entityType),
+                    Endpoint = this._offlineOptions.Value.GetEndpoint(entityType),
+                    QueryString = description.ToODataQueryString()
+                };
+                servicePullQueue.Enqueue(operation);
+            }
+
+            // Wait for the queues to drain
+            await servicePullQueue.WhenComplete();
         }
 
         /// <summary>
