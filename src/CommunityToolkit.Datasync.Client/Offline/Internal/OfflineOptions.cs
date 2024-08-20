@@ -25,16 +25,6 @@ internal class OfflineOptions()
     /// <summary>
     /// Adds an entity to the mapping of options.
     /// </summary>
-    /// <typeparam name="TEntity">The type of the entity being stored.</typeparam>
-    /// <param name="clientName">The name of the client.</param>
-    /// <param name="endpoint">The endpoint serving the datasync services.</param>
-    /// <param name="queryDescription">The optional query description to describe what entities need to be pulled.</param>
-    public void AddEntity<TEntity>(string clientName, Uri endpoint, QueryDescription? queryDescription = null) 
-        => AddEntity(typeof(TEntity), clientName, endpoint, queryDescription);
-
-    /// <summary>
-    /// Adds an entity to the mapping of options.
-    /// </summary>
     /// <param name="entityType">The type of the entity being stored.</param>
     /// <param name="clientName">The name of the client.</param>
     /// <param name="endpoint">The endpoint serving the datasync services.</param>
@@ -59,6 +49,14 @@ internal class OfflineOptions()
     /// <returns>The <see cref="Uri"/> to use for synchronization operations.</returns>
     public Uri GetEndpoint(Type entityType)
         => this._cache.TryGetValue(entityType, out EntityOptions? options) ? options.Endpoint : new Uri("", UriKind.Relative);
+
+    /// <summary>
+    /// Returns a <see cref="QueryDescription"/> for client-side filtering of a pull operation.
+    /// </summary>
+    /// <param name="entityType">The entity type being synchronized.</param>
+    /// <returns>The <see cref="QueryDescription"/> describing the client-side filtering of a pull operation.</returns>
+    public QueryDescription GetQuery(Type entityType)
+        => this._cache.GetValueOrDefault(entityType)?.QueryDescription ?? new QueryDescription();
 
     /// <summary>
     /// An internal structure for keeping the entity data.

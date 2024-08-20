@@ -82,7 +82,7 @@ public abstract partial class OfflineDbContext : DbContext
     /// <summary>
     /// The JSON Serializer Options to use in serializing and deserializing content.
     /// </summary>
-    protected JsonSerializerOptions JsonSerializerOptions { get; set; } = DatasyncSerializer.JsonSerializerOptions;
+    protected JsonSerializerOptions JsonSerializerOptions { get; } = DatasyncSerializer.JsonSerializerOptions;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="OfflineDbContext" /> class. The 

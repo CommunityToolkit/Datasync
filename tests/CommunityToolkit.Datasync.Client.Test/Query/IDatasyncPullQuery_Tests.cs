@@ -5,256 +5,17 @@
 // We want to test when devs do wierd things that the warnings protect against.
 #pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
 
-using CommunityToolkit.Datasync.Client.Serialization;
+using CommunityToolkit.Datasync.Client.Offline;
+using CommunityToolkit.Datasync.Client.Query.Linq;
+using CommunityToolkit.Datasync.Client.Query.OData;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Models;
-using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client.Test.Query;
 
 [ExcludeFromCodeCoverage]
-public class IDatasyncQueryable_Tests
+public class IDatasyncPullQuery_Tests
 {
-    #region IncludeDeletedItems
-    [Fact]
-    public void Linq_IncludeDeletedItems_Default()
-    {
-        ExecuteQueryTest(
-            x => x.IncludeDeletedItems(),
-            "__includedeleted=true"
-        );
-    }
-
-    [Fact]
-    public void Linq_IncludeDeletedItems_True()
-    {
-        ExecuteQueryTest(
-            x => x.IncludeDeletedItems(true),
-            "__includedeleted=true"
-        );
-    }
-
-    [Fact]
-    public void Linq_IncludeDeletedItems_False()
-    {
-        ExecuteQueryTest(
-            x => x.IncludeDeletedItems(false),
-            ""
-        );
-    }
-    #endregion
-
-    #region IncludeTotalCount
-    [Fact]
-    public void Linq_IncludeTotalCount_Default()
-    {
-        ExecuteQueryTest(
-            x => x.IncludeTotalCount(),
-            "$count=true"
-        );
-    }
-
-    [Fact]
-    public void Linq_IncludeTotalCount_True()
-    {
-        ExecuteQueryTest(
-            x => x.IncludeTotalCount(true),
-            "$count=true"
-        );
-    }
-
-    [Fact]
-    public void Linq_IncludeTotalCount_False()
-    {
-        ExecuteQueryTest(
-            x => x.IncludeTotalCount(false),
-            ""
-        );
-    }
-    #endregion
-
-    #region OrderBy / OrderByDescending / ThenBy / ThenByDescending
-    [Fact]
-    public void Linq_OrderBy()
-    {
-        ExecuteQueryTest(
-            x => x.OrderBy(m => m.StringValue),
-            "$orderby=stringValue"
-        );
-    }
-
-    [Fact]
-    public void Linq_OrderByDescending()
-    {
-        ExecuteQueryTest(
-            x => x.OrderByDescending(m => m.StringValue),
-            "$orderby=stringValue desc"
-        );
-    }
-
-    [Fact]
-    public void Linq_OrderBy_ThenBy()
-    {
-        ExecuteQueryTest(
-            x => x.OrderBy(m => m.StringValue).ThenBy(x => x.ByteValue),
-            "$orderby=stringValue,byteValue"
-        );
-    }
-
-    [Fact]
-    public void Linq_OrderBy_ThenByDescending()
-    {
-        ExecuteQueryTest(
-            x => x.OrderBy(m => m.StringValue).ThenByDescending(x => x.ByteValue),
-            "$orderby=stringValue,byteValue desc"
-        );
-    }
-
-    [Fact]
-    public void Linq_OrderByDescending_ThenBy()
-    {
-        ExecuteQueryTest(
-            x => x.OrderByDescending(m => m.StringValue).ThenBy(x => x.ByteValue),
-            "$orderby=stringValue desc,byteValue"
-        );
-    }
-
-    [Fact]
-    public void Linq_OrderByDescending_ThenByDescending()
-    {
-        ExecuteQueryTest(
-            x => x.OrderByDescending(m => m.StringValue).ThenByDescending(x => x.ByteValue),
-            "$orderby=stringValue desc,byteValue desc"
-        );
-    }
-
-    [Fact]
-    public void Linq_OrderBy_InvalidMember()
-    {
-        ExecuteUnsupportedQueryTest<NotSupportedException>(
-            x => x.OrderBy(m => m.IntValue % 7)
-        );
-    }
-
-    [Fact]
-    public void Linq_OrderByDescending_InvalidMember()
-    {
-        ExecuteUnsupportedQueryTest<NotSupportedException>(
-            x => x.OrderByDescending(m => m.IntValue % 7)
-        );
-    }
-    #endregion
-
-    #region Select
-    [Fact]
-    public void Linq_Select_Anonymous()
-    {
-        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
-        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
-        string query = client.AsQueryable().Select(m => new { m.Id, m.StringValue }).ToODataQueryString();
-        string actual = Uri.UnescapeDataString(query);
-        actual.Should().Be("$select=id,stringValue");
-    }
-
-    [Fact]
-    public void Linq_Select_Anonymous_NullNamingPolicy()
-    {
-        JsonSerializerOptions serializerOptions = new();
-        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
-        string query = client.AsQueryable().Select(m => new { m.Id, m.StringValue }).ToODataQueryString();
-        string actual = Uri.UnescapeDataString(query);
-        actual.Should().Be("$select=Id,StringValue");
-    }
-
-    [Fact]
-    public void Linq_Select_Named()
-    {
-        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
-        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
-        string query = client.AsQueryable().Select(m => new NamedSelectClass() { Id = m.Id, StringValue = m.StringValue }).ToODataQueryString();
-        string actual = Uri.UnescapeDataString(query);
-        actual.Should().Be("$select=id,stringValue");
-    }
-
-    // TODO: Required Additional Parameters
-    #endregion
-
-    #region Skip
-    [Fact]
-    public void Linq_Skip_0()
-    {
-        ExecuteQueryTest(
-            x => x.Skip(0),
-            ""
-        );
-    }
-
-    [Fact]
-    public void Linq_Skip_1()
-    {
-        ExecuteQueryTest(
-            x => x.Skip(1),
-            "$skip=1"
-        );
-    }
-
-    [Fact]
-    public void Linq_Skip_42()
-    {
-        ExecuteQueryTest(
-            x => x.Skip(42),
-            "$skip=42"
-        );
-    }
-
-    [Fact]
-    public void Linq_Skip_40_Then_2()
-    {
-        ExecuteQueryTest(
-            x => x.Skip(40).Skip(2),
-            "$skip=42"
-        );
-    }
-    #endregion
-
-    #region Top
-    [Fact]
-    public void Linq_Take_0()
-    {
-        ExecuteQueryTest(
-            x => x.Take(0),
-            "$top=0"
-        );
-    }
-
-    [Fact]
-    public void Linq_Take_42()
-    {
-        ExecuteQueryTest(
-            x => x.Take(42),
-            "$top=42"
-        );
-    }
-
-    [Fact]
-    public void Linq_Take_40_Then_2()
-    {
-        ExecuteQueryTest(
-            x => x.Take(40).Take(2),
-            "$top=2"
-        );
-    }
-
-    [Fact]
-    public void Linq_Take_2_Then_40()
-    {
-        ExecuteQueryTest(
-            x => x.Take(2).Take(40),
-            "$top=2"
-        );
-    }
-    #endregion
-
     #region Where
     #region Boolean Comparisons
     [Fact]
@@ -1765,12 +1526,11 @@ public class IDatasyncQueryable_Tests
     [Fact]
     public void Linq_WithParameter_Exceptions()
     {
-        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
-        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
-        Action act1 = () => _ = client.AsQueryable().WithParameter("$foo", "bar");
+        DatasyncPullQuery<ClientMovie> query = new();
+        Action act1 = () => _ = query.WithParameter("$foo", "bar");
         act1.Should().Throw<ArgumentException>();
 
-        Action act2 = () => _ = client.AsQueryable().WithParameter("__foo", "bar");
+        Action act2 = () => _ = query.WithParameter("__foo", "bar");
         act2.Should().Throw<ArgumentException>();
     }
     #endregion
@@ -1807,26 +1567,24 @@ public class IDatasyncQueryable_Tests
     }
     #endregion
 
-    private static void ExecuteQueryTest(Func<IDatasyncQueryable<ClientKitchenSink>, IDatasyncQueryable<ClientKitchenSink>> linq, string expected)
+    private static void ExecuteQueryTest(Func<IDatasyncPullQuery<ClientKitchenSink>, IDatasyncPullQuery<ClientKitchenSink>> linq, string expected)
     {
-        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
-        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
-        IDatasyncQueryable<ClientKitchenSink> query = linq.Invoke(client.AsQueryable());
-        string actual = Uri.UnescapeDataString(query.ToODataQueryString());
+        DatasyncPullQuery<ClientKitchenSink> queryable = new();
+        IDatasyncPullQuery<ClientKitchenSink> query = linq.Invoke(queryable);
+        QueryDescription qd = new QueryTranslator<ClientKitchenSink>(query).Translate();
+        string actual = Uri.UnescapeDataString(qd.ToODataQueryString());
         actual.Should().Be(expected);
     }
 
-    private static void ExecuteUnsupportedQueryTest<TException>(Func<IDatasyncQueryable<ClientKitchenSink>, IDatasyncQueryable<ClientKitchenSink>> linq) where TException : Exception
+    private static void ExecuteUnsupportedQueryTest<TException>(Func<IDatasyncPullQuery<ClientKitchenSink>, IDatasyncPullQuery<ClientKitchenSink>> linq) where TException : Exception
     {
-        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
-        DatasyncServiceClient<ClientKitchenSink> client = new(new Uri("http://localhost/tables/kitchensink"), new HttpClient(), serializerOptions);
-        Action act = () => linq.Invoke(client.AsQueryable()).ToODataQueryString();
+        DatasyncPullQuery<ClientKitchenSink> queryable = new();
+        IDatasyncPullQuery<ClientKitchenSink> query = linq.Invoke(queryable);
+        Action act = () =>
+        {
+            QueryDescription qd = new QueryTranslator<ClientKitchenSink>(query).Translate();
+            string actual = Uri.UnescapeDataString(qd.ToODataQueryString());
+        };
         act.Should().Throw<TException>();
-    }
-
-    internal class NamedSelectClass
-    {
-        public string Id { get; set; }
-        public string StringValue { get; set; }
     }
 }

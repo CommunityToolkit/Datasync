@@ -27,6 +27,8 @@ public class TestDbContext : OfflineDbContext
     {
     }
 
+    public Action<DatasyncOfflineOptionsBuilder> Configurator { get; set; }
+
     protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
     {
         HttpClientOptions clientOptions = new()
@@ -41,6 +43,7 @@ public class TestDbContext : OfflineDbContext
                 c.ClientName = "movies";
                 c.Endpoint = new Uri("/tables/movies", UriKind.Relative);
             });
+        Configurator?.Invoke(optionsBuilder);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
