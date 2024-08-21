@@ -295,6 +295,11 @@ public partial class OfflineDbContext
                         results.AddReplacement(op.EntityType);
                     }
                 }
+
+                if (metadata.UpdatedAt is not null)
+                {
+                    await UpdateDeltaTokenAsync(op.EntityType, (DateTimeOffset)metadata.UpdatedAt, cancellationToken).ConfigureAwait(false);
+                }
             });
 
             QueueHandler<ServicePullOperation> servicePullQueue = new(pullOptions.ParallelOperations, async op =>
@@ -491,6 +496,38 @@ public partial class OfflineDbContext
                 EntityState.Added => OperationKind.Add,
                 _ => throw new InvalidOperationException($"Invalid ChangeTracker EntryEntity state = {entityState}"),
             };
+
+        /// <summary>
+        /// Updates the delta-token store for the given entity type.
+        /// </summary>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="updatedAt">The date/time stamp for the last updated.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A task that resolves when complete.</returns>
+        internal Task UpdateDeltaTokenAsync(Type entityType, DateTimeOffset updatedAt, CancellationToken cancellationToken = default)
+            => UpdateDeltaTokenAsync(entityType.FullName!, updatedAt, cancellationToken);
+
+        /// <summary>
+        /// Updates the delta-token store for the given token ID.
+        /// </summary>
+        /// <param name="tokenId">The ID of the delta-token.</param>
+        /// <param name="updatedAt">The date/time stamp for the last updated.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A task that resolves when complete.</returns>
+        internal async Task UpdateDeltaTokenAsync(string tokenId, DateTimeOffset updatedAt, CancellationToken cancellationToken = default)
+        {
+            DatasyncDeltaToken? token = await this._context.DatasyncDeltaTokenStore.FindAsync([tokenId], cancellationToken).ConfigureAwait(false);
+            if (token is null)
+            {
+                DatasyncDeltaToken newToken = new() { Id = tokenId, Sequence = updatedAt.Ticks };
+                _ = this._context.DatasyncDeltaTokenStore.Add(newToken);
+            }
+            else if (updatedAt.Ticks > token.Sequence)
+            {
+                token.Sequence = updatedAt.Ticks;
+                _ = this._context.DatasyncDeltaTokenStore.Update(token);
+            }
+        }
 
         /// <summary>
         /// Updates an existing operation according to a ruleset for the new operation.

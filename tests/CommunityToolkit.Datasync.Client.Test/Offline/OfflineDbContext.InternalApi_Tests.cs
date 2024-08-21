@@ -147,6 +147,31 @@ public class OfflineDbContext_InternalApi_Tests : BaseTest
         Func<Task> act = async () => await context._internalApi.PullAsync(entityTypes, options);
         await act.Should().ThrowAsync<DatasyncException>();
     }
+
+    [Fact]
+    public async Task PullAsync_NoResults()
+    {
+        TestDbContext context = CreateContext();
+        PullOptions options = new();
+        Type[] entityTypes = [typeof(ClientMovie)];
+        string responseJson = """{"items":[]}""";
+
+        context.Handler.AddResponseContent(responseJson);
+
+        PullOperationResult result = await context._internalApi.PullAsync(entityTypes, options);
+
+        result.Should().NotBeNull();
+        result.IsSuccessful.Should().BeTrue();
+        result.TotalOperations.Should().Be(0);
+        result.FailedRequests.Should().BeEmpty();
+
+        HttpRequestMessage request = context.Handler.Requests.SingleOrDefault();
+        request.Should().NotBeNull();
+        request.RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies");
+        request.Method.Should().Be(HttpMethod.Get);
+
+
+    }
     #endregion
 
     #region PushAsync
