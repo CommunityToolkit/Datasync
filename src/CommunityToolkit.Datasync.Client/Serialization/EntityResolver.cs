@@ -94,15 +94,21 @@ internal static class EntityResolver
             }
 
             UpdatedAtPropertyInfo = props.SingleOrDefault(x => x.Name.Equals(nameof(EntityMetadata.UpdatedAt), StringComparison.Ordinal));
-            if (UpdatedAtPropertyInfo != null && !HasType(UpdatedAtPropertyInfo.PropertyType, [ typeof(DateTimeOffset) ]))
+            if (UpdatedAtPropertyInfo is not null && !HasType(UpdatedAtPropertyInfo.PropertyType, [ typeof(DateTimeOffset) ]))
             {
                 throw new DatasyncException($"Property type '{type.Name}'.UpdatedAt must be a 'DateTimeOffset' type.");
             }
 
             VersionPropertyInfo = props.SingleOrDefault(x => x.Name.Equals(nameof(EntityMetadata.Version), StringComparison.Ordinal));
-            if (VersionPropertyInfo != null && !HasType(VersionPropertyInfo.PropertyType, [ typeof(string), typeof(byte[]) ]))
+            if (VersionPropertyInfo is not null && !HasType(VersionPropertyInfo.PropertyType, [ typeof(string), typeof(byte[]) ]))
             {
                 throw new DatasyncException($"Property type '{type.Name}'.Version must be either a string or byte array.");
+            }
+
+            DeletedPropertyInfo = props.SingleOrDefault(x => x.Name.Equals(nameof(EntityMetadata.Deleted), StringComparison.Ordinal));
+            if (DeletedPropertyInfo is not null && !HasType(DeletedPropertyInfo.PropertyType, [typeof(bool)]))
+            {
+                throw new DatasyncException($"Property type '{type.Name}'.Deleted must be a boolean.");
             }
         }
 
@@ -146,6 +152,11 @@ internal static class EntityResolver
         internal PropertyInfo? VersionPropertyInfo { get; }
 
         /// <summary>
+        /// The PropertyInfo for the deleted property.
+        /// </summary>
+        internal PropertyInfo? DeletedPropertyInfo { get; }
+
+        /// <summary>
         /// Retrieves the datasync metadata for the given entity.
         /// </summary>
         /// <param name="entity">The entity to process.</param>
@@ -174,6 +185,11 @@ internal static class EntityResolver
                         metadata.Version = Convert.ToBase64String(bVersion);
                     }
                 }
+            }
+
+            if (DeletedPropertyInfo is not null)
+            {
+                metadata.Deleted = (bool)(DeletedPropertyInfo.GetValue(entity) ?? false);
             }
 
             return metadata;

@@ -228,14 +228,14 @@ public partial class OfflineDbContext
         /// <param name="pullOptions">The options to use for this pull operation.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         /// <returns>A task that resolves when the operation is complete.</returns>
-        internal async Task PullAsync(IEnumerable<Type> entityTypes, PullOptions pullOptions, CancellationToken cancellationToken = default)
+        internal async Task<PullOperationResult> PullAsync(IEnumerable<Type> entityTypes, PullOptions pullOptions, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(entityTypes, nameof(entityTypes));
             ArgumentValidationException.ThrowIfNotValid(pullOptions, nameof(pullOptions));
             List<Type> synchronizableTypes = GetSynchronizableEntityTypes(entityTypes).ToList();
             if (synchronizableTypes.Count == 0)
             {
-                return;
+                return new PullOperationResult();
             }
 
             if (pullOptions.AutoSave)
@@ -252,7 +252,7 @@ public partial class OfflineDbContext
                 throw new DatasyncException("Queued operations must be pushed to service before a pull operation");
             }
 
-            await PullAsyncInner(synchronizableTypes, pullOptions, cancellationToken).ConfigureAwait(false);
+            return await PullAsyncInner(synchronizableTypes, pullOptions, cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -265,23 +265,75 @@ public partial class OfflineDbContext
         /// <param name="pullOptions">The options to use for this pull operation.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
         /// <returns>A task that resolves when the operation is complete.</returns>
-        internal async Task PullAsyncInner(List<Type> entityTypes, PullOptions pullOptions, CancellationToken cancellationToken = default)
+        internal async Task<PullOperationResult> PullAsyncInner(List<Type> entityTypes, PullOptions pullOptions, CancellationToken cancellationToken = default)
         {
+            Action<ServicePullOperation, string?>? addToServiceQueue = null;
+            PullOperationResult results = new();
+
+            QueueHandler<DatabaseUpdateOperation> databaseUpdateQueue = new(1, async op =>
+            {
+                EntityMetadata metadata = EntityResolver.GetEntityMetadata(op.Entity, op.EntityType);
+                object? originalEntity = await this._context.FindAsync(op.EntityType, [metadata.Id], cancellationToken).ConfigureAwait(false);
+                if (originalEntity is null)
+                {
+                    if (!metadata.Deleted)
+                    {
+                        _ = this._context.Add(op.Entity);
+                        results.AddAddition(op.EntityType);
+                    }
+                }
+                else
+                {
+                    if (metadata.Deleted)
+                    {
+                        _ = this._context.Remove(originalEntity);
+                        results.AddDeletion(op.EntityType);
+                    }
+                    else
+                    {
+                        ReplaceDatabaseValue(originalEntity, op.Entity);
+                        results.AddReplacement(op.EntityType);
+                    }
+                }
+            });
+
             QueueHandler<ServicePullOperation> servicePullQueue = new(pullOptions.ParallelOperations, async op =>
             {
                 PullOperation pullOp = new(op.EntityType, this._context.JsonSerializerOptions);
                 ServiceResponse<Page<object>> sr = await pullOp.GetPageAsync(op.Client, op.Endpoint, op.QueryString, cancellationToken).ConfigureAwait(false);
                 if (sr.IsSuccessful && sr.HasValue)
                 {
-                    // TODO: Process a successful request
-                    throw new NotImplementedException();
+                    foreach (object item in sr.Value!.Items)
+                    {
+                        databaseUpdateQueue.Enqueue(new DatabaseUpdateOperation(op.EntityType, item));
+                    }
+
+                    addToServiceQueue?.Invoke(op, sr.Value?.NextLink);
                 }
                 else
                 {
-                    // TODO: Process a failed request
-                    throw new NotImplementedException();
+                    results.AddFailedRequest(op, sr);
                 }
             });
+
+            // You can't add to the service queue from within the service queue, so we call a method outside
+            // of the service queue to do this for us.  You, similarly, cannot pre-define the method because
+            // servicePullQueue does not exist at the time that the func needs to be defined.  Recursion is
+            // fun!
+            addToServiceQueue = (originalOperation, nextLink) =>
+            {
+                if (!string.IsNullOrEmpty(nextLink))
+                {
+                    ServicePullOperation newOperation = new()
+                    {
+                        EntityType = originalOperation.EntityType,
+                        Client = originalOperation.Client,
+                        Endpoint = originalOperation.Endpoint,
+                        QueryString = nextLink
+                    };
+                    servicePullQueue.Enqueue(newOperation);
+                }
+            };
 
             foreach (Type entityType in entityTypes)
             {
@@ -304,6 +356,14 @@ public partial class OfflineDbContext
 
             // Wait for the queues to drain
             await servicePullQueue.WhenComplete();
+            await databaseUpdateQueue.WhenComplete();
+
+            if (pullOptions.AutoSave)
+            {
+                _ = await this._context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            }
+
+            return results;
         }
 
         /// <summary>
