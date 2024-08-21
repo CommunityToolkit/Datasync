@@ -1,8 +1,10 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-namespace CommunityToolkit.Datasync.Client.Offline.Internal;
+using CommunityToolkit.Datasync.Client.Offline.Models;
+
+namespace CommunityToolkit.Datasync.Client.Offline.Operations;
 
 /// <summary>
 /// The executable operation for an "ADD" operation.
@@ -13,18 +15,17 @@ internal class AddOperation(DatasyncOperation operation) : ExecutableOperation
     /// <summary>
     /// Performs the push operation, returning the result of the push operation.
     /// </summary>
-    /// <param name="client">The <see cref="HttpClient"/> to use for communicating with the datasync service.</param>
-    /// <param name="endpoint">The fully-qualified URI to the table endpoint.</param>
+    /// <param name="options">The options to use for communicating with the datasync service.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The result of the push operation (async).</returns>
-    internal override async Task<ServiceResponse> ExecuteAsync(HttpClient client, Uri endpoint, CancellationToken cancellationToken = default)
+    internal override async Task<ServiceResponse> ExecuteAsync(EntityDatasyncOptions options, CancellationToken cancellationToken = default)
     {
-        endpoint = MakeAbsoluteUri(client.BaseAddress, endpoint);
+        Uri endpoint = MakeAbsoluteUri(options.HttpClient.BaseAddress, options.Endpoint);
         using HttpRequestMessage request = new(HttpMethod.Post, endpoint)
         {
             Content = new StringContent(operation.Item, JsonMediaType)
         };
-        using HttpResponseMessage response = await client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+        using HttpResponseMessage response = await options.HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
         return new ServiceResponse(response);
     }
 }

@@ -2,8 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Client.Offline.Internal;
 using CommunityToolkit.Datasync.Client.Offline;
+using CommunityToolkit.Datasync.Client.Offline.Models;
+using CommunityToolkit.Datasync.Client.Offline.Operations;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Mocks;
@@ -40,8 +41,14 @@ public class AddOperation_Tests
         string expectedJson = DatasyncSerializer.Serialize(expected);
         handler.AddResponse(HttpStatusCode.Created, expected);
 
+        EntityDatasyncOptions options = new()
+        {
+            HttpClient = client,
+            Endpoint = new Uri("/tables/movies", UriKind.Relative),
+            QueryDescription = new()
+        };
         ExecutableOperation operation = await ExecutableOperation.CreateAsync(op);
-        ServiceResponse response = await operation.ExecuteAsync(client, new Uri("/tables/movies", UriKind.Relative));
+        ServiceResponse response = await operation.ExecuteAsync(options);
 
         HttpRequestMessage request = handler.Requests.SingleOrDefault();
         request.Should().NotBeNull();

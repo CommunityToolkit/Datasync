@@ -3,15 +3,15 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Query.Linq;
+using Microsoft.Extensions.Options;
+using System.Net;
 
-namespace CommunityToolkit.Datasync.Client.Offline.Internal;
-
+namespace CommunityToolkit.Datasync.Client.Offline.Models;
 /// <summary>
 /// The options to use for offline operations.
 /// </summary>
 internal class OfflineOptions()
 {
-
     /// <summary>
     /// The list of entity client names.
     /// </summary>
@@ -35,28 +35,31 @@ internal class OfflineOptions()
     }
 
     /// <summary>
-    /// Returns a <see cref="HttpClient"/> for communicating with the remote service.
+    /// Gets the options to use for communicating with a remote datasync service.
     /// </summary>
-    /// <param name="entityType">The entity type being synchronized.</param>
-    /// <returns>The <see cref="HttpClient"/> to use for communication.</returns>
-    public HttpClient GetClient(Type entityType)
-        => HttpClientFactory.CreateClient(this._cache[entityType].ClientName.AsNullableEmptyString());
-
-    /// <summary>
-    /// Returns a <see cref="Uri"/> for communicating with the remote service.
-    /// </summary>
-    /// <param name="entityType">The entity type being synchronized.</param>
-    /// <returns>The <see cref="Uri"/> to use for synchronization operations.</returns>
-    public Uri GetEndpoint(Type entityType)
-        => this._cache.TryGetValue(entityType, out EntityOptions? options) ? options.Endpoint : new Uri("", UriKind.Relative);
-
-    /// <summary>
-    /// Returns a <see cref="QueryDescription"/> for client-side filtering of a pull operation.
-    /// </summary>
-    /// <param name="entityType">The entity type being synchronized.</param>
-    /// <returns>The <see cref="QueryDescription"/> describing the client-side filtering of a pull operation.</returns>
-    public QueryDescription GetQuery(Type entityType)
-        => this._cache.GetValueOrDefault(entityType)?.QueryDescription ?? new QueryDescription();
+    /// <param name="entityType">The entity type for communication selection.</param>
+    /// <returns>The datasync options.</returns>
+    public EntityDatasyncOptions GetOptions(Type entityType)
+    {
+        if (this._cache.TryGetValue(entityType, out EntityOptions? options))
+        {
+            return new()
+            {
+                Endpoint = options.Endpoint,
+                HttpClient = HttpClientFactory.CreateClient(options.ClientName),
+                QueryDescription = options.QueryDescription ?? new QueryDescription()
+            };
+        }
+        else
+        {
+            return new()
+            {
+                Endpoint = new Uri($"/tables/{entityType.Name.ToLowerInvariant()}", UriKind.Relative),
+                HttpClient = HttpClientFactory.CreateClient(),
+                QueryDescription = new QueryDescription()
+            };
+        }
+    }
 
     /// <summary>
     /// An internal structure for keeping the entity data.

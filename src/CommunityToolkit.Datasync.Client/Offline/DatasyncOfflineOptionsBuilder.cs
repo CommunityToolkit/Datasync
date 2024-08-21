@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Http;
-using CommunityToolkit.Datasync.Client.Offline.Internal;
+using CommunityToolkit.Datasync.Client.Offline.Models;
 using CommunityToolkit.Datasync.Client.Query.Linq;
 
 namespace CommunityToolkit.Datasync.Client.Offline;

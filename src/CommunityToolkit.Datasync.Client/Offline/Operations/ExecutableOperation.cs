@@ -2,9 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Offline.Models;
 using System.Net.Http.Headers;
 
-namespace CommunityToolkit.Datasync.Client.Offline.Internal;
+namespace CommunityToolkit.Datasync.Client.Offline.Operations;
 
 /// <summary>
 /// The abstract class that encapsulates all logic dealing with pushing an operation to the remote server.
@@ -43,11 +44,10 @@ internal abstract class ExecutableOperation
     /// <summary>
     /// Performs the push operation, returning the result of the push operation.
     /// </summary>
-    /// <param name="client">The <see cref="HttpClient"/> to use for communicating with the datasync service.</param>
-    /// <param name="endpoint">The fully-qualified URI to the table endpoint.</param>
+    /// <param name="options">The options to use for communicating with the datasync service.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The result of the push operation (async).</returns>
-    internal abstract Task<ServiceResponse> ExecuteAsync(HttpClient client, Uri endpoint, CancellationToken cancellationToken = default);
+    internal abstract Task<ServiceResponse> ExecuteAsync(EntityDatasyncOptions options, CancellationToken cancellationToken = default);
 
 #pragma warning disable IDE0060 // Remove unused parameter - cancellationToken is kept for API consistency.
     /// <summary>

@@ -4,7 +4,7 @@
 
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Offline;
-using CommunityToolkit.Datasync.Client.Offline.Internal;
+using CommunityToolkit.Datasync.Client.Offline.Models;
 using CommunityToolkit.Datasync.Client.Query.OData;
 using CommunityToolkit.Datasync.Client.Test.Helpers;
 using CommunityToolkit.Datasync.Client.Test.Offline.Helpers;
@@ -178,8 +178,9 @@ public class DatasyncOfflineOptionsBuilder_Tests : BaseTest
 
         sut.UseHttpClient(client);
         OfflineOptions options = sut.Build();
-        options.GetEndpoint(typeof(ClientMovie)).ToString().Should().Be("/tables/clientmovie");
-        options.GetClient(typeof(ClientMovie)).Should().BeSameAs(client);
+        EntityDatasyncOptions result = options.GetOptions(typeof(ClientMovie));
+        result.Endpoint.ToString().Should().Be("/tables/clientmovie");
+        result.HttpClient.Should().BeSameAs(client);
     }
 
     [Fact]
@@ -203,11 +204,13 @@ public class DatasyncOfflineOptionsBuilder_Tests : BaseTest
         });
 
         OfflineOptions options = sut.Build();
-        options.GetClient(typeof(ClientMovie)).Should().NotBeNull();
-        options.GetEndpoint(typeof(ClientMovie)).ToString().Should().Be("http://localhost/foo");
-        options.GetQuery(typeof(ClientMovie)).ToODataQueryString().Should().Be("");
+        EntityDatasyncOptions result = options.GetOptions(typeof(ClientMovie));
+        result.HttpClient.Should().NotBeNull();
+        result.Endpoint.ToString().Should().Be("http://localhost/foo");
+        result.QueryDescription.ToODataQueryString().Should().Be("");
 
-        options.GetQuery(typeof(ClientKitchenSink)).ToODataQueryString().Should().Be("$filter=%28stringValue%20eq%20%27abc%27%29");
+        EntityDatasyncOptions result2 = options.GetOptions(typeof(ClientKitchenSink));
+        result2.QueryDescription.ToODataQueryString().Should().Be("$filter=%28stringValue%20eq%20%27abc%27%29");
 
         factory.Received().CreateClient("foo");
     }
@@ -238,7 +241,9 @@ public class DatasyncOfflineOptionsBuilder_Tests : BaseTest
 
         sut.UseHttpClient(client);
         OfflineOptions options = sut.Build();
-        options.GetEndpoint(typeof(Entity3)).ToString().Should().Be("");
-        options.GetQuery(typeof(Entity3)).ToODataQueryString().Should().Be("");
+        EntityDatasyncOptions result = options.GetOptions(typeof(Entity3));
+        result.HttpClient.Should().NotBeNull();
+        result.Endpoint.ToString().Should().Be("/tables/entity3");
+        result.QueryDescription.ToODataQueryString().Should().Be("");
     }
 }

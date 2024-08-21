@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client.Offline;
@@ -58,16 +57,6 @@ public abstract partial class OfflineDbContext : DbContext
     internal bool _disposedValue;
 
     /// <summary>
-    /// The internal details of the <see cref="OfflineDbContext"/> that aren't meant to be used by
-    /// the users of the class.
-    /// </summary>
-    /// <remarks>
-    /// We encapsulate the internal API like this so that we don't have the potential to conflict 
-    /// with whatever a developer writes in their own implementations.
-    /// </remarks>
-    internal SyncContext _internalApi;
-
-    /// <summary>
     /// The operations queue.  This is used to store pending requests to the datasync service.
     /// </summary>
     [DoNotSynchronize]
@@ -82,7 +71,12 @@ public abstract partial class OfflineDbContext : DbContext
     /// <summary>
     /// The JSON Serializer Options to use in serializing and deserializing content.
     /// </summary>
-    protected JsonSerializerOptions JsonSerializerOptions { get; } = DatasyncSerializer.JsonSerializerOptions;
+    internal JsonSerializerOptions JsonSerializerOptions { get; } = DatasyncSerializer.JsonSerializerOptions;
+
+    /// <summary>
+    /// The operations queue manager to use.
+    /// </summary>
+    internal readonly OperationsQueueManager _operationsQueueManager;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="OfflineDbContext" /> class. The 
@@ -95,7 +89,7 @@ public abstract partial class OfflineDbContext : DbContext
     /// </remarks>
     protected OfflineDbContext() : base()
     {
-        this._internalApi = new(this);
+        this._operationsQueueManager = new(this);
     }
 
     /// <summary>
@@ -110,7 +104,7 @@ public abstract partial class OfflineDbContext : DbContext
     /// <param name="options">The options for this context.</param>
     protected OfflineDbContext(DbContextOptions options) : base(options)
     {
-        this._internalApi = new(this);
+        this._operationsQueueManager = new(this);
     }
 
     /// <summary>
@@ -194,48 +188,6 @@ public abstract partial class OfflineDbContext : DbContext
     ///     The builder being used to construct the datasync service options for this context.
     /// </param>
     protected abstract void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder);
-
-    /// <summary>
-    ///     Pushes entities from all synchronizable entity types to the remote service.
-    /// </summary>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>The results of the push operation.</returns>
-    public Task<PushOperationResult> PushAsync(CancellationToken cancellationToken = default)
-        => PushAsync(this._internalApi.GetSynchronizableEntityTypes(), new PushOptions(), cancellationToken);
-
-    /// <summary>
-    ///     Pushes entities from all synchronizable entity types to the remote service.
-    /// </summary>
-    /// <param name="pushOptions">The options to use for this push operation.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>The results of the push operation.</returns>
-    [ExcludeFromCodeCoverage]
-    public Task<PushOperationResult> PushAsync(PushOptions pushOptions, CancellationToken cancellationToken = default)
-        => PushAsync(this._internalApi.GetSynchronizableEntityTypes(), pushOptions, cancellationToken);
-
-    /// <summary>
-    ///     Pushes entities from the selected entity types to the remote service.
-    /// </summary>
-    /// <param name="entityTypes">The entity types in scope for this push operation.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>The results of the push operation.</returns>
-    [ExcludeFromCodeCoverage]
-    public Task<PushOperationResult> PushAsync(IEnumerable<Type> entityTypes, CancellationToken cancellationToken = default)
-        => PushAsync(entityTypes, new PushOptions(), cancellationToken);
-
-    /// <summary>
-    ///     Pushes entities from the selected entity types to the remote service.
-    /// </summary>
-    /// <param name="entityTypes">The entity types in scope for this push operation.</param>
-    /// <param name="pushOptions">The options to use for this push operation.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>The results of the push operation.</returns>
-    public virtual Task<PushOperationResult> PushAsync(IEnumerable<Type> entityTypes, PushOptions pushOptions, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(entityTypes, nameof(entityTypes));
-        ArgumentValidationException.ThrowIfNotValid(pushOptions, nameof(pushOptions));
-        return this._internalApi.PushAsync(entityTypes, pushOptions, cancellationToken);
-    }
 
     /// <summary>
     ///     Saves all changes made in this context to the database.
@@ -349,7 +301,7 @@ public abstract partial class OfflineDbContext : DbContext
     {
         if (addToQueue)
         {
-            this._internalApi.UpdateOperationsQueue();
+            this._operationsQueueManager.UpdateOperationsQueue();
         }
 
         return base.SaveChanges(acceptAllChangesOnSuccess);
@@ -478,7 +430,7 @@ public abstract partial class OfflineDbContext : DbContext
     {
         if (addToQueue)
         {
-            await this._internalApi.UpdateOperationsQueueAsync(cancellationToken).ConfigureAwait(false);
+            await this._operationsQueueManager.UpdateOperationsQueueAsync(cancellationToken).ConfigureAwait(false);
         }
 
         return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken).ConfigureAwait(false);

@@ -23,9 +23,4 @@ internal class EntityMetadata
     /// The version of the entity.
     /// </summary>
     public string? Version { get; set; }
-
-    /// <summary>
-    /// True if the entity is deleted. (Default is false).
-    /// </summary>
-    public bool Deleted { get; set; }
 }

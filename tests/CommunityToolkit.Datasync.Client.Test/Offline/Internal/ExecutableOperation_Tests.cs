@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Offline;
-using CommunityToolkit.Datasync.Client.Offline.Internal;
+using CommunityToolkit.Datasync.Client.Offline.Operations;
 
 namespace CommunityToolkit.Datasync.Client.Test.Offline.Internal;
 
