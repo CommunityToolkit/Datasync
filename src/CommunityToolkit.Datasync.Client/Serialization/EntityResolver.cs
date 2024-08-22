@@ -104,6 +104,12 @@ internal static class EntityResolver
             {
                 throw new DatasyncException($"Property type '{type.Name}'.Version must be either a string or byte array.");
             }
+
+            DeletedPropertyInfo = props.SingleOrDefault(x => x.Name.Equals(nameof(EntityMetadata.Deleted), StringComparison.Ordinal));
+            if (DeletedPropertyInfo is not null && !HasType(DeletedPropertyInfo.PropertyType, [typeof(bool)]))
+            {
+                throw new DatasyncException($"Property type '{type.Name}'.Deleted must be a 'bool' type.");
+            }
         }
 
         /// <summary>
@@ -131,6 +137,11 @@ internal static class EntityResolver
         }
 
         /// <summary>
+        /// The PropertyInfo for the deleted flag
+        /// </summary>
+        internal PropertyInfo? DeletedPropertyInfo { get; }
+
+        /// <summary>
         /// The PropertyInfo for the globally unique ID.
         /// </summary>
         internal PropertyInfo IdPropertyInfo { get; }
@@ -154,12 +165,17 @@ internal static class EntityResolver
         {
             EntityMetadata metadata = new() { Id = (string?)IdPropertyInfo.GetValue(entity) };
 
-            if (UpdatedAtPropertyInfo != null)
+            if (UpdatedAtPropertyInfo is not null)
             {
                 metadata.UpdatedAt = (DateTimeOffset?)UpdatedAtPropertyInfo.GetValue(entity);
             }
 
-            if (VersionPropertyInfo != null)
+            if (DeletedPropertyInfo is not null)
+            {
+                metadata.Deleted = (bool)(DeletedPropertyInfo.GetValue(entity) ?? false);
+            }
+
+            if (VersionPropertyInfo is not null)
             {
                 if (VersionPropertyInfo.PropertyType == typeof(string))
                 {

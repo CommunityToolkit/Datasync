@@ -17,7 +17,7 @@ namespace CommunityToolkit.Datasync.Client.Offline.OperationsQueue;
 /// The operations queue is a list of pending changes that have not
 /// been sent to the remote service yet.
 /// </summary>
-internal class OperationsQueueManager 
+internal class OperationsQueueManager : IOperationsQueueManager
 {
     /// <summary>
     /// The map of valid entities that can be synchronized to the service.
@@ -53,7 +53,7 @@ internal class OperationsQueueManager
     {
         this._context = context;
         this._entityMap = GetEntityMap(context);
-        this._offlineOptions = new(() => GetOfflineOptions(context, [.. this._entityMap.Values]));
+        this._offlineOptions = new(context.BuildDatasyncOfflineOptions);
     }
 
     /// <summary>
@@ -132,15 +132,6 @@ internal class OperationsQueueManager
         => OperationsQueue.OrderByDescending(x => x.Sequence).Select(x => x.Sequence).FirstOrDefaultAsync(cancellationToken);
 
     /// <summary>
-    /// Builds the offline options for a datasync operation.
-    /// </summary>
-    /// <param name="context">The <see cref="OfflineDbContext"/> for the datasync entities.</param>
-    /// <param name="entityTypes">The list of entity types that are synchronizable.</param>
-    /// <returns>The offline options for the datasync operation.</returns>
-    internal static OfflineOptions GetOfflineOptions(OfflineDbContext context, IList<Type> entityTypes)
-        => context.BuildDatasyncOfflineOptions(entityTypes);
-
-    /// <summary>
     /// Converts an EntryEntry change from the change tracker into a <see cref="DatasyncOperation"/>
     /// </summary>
     /// <param name="entry">The entry to process.</param>
@@ -169,13 +160,27 @@ internal class OperationsQueueManager
     }
 
     /// <summary>
+    /// Counts the number of operations enqueued in the operations queue for the given
+    /// entity type.
+    /// </summary>
+    /// <param name="entityType">The entity type being processed.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The number of operations in queue for the entity.</returns>
+    public Task<int> CountOperationsInQueueAsync(Type entityType, CancellationToken cancellationToken = default)
+        => this._context.DatasyncOperationsQueue
+            .Where(x => x.EntityType == entityType.FullName! && x.State != OperationState.Completed)
+            .CountAsync(cancellationToken);
+
+    /// <summary>
     /// Retrieves the list of queued operations for the service.
     /// </summary>
     /// <param name="entityTypeNames">The list of entity types that are in scope.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The list of queued operations.</returns>
     internal Task<List<DatasyncOperation>> GetQueuedOperationsAsync(List<string> entityTypeNames, CancellationToken cancellationToken = default)
-        => this._context.DatasyncOperationsQueue.Where(x => entityTypeNames.Contains(x.EntityType) && x.State != OperationState.Completed).ToListAsync(cancellationToken);
+        => this._context.DatasyncOperationsQueue
+            .Where(x => entityTypeNames.Contains(x.EntityType) && x.State != OperationState.Completed)
+            .ToListAsync(cancellationToken);
 
     /// <summary>
     /// Returns the associated type for the operation queue name.
