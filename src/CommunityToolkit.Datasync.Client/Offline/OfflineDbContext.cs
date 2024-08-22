@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client.Offline;
@@ -210,6 +211,45 @@ public abstract partial class OfflineDbContext : DbContext
     ///     The builder being used to construct the datasync service options for this context.
     /// </param>
     protected abstract void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder);
+
+    /// <summary>
+    ///     Pushes the pending operations against the remote service for the full set of synchronizable entity types.
+    /// </summary>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The results of the push operation.</returns>
+    [ExcludeFromCodeCoverage]
+    public Task<PushResult> PushAsync(CancellationToken cancellationToken = default)
+        => PushAsync(QueueManager.GetSynchronizableEntityTypes(), new PushOptions(), cancellationToken);
+
+    /// <summary>
+    ///     Pushes the pending operations against the remote service for the full set of synchronizable entity types.
+    /// </summary>
+    /// <param name="pushOptions">The options for this push operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The results of the push operation.</returns>
+    [ExcludeFromCodeCoverage]
+    public Task<PushResult> PushAsync(PushOptions pushOptions, CancellationToken cancellationToken = default)
+        => PushAsync(QueueManager.GetSynchronizableEntityTypes(), pushOptions, cancellationToken);
+
+    /// <summary>
+    ///     Pushes the pending operations against the remote service for the provided set of entity types.
+    /// </summary>
+    /// <param name="entityTypes">The list of entity types in scope for this push operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The results of the push operation.</returns>
+    [ExcludeFromCodeCoverage]
+    public Task<PushResult> PushAsync(IEnumerable<Type> entityTypes, CancellationToken cancellationToken = default)
+        => PushAsync(entityTypes, new PushOptions(), cancellationToken);
+
+    /// <summary>
+    ///     Pushes the pending operations against the remote service for the provided set of entity types.
+    /// </summary>
+    /// <param name="entityTypes">The list of entity types in scope for this push operation.</param>
+    /// <param name="pushOptions">The options for this push operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The results of the push operation.</returns>
+    public virtual Task<PushResult> PushAsync(IEnumerable<Type> entityTypes, PushOptions pushOptions, CancellationToken cancellationToken = default)
+        => QueueManager.PushAsync(entityTypes, pushOptions, cancellationToken);
 
     /// <summary>
     ///     Saves all changes made in this context to the database.

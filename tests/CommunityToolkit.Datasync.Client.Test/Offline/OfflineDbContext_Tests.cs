@@ -8,6 +8,9 @@ using CommunityToolkit.Datasync.Client.Offline;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Test.Offline.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Client.Test.Offline;
@@ -32,6 +35,350 @@ public class OfflineDbContext_Tests : BaseTest
         TestDbContext context = new();
         context.QueueManager.Should().NotBeNull();
         context.DeltaTokenStore.Should().NotBeNull();
+    }
+    #endregion
+
+    #region PushAsync
+    [Fact]
+    public async Task PushAsync_BadPushOptions()
+    {
+        PushOptions options = new() { ParallelOperations = 0 };
+        Type[] entityTypes = [typeof(ClientMovie)];
+
+        Func<Task> act = async () => _ = await this.context.PushAsync(entityTypes, options);
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task PushAsync_NoSynchronizableEntities(int nItems)
+    {
+        PushOptions options = new();
+        List<Type> allowedTypes = [typeof(Entity1), typeof(Entity2), typeof(Entity4)];
+        Type[] entityTypes = allowedTypes.Take(nItems).ToArray();
+
+        PushResult result = await this.context.PushAsync(entityTypes, options);
+        result.CompletedOperations.Should().Be(0);
+        result.FailedOperations.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task PushAsync_NoOperations()
+    {
+        PushOptions options = new();
+        Type[] entityTypes = [typeof(ClientMovie)];
+
+        PushResult result = await this.context.PushAsync(entityTypes, options);
+        result.CompletedOperations.Should().Be(0);
+        result.FailedOperations.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task DbSet_PushAsync_NoOperations()
+    {
+        PushOptions options = new();
+
+        PushResult result = await this.context.Movies.PushAsync(options);
+        result.CompletedOperations.Should().Be(0);
+        result.FailedOperations.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public async void PushAsync_Addition_Works()
+    {
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        string clientMovieJson = DatasyncSerializer.Serialize(clientMovie);
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges();
+
+        ClientMovie responseMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, UpdatedAt = DateTimeOffset.UtcNow, Version = Guid.NewGuid().ToString() };
+        string expectedJson = DatasyncSerializer.Serialize(responseMovie);
+        this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.Created);
+
+        PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
+        results.IsSuccessful.Should().BeTrue();
+        results.CompletedOperations.Should().Be(1);
+        results.FailedOperations.Should().BeEmpty();
+
+        this.context.DatasyncOperationsQueue.Should().BeEmpty();
+
+        ClientMovie actualMovie = this.context.Movies.SingleOrDefault(x => x.Id == clientMovie.Id);
+        actualMovie.UpdatedAt!.Should().BeCloseTo((DateTimeOffset)responseMovie.UpdatedAt, TimeSpan.FromMicroseconds(1000));
+        actualMovie.Version.Should().Be(responseMovie.Version);
+    }
+
+    [Fact]
+    public async void DbSet_PushAsync_Addition_Works()
+    {
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        string clientMovieJson = DatasyncSerializer.Serialize(clientMovie);
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges();
+
+        ClientMovie responseMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, UpdatedAt = DateTimeOffset.UtcNow, Version = Guid.NewGuid().ToString() };
+        string expectedJson = DatasyncSerializer.Serialize(responseMovie);
+        this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.Created);
+
+        PushResult results = await this.context.Movies.PushAsync();
+        results.IsSuccessful.Should().BeTrue();
+        results.CompletedOperations.Should().Be(1);
+        results.FailedOperations.Should().BeEmpty();
+
+        this.context.DatasyncOperationsQueue.Should().BeEmpty();
+
+        ClientMovie actualMovie = this.context.Movies.SingleOrDefault(x => x.Id == clientMovie.Id);
+        actualMovie.UpdatedAt!.Should().BeCloseTo((DateTimeOffset)responseMovie.UpdatedAt, TimeSpan.FromMicroseconds(1000));
+        actualMovie.Version.Should().Be(responseMovie.Version);
+    }
+
+    [Fact]
+    public async Task PushAsync_Addition_HttpError()
+    {
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges();
+
+        this.context.Handler.AddResponse(HttpStatusCode.InternalServerError);
+
+        PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
+        results.IsSuccessful.Should().BeFalse();
+        results.CompletedOperations.Should().Be(0);
+        results.FailedOperations.Should().HaveCount(1);
+        ServiceResponse result = results.FailedOperations.First().Value;
+        result.StatusCode.Should().Be(500);
+        result.HasContent.Should().BeFalse();
+
+        this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+        DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
+        op.HttpStatusCode.Should().Be(500);
+        op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
+    }
+
+    [Fact]
+    public async Task PushAsync_Addition_Conflict()
+    {
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges();
+
+        ClientMovie responseMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, UpdatedAt = DateTimeOffset.UtcNow, Version = Guid.NewGuid().ToString() };
+        string expectedJson = DatasyncSerializer.Serialize(responseMovie);
+        this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.Conflict);
+
+        PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
+        results.IsSuccessful.Should().BeFalse();
+        results.CompletedOperations.Should().Be(0);
+        results.FailedOperations.Should().HaveCount(1);
+        ServiceResponse result = results.FailedOperations.First().Value;
+        result.StatusCode.Should().Be(409);
+        result.HasContent.Should().BeTrue();
+        string content = new StreamReader(result.ContentStream).ReadToEnd();
+        content.Should().Be(expectedJson);
+
+        this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+        DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
+        op.HttpStatusCode.Should().Be(409);
+        op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
+    }
+
+    [Fact]
+    public async Task PushAsync_Removal_Works()
+    {
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+
+        this.context.Movies.Remove(clientMovie);
+        this.context.SaveChanges();
+        this.context.Handler.AddResponse(HttpStatusCode.NoContent);
+
+        PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
+        results.IsSuccessful.Should().BeTrue();
+        results.CompletedOperations.Should().Be(1);
+        results.FailedOperations.Should().BeEmpty();
+
+        this.context.DatasyncOperationsQueue.Should().BeEmpty();
+        this.context.Movies.Find(clientMovie.Id).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task DbSet_PushAsync_Removal_Works()
+    {
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+
+        this.context.Movies.Remove(clientMovie);
+        this.context.SaveChanges();
+        this.context.Handler.AddResponse(HttpStatusCode.NoContent);
+
+        PushResult results = await this.context.Movies.PushAsync();
+        results.IsSuccessful.Should().BeTrue();
+        results.CompletedOperations.Should().Be(1);
+        results.FailedOperations.Should().BeEmpty();
+
+        this.context.DatasyncOperationsQueue.Should().BeEmpty();
+        this.context.Movies.Find(clientMovie.Id).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task PushAsync_Removal_HttpError()
+    {
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+
+        this.context.Movies.Remove(clientMovie);
+        this.context.SaveChanges();
+        this.context.Handler.AddResponse(HttpStatusCode.InternalServerError);
+
+        PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
+        results.IsSuccessful.Should().BeFalse();
+        results.CompletedOperations.Should().Be(0);
+        results.FailedOperations.Should().HaveCount(1);
+        ServiceResponse result = results.FailedOperations.First().Value;
+        result.StatusCode.Should().Be(500);
+        result.HasContent.Should().BeFalse();
+
+        this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+        DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
+        op.HttpStatusCode.Should().Be(500);
+        op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
+    }
+
+    [Fact]
+    public async Task PushAsync_Removal_Conflict()
+    {
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+
+        this.context.Movies.Remove(clientMovie);
+        this.context.SaveChanges();
+
+        ClientMovie responseMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, UpdatedAt = DateTimeOffset.UtcNow, Version = Guid.NewGuid().ToString() };
+        string expectedJson = DatasyncSerializer.Serialize(responseMovie);
+        this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.Conflict);
+
+        PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
+        results.IsSuccessful.Should().BeFalse();
+        results.CompletedOperations.Should().Be(0);
+        results.FailedOperations.Should().HaveCount(1);
+        ServiceResponse result = results.FailedOperations.First().Value;
+        result.StatusCode.Should().Be(409);
+        result.HasContent.Should().BeTrue();
+        string content = new StreamReader(result.ContentStream).ReadToEnd();
+        content.Should().Be(expectedJson);
+
+        this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+        DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
+        op.HttpStatusCode.Should().Be(409);
+        op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
+    }
+
+    [Fact]
+    public async Task PushAsync_Replacement_Works()
+    {
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+
+        clientMovie.Title = "Foo";
+        this.context.Update(clientMovie);
+        this.context.SaveChanges();
+
+        ClientMovie responseMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, UpdatedAt = DateTimeOffset.UtcNow, Version = Guid.NewGuid().ToString() };
+        string expectedJson = DatasyncSerializer.Serialize(responseMovie);
+        this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.OK);
+
+        PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
+        results.IsSuccessful.Should().BeTrue();
+        results.CompletedOperations.Should().Be(1);
+        results.FailedOperations.Should().BeEmpty();
+
+        this.context.DatasyncOperationsQueue.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task DbSet_PushAsync_Replacement_Works()
+    {
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+
+        clientMovie.Title = "Foo";
+        this.context.Update(clientMovie);
+        this.context.SaveChanges();
+
+        ClientMovie responseMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, UpdatedAt = DateTimeOffset.UtcNow, Version = Guid.NewGuid().ToString() };
+        string expectedJson = DatasyncSerializer.Serialize(responseMovie);
+        this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.OK);
+
+        PushResult results = await this.context.Movies.PushAsync();
+        results.IsSuccessful.Should().BeTrue();
+        results.CompletedOperations.Should().Be(1);
+        results.FailedOperations.Should().BeEmpty();
+
+        this.context.DatasyncOperationsQueue.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PushAsync_Replacement_HttpError()
+    {
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+
+        clientMovie.Title = "Foo";
+        this.context.Update(clientMovie);
+        this.context.SaveChanges();
+        this.context.Handler.AddResponse(HttpStatusCode.InternalServerError);
+
+        PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
+        results.IsSuccessful.Should().BeFalse();
+        results.CompletedOperations.Should().Be(0);
+        results.FailedOperations.Should().HaveCount(1);
+        ServiceResponse result = results.FailedOperations.First().Value;
+        result.StatusCode.Should().Be(500);
+        result.HasContent.Should().BeFalse();
+
+        this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+        DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
+        op.HttpStatusCode.Should().Be(500);
+        op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
+    }
+
+    [Fact]
+    public async Task PushAsync_Replacement_Conflict()
+    {
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+
+        clientMovie.Title = "Foo";
+        this.context.Update(clientMovie);
+        this.context.SaveChanges();
+
+        ClientMovie responseMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, UpdatedAt = DateTimeOffset.UtcNow, Version = Guid.NewGuid().ToString() };
+        string expectedJson = DatasyncSerializer.Serialize(responseMovie);
+        this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.Conflict);
+
+        PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
+        results.IsSuccessful.Should().BeFalse();
+        results.CompletedOperations.Should().Be(0);
+        results.FailedOperations.Should().HaveCount(1);
+        ServiceResponse result = results.FailedOperations.First().Value;
+        result.StatusCode.Should().Be(409);
+        result.HasContent.Should().BeTrue();
+        string content = new StreamReader(result.ContentStream).ReadToEnd();
+        content.Should().Be(expectedJson);
+
+        this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+        DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
+        op.HttpStatusCode.Should().Be(409);
+        op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
     }
     #endregion
 
@@ -630,4 +977,40 @@ public class OfflineDbContext_Tests : BaseTest
         act.Should().NotThrow();
     }
     #endregion
+
+    #region DbSet<T>.PushAsync
+    [Fact]
+    public async Task DbSet_PushAsync_Throws_OnNonOfflineDbContext()
+    {
+        NotOfflineDbContext context = NotOfflineDbContext.CreateContext();
+        Func<Task> act = async () => await context.Movies.PushAsync();
+        await act.Should().ThrowAsync<DatasyncException>();
+    }
+    #endregion
+
+    public class NotOfflineDbContext : DbContext
+    {
+        public NotOfflineDbContext() : base()
+        {
+        }
+
+        public NotOfflineDbContext(DbContextOptions<NotOfflineDbContext> options) : base(options)
+        {
+        }
+
+        internal SqliteConnection Connection { get; set; }
+
+        public DbSet<ClientMovie> Movies => Set<ClientMovie>();
+
+        public static NotOfflineDbContext CreateContext()
+        {
+            SqliteConnection connection = new("Data Source=:memory:");
+            connection.Open();
+            DbContextOptionsBuilder<NotOfflineDbContext> optionsBuilder = new DbContextOptionsBuilder<NotOfflineDbContext>()
+                .UseSqlite(connection);
+            NotOfflineDbContext context = new(optionsBuilder.Options) { Connection = connection };
+            context.Database.EnsureCreated();
+            return context;
+        }
+    }
 }
