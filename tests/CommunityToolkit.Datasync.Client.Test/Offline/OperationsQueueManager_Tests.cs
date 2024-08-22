@@ -3,22 +3,22 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Offline;
+using CommunityToolkit.Datasync.Client.Offline.OperationsQueue;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Test.Offline.Helpers;
-using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
-using System.Text;
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Client.Test.Offline;
 
 [ExcludeFromCodeCoverage]
+[Collection("SynchronizedOfflineTests")]
 public class OperationsQueueManager_Tests : BaseTest
 {
     private readonly TestDbContext context = CreateContext();
-    private OfflineDbContext.OperationsQueueManager queueManager { get => this.context._operationsQueueManager; }
+    private OperationsQueueManager queueManager { get => this.context.QueueManager; }
 
     #region GetEntityMap
     [Fact]
@@ -164,6 +164,9 @@ public class OperationsQueueManager_Tests : BaseTest
         result.HasContent.Should().BeFalse();
 
         this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+        DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
+        op.HttpStatusCode.Should().Be(500);
+        op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
     }
 
     [Fact]
@@ -188,6 +191,9 @@ public class OperationsQueueManager_Tests : BaseTest
         content.Should().Be(expectedJson);
 
         this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+        DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
+        op.HttpStatusCode.Should().Be(409);
+        op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
     }
 
     [Fact]
@@ -230,6 +236,9 @@ public class OperationsQueueManager_Tests : BaseTest
         result.HasContent.Should().BeFalse();
 
         this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+        DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
+        op.HttpStatusCode.Should().Be(500);
+        op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
     }
 
     [Fact]
@@ -257,6 +266,9 @@ public class OperationsQueueManager_Tests : BaseTest
         content.Should().Be(expectedJson);
 
         this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+        DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
+        op.HttpStatusCode.Should().Be(409);
+        op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
     }
 
     [Fact]
@@ -303,10 +315,13 @@ public class OperationsQueueManager_Tests : BaseTest
         result.HasContent.Should().BeFalse();
 
         this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+        DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
+        op.HttpStatusCode.Should().Be(500);
+        op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
     }
 
     [Fact]
-    public async Task PushAsync_Replacment_Conflict()
+    public async Task PushAsync_Replacement_Conflict()
     {
         ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
         this.context.Movies.Add(clientMovie);
@@ -331,6 +346,30 @@ public class OperationsQueueManager_Tests : BaseTest
         content.Should().Be(expectedJson);
 
         this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+        DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
+        op.HttpStatusCode.Should().Be(409);
+        op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
+    }
+    #endregion
+
+    #region PushOperationAsync
+    [Fact]
+    public async Task PushOperationAsync_Throws_InvalidType()
+    {
+        DatasyncOperation operation = new()
+        {
+            Id = Guid.NewGuid().ToString(),
+            Kind = OperationKind.Delete,
+            State = OperationState.Pending,
+            EntityType = typeof(Entity1).FullName,
+            ItemId = "123",
+            EntityVersion = string.Empty,
+            Item = """{}""",
+            Sequence = 0,
+            Version = 0
+        };
+        Func<Task> act = async () => await queueManager.PushOperationAsync(operation);
+        await act.Should().ThrowAsync<DatasyncException>();
     }
     #endregion
 

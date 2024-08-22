@@ -2,6 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Offline.DeltaTokenStore;
+using CommunityToolkit.Datasync.Client.Offline.Models;
+using CommunityToolkit.Datasync.Client.Offline.OperationsQueue;
 using CommunityToolkit.Datasync.Client.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -66,7 +69,7 @@ public abstract partial class OfflineDbContext : DbContext
     /// The store for delta-tokens, which are used to keep track of the last synchronization time.
     /// </summary>
     [DoNotSynchronize]
-    public DbSet<DatasyncDeltaToken> DatasyncDeltaTokenStore => Set<DatasyncDeltaToken>();
+    public DbSet<DatasyncDeltaToken> DatasyncDeltaTokens => Set<DatasyncDeltaToken>();
 
     /// <summary>
     /// The JSON Serializer Options to use in serializing and deserializing content.
@@ -74,9 +77,14 @@ public abstract partial class OfflineDbContext : DbContext
     internal JsonSerializerOptions JsonSerializerOptions { get; } = DatasyncSerializer.JsonSerializerOptions;
 
     /// <summary>
-    /// The operations queue manager to use.
+    /// The operations queue manager to use for push operations.
     /// </summary>
-    internal readonly OperationsQueueManager _operationsQueueManager;
+    internal OperationsQueueManager QueueManager { get; }
+
+    /// <summary>
+    /// The delta token store to use for pull operations.
+    /// </summary>
+    internal IDeltaTokenStore DeltaTokenStore { get; set; }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="OfflineDbContext" /> class. The 
@@ -89,7 +97,8 @@ public abstract partial class OfflineDbContext : DbContext
     /// </remarks>
     protected OfflineDbContext() : base()
     {
-        this._operationsQueueManager = new(this);
+        QueueManager = new OperationsQueueManager(this);
+        DeltaTokenStore = new DefaultDeltaTokenStore(this);
     }
 
     /// <summary>
@@ -104,7 +113,20 @@ public abstract partial class OfflineDbContext : DbContext
     /// <param name="options">The options for this context.</param>
     protected OfflineDbContext(DbContextOptions options) : base(options)
     {
-        this._operationsQueueManager = new(this);
+        QueueManager = new OperationsQueueManager(this);
+        DeltaTokenStore = new DefaultDeltaTokenStore(this);
+    }
+
+    /// <summary>
+    /// Builds the offline options for a datasync operation.
+    /// </summary>
+    /// <param name="entityTypes">The list of entity types that are synchronizable.</param>
+    /// <returns>The offline options for the datasync operation.</returns>
+    internal OfflineOptions BuildDatasyncOfflineOptions(IEnumerable<Type> entityTypes)
+    {
+        DatasyncOfflineOptionsBuilder builder = new(entityTypes);
+        OnDatasyncInitialization(builder);
+        return builder.Build();
     }
 
     /// <summary>
@@ -301,7 +323,7 @@ public abstract partial class OfflineDbContext : DbContext
     {
         if (addToQueue)
         {
-            this._operationsQueueManager.UpdateOperationsQueue();
+            QueueManager.UpdateOperationsQueue();
         }
 
         return base.SaveChanges(acceptAllChangesOnSuccess);
@@ -430,7 +452,7 @@ public abstract partial class OfflineDbContext : DbContext
     {
         if (addToQueue)
         {
-            await this._operationsQueueManager.UpdateOperationsQueueAsync(cancellationToken).ConfigureAwait(false);
+            await QueueManager.UpdateOperationsQueueAsync(cancellationToken).ConfigureAwait(false);
         }
 
         return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken).ConfigureAwait(false);

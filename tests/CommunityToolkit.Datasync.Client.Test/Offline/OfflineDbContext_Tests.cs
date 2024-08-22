@@ -13,6 +13,7 @@ using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 namespace CommunityToolkit.Datasync.Client.Test.Offline;
 
 [ExcludeFromCodeCoverage]
+[Collection("SynchronizedOfflineTests")]
 public class OfflineDbContext_Tests : BaseTest
 {
     private readonly TestDbContext context = CreateContext();
@@ -21,8 +22,16 @@ public class OfflineDbContext_Tests : BaseTest
     [Fact]
     public void Default_Ctor_CreatesInternalApi()
     {
-        this.context._operationsQueueManager.Should().NotBeNull();
-        this.context._operationsQueueManager._entityMap.Should().NotBeNull();
+        this.context.QueueManager.Should().NotBeNull();
+        this.context.DeltaTokenStore.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Base_Ctor_CreatesInternalApi()
+    {
+        TestDbContext context = new();
+        context.QueueManager.Should().NotBeNull();
+        context.DeltaTokenStore.Should().NotBeNull();
     }
     #endregion
 

@@ -12,7 +12,7 @@ using System.Net;
 
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
-namespace CommunityToolkit.Datasync.Client.Test.Offline.Internal;
+namespace CommunityToolkit.Datasync.Client.Test.Offline.Operations;
 
 [ExcludeFromCodeCoverage]
 public class AddOperation_Tests

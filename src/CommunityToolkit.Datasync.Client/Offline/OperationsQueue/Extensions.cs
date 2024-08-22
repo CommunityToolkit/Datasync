@@ -4,7 +4,7 @@
 
 using Microsoft.EntityFrameworkCore;
 
-namespace CommunityToolkit.Datasync.Client.Offline;
+namespace CommunityToolkit.Datasync.Client.Offline.OperationsQueue;
 
 internal static class Extensions
 {

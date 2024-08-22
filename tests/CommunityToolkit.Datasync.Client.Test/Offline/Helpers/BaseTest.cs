@@ -13,6 +13,11 @@ namespace CommunityToolkit.Datasync.Client.Test.Offline.Helpers;
 public abstract class BaseTest
 {
     /// <summary>
+    /// The date/time of the start of the current test.
+    /// </summary>
+    protected DateTimeOffset StartTime { get; } = DateTimeOffset.UtcNow;
+
+    /// <summary>
     /// Creates a version of the TestDbContext backed by SQLite.
     /// </summary>
     protected static TestDbContext CreateContext()

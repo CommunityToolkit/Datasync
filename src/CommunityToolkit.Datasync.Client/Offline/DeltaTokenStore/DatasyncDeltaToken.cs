@@ -21,5 +21,5 @@ public class DatasyncDeltaToken
     /// <summary>
     /// The value of the sequence number.
     /// </summary>
-    public required long Sequence { get; set; }
+    public required long Value { get; set; }
 }

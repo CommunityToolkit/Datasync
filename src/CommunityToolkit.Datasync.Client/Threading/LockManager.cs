@@ -39,5 +39,5 @@ internal static class LockManager
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>An <see cref="IDisposable"/> that can be used to release the lock.</returns>
     internal static Task<IDisposable> AcquireSynchronizationLockAsync(CancellationToken cancellationToken = default)
-        => lockDictionary.Value.AcquireLockAsync(synchronizationLockName, cancellationToken);
+        => AcquireLockAsync(synchronizationLockName, cancellationToken);
 }
