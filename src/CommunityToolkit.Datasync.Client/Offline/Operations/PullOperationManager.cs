@@ -8,6 +8,8 @@ using CommunityToolkit.Datasync.Client.Query.Linq;
 using CommunityToolkit.Datasync.Client.Query.OData;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Threading;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client.Offline.Operations;
@@ -71,6 +73,7 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
 
                 if (metadata.UpdatedAt.HasValue && metadata.UpdatedAt.Value > lastSynchronization)
                 {
+                    lastSynchronization = metadata.UpdatedAt.Value;
                     await DeltaTokenStore.SetDeltaTokenAsync(pullResponse.QueryId, metadata.UpdatedAt.Value, cancellationToken).ConfigureAwait(false);
                 }
             }
@@ -121,6 +124,7 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
 
         await serviceRequestQueue.WhenComplete();
         await databaseUpdateQueue.WhenComplete();
+        _ = await context.SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
         return result;
     }
 
@@ -135,6 +139,11 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
     /// <exception cref="DatasyncPullException">Thrown on error</exception>
     internal async Task<Page<object>> GetPageAsync(HttpClient client, Uri requestUri, Type pageType, CancellationToken cancellationToken = default)
     {
+        PropertyInfo itemsPropInfo = pageType.GetProperty("Items")
+            ?? throw new DatasyncException($"Page type '{pageType.Name}' does not have an 'Items' property");
+        PropertyInfo nextLinkPropInfo = pageType.GetProperty("NextLink")
+            ?? throw new DatasyncException($"Page type '{pageType.Name}' does not have a 'NextLink' property");
+
         using HttpRequestMessage requestMessage = new(HttpMethod.Get, requestUri);
         using HttpResponseMessage responseMessage = await client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
         ServiceResponse response = new(responseMessage);
@@ -147,7 +156,12 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
         {
             object? result = await JsonSerializer.DeserializeAsync(response.ContentStream, pageType, context.JsonSerializerOptions, cancellationToken).ConfigureAwait(false)
                 ?? throw new DatasyncPullException("JSON result is null") { ServiceResponse = response };
-            return (Page<object>)result;
+
+            return new Page<object>()
+            {
+                Items = (IEnumerable<object>)itemsPropInfo.GetValue(result)!,
+                NextLink = (string?)nextLinkPropInfo.GetValue(result)
+            };
         }
         catch (JsonException ex)
         {
@@ -186,5 +200,6 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
     /// <param name="EntityType">The type of entity contained within the items.</param>
     /// <param name="QueryId">The query ID for the request.</param>
     /// <param name="Items">The list of items to process.</param>
+    [ExcludeFromCodeCoverage]
     internal record PullResponse(Type EntityType, string QueryId, IEnumerable<object> Items);
 }

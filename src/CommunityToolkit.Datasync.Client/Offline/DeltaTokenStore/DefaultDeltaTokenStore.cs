@@ -58,7 +58,7 @@ internal class DefaultDeltaTokenStore(OfflineDbContext context) : IDeltaTokenSto
         {
             _ = context.DatasyncDeltaTokens.Add(new DatasyncDeltaToken() { Id = queryId, Value = unixms });
         }
-        else
+        else if (deltaToken.Value != unixms)
         {
             deltaToken.Value = unixms;
             _ = context.DatasyncDeltaTokens.Update(deltaToken);

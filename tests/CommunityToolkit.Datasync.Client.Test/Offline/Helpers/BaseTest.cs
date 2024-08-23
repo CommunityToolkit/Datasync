@@ -2,10 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Net.Http.Headers;
+
+using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Client.Test.Offline.Helpers;
 
@@ -43,6 +46,34 @@ public abstract class BaseTest
             Content = new StringContent(content, MediaTypeHeaderValue.Parse("application/json"))
         };
         return response;
+    }
 
+    /// <summary>
+    /// Creates a page of items to use as a response.
+    /// </summary>
+    /// <param name="nItems"></param>
+    /// <param name="totalCount"></param>
+    /// <param name="nextLink"></param>
+    /// <returns></returns>
+    protected static Page<ClientMovie> CreatePage(int nItems, int? totalCount = null, string nextLink = null)
+    {
+        List<ClientMovie> items = [];
+        for (int i = 0; i < nItems; i++)
+        {
+            ClientMovie item = new(TestData.Movies.BlackPanther)
+            {
+                Id = Guid.NewGuid().ToString("N"),
+                UpdatedAt = DateTimeOffset.UtcNow.AddHours(-1 * (i + 25)),
+                Version = Convert.ToBase64String(Guid.NewGuid().ToByteArray())
+            };
+            items.Add(item);
+        }
+
+        return new Page<ClientMovie>()
+        {
+            Items = items,
+            Count = totalCount,
+            NextLink = nextLink
+        };
     }
 }

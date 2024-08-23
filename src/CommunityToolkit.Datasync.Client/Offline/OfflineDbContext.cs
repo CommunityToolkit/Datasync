@@ -301,9 +301,7 @@ public abstract partial class OfflineDbContext : DbContext
             }
         }
 
-        PullResult result = await PullOperationManager.ExecuteAsync(pullRequests, pullOptions, cancellationToken).ConfigureAwait(false);
-        _ = await SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
-        return result;
+        return await PullOperationManager.ExecuteAsync(pullRequests, pullOptions, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

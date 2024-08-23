@@ -7,6 +7,7 @@
 using CommunityToolkit.Datasync.Client.Offline;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Test.Offline.Helpers;
+using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,207 @@ public class OfflineDbContext_Tests : BaseTest
         TestDbContext context = new();
         context.QueueManager.Should().NotBeNull();
         context.DeltaTokenStore.Should().NotBeNull();
+    }
+    #endregion
+
+    #region PullAsync
+    [Fact]
+    public async Task ExecuteAsync_Works_InitialSync()
+    {
+        Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
+        Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
+        Page<ClientMovie> page3 = CreatePage(5, 20, "$skip=15");
+        Page<ClientMovie> page4 = CreatePage(5, 20);
+
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page1);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page2);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page3);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page4);
+
+        PullResult pullResult = await this.context.PullAsync([typeof(ClientMovie)], new PullOptions());
+
+        pullResult.IsSuccessful.Should().BeTrue();
+        pullResult.Additions.Should().Be(20);
+        pullResult.Deletions.Should().Be(0);
+        pullResult.Replacements.Should().Be(0);
+
+        List<ClientMovie> expected = page1.Items.Concat(page2.Items).Concat(page3.Items).Concat(page4.Items).ToList();
+        List<ClientMovie> actual = await this.context.Movies.ToListAsync();
+
+        actual.Should().BeEquivalentTo(expected);
+
+        this.context.Handler.Requests.Should().HaveCount(4);
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_Works_FollowonSync()
+    {
+        Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
+        Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
+        Page<ClientMovie> page3 = CreatePage(5, 20, "$skip=15");
+        Page<ClientMovie> page4 = CreatePage(5, 20);
+
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page1);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page2);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page3);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page4);
+
+        DatasyncDeltaToken token = new() { Id = typeof(ClientMovie).FullName!, Value = 1724444574291L };
+        this.context.DatasyncDeltaTokens.Add(token);
+        await this.context.SaveChangesAsync();
+
+        PullResult pullResult = await this.context.PullAsync([typeof(ClientMovie)], new PullOptions());
+
+        pullResult.IsSuccessful.Should().BeTrue();
+        pullResult.Additions.Should().Be(20);
+        pullResult.Deletions.Should().Be(0);
+        pullResult.Replacements.Should().Be(0);
+
+        List<ClientMovie> expected = page1.Items.Concat(page2.Items).Concat(page3.Items).Concat(page4.Items).ToList();
+        List<ClientMovie> actual = await this.context.Movies.ToListAsync();
+
+        actual.Should().BeEquivalentTo(expected);
+
+        this.context.Handler.Requests.Should().HaveCount(4);
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$filter=%28updatedAt gt cast%282024-08-23T20%3A22%3A54.291Z%2CEdm.DateTimeOffset%29%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_Works_DoesntAddDeletions()
+    {
+        Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
+        Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
+        Page<ClientMovie> page3 = CreatePage(5, 20, "$skip=15");
+        Page<ClientMovie> page4 = CreatePage(5, 20);
+
+        // Modify the third element of page1 so it's deleted.
+        List<ClientMovie> page1Items = page1.Items.ToList();
+        page1Items[2].Deleted = true;
+        page1.Items = page1Items;
+
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page1);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page2);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page3);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page4);
+
+        DatasyncDeltaToken token = new() { Id = typeof(ClientMovie).FullName!, Value = 1724444574291L };
+        this.context.DatasyncDeltaTokens.Add(token);
+        await this.context.SaveChangesAsync();
+
+        PullResult pullResult = await this.context.PullAsync([typeof(ClientMovie)], new PullOptions());
+
+        pullResult.IsSuccessful.Should().BeTrue();
+        pullResult.Additions.Should().Be(19);
+        pullResult.Deletions.Should().Be(0);
+        pullResult.Replacements.Should().Be(0);
+
+        List<ClientMovie> expected = page1.Items.Concat(page2.Items).Concat(page3.Items).Concat(page4.Items).Where(x => !x.Deleted).ToList();
+        List<ClientMovie> actual = await this.context.Movies.ToListAsync();
+
+        actual.Should().BeEquivalentTo(expected);
+
+        this.context.Handler.Requests.Should().HaveCount(4);
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$filter=%28updatedAt gt cast%282024-08-23T20%3A22%3A54.291Z%2CEdm.DateTimeOffset%29%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_Works_DeletionsAndReplacements()
+    {
+        Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
+        Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
+        Page<ClientMovie> page3 = CreatePage(5, 20, "$skip=15");
+        Page<ClientMovie> page4 = CreatePage(5, 20);
+
+        List<ClientMovie> page1Items = page1.Items.ToList();
+
+        // Add the third element of page1 to the database
+        ClientMovie movie1 = page1Items[2].Clone();
+        this.context.Movies.Add(movie1);
+
+        // Add another element so it is replaced
+        ClientMovie movie2 = page1Items[4].Clone();
+        movie2.Title = "Foo";
+        this.context.Movies.Add(movie2);
+        this.context.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+
+        // Modify the third element of page1 so it's deleted.
+        page1Items[2].Deleted = true;
+        page1.Items = page1Items;
+
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page1);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page2);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page3);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page4);
+
+        PullResult pullResult = await this.context.PullAsync([typeof(ClientMovie)], new PullOptions());
+
+        pullResult.IsSuccessful.Should().BeTrue();
+        pullResult.Additions.Should().Be(18);
+        pullResult.Deletions.Should().Be(1);
+        pullResult.Replacements.Should().Be(1);
+
+        List<ClientMovie> expected = page1.Items.Concat(page2.Items).Concat(page3.Items).Concat(page4.Items).Where(x => !x.Deleted).ToList();
+        List<ClientMovie> actual = await this.context.Movies.ToListAsync();
+
+        actual.Should().BeEquivalentTo(expected);
+
+        this.context.Handler.Requests.Should().HaveCount(4);
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_FailedRequest()
+    {
+        this.context.Handler.AddResponse(HttpStatusCode.BadRequest);
+
+        PullResult pullResult = await this.context.PullAsync([typeof(ClientMovie)], new PullOptions());
+
+        pullResult.IsSuccessful.Should().BeFalse();
+        pullResult.FailedRequests.Should().HaveCount(1);
+        KeyValuePair<Uri, ServiceResponse> kv = pullResult.FailedRequests.Single();
+        kv.Key.Should().Be("https://test.zumo.net/tables/movies/?$orderby=updatedAt&$count=true&__includedeleted=true");
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_NoRequests()
+    {
+        PullResult pullResult = await this.context.PullAsync([], new PullOptions());
+
+        pullResult.IsSuccessful!.Should().BeTrue();
+        pullResult.OperationCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_PendingRequests()
+    {
+        Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
+        List<ClientMovie> page1Items = page1.Items.ToList();
+
+        // Add the third element of page1 to the database
+        ClientMovie movie1 = page1Items[2].Clone();
+        this.context.Movies.Add(movie1);
+
+        // Add another element so it is replaced
+        ClientMovie movie2 = page1Items[4].Clone();
+        movie2.Title = "Foo";
+        this.context.Movies.Add(movie2);
+        this.context.SaveChanges(); // This adds to the queue, so will generate the exception.
+
+        Func<Task> act = async () => _  = await this.context.PullAsync([typeof(ClientMovie)], new PullOptions());
+        await act.Should().ThrowAsync<DatasyncException>();
     }
     #endregion
 
