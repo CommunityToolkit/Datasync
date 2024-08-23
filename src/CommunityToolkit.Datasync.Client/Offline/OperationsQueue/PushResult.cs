@@ -10,10 +10,10 @@ namespace CommunityToolkit.Datasync.Client.Offline;
 /// <summary>
 /// The result of a single push operation.
 /// </summary>
-public class PushOperationResult
+public class PushResult
 {
-    private int _completedOperations = 0;
-    private readonly ConcurrentDictionary<string, ServiceResponse> _failedOperations = new();
+    internal int _completedOperations = 0;
+    internal readonly ConcurrentDictionary<string, ServiceResponse> _failedOperations = new();
 
     /// <summary>
     /// The number of completed operations.
@@ -23,7 +23,7 @@ public class PushOperationResult
     /// <summary>
     /// The number of failed operations.
     /// </summary>
-    public IDictionary<string, ServiceResponse> FailedOperations { get => this._failedOperations.ToImmutableDictionary(); }
+    public IReadOnlyDictionary<string, ServiceResponse> FailedOperations { get => this._failedOperations.ToImmutableDictionary(); }
 
     /// <summary>
     /// Determines if the operation was successful.
@@ -33,9 +33,9 @@ public class PushOperationResult
     /// <summary>
     /// Adds an operation result in a thread safe manner.
     /// </summary>
-    /// <param name="operationId">The ID of the operation being processed.</param>
+    /// <param name="operation">The operation being processed.</param>
     /// <param name="response">The response from the service.</param>
-    internal void AddOperationResult(string operationId, ServiceResponse? response)
+    internal void AddOperationResult(DatasyncOperation operation, ServiceResponse? response)
     {
         if (response is null)
         {
@@ -43,7 +43,7 @@ public class PushOperationResult
         }
         else
         {
-            _ = this._failedOperations.TryAdd(operationId, response);
+            _ = this._failedOperations.TryAdd(operation.Id, response);
         }
     }
 }

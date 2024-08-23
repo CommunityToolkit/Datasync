@@ -387,3 +387,9 @@ dotnet_diagnostic.SA1629.severity = none
 dotnet_diagnostic.SA1633.severity = none
 dotnet_diagnostic.SA1634.severity = none
 dotnet_diagnostic.SA1652.severity = none
+
+# Regular Expression form - We have a lot of regular expressions that are not in the form of a verbatim string. 
+dotnet_diagnostic.SYSLIB1045.severity = none
+
+# Namespace requirements - it's ok to have a namespace that doesn't match the folder structure.
+dotnet_diagnostic.IDE0130.severity = none

@@ -254,7 +254,8 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
         QueryDescription queryDescription = new QueryTranslator<TEntity>(query).Translate();
         Uri requestUri = new UriBuilder(Endpoint) { Query = queryDescription.ToODataQueryString() }.Uri;
-        return new FuncAsyncPageable<TEntity>((string? nextLink) => GetNextPageAsync(nextLink ?? requestUri.PathAndQuery));
+        return new FuncAsyncPageable<TEntity>((string? nextLink) =>
+            GetNextPageAsync(nextLink is null ? requestUri.PathAndQuery : $"{requestUri.AbsolutePath}?{nextLink}"));
     }
 
     /// <summary>

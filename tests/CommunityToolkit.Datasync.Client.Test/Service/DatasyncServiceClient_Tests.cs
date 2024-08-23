@@ -1172,7 +1172,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     public async Task Query_TwoPagesOfItems()
     {
         Page<ClientKitchenSink> 
-            page1 = CreatePage(5, null, "/tables/kitchensink?$skip=5"),
+            page1 = CreatePage(5, null, "$skip=5"),
             page2 = CreatePage(5);
 
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
@@ -1199,8 +1199,8 @@ public class DatasyncServiceClient_Tests : IDisposable
     public async Task Query_ThreePagesOfItems()
     {
         Page<ClientKitchenSink>
-            page1 = CreatePage(5, null, "/tables/kitchensink?$skip=5"),
-            page2 = CreatePage(5, null, "/tables/kitchensink?$skip=10"),
+            page1 = CreatePage(5, null, "$skip=5"),
+            page2 = CreatePage(5, null, "$skip=10"),
             page3 = CreatePage(5);
 
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();

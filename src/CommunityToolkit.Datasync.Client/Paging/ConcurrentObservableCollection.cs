@@ -6,7 +6,6 @@ using CommunityToolkit.Datasync.Client.Paging;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 
 namespace CommunityToolkit.Datasync.Client;
 

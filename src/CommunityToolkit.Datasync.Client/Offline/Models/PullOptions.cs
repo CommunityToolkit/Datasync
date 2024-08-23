@@ -3,14 +3,13 @@
 // See the LICENSE file in the project root for more information.
 
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 
 namespace CommunityToolkit.Datasync.Client.Offline;
 
 /// <summary>
 /// The options to use for pushing operations to the service.
 /// </summary>
-public class PushOptions
+public class PullOptions
 {
     /// <summary>
     /// The number of parallel operations to use for the push operation.
@@ -19,13 +18,7 @@ public class PushOptions
     public int ParallelOperations { get; set; } = 1;
 
     /// <summary>
-    /// If set, all changes from a push operation are automatically saved at
-    /// the end of the push operations.
+    /// If true, SaveChangesAsync() is called after every service request is received.
     /// </summary>
-    /// <remarks>
-    /// Bad things happen if you don't autosave - only do this if you are testing
-    /// specific locking and threading issues.
-    /// </remarks>
-    [ExcludeFromCodeCoverage]
-    internal bool AutoSave { get; set; } = true;
+    public bool SaveAfterEveryServiceRequest { get; set; } = true;
 }

@@ -4,15 +4,17 @@
 
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Offline;
-using CommunityToolkit.Datasync.Client.Offline.Internal;
+using CommunityToolkit.Datasync.Client.Offline.Models;
+using CommunityToolkit.Datasync.Client.Query.OData;
 using CommunityToolkit.Datasync.Client.Test.Helpers;
+using CommunityToolkit.Datasync.Client.Test.Offline.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using NSubstitute;
 
 namespace CommunityToolkit.Datasync.Client.Test.Offline;
 
 [ExcludeFromCodeCoverage]
-public class DatasyncOfflineOptionsBuilder_Tests
+public class DatasyncOfflineOptionsBuilder_Tests : BaseTest
 {
     [Fact]
     public void UseHttpClientFactory()
@@ -176,8 +178,9 @@ public class DatasyncOfflineOptionsBuilder_Tests
 
         sut.UseHttpClient(client);
         OfflineOptions options = sut.Build();
-        options.GetEndpoint(typeof(ClientMovie)).ToString().Should().Be("/tables/clientmovie");
-        options.GetClient(typeof(ClientMovie)).Should().BeSameAs(client);
+        EntityDatasyncOptions result = options.GetOptions(typeof(ClientMovie));
+        result.Endpoint.ToString().Should().Be("/tables/clientmovie");
+        result.HttpClient.Should().BeSameAs(client);
     }
 
     [Fact]
@@ -189,16 +192,58 @@ public class DatasyncOfflineOptionsBuilder_Tests
         IHttpClientFactory factory = Substitute.For<IHttpClientFactory>();
         factory.CreateClient(Arg.Any<string>()).Returns(client);
 
-        sut.UseHttpClientFactory(factory).Entity<ClientMovie>(opt =>
+        sut.UseHttpClientFactory(factory);
+        sut.Entity<ClientMovie>(opt =>
         {
             opt.ClientName = "foo";
             opt.Endpoint = new Uri("http://localhost/foo");
         });
+        sut.Entity<ClientKitchenSink>(opt =>
+        {
+            opt.Query.Where(x => x.StringValue == "abc");
+        });
 
         OfflineOptions options = sut.Build();
-        options.GetClient(typeof(ClientMovie)).Should().NotBeNull();
-        options.GetEndpoint(typeof(ClientMovie)).ToString().Should().Be("http://localhost/foo");
+        EntityDatasyncOptions result = options.GetOptions(typeof(ClientMovie));
+        result.HttpClient.Should().NotBeNull();
+        result.Endpoint.ToString().Should().Be("http://localhost/foo");
+        result.QueryDescription.ToODataQueryString().Should().Be("");
+
+        EntityDatasyncOptions result2 = options.GetOptions(typeof(ClientKitchenSink));
+        result2.QueryDescription.ToODataQueryString().Should().Be("$filter=%28stringValue%20eq%20%27abc%27%29");
 
         factory.Received().CreateClient("foo");
+    }
+
+    [Fact]
+    public void Entity_SetsType()
+    {
+        Type[] entityTypes = [typeof(ClientMovie), typeof(ClientKitchenSink)];
+        DatasyncOfflineOptionsBuilder sut = new(entityTypes);
+
+        sut.Entity(typeof(ClientMovie), cfg =>
+        {
+            cfg.EntityType.Should().Be(typeof(ClientMovie));
+        });
+
+        sut.Entity<ClientMovie>(cfg =>
+        {
+            cfg.EntityType.Should().Be(typeof(ClientMovie));
+        });
+    }
+
+    [Fact]
+    public void OfflineOptions_Defaults()
+    {
+        Type[] entityTypes = [typeof(ClientMovie), typeof(ClientKitchenSink)];
+        DatasyncOfflineOptionsBuilder sut = new(entityTypes);
+        HttpClient client = new();
+
+        sut.UseHttpClient(client);
+        OfflineOptions options = sut.Build();
+        EntityDatasyncOptions result = options.GetOptions(typeof(Entity3));
+        result.HttpClient.Should().NotBeNull();
+        result.Endpoint.ToString().Should().Be("/tables/entity3");
+        result.QueryDescription.ToODataQueryString().Should().Be("");
     }
 }
