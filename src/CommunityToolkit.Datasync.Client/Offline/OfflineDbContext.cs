@@ -284,7 +284,7 @@ public abstract partial class OfflineDbContext : DbContext
         ArgumentNullException.ThrowIfNull(pullRequests, nameof(pullRequests));
         ArgumentValidationException.ThrowIfNotValid(pullOptions, nameof(pullOptions));
         
-        if (pullRequests.Count() == 0)
+        if (!pullRequests.Any())
         {
             return new PullResult();
         }

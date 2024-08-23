@@ -4,16 +4,22 @@
 
 namespace CommunityToolkit.Datasync.Client.Exceptions;
 
+/// <summary>
+/// An internal exception generated during the pull operation.
+/// </summary>
 internal class DatasyncPullException : DatasyncException
 {
+    /// <inheritdoc />
     public DatasyncPullException()
     {
     }
 
+    /// <inheritdoc />
     public DatasyncPullException(string? message) : base(message)
     {
     }
 
+    /// <inheritdoc />
     public DatasyncPullException(string? message, Exception? innerException) : base(message, innerException)
     {
     }

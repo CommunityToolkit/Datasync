@@ -4,7 +4,6 @@
 
 using CommunityToolkit.Datasync.Client.Query.Linq;
 using CommunityToolkit.Datasync.Client.Query.OData;
-using CommunityToolkit.Datasync.Client.Service;
 using System.Linq.Expressions;
 
 namespace CommunityToolkit.Datasync.Client.Query;

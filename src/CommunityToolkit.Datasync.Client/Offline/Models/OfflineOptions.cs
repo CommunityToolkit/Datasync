@@ -3,8 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Query.Linq;
-using Microsoft.Extensions.Options;
-using System.Net;
 
 namespace CommunityToolkit.Datasync.Client.Offline.Models;
 /// <summary>
