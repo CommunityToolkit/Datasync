@@ -8,10 +8,7 @@ using CommunityToolkit.Datasync.Client.Query.Linq;
 using CommunityToolkit.Datasync.Client.Query.OData;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Threading;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Options;
 using System.Text.Json;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CommunityToolkit.Datasync.Client.Offline.Operations;
 
@@ -24,7 +21,7 @@ namespace CommunityToolkit.Datasync.Client.Offline.Operations;
 /// </remarks>
 /// <param name="context">The <see cref="OfflineDbContext"/> to use for saving data</param>
 /// <param name="synchronizableTypes">The list of synchronizable types that the pull operation should support.</param>
-internal class PullOperation(OfflineDbContext context, IEnumerable<Type> synchronizableTypes)
+internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> synchronizableTypes) : IPullOperationManager
 {
     /// <summary>
     /// The delta-token store, which stores the date/time of the last synchronization for a query.
@@ -43,7 +40,7 @@ internal class PullOperation(OfflineDbContext context, IEnumerable<Type> synchro
     /// <param name="pullOptions">The pull options to use.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The results of the pull operation.</returns>
-    internal async Task<PullResult> ExecuteAsync(IEnumerable<PullRequest> requests, PullOptions pullOptions, CancellationToken cancellationToken = default)
+    public async Task<PullResult> ExecuteAsync(IEnumerable<PullRequest> requests, PullOptions pullOptions, CancellationToken cancellationToken = default)
     {
         ArgumentValidationException.ThrowIfNotValid(pullOptions, nameof(pullOptions));
         PullResult result = new();

@@ -6,16 +6,13 @@ using CommunityToolkit.Datasync.Client.Offline.DeltaTokenStore;
 using CommunityToolkit.Datasync.Client.Offline.Models;
 using CommunityToolkit.Datasync.Client.Offline.Operations;
 using CommunityToolkit.Datasync.Client.Offline.OperationsQueue;
-using CommunityToolkit.Datasync.Client.Query.Linq;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Client.Offline;
@@ -93,6 +90,11 @@ public abstract partial class OfflineDbContext : DbContext
     internal OfflineOptions? OfflineOptions { get; set; }
 
     /// <summary>
+    /// The internal pull operation manager (for testing).
+    /// </summary>
+    internal IPullOperationManager PullOperationManager { get; set; }
+
+    /// <summary>
     /// The operations queue manager to use for push operations.
     /// </summary>
     internal OperationsQueueManager QueueManager { get; }
@@ -110,6 +112,7 @@ public abstract partial class OfflineDbContext : DbContext
     {
         QueueManager = new OperationsQueueManager(this);
         DeltaTokenStore = new DefaultDeltaTokenStore(this);
+        PullOperationManager = new PullOperationManager(this, QueueManager.GetSynchronizableEntityTypes());
     }
 
     /// <summary>
@@ -126,6 +129,7 @@ public abstract partial class OfflineDbContext : DbContext
     {
         QueueManager = new OperationsQueueManager(this);
         DeltaTokenStore = new DefaultDeltaTokenStore(this);
+        PullOperationManager = new PullOperationManager(this, QueueManager.GetSynchronizableEntityTypes());
     }
 
     /// <summary>
@@ -297,8 +301,7 @@ public abstract partial class OfflineDbContext : DbContext
             }
         }
 
-        PullOperation operation = new(this, QueueManager.GetSynchronizableEntityTypes());
-        PullResult result = await operation.ExecuteAsync(pullRequests, pullOptions, cancellationToken).ConfigureAwait(false);
+        PullResult result = await PullOperationManager.ExecuteAsync(pullRequests, pullOptions, cancellationToken).ConfigureAwait(false);
         _ = await SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
         return result;
     }
