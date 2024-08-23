@@ -12,6 +12,7 @@ namespace CommunityToolkit.Datasync.Client.Offline;
 /// </summary>
 public class PullResult
 {
+    private int _additions, _deletions, _replacements;
     private readonly ConcurrentDictionary<Uri, ServiceResponse> _failedRequests = new();
 
     /// <summary>
@@ -22,18 +23,37 @@ public class PullResult
     /// <summary>
     /// The total count of operations performed on this pull operation.
     /// </summary>
-    public int OperationCount { get; } // TODO: Fill in the details.
+    public int OperationCount { get => this._additions + this._deletions + this._replacements; }
+
+    /// <summary>
+    /// The number of additions.
+    /// </summary>
+    public int Additions { get => this._additions; }
+
+    /// <summary>
+    /// The number of deletions.
+    /// </summary>
+    public int Deletions { get => this._deletions; }
+
+    /// <summary>
+    /// The number of replacements.
+    /// </summary>
+    public int Replacements { get => this._replacements; }
 
     /// <summary>
     /// The list of failed requests.
     /// </summary>
     public IReadOnlyDictionary<Uri, ServiceResponse> FailedRequests { get => this._failedRequests.ToImmutableDictionary(); }
 
-    /// <summary>
-    /// Adds a failed request to the list of failed requests.
-    /// </summary>
-    /// <param name="requestUri">The request URI</param>
-    /// <param name="response">The response object</param>
     internal void AddFailedRequest(Uri requestUri, ServiceResponse response)
         => _ = this._failedRequests.TryAdd(requestUri, response);
+
+    internal void IncrementAdditions()
+        => Interlocked.Increment(ref this._additions);
+
+    internal void IncrementDeletions()
+        => Interlocked.Increment(ref this._deletions);
+
+    internal void IncrementReplacements()
+        => Interlocked.Increment(ref this._replacements);
 }

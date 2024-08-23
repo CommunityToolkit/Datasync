@@ -2,13 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-namespace CommunityToolkit.Datasync.Client.Offline.Operations;
+namespace CommunityToolkit.Datasync.Client.Exceptions;
 
-/// <summary>
-/// An internal exception used for reporting errors when pulling data from
-/// the remote service.
-/// </summary>
-internal class DatasyncPullException : Exception
+internal class DatasyncPullException : DatasyncException
 {
     public DatasyncPullException()
     {
@@ -23,7 +19,7 @@ internal class DatasyncPullException : Exception
     }
 
     /// <summary>
-    /// The response from the service.
+    /// The service response for the error.
     /// </summary>
     public required ServiceResponse ServiceResponse { get; init; }
 }

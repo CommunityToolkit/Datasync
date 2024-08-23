@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
@@ -227,60 +228,80 @@ public abstract partial class OfflineDbContext : DbContext
     protected abstract void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder);
 
     /// <summary>
-    ///     Pulls the changes from the remote service associated with the provided query.
+    ///     Pulls the changes from the remote service for the specified synchronizable entities.
     /// </summary>
-    /// <param name="query">The query to identify the changes from the remote service.</param>
-    /// <param name="pullOptions">The options to use for the pull operation.</param>
+    /// <param name="entityTypes">The list of entity types that should be pulled.</param>
+    /// <param name="pullOptions">The options to use on this pull request.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The results of the pull operation.</returns>
-    public Task<PullResult> PullAsync<TEntity>(IDatasyncPullQuery<TEntity> query, PullOptions pullOptions, CancellationToken cancellationToken = default) where TEntity : class
+    public Task<PullResult> PullAsync(IEnumerable<Type> entityTypes, PullOptions pullOptions, CancellationToken cancellationToken  = default)
     {
-        QueryDescription queryDescription = new QueryTranslator<TEntity>(query).Translate();
-        return PullAsync(typeof(TEntity), queryDescription, pullOptions, cancellationToken);
+        ArgumentNullException.ThrowIfNull(entityTypes, nameof(entityTypes));
+        ArgumentValidationException.ThrowIfNotValid(pullOptions, nameof(pullOptions));
+
+        OfflineOptions offlineOptions = BuildDatasyncOfflineOptions();
+        IEnumerable<PullRequest> pullRequests = entityTypes.Select(type =>
+        {
+            EntityDatasyncOptions entityOptions = offlineOptions.GetOptions(type);
+            return new PullRequest()
+            {
+                EntityType = type,
+                QueryId = PullRequestBuilder.GetQueryIdFromQuery(type, entityOptions.QueryDescription),
+                HttpClient = entityOptions.HttpClient,
+                Endpoint = entityOptions.Endpoint,
+                QueryDescription = entityOptions.QueryDescription
+            };
+        });
+        return PullAsync(pullRequests, pullOptions, cancellationToken);
     }
 
     /// <summary>
-    ///     Pulls the changes from the remote service associated with the provided query.
+    ///     Pulls the changes from the remote service for the specified synchronizable entities.
     /// </summary>
-    /// <param name="entityType">The entity type being pulled from the remote service.</param>
-    /// <param name="query">The query to identify the changes from the remote service.</param>
-    /// <param name="pullOptions">The options to use for the pull operation.</param>
+    /// <param name="configureAction">An action used to configure the pull request.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The results of the pull operation.</returns>
-    internal Task<PullResult> PullAsync(Type entityType, QueryDescription query, PullOptions pullOptions, CancellationToken cancellationToken = default)
+    public Task<PullResult> PullAsync(Action<PullRequestBuilder> configureAction, CancellationToken cancellationToken = default)
     {
-        PullOperationManager manager = new(this);
-        return manager.PullAsync(entityType, query, pullOptions, cancellationToken);
+        PullRequestBuilder builder = new(QueueManager.GetSynchronizableEntityTypes(), BuildDatasyncOfflineOptions());
+        configureAction.Invoke(builder);
+        return PullAsync(builder.BuildPullRequests(), builder.BuildOptions(), cancellationToken);
     }
 
     /// <summary>
-    ///     Pushes the pending operations against the remote service for the full set of synchronizable entity types.
+    ///     Pulls the changes from the remote service for the specified synchronizable entities.
     /// </summary>
+    /// <param name="pullRequests">The information about the pull request.</param>
+    /// <param name="pullOptions">The options to use on this pull request.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>The results of the push operation.</returns>
-    [ExcludeFromCodeCoverage]
-    public Task<PushResult> PushAsync(CancellationToken cancellationToken = default)
-        => PushAsync(QueueManager.GetSynchronizableEntityTypes(), new PushOptions(), cancellationToken);
+    /// <returns>The results of the pull operation.</returns>
+    internal async Task<PullResult> PullAsync(IEnumerable<PullRequest> pullRequests, PullOptions pullOptions, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(pullRequests, nameof(pullRequests));
+        ArgumentValidationException.ThrowIfNotValid(pullOptions, nameof(pullOptions));
+        
+        if (pullRequests.Count() == 0)
+        {
+            return new PullResult();
+        }
 
-    /// <summary>
-    ///     Pushes the pending operations against the remote service for the full set of synchronizable entity types.
-    /// </summary>
-    /// <param name="pushOptions">The options for this push operation.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>The results of the push operation.</returns>
-    [ExcludeFromCodeCoverage]
-    public Task<PushResult> PushAsync(PushOptions pushOptions, CancellationToken cancellationToken = default)
-        => PushAsync(QueueManager.GetSynchronizableEntityTypes(), pushOptions, cancellationToken);
+        _ = await SaveChangesAsync(true, true, cancellationToken).ConfigureAwait(false);
+        using IDisposable syncLock = await LockManager.AcquireSynchronizationLockAsync(cancellationToken).ConfigureAwait(false);
 
-    /// <summary>
-    ///     Pushes the pending operations against the remote service for the provided set of entity types.
-    /// </summary>
-    /// <param name="entityTypes">The list of entity types in scope for this push operation.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>The results of the push operation.</returns>
-    [ExcludeFromCodeCoverage]
-    public Task<PushResult> PushAsync(IEnumerable<Type> entityTypes, CancellationToken cancellationToken = default)
-        => PushAsync(entityTypes, new PushOptions(), cancellationToken);
+        foreach (PullRequest pullRequest in pullRequests)
+        {
+            int queueCount = await QueueManager.CountOperationsInQueueAsync(pullRequest.EntityType, cancellationToken).ConfigureAwait(false);
+            if (queueCount > 0)
+            {
+                throw new DatasyncException($"There are still pending operations in queue for table '{pullRequest.EntityType.Name}'.");
+            }
+        }
+
+        PullOperation operation = new(this, QueueManager.GetSynchronizableEntityTypes());
+        PullResult result = await operation.ExecuteAsync(pullRequests, pullOptions, cancellationToken).ConfigureAwait(false);
+        _ = await SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
+        return result;
+    }
 
     /// <summary>
     ///     Pushes the pending operations against the remote service for the provided set of entity types.

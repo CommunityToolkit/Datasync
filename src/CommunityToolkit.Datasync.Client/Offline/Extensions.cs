@@ -41,4 +41,36 @@ public static class Extensions
             throw new DatasyncException($"Provided dataset is not a part of an {nameof(OfflineDbContext)}");
         }
     }
+
+    /// <summary>
+    ///     Pushes the pending operations against the remote service for the full set of synchronizable entity types.
+    /// </summary>
+    /// <param name="context">The source <see cref="OfflineDbContext"/>.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The results of the push operation.</returns>
+    [ExcludeFromCodeCoverage]
+    public static Task<PushResult> PushAsync(this OfflineDbContext context, CancellationToken cancellationToken = default)
+        => context.PushAsync(context.QueueManager.GetSynchronizableEntityTypes(), new PushOptions(), cancellationToken);
+
+    /// <summary>
+    ///     Pushes the pending operations against the remote service for the full set of synchronizable entity types.
+    /// </summary>
+    /// <param name="context">The source <see cref="OfflineDbContext"/>.</param>
+    /// <param name="pushOptions">The options for this push operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The results of the push operation.</returns>
+    [ExcludeFromCodeCoverage]
+    public static Task<PushResult> PushAsync(this OfflineDbContext context, PushOptions pushOptions, CancellationToken cancellationToken = default)
+        => context.PushAsync(context.QueueManager.GetSynchronizableEntityTypes(), pushOptions, cancellationToken);
+
+    /// <summary>
+    ///     Pushes the pending operations against the remote service for the provided set of entity types.
+    /// </summary>
+    /// <param name="context">The source <see cref="OfflineDbContext"/>.</param>
+    /// <param name="entityTypes">The list of entity types in scope for this push operation.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The results of the push operation.</returns>
+    [ExcludeFromCodeCoverage]
+    public static Task<PushResult> PushAsync(this OfflineDbContext context, IEnumerable<Type> entityTypes, CancellationToken cancellationToken = default)
+        => context.PushAsync(entityTypes, new PushOptions(), cancellationToken);
 }
