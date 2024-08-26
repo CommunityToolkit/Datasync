@@ -250,7 +250,7 @@ public abstract partial class OfflineDbContext : DbContext
             return new PullRequest()
             {
                 EntityType = type,
-                QueryId = PullRequestBuilder.GetQueryIdFromQuery(type, entityOptions.QueryDescription),
+                QueryId = PullRequestBuilder.GetQueryIdFromQuery(string.Empty, type, entityOptions.QueryDescription),
                 HttpClient = entityOptions.HttpClient,
                 Endpoint = entityOptions.Endpoint,
                 QueryDescription = entityOptions.QueryDescription

@@ -42,7 +42,7 @@ public class OfflineDbContext_Tests : BaseTest
 
     #region PullAsync
     [Fact]
-    public async Task ExecuteAsync_Works_InitialSync()
+    public async Task PullAsync_List_Works_InitialSync()
     {
         Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
         Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
@@ -71,10 +71,228 @@ public class OfflineDbContext_Tests : BaseTest
         this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
         this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
         this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+
+        DatasyncDeltaToken token = this.context.DatasyncDeltaTokens.Find(["CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie"]);
+        token.Should().NotBeNull();
+        token.Value.Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public async Task ExecuteAsync_Works_FollowonSync()
+    public async Task PullAsync_DbSet_Works_InitialSync()
+    {
+        Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
+        Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
+        Page<ClientMovie> page3 = CreatePage(5, 20, "$skip=15");
+        Page<ClientMovie> page4 = CreatePage(5, 20);
+
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page1);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page2);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page3);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page4);
+
+        PullResult pullResult = await this.context.Movies.PullAsync();
+
+        pullResult.IsSuccessful.Should().BeTrue();
+        pullResult.Additions.Should().Be(20);
+        pullResult.Deletions.Should().Be(0);
+        pullResult.Replacements.Should().Be(0);
+
+        List<ClientMovie> expected = page1.Items.Concat(page2.Items).Concat(page3.Items).Concat(page4.Items).ToList();
+        List<ClientMovie> actual = await this.context.Movies.ToListAsync();
+
+        actual.Should().BeEquivalentTo(expected);
+
+        this.context.Handler.Requests.Should().HaveCount(4);
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+
+        DatasyncDeltaToken token = this.context.DatasyncDeltaTokens.Find(["CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie"]);
+        token.Should().NotBeNull();
+        token.Value.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task PullAsync_Configurator_Works_InitialSync_Ver1()
+    {
+        Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
+        Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
+        Page<ClientMovie> page3 = CreatePage(5, 20, "$skip=15");
+        Page<ClientMovie> page4 = CreatePage(5, 20);
+
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page1);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page2);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page3);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page4);
+
+        PullResult pullResult = await this.context.PullAsync(cfg =>
+        {
+            cfg.SetParallelOperations(1);
+            cfg.AddPullRequest<ClientMovie>(options =>
+            {
+                options.QueryId = "abc";
+                options.Query.Where(x => x.Title.StartsWith("abc"));
+            });
+        });
+
+        pullResult.IsSuccessful.Should().BeTrue();
+        pullResult.Additions.Should().Be(20);
+        pullResult.Deletions.Should().Be(0);
+        pullResult.Replacements.Should().Be(0);
+
+        List<ClientMovie> expected = page1.Items.Concat(page2.Items).Concat(page3.Items).Concat(page4.Items).ToList();
+        List<ClientMovie> actual = await this.context.Movies.ToListAsync();
+
+        actual.Should().BeEquivalentTo(expected);
+
+        this.context.Handler.Requests.Should().HaveCount(4);
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+
+        DatasyncDeltaToken token = this.context.DatasyncDeltaTokens.Find(["q-CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie-abc"]);
+        token.Should().NotBeNull();
+        token.Value.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task PullAsync_Configurator_Works_InitialSync_Ver2()
+    {
+        Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
+        Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
+        Page<ClientMovie> page3 = CreatePage(5, 20, "$skip=15");
+        Page<ClientMovie> page4 = CreatePage(5, 20);
+
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page1);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page2);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page3);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page4);
+
+        PullResult pullResult = await this.context.PullAsync(cfg =>
+        {
+            cfg.SetParallelOperations(1);
+            cfg.AddPullRequest<ClientMovie>(options =>
+            {
+                options.QueryId = string.Empty;
+                options.Query.Where(x => x.Title.StartsWith("abc"));
+            });
+        });
+
+        pullResult.IsSuccessful.Should().BeTrue();
+        pullResult.Additions.Should().Be(20);
+        pullResult.Deletions.Should().Be(0);
+        pullResult.Replacements.Should().Be(0);
+
+        List<ClientMovie> expected = page1.Items.Concat(page2.Items).Concat(page3.Items).Concat(page4.Items).ToList();
+        List<ClientMovie> actual = await this.context.Movies.ToListAsync();
+
+        actual.Should().BeEquivalentTo(expected);
+
+        this.context.Handler.Requests.Should().HaveCount(4);
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+
+        DatasyncDeltaToken token = this.context.DatasyncDeltaTokens.Find(["q-CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie-a87ec01f71a5577199797b433e3bcc6b"]);
+        token.Should().NotBeNull();
+        token.Value.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task PullAsync_Configurator_Works_InitialSync_Ver3()
+    {
+        Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
+        Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
+        Page<ClientMovie> page3 = CreatePage(5, 20, "$skip=15");
+        Page<ClientMovie> page4 = CreatePage(5, 20);
+
+        // Adjust the page 4 items to include a null updatedAt and an updatedAt in the past
+        List<ClientMovie> page4Items = page4.Items.ToList();
+        page4Items[0].UpdatedAt = null;
+        page4Items[1].UpdatedAt = DateTimeOffset.Parse("1975-01-01T12:34:56.789Z");
+        page4.Items = page4Items;
+
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page1);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page2);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page3);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page4);
+
+        PullResult pullResult = await this.context.PullAsync(cfg =>
+        {
+            cfg.SetParallelOperations(1);
+            cfg.SaveAfterEveryServiceRequest(false);
+            cfg.AddPullRequest<ClientMovie>(options =>
+            {
+                options.QueryId = string.Empty;
+                options.Query.Where(x => x.Title.StartsWith("abc"));
+            });
+        });
+
+        pullResult.IsSuccessful.Should().BeTrue();
+        pullResult.Additions.Should().Be(20);
+        pullResult.Deletions.Should().Be(0);
+        pullResult.Replacements.Should().Be(0);
+
+        List<ClientMovie> expected = page1.Items.Concat(page2.Items).Concat(page3.Items).Concat(page4.Items).ToList();
+        List<ClientMovie> actual = await this.context.Movies.ToListAsync();
+
+        actual.Should().BeEquivalentTo(expected);
+
+        this.context.Handler.Requests.Should().HaveCount(4);
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+
+        DatasyncDeltaToken token = this.context.DatasyncDeltaTokens.Find(["q-CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie-a87ec01f71a5577199797b433e3bcc6b"]);
+        token.Should().NotBeNull();
+        token.Value.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task PullAsync_Configurator_Works_InitialSync_Ver4()
+    {
+        Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
+        Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
+        Page<ClientMovie> page3 = CreatePage(5, 20, "$skip=15");
+        Page<ClientMovie> page4 = CreatePage(5, 20);
+
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page1);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page2);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page3);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page4);
+
+        PullResult pullResult = await this.context.PullAsync(cfg =>
+        {
+            cfg.AddPullRequest<ClientMovie>();
+        });
+
+        pullResult.IsSuccessful.Should().BeTrue();
+        pullResult.Additions.Should().Be(20);
+        pullResult.Deletions.Should().Be(0);
+        pullResult.Replacements.Should().Be(0);
+
+        List<ClientMovie> expected = page1.Items.Concat(page2.Items).Concat(page3.Items).Concat(page4.Items).ToList();
+        List<ClientMovie> actual = await this.context.Movies.ToListAsync();
+
+        actual.Should().BeEquivalentTo(expected);
+
+        this.context.Handler.Requests.Should().HaveCount(4);
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+
+        DatasyncDeltaToken token = this.context.DatasyncDeltaTokens.Find(["CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie"]);
+        token.Should().NotBeNull();
+        token.Value.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task PullAsync_List_Works_FollowonSync()
     {
         Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
         Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
@@ -110,7 +328,7 @@ public class OfflineDbContext_Tests : BaseTest
     }
 
     [Fact]
-    public async Task ExecuteAsync_Works_DoesntAddDeletions()
+    public async Task PullAsync_List_Works_DoesntAddDeletions()
     {
         Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
         Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
@@ -151,7 +369,7 @@ public class OfflineDbContext_Tests : BaseTest
     }
 
     [Fact]
-    public async Task ExecuteAsync_Works_DeletionsAndReplacements()
+    public async Task PullAsync_List_Works_DeletionsAndReplacements()
     {
         Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
         Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
@@ -199,7 +417,7 @@ public class OfflineDbContext_Tests : BaseTest
     }
 
     [Fact]
-    public async Task ExecuteAsync_FailedRequest()
+    public async Task PullAsync_List_FailedRequest()
     {
         this.context.Handler.AddResponse(HttpStatusCode.BadRequest);
 
@@ -212,7 +430,7 @@ public class OfflineDbContext_Tests : BaseTest
     }
 
     [Fact]
-    public async Task ExecuteAsync_NoRequests()
+    public async Task PullAsync_List_NoRequests()
     {
         PullResult pullResult = await this.context.PullAsync([], new PullOptions());
 
@@ -221,7 +439,7 @@ public class OfflineDbContext_Tests : BaseTest
     }
 
     [Fact]
-    public async Task ExecuteAsync_PendingRequests()
+    public async Task PullAsync_List_PendingRequests()
     {
         Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
         List<ClientMovie> page1Items = page1.Items.ToList();
@@ -237,6 +455,20 @@ public class OfflineDbContext_Tests : BaseTest
         this.context.SaveChanges(); // This adds to the queue, so will generate the exception.
 
         Func<Task> act = async () => _  = await this.context.PullAsync([typeof(ClientMovie)], new PullOptions());
+        await act.Should().ThrowAsync<DatasyncException>();
+    }
+
+    [Fact]
+    public async Task PullAsync_Configurator_InvalidType_Ver1()
+    {
+        Func<Task> act = async () => _ = await this.context.PullAsync(cfg => cfg.AddPullRequest<Entity2>());
+        await act.Should().ThrowAsync<DatasyncException>();
+    }
+
+    [Fact]
+    public async Task PullAsync_Configurator_InvalidType_Ver2()
+    {
+        Func<Task> act = async () => _ = await this.context.PullAsync(cfg => cfg.AddPullRequest<Entity2>(opt => opt.QueryId = "x"));
         await act.Should().ThrowAsync<DatasyncException>();
     }
     #endregion
@@ -1178,6 +1410,16 @@ public class OfflineDbContext_Tests : BaseTest
     {
         Action act = () => this.context.CheckDisposed();
         act.Should().NotThrow();
+    }
+    #endregion
+
+    #region DbSet<T>.PullAsync
+    [Fact]
+    public async Task DbSet_PullAsync_Throws_OnNonOfflineDbContext()
+    {
+        NotOfflineDbContext context = NotOfflineDbContext.CreateContext();
+        Func<Task> act = async () => await context.Movies.PullAsync();
+        await act.Should().ThrowAsync<DatasyncException>();
     }
     #endregion
 
