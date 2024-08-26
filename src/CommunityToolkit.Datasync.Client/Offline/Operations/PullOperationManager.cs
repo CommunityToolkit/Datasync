@@ -116,7 +116,6 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
 
         foreach (PullRequest request in requests)
         {
-            request.QueryId = !string.IsNullOrEmpty(request.QueryId) ? request.QueryId : PullRequestBuilder.GetQueryIdFromQuery(request.EntityType, request.QueryDescription);
             DateTimeOffset lastSynchronization = await context.DeltaTokenStore.GetDeltaTokenAsync(request.QueryId, cancellationToken).ConfigureAwait(false);
             PrepareQueryDescription(request.QueryDescription, lastSynchronization);
             serviceRequestQueue.Enqueue(request);

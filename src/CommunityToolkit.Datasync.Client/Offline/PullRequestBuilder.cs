@@ -41,6 +41,18 @@ public class PullRequestBuilder
     }
 
     /// <summary>
+    /// Determines whether to save the delta-token after every service request, or just after all the requests
+    /// are completed.
+    /// </summary>
+    /// <param name="enabled">If true, save after every request.</param>
+    /// <returns>The builder for chaining</returns>
+    public PullRequestBuilder SaveAfterEveryServiceRequest(bool enabled)
+    {
+        this.pullOptions.SaveAfterEveryServiceRequest = enabled;
+        return this;
+    }
+
+    /// <summary>
     /// Adds a pull request for the default query as setup in the <see cref="OfflineDbContext.OnDatasyncInitialization(DatasyncOfflineOptionsBuilder)"/>
     /// method of your database context.
     /// </summary>
@@ -60,7 +72,7 @@ public class PullRequestBuilder
             EntityType = typeof(TEntity),
             HttpClient = options.HttpClient,
             QueryDescription = options.QueryDescription,
-            QueryId = GetQueryIdFromQuery(typeof(TEntity), options.QueryDescription)
+            QueryId = GetQueryIdFromQuery(string.Empty, typeof(TEntity), options.QueryDescription)
         };
         this.requests[request.QueryId] = request;
         return this;
@@ -96,7 +108,7 @@ public class PullRequestBuilder
             EntityType = request.EntityType,
             HttpClient = request.HttpClient,
             QueryDescription = queryDescription,
-            QueryId = string.IsNullOrEmpty(request.QueryId) ? GetQueryIdFromQuery(request.EntityType, queryDescription) : request.QueryId
+            QueryId = GetQueryIdFromQuery(request.QueryId, request.EntityType, queryDescription)
         };
         this.requests[storedRequest.QueryId] = storedRequest;
         return this;
@@ -106,10 +118,11 @@ public class PullRequestBuilder
     /// Obtain a query ID from the query and entity type.  This is used when the developer does
     /// not specify a query ID.
     /// </summary>
+    /// <param name="queryId">The specified query ID</param>
     /// <param name="entityType">The entity type.</param>
     /// <param name="query">The query,</param>
     /// <returns></returns>
-    internal static string GetQueryIdFromQuery(Type entityType, QueryDescription query)
+    internal static string GetQueryIdFromQuery(string queryId, Type entityType, QueryDescription query)
     {
         string odataQuery = query.ToODataQueryString();
         if (string.IsNullOrEmpty(odataQuery))
@@ -117,9 +130,13 @@ public class PullRequestBuilder
             return entityType.FullName!;
         }
 
-        byte[] bytes = Encoding.UTF8.GetBytes(odataQuery);
-        byte[] hashBytes = MD5.HashData(bytes);
-        string queryId = BitConverter.ToString(hashBytes).Replace("-", string.Empty).ToLower();
+        if (string.IsNullOrEmpty(queryId))
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(odataQuery);
+            byte[] hashBytes = MD5.HashData(bytes);
+            queryId = BitConverter.ToString(hashBytes).Replace("-", string.Empty).ToLower();
+        }
+
         return $"q-{entityType.FullName!}-{queryId}";
     }
 
