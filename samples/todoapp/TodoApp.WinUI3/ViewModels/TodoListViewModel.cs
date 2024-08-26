@@ -3,23 +3,24 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client;
+using CommunityToolkit.Datasync.Client.Offline;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TodoApp.WinUI3.Services;
+using TodoApp.WinUI3.Database;
 
 namespace TodoApp.WinUI3.ViewModels;
 
 /// <summary>
 /// The view model for the TodoListWindow.
 /// </summary>
-public partial class TodoListViewModel(ITodoService service) : ObservableRecipient
+public partial class TodoListViewModel(AppDbContext service) : ObservableRecipient
 {
-    internal ITodoService TodoService { get; } = service;
     internal event EventHandler<NotificationEventArgs> NotificationHandler;
 
     [ObservableProperty]
@@ -36,8 +37,21 @@ public partial class TodoListViewModel(ITodoService service) : ObservableRecipie
     {
         try
         {
-            TodoItem addition = await TodoService.CreateAsync(new() { Title = Title }, cancellationToken);
+            // Create a new item
+            TodoItem addition = new()
+            {
+                Id = Guid.NewGuid().ToString("N"),
+                Title = Title
+            };
+
+            // Add te item to the database
+            _ = service.TodoItems.Add(addition);
+            _ = await service.SaveChangesAsync(cancellationToken);
+
+            // Add the item to the end of the list.
             Items.Add(addition);
+
+            // Update the title field ready for ext insertion.
             Title = string.Empty;
         }
         catch (Exception ex)
@@ -55,10 +69,17 @@ public partial class TodoListViewModel(ITodoService service) : ObservableRecipie
     {
         try
         {
-            TodoItem item = Items.Single(x => x.Id == itemId);
+            // Retrieve the item (by ID) from the service.
+            TodoItem item = await service.TodoItems.FindAsync([itemId], cancellationToken)
+                ?? throw new ApplicationException($"Item with ID '{itemId}' not found.");
+
+            // Update the item in the database
             item.IsComplete = !item.IsComplete;
-            TodoItem replacement = await TodoService.UpdateAsync(item, cancellationToken);
-            _ = Items.ReplaceIf(x => x.Id == itemId, replacement);
+            _ = service.TodoItems.Update(item);
+            _ = await service.SaveChangesAsync(cancellationToken);
+
+            // Update the item in the list
+            _ = Items.ReplaceIf(x => x.Id == itemId, item);
         }
         catch (Exception ex)
         {
@@ -82,8 +103,23 @@ public partial class TodoListViewModel(ITodoService service) : ObservableRecipie
         try
         {
             IsRefreshing = true;
-            IEnumerable<TodoItem> itemsFromService = await TodoService.GetAllAsync(cancellationToken);
-            Items.ReplaceAll(itemsFromService);
+
+            //PushResult pushResult = await service.PushAsync(cancellationToken);
+            //if (pushResult.IsSuccessful)
+            //{
+            //    PullResult pullResult = await service.PullAsync(cancellationToken);
+            //    if (!pullResult.IsSuccessful)
+            //    {
+            //        throw new ApplicationException($"Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
+            //    }
+            //}
+            //else
+            //{
+            //    throw new ApplicationException($"Push failed: {pushResult.FailedOperations.FirstOrDefault().Value.ReasonPhrase}");
+            //}
+
+            IEnumerable<TodoItem> itemsFromDatabase = await service.TodoItems.ToListAsync(cancellationToken);
+            Items.ReplaceAll(itemsFromDatabase);
         }
         catch (Exception ex)
         {
