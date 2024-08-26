@@ -10,7 +10,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using TodoApp.WinUI3.Database;
-using TodoApp.WinUI3.Services;
 using TodoApp.WinUI3.ViewModels;
 using TodoApp.WinUI3.Views;
 
@@ -30,11 +29,18 @@ public partial class App : Application, IDisposable
         this.dbConnection.Open();
 
         IServiceCollection services = new ServiceCollection()
-            .AddSingleton<ITodoService, LocalTodoService>()
             .AddTransient<TodoListViewModel>()
+            .AddScoped<IDbInitializer, DbContextInitializer>()
             .AddDbContext<AppDbContext>(options => options.UseSqlite(this.dbConnection));
 
         Ioc.Default.ConfigureServices(services.BuildServiceProvider());
+
+        // Initialize the database
+        using (IServiceScope scope = Ioc.Default.CreateScope())
+        {
+            IDbInitializer initializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+            initializer.Initialize();
+        }
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
