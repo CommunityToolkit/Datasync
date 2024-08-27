@@ -13,7 +13,7 @@ namespace CommunityToolkit.Datasync.Client.Offline;
 public class PushResult
 {
     internal int _completedOperations = 0;
-    internal readonly ConcurrentDictionary<string, ServiceResponse> _failedOperations = new();
+    internal readonly ConcurrentDictionary<string, ServiceResponse> _failedRequests = new();
 
     /// <summary>
     /// The number of completed operations.
@@ -23,12 +23,12 @@ public class PushResult
     /// <summary>
     /// The number of failed operations.
     /// </summary>
-    public IReadOnlyDictionary<string, ServiceResponse> FailedOperations { get => this._failedOperations.ToImmutableDictionary(); }
+    public IReadOnlyDictionary<string, ServiceResponse> FailedRequests { get => this._failedRequests.ToImmutableDictionary(); }
 
     /// <summary>
     /// Determines if the operation was successful.
     /// </summary>
-    public bool IsSuccessful { get => this._failedOperations.IsEmpty; }
+    public bool IsSuccessful { get => this._failedRequests.IsEmpty; }
 
     /// <summary>
     /// Adds an operation result in a thread safe manner.
@@ -43,7 +43,7 @@ public class PushResult
         }
         else
         {
-            _ = this._failedOperations.TryAdd(operation.Id, response);
+            _ = this._failedRequests.TryAdd(operation.Id, response);
         }
     }
 }

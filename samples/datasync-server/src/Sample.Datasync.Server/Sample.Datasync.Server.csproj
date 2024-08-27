@@ -22,9 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\CommunityToolkit\Datasync\src\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\CommunityToolkit\Datasync\src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\CommunityToolkit\Datasync\src\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj" />
+    <ProjectReference Include="..\..\..\..\src\CommunityToolkit.Datasync.Server.Abstractions\CommunityToolkit.Datasync.Server.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\..\src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\..\..\..\src\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj" />
   </ItemGroup>
 
 </Project>
