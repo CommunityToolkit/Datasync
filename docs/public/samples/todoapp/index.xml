@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Todo App :: Datasync Community Toolkit</title>
+    <link>http://localhost:1313/Datasync/samples/todoapp/index.html</link>
+    <description>The Todo App is a typical data-driven application that uses the sample server for cloud-based data storage. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.&#xA;AvaloniaUI MAUI Uno Platform WinUI3 WPF</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="http://localhost:1313/Datasync/samples/todoapp/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>WinUI3</title>
+      <link>http://localhost:1313/Datasync/samples/todoapp/winui3/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Datasync/samples/todoapp/winui3/index.html</guid>
+      <description>You can find our sample TodoApp for WinUI3 on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:&#xA;​ AppDbContext.cs 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.</description>
+    </item>
+    <item>
+      <title>WPF</title>
+      <link>http://localhost:1313/Datasync/samples/todoapp/wpf/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Datasync/samples/todoapp/wpf/index.html</guid>
+      <description>You can find our sample TodoApp for WPF on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:&#xA;​ AppDbContext.cs 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.</description>
+    </item>
+  </channel>
+</rss>

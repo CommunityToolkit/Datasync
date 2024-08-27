@@ -1,0 +1,46 @@
+<style>
+    #R-logo svg,
+    #R-logo svg * {
+      color: #282828;
+      color: var(--MENU-SECTIONS-BG-color);
+      fill: #282828 !important;
+      fill: var(--MENU-SECTIONS-BG-color) !important;
+      opacity: .945;
+    }
+    a#R-logo {
+      color: #282828;
+      color: var(--MENU-SECTIONS-BG-color);
+      font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+      font-size: 1.875rem;
+      font-weight: 300;
+      margin-top: 0rem;
+      max-width: 60%;
+      text-transform: uppercase;
+      width: 14.125rem;
+      white-space: nowrap;
+    }
+    a#R-logo:hover {
+      color: #282828;
+      color: var(--MENU-SECTIONS-BG-color);
+    }
+    #R-logo svg {
+      margin-bottom: -1.25rem;
+      margin-inline-start: -1.47rem;
+      margin-inline-end: .5rem;
+      width: 40.5%;
+    }
+    @media only all and (max-width: 59.999rem) {
+      a#R-logo {
+        font-size: 1.5625rem;
+        margin-top: -.1875rem;
+      }
+      #R-logo svg {
+        margin-bottom: -.75rem;
+        margin-inline-start: -1.47rem;
+        margin-inline-end: .5rem;
+      }
+    }
+  </style>
+  <a id="R-logo" href="{{ partial "relLangPrettyUglyURL.hugo" (dict "to" .Site.Home) }}">
+    <img src="images/logo-with-title.png" alt="Datasync Community Toolkit"/>
+  </a>

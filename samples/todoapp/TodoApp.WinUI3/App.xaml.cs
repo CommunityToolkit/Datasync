@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,7 +42,6 @@ public partial class App : Application, IDisposable
 
     private void InitializeDatabase()
     {
-        // using IServiceScope scope = Ioc.Default.CreateScope();
         using IServiceScope scope = Services.CreateScope();
         IDbInitializer initializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
         initializer.Initialize();

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article">
+  <head><script src="/Datasync/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=Datasync/livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <meta name="generator" content="Hugo 0.133.1">
+    <meta name="generator" content="Relearn 6.2.0+tip">
+    <meta name="description" content="You can find our sample TodoApp for WinUI3 on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:
+​ AppDbContext.cs 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.">
+    <meta name="author" content="">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="WinUI3 :: Datasync Community Toolkit">
+    <meta name="twitter:description" content="You can find our sample TodoApp for WinUI3 on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:
+​ AppDbContext.cs 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.">
+    <meta property="og:url" content="http://localhost:1313/Datasync/samples/todoapp/winui3-copy/index.html">
+    <meta property="og:site_name" content="Datasync Community Toolkit">
+    <meta property="og:title" content="WinUI3 :: Datasync Community Toolkit">
+    <meta property="og:description" content="You can find our sample TodoApp for WinUI3 on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:
+​ AppDbContext.cs 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.">
+    <meta property="og:locale" content="en_us">
+    <meta property="og:type" content="article">
+    <meta property="article:section" content="Samples">
+    <meta itemprop="name" content="WinUI3 :: Datasync Community Toolkit">
+    <meta itemprop="description" content="You can find our sample TodoApp for WinUI3 on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:
+​ AppDbContext.cs 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.">
+    <meta itemprop="wordCount" content="188">
+    <title>WinUI3 :: Datasync Community Toolkit</title><link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+<link rel="manifest" href="/favicon/site.webmanifest">
+    <link href="/Datasync/css/fontawesome-all.min.css?1724802671" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fontawesome-all.min.css?1724802671" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/nucleus.css?1724802671" rel="stylesheet">
+    <link href="/Datasync/css/auto-complete.css?1724802671" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/auto-complete.css?1724802671" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/perfect-scrollbar.min.css?1724802671" rel="stylesheet">
+    <link href="/Datasync/css/fonts.css?1724802671" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fonts.css?1724802671" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/theme.css?1724802671" rel="stylesheet">
+    <link href="/Datasync/css/theme-auto.css?1724802671" rel="stylesheet" id="R-variant-style">
+    <link href="/Datasync/css/chroma-auto.css?1724802671" rel="stylesheet" id="R-variant-chroma-style">
+    <link href="/Datasync/css/variant.css?1724802671" rel="stylesheet">
+    <link href="/Datasync/css/print.css?1724802671" rel="stylesheet" media="print">
+    <script src="/Datasync/js/variant.js?1724802671"></script>
+    <script>
+      window.relearn = window.relearn || {};
+      window.relearn.relBasePath='..\/..\/..';
+      window.relearn.relBaseUri='..\/..\/..\/..';
+      window.relearn.absBaseUri='http:\/\/localhost:1313\/Datasync';
+      window.relearn.disableAnchorCopy=false;
+      window.relearn.disableAnchorScrolling=false;
+      // variant stuff
+      window.variants && variants.init( [ 'auto' ] );
+      // translations
+      window.T_Copy_to_clipboard = `Copy to clipboard`;
+      window.T_Copied_to_clipboard = `Copied to clipboard!`;
+      window.T_Copy_link_to_clipboard = `Copy link to clipboard`;
+      window.T_Link_copied_to_clipboard = `Copied link to clipboard!`;
+      window.T_Reset_view = `Reset view`;
+      window.T_View_reset = `View reset!`;
+      window.T_No_results_found = `No results found for "{0}"`;
+      window.T_N_results_found = `{1} results found for "{0}"`;
+    </script>
+  </head>
+  <body class="mobile-support html" data-url="/Datasync/samples/todoapp/winui3-copy/index.html">
+    <div id="R-body" class="default-animation">
+      <div id="R-body-overlay"></div>
+      <nav id="R-topbar">
+        <div class="topbar-wrapper">
+          <div class="topbar-sidebar-divider"></div>
+          <div class="topbar-area topbar-area-start" data-area="start">
+            <div class="topbar-button topbar-button-sidebar" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide"><button class="topbar-control" onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button>
+            </div>
+            <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button>
+              <div class="topbar-content">
+                <div class="topbar-content-wrapper"> 
+                </div>
+              </div>
+            </div>
+          </div>
+          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/index.html"><span itemprop="name">Datasync Community Toolkit</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/samples/index.html"><span itemprop="name">Samples</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">WinUI3</span><meta itemprop="position" content="3"></li>
+          </ol>
+          <div class="topbar-area topbar-area-end" data-area="end">
+            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/samples/server/index.html" title="Sample Server (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
+            </div>
+            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/samples/todoapp/winui3/index.html" title="WinUI3 (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
+            </div>
+            <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button>
+              <div class="topbar-content">
+                <div class="topbar-content-wrapper">
+                  <div class="topbar-area topbar-area-more" data-area="more">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div id="R-main-overlay"></div>
+      <main id="R-body-inner" class="highlightable default" tabindex="-1">
+        <div class="flex-block-wrapper">
+          <article class="default">
+            <header class="headline">
+            </header>
+
+<h1 id="winui3">WinUI3</h1>
+
+<p>You can find <a href="https://github.com/CommunityToolkit/Datasync/tree/main/samples/todoapp/TodoApp.WinUI3" rel="external" target="_blank">our sample TodoApp for WinUI3</a> on our GitHub repository.  All of our logic has been placed in the <code>Database/AppDbContext.cs</code> file:</p>
+
+<div class="tab-panel" data-tab-group="6fdbddfd4de083b9f2738c951dbc7749">
+  <div class="tab-nav">
+    <div class="tab-nav-title">&#8203;</div>
+    <button
+      data-tab-item="appdbcontextcs"
+      class="tab-nav-button tab-panel-style cstyle initial active" tabindex="-1"
+      onclick="switchTab('6fdbddfd4de083b9f2738c951dbc7749','appdbcontextcs')"
+    >
+      <span class="tab-nav-text">AppDbContext.cs</span>
+    </button>
+  </div>
+  <div class="tab-content-container">
+    <div
+      data-tab-item="appdbcontextcs"
+      class="tab-content tab-panel-style cstyle initial active">
+      <div class="tab-content-text">
+
+<div class="highlight wrap-code" lineNos="true"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDbContext</span>(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">void</span> OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        HttpClientOptions clientOptions = <span style="color:#66d9ef">new</span>()
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            Endpoint = <span style="color:#66d9ef">new</span> Uri(<span style="color:#e6db74">&#34;https://YOURSITEHERE.azurewebsites.net/&#34;</span>),
+</span></span><span style="display:flex;"><span>            HttpPipeline = [<span style="color:#66d9ef">new</span> LoggingHandler()]
+</span></span><span style="display:flex;"><span>        };
+</span></span><span style="display:flex;"><span>        _ = optionsBuilder.UseHttpClientOptions(clientOptions);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">async</span> Task SynchronizeAsync(CancellationToken cancellationToken = <span style="color:#66d9ef">default</span>)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        PushResult pushResult = <span style="color:#66d9ef">await</span> <span style="color:#66d9ef">this</span>.PushAsync(cancellationToken);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (!pushResult.IsSuccessful)
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ApplicationException(<span style="color:#e6db74">$&#34;Push failed: {pushResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        PullResult pullResult = <span style="color:#66d9ef">await</span> <span style="color:#66d9ef">this</span>.PullAsync(cancellationToken);
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (!pullResult.IsSuccessful)
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ApplicationException(<span style="color:#e6db74">$&#34;Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}&#34;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></td></tr></table>
+</div>
+</div></div>
+    </div>
+  </div>
+</div>
+<p>To enable offline synchronization:</p>
+<ul>
+<li>Switch from <code>DbContext</code> to <code>OfflineDbContext</code>.</li>
+<li>Define your <code>OnDatasyncInitialization()</code> method (don&rsquo;t forget to change the URL to the URL of your datasync server).</li>
+<li>Where appropriate, use <code>PushAsync()</code> and <code>PullAsync()</code> to communicate with the server.</li>
+</ul>
+<p>We have placed a <code>SynchronizeAsync()</code> method on the database context, which is used in the view model for the single page we have.</p>
+
+            <footer class="footline">
+            </footer>
+          </article>
+        </div>
+      </main>
+    </div>
+    <aside id="R-sidebar" class="default-animation">
+      <div id="R-header-topbar" class="default-animation"></div>
+      <div id="R-header-wrapper" class="default-animation">
+        <div id="R-header" class="default-animation">
+<style>
+    #R-logo svg,
+    #R-logo svg * {
+      color: #282828;
+      color: var(--MENU-SECTIONS-BG-color);
+      fill: #282828 !important;
+      fill: var(--MENU-SECTIONS-BG-color) !important;
+      opacity: .945;
+    }
+    a#R-logo {
+      color: #282828;
+      color: var(--MENU-SECTIONS-BG-color);
+      font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+      font-size: 1.875rem;
+      font-weight: 300;
+      margin-top: 0rem;
+      max-width: 60%;
+      text-transform: uppercase;
+      width: 14.125rem;
+      white-space: nowrap;
+    }
+    a#R-logo:hover {
+      color: #282828;
+      color: var(--MENU-SECTIONS-BG-color);
+    }
+    #R-logo svg {
+      margin-bottom: -1.25rem;
+      margin-inline-start: -1.47rem;
+      margin-inline-end: .5rem;
+      width: 40.5%;
+    }
+    @media only all and (max-width: 59.999rem) {
+      a#R-logo {
+        font-size: 1.5625rem;
+        margin-top: -.1875rem;
+      }
+      #R-logo svg {
+        margin-bottom: -.75rem;
+        margin-inline-start: -1.47rem;
+        margin-inline-end: .5rem;
+      }
+    }
+  </style>
+  <a id="R-logo" href="/Datasync/index.html">
+    <img src="images/logo-with-title.png" alt="Datasync Community Toolkit"/>
+  </a>
+        </div>
+
+        <search>
+          <div class="searchbox default-animation">
+            <i class="fas fa-search" title="Search (CTRL+ALT+f)"></i>
+            <label class="a11y-only" for="R-search-by">Search</label>
+            <input data-search-input id="R-search-by" name="search-by" class="search-by" type="search" placeholder="Search...">
+            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-times" title="Clear search"></i></button>
+          </div>
+        </search>
+        <script>
+          var contentLangs=['en'];
+        </script>
+        <script src="/Datasync/js/auto-complete.js?1724802671" defer></script>
+        <script src="/Datasync/js/lunr/lunr.min.js?1724802671" defer></script>
+        <script src="/Datasync/js/lunr/lunr.stemmer.support.min.js?1724802671" defer></script>
+        <script src="/Datasync/js/lunr/lunr.multi.min.js?1724802671" defer></script>
+        <script src="/Datasync/js/lunr/lunr.en.min.js?1724802671" defer></script>
+        <script src="/Datasync/js/search.js?1724802671" defer></script>
+      </div>
+      <div id="R-homelinks" class="default-animation homelinks">
+        <ul>
+          <li><a class="padding" href="/Datasync/index.html"><i class="fa-fw fas fa-home"></i> Home</a></li>
+        </ul>
+        <hr class="padding">
+      </div>
+      <div id="R-content-wrapper" class="highlightable">
+        <div id="R-topics">
+          <ul class="enlarge morespace collapsible-menu">
+          <li data-nav-id="/Datasync/setup/index.html" class=""><a class="padding" href="/Datasync/setup/index.html">Getting started</a><ul id="R-subsections-6a385b5ee9f4b02ef7c93cf34bdd6ea2" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/setup/server/index.html" class=""><a class="padding" href="/Datasync/setup/server/index.html">Datasync server</a></li>
+          <li data-nav-id="/Datasync/setup/client/index.html" class=""><a class="padding" href="/Datasync/setup/client/index.html">Client application</a></li></ul></li>
+          <li data-nav-id="/Datasync/samples/index.html" class="parent "><a class="padding" href="/Datasync/samples/index.html">Samples</a><ul id="R-subsections-abc4562a0bcf1570d92f916bb82a8b39" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/samples/server/index.html" class=""><a class="padding" href="/Datasync/samples/server/index.html">Sample Server</a></li>
+          <li data-nav-id="/Datasync/samples/todoapp/winui3-copy/index.html" class="active"><a class="padding" href="/Datasync/samples/todoapp/winui3-copy/index.html">WinUI3</a></li>
+          <li data-nav-id="/Datasync/samples/todoapp/winui3/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/winui3/index.html">WinUI3</a></li></ul></li>
+          <li data-nav-id="/Datasync/in-depth/index.html" class=""><a class="padding" href="/Datasync/in-depth/index.html">In-depth</a><ul id="R-subsections-3229b26a09fade6cbffa6d892da9210c" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/in-depth/server/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/index.html">Datasync Server</a></li>
+          <li data-nav-id="/Datasync/in-depth/databases/index.html" class="alwaysopen"><a class="padding" href="/Datasync/in-depth/databases/index.html">Database support</a><ul id="R-subsections-384a83c9d07edc2158847f37b553e9c3" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/in-depth/databases/cosmos/index.html" class=""><a class="padding" href="/Datasync/in-depth/databases/cosmos/index.html">Azure Cosmos DB</a></li>
+          <li data-nav-id="/Datasync/in-depth/databases/azuresql/index.html" class=""><a class="padding" href="/Datasync/in-depth/databases/azuresql/index.html">Azure SQL &amp; SQL Server</a></li>
+          <li data-nav-id="/Datasync/in-depth/databases/in-memory/index.html" class=""><a class="padding" href="/Datasync/in-depth/databases/in-memory/index.html">In-memory datastore</a></li>
+          <li data-nav-id="/Datasync/in-depth/databases/litedb/index.html" class=""><a class="padding" href="/Datasync/in-depth/databases/litedb/index.html">LiteDb</a></li>
+          <li data-nav-id="/Datasync/in-depth/databases/postgresql/index.html" class=""><a class="padding" href="/Datasync/in-depth/databases/postgresql/index.html">PostgreSQL</a></li>
+          <li data-nav-id="/Datasync/in-depth/databases/sqlite/index.html" class=""><a class="padding" href="/Datasync/in-depth/databases/sqlite/index.html">Sqlite</a></li></ul></li>
+          <li data-nav-id="/Datasync/in-depth/client/index.html" class=""><a class="padding" href="/Datasync/in-depth/client/index.html">Client application</a></li></ul></li>
+          </ul>
+        </div>
+        <div class="padding footermargin footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter"></div>
+        <div id="R-menu-footer">
+          <hr class="padding default-animation footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter">
+          <div id="R-prefooter" class="footerLangSwitch footerVariantSwitch footerVisitedLinks">
+            <ul>
+              <li id="R-select-language-container" class="footerLangSwitch">
+                <div class="padding menu-control">
+                  <i class="fa-fw fas fa-language"></i>
+                  <span>&nbsp;</span>
+                  <div class="control-style">
+                    <label class="a11y-only" for="R-select-language">Language</label>
+                    <select id="R-select-language" onchange="location = this.querySelector( this.value ).dataset.url;">
+                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/Datasync/samples/todoapp/winui3-copy/index.html" lang="en-us" selected></option>
+                    </select>
+                  </div>
+                  <div class="clear"></div>
+                </div>
+              </li>
+              <li id="R-select-variant-container" class="footerVariantSwitch">
+                <div class="padding menu-control">
+                  <i class="fa-fw fas fa-paint-brush"></i>
+                  <span>&nbsp;</span>
+                  <div class="control-style">
+                    <label class="a11y-only" for="R-select-variant">Theme</label>
+                    <select id="R-select-variant" onchange="window.variants && variants.changeVariant( this.value );">
+                      <option id="R-select-variant-auto" value="auto" selected>Auto</option>
+                    </select>
+                  </div>
+                  <div class="clear"></div>
+                </div>
+                <script>window.variants && variants.markSelectedVariant();</script>
+              </li>
+              <li class="footerVisitedLinks">
+                <div class="padding menu-control">
+                  <i class="fa-fw fas fa-history"></i>
+                  <span>&nbsp;</span>
+                  <div class="control-style">
+                    <button onclick="clearHistory();">Clear History</button>
+                  </div>
+                  <div class="clear"></div>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div id="R-footer" class="footerFooter showFooter">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn" title="love"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+          </div>
+        </div>
+      </div>
+    </aside>
+    <script src="/Datasync/js/clipboard.min.js?1724802671" defer></script>
+    <script src="/Datasync/js/perfect-scrollbar.min.js?1724802671" defer></script>
+    <script src="/Datasync/js/theme.js?1724802671" defer></script>
+  </body>
+</html>
