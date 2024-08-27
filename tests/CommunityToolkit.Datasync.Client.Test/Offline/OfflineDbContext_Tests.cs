@@ -496,7 +496,7 @@ public class OfflineDbContext_Tests : BaseTest
 
         PushResult result = await this.context.PushAsync(entityTypes, options);
         result.CompletedOperations.Should().Be(0);
-        result.FailedOperations.Count.Should().Be(0);
+        result.FailedRequests.Count.Should().Be(0);
     }
 
     [Fact]
@@ -507,7 +507,7 @@ public class OfflineDbContext_Tests : BaseTest
 
         PushResult result = await this.context.PushAsync(entityTypes, options);
         result.CompletedOperations.Should().Be(0);
-        result.FailedOperations.Count.Should().Be(0);
+        result.FailedRequests.Count.Should().Be(0);
     }
 
     [Fact]
@@ -517,7 +517,7 @@ public class OfflineDbContext_Tests : BaseTest
 
         PushResult result = await this.context.Movies.PushAsync(options);
         result.CompletedOperations.Should().Be(0);
-        result.FailedOperations.Count.Should().Be(0);
+        result.FailedRequests.Count.Should().Be(0);
     }
 
     [Fact]
@@ -535,7 +535,7 @@ public class OfflineDbContext_Tests : BaseTest
         PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
-        results.FailedOperations.Should().BeEmpty();
+        results.FailedRequests.Should().BeEmpty();
 
         this.context.DatasyncOperationsQueue.Should().BeEmpty();
 
@@ -559,7 +559,7 @@ public class OfflineDbContext_Tests : BaseTest
         PushResult results = await this.context.Movies.PushAsync();
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
-        results.FailedOperations.Should().BeEmpty();
+        results.FailedRequests.Should().BeEmpty();
 
         this.context.DatasyncOperationsQueue.Should().BeEmpty();
 
@@ -580,8 +580,8 @@ public class OfflineDbContext_Tests : BaseTest
         PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
         results.IsSuccessful.Should().BeFalse();
         results.CompletedOperations.Should().Be(0);
-        results.FailedOperations.Should().HaveCount(1);
-        ServiceResponse result = results.FailedOperations.First().Value;
+        results.FailedRequests.Should().HaveCount(1);
+        ServiceResponse result = results.FailedRequests.First().Value;
         result.StatusCode.Should().Be(500);
         result.HasContent.Should().BeFalse();
 
@@ -605,8 +605,8 @@ public class OfflineDbContext_Tests : BaseTest
         PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
         results.IsSuccessful.Should().BeFalse();
         results.CompletedOperations.Should().Be(0);
-        results.FailedOperations.Should().HaveCount(1);
-        ServiceResponse result = results.FailedOperations.First().Value;
+        results.FailedRequests.Should().HaveCount(1);
+        ServiceResponse result = results.FailedRequests.First().Value;
         result.StatusCode.Should().Be(409);
         result.HasContent.Should().BeTrue();
         string content = new StreamReader(result.ContentStream).ReadToEnd();
@@ -632,7 +632,7 @@ public class OfflineDbContext_Tests : BaseTest
         PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
-        results.FailedOperations.Should().BeEmpty();
+        results.FailedRequests.Should().BeEmpty();
 
         this.context.DatasyncOperationsQueue.Should().BeEmpty();
         this.context.Movies.Find(clientMovie.Id).Should().BeNull();
@@ -652,7 +652,7 @@ public class OfflineDbContext_Tests : BaseTest
         PushResult results = await this.context.Movies.PushAsync();
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
-        results.FailedOperations.Should().BeEmpty();
+        results.FailedRequests.Should().BeEmpty();
 
         this.context.DatasyncOperationsQueue.Should().BeEmpty();
         this.context.Movies.Find(clientMovie.Id).Should().BeNull();
@@ -672,8 +672,8 @@ public class OfflineDbContext_Tests : BaseTest
         PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
         results.IsSuccessful.Should().BeFalse();
         results.CompletedOperations.Should().Be(0);
-        results.FailedOperations.Should().HaveCount(1);
-        ServiceResponse result = results.FailedOperations.First().Value;
+        results.FailedRequests.Should().HaveCount(1);
+        ServiceResponse result = results.FailedRequests.First().Value;
         result.StatusCode.Should().Be(500);
         result.HasContent.Should().BeFalse();
 
@@ -700,8 +700,8 @@ public class OfflineDbContext_Tests : BaseTest
         PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
         results.IsSuccessful.Should().BeFalse();
         results.CompletedOperations.Should().Be(0);
-        results.FailedOperations.Should().HaveCount(1);
-        ServiceResponse result = results.FailedOperations.First().Value;
+        results.FailedRequests.Should().HaveCount(1);
+        ServiceResponse result = results.FailedRequests.First().Value;
         result.StatusCode.Should().Be(409);
         result.HasContent.Should().BeTrue();
         string content = new StreamReader(result.ContentStream).ReadToEnd();
@@ -731,7 +731,7 @@ public class OfflineDbContext_Tests : BaseTest
         PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
-        results.FailedOperations.Should().BeEmpty();
+        results.FailedRequests.Should().BeEmpty();
 
         this.context.DatasyncOperationsQueue.Should().BeEmpty();
     }
@@ -754,7 +754,7 @@ public class OfflineDbContext_Tests : BaseTest
         PushResult results = await this.context.Movies.PushAsync();
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
-        results.FailedOperations.Should().BeEmpty();
+        results.FailedRequests.Should().BeEmpty();
 
         this.context.DatasyncOperationsQueue.Should().BeEmpty();
     }
@@ -774,8 +774,8 @@ public class OfflineDbContext_Tests : BaseTest
         PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
         results.IsSuccessful.Should().BeFalse();
         results.CompletedOperations.Should().Be(0);
-        results.FailedOperations.Should().HaveCount(1);
-        ServiceResponse result = results.FailedOperations.First().Value;
+        results.FailedRequests.Should().HaveCount(1);
+        ServiceResponse result = results.FailedRequests.First().Value;
         result.StatusCode.Should().Be(500);
         result.HasContent.Should().BeFalse();
 
@@ -803,8 +803,8 @@ public class OfflineDbContext_Tests : BaseTest
         PushResult results = await this.context.PushAsync([typeof(ClientMovie)], new PushOptions());
         results.IsSuccessful.Should().BeFalse();
         results.CompletedOperations.Should().Be(0);
-        results.FailedOperations.Should().HaveCount(1);
-        ServiceResponse result = results.FailedOperations.First().Value;
+        results.FailedRequests.Should().HaveCount(1);
+        ServiceResponse result = results.FailedRequests.First().Value;
         result.StatusCode.Should().Be(409);
         result.HasContent.Should().BeTrue();
         string content = new StreamReader(result.ContentStream).ReadToEnd();

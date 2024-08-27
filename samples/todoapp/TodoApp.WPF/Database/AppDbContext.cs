@@ -5,41 +5,37 @@
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Offline;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using TodoApp.WinUI3.Services;
+using TodoApp.WPF.Services;
 
-namespace TodoApp.WinUI3.Database;
+namespace TodoApp.WPF.Database;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
-    //protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
-    //{
-    //    HttpClientOptions clientOptions = new()
-    //    {
-    //        Endpoint = new Uri("https://YOURSITEHERE.azurewebsites.net/"),
-    //        HttpPipeline = [new LoggingHandler()]
-    //    };
-    //    _ = optionsBuilder.UseHttpClientOptions(clientOptions);
-    //}
+    // protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
+    // {
+    //     HttpClientOptions clientOptions = new()
+    //     {
+    //         Endpoint = new Uri("https://Y.azurewebsites.net/"),
+    //         HttpPipeline = [new LoggingHandler()]
+    //     };
+    //     _ = optionsBuilder.UseHttpClientOptions(clientOptions);
+    // }
 
     public async Task SynchronizeAsync(CancellationToken cancellationToken = default)
     {
-        //PushResult pushResult = await this.PushAsync(cancellationToken);
-        //if (!pushResult.IsSuccessful)
-        //{
-        //    throw new ApplicationException($"Push failed: {pushResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
-        //}
+        // PushResult pushResult = await this.PushAsync(cancellationToken);
+        // if (!pushResult.IsSuccessful)
+        // {
+        //     throw new ApplicationException($"Push failed: {pushResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
+        // }
 
-        //PullResult pullResult = await this.PullAsync(cancellationToken);
-        //if (!pullResult.IsSuccessful)
-        //{
-        //    throw new ApplicationException($"Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
-        //}
+        // PullResult pullResult = await this.PullAsync(cancellationToken);
+        // if (!pullResult.IsSuccessful)
+        // {
+        //     throw new ApplicationException($"Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
+        // }
     }
 }
 

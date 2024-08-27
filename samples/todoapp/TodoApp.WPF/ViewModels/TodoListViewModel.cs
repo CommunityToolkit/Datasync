@@ -6,26 +6,22 @@ using CommunityToolkit.Datasync.Client;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using TodoApp.WinUI3.Database;
+using TodoApp.WPF.Database;
 
-namespace TodoApp.WinUI3.ViewModels;
+namespace TodoApp.WPF.ViewModels;
 
 /// <summary>
 /// The view model for the TodoListWindow.
 /// </summary>
 public partial class TodoListViewModel(AppDbContext service) : ObservableRecipient
 {
-    internal event EventHandler<NotificationEventArgs> NotificationHandler;
+    internal event EventHandler<NotificationEventArgs>? NotificationHandler;
 
     [ObservableProperty]
-    private bool isRefreshing;
+    private bool isRefreshing = false;
 
     [ObservableProperty]
-    private ConcurrentObservableCollection<TodoItem> items = [];
+    private ConcurrentObservableCollection<TodoItem> items = new([.. service.TodoItems]);
 
     [ObservableProperty]
     private string title = string.Empty;

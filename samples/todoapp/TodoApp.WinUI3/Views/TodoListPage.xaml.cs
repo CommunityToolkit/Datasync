@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.WinUI.Behaviors;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -15,7 +14,7 @@ public sealed partial class TodoListPage : Page
     public TodoListPage()
     {
         InitializeComponent();
-        DataContext = Ioc.Default.GetRequiredService<TodoListViewModel>();
+        DataContext = App.GetRequiredService<TodoListViewModel>();
         ViewModel.NotificationHandler += PublishNotification;
     }
 

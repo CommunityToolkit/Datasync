@@ -2,31 +2,30 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using System;
-using TodoApp.WinUI3.Database;
-using TodoApp.WinUI3.ViewModels;
-using TodoApp.WinUI3.Views;
+using System.Windows;
+using TodoApp.WPF.Database;
+using TodoApp.WPF.ViewModels;
 
-namespace TodoApp.WinUI3;
+namespace TodoApp.WPF;
 
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
 public partial class App : Application, IDisposable
 {
-    private Window m_window;
-    private Frame m_frame;
     private readonly SqliteConnection dbConnection;
 
+    /// <summary>
+    /// The IoC service provider
+    /// </summary>
     public IServiceProvider Services { get; }
 
     public App()
     {
-        InitializeComponent();
-
+        // Create the connection to the SQLite database
         this.dbConnection = new SqliteConnection("Data Source=:memory:");
         this.dbConnection.Open();
 
@@ -37,7 +36,7 @@ public partial class App : Application, IDisposable
             .AddDbContext<AppDbContext>(options => options.UseSqlite(this.dbConnection))
             .BuildServiceProvider();
 
-        // Initialize the database using the registered database initializer.
+        // Initialize the database
         InitializeDatabase();
     }
 
@@ -49,15 +48,6 @@ public partial class App : Application, IDisposable
         initializer.Initialize();
     }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
-    {
-        this.m_window = new Window();
-        this.m_frame = new Frame();
-        this.m_window.Content = this.m_frame;
-        this.m_window.Activate();
-        _ = this.m_frame.Navigate(typeof(TodoListPage));
-    }
-
     /// <summary>
     /// A helper method for getting a service from the services collection.
     /// </summary>
@@ -66,7 +56,7 @@ public partial class App : Application, IDisposable
     /// </remarks>
     /// <typeparam name="TService">The type of the service.</typeparam>
     /// <returns>An instance of the service</returns>
-    public static TService GetRequiredService<TService>()
+    public static TService GetRequiredService<TService>() where TService : notnull
         => ((App)App.Current).Services.GetRequiredService<TService>();
 
     #region IDisposable
@@ -92,3 +82,4 @@ public partial class App : Application, IDisposable
     }
     #endregion
 }
+
