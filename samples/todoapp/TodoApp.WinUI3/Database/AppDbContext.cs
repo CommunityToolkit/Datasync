@@ -53,7 +53,10 @@ public class DbContextInitializer(AppDbContext context) : IDbInitializer
 {
     /// <inheritdoc />
     public void Initialize()
-        => context.Database.EnsureCreated();
+    {
+        context.Database.EnsureCreated();
+        // Task.Run(async () => await context.SynchronizeAsync());
+    }
 
     /// <inheritdoc />
     public Task InitializeAsync(CancellationToken cancellationToken = default)

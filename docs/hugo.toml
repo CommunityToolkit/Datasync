@@ -1,0 +1,7 @@
+baseURL = 'https://CommunityToolkit.github.io/Datasync'
+languageCode = 'en-us'
+title = 'Datasync Community Toolkit'
+theme = 'hugo-theme-relearn'
+
+[params]
+  themeVariantAuto = [ 'relearn-light', 'relearn-dark' ]

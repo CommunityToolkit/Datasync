@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article">
+  <head><script src="/Datasync/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=Datasync/livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <meta name="generator" content="Hugo 0.133.1">
+    <meta name="generator" content="Relearn 6.2.0+tip">
+    <meta name="description" content="Not all data needs to be synchronized. You may want to do an online search of records for a search capability, for example. To support this, The Datasync Community Toolkit supports an online client in addition to offline usage.
+Creating a Http Client Factory To create an online client, you must create an IHttpClientFactory that creates the appropriate HttpClient objects that are used to communicate with the remote service. This can handle authentication, logging, and anything else that is required by the remote service.">
+    <meta name="author" content="">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Online operations :: Datasync Community Toolkit">
+    <meta name="twitter:description" content="Not all data needs to be synchronized. You may want to do an online search of records for a search capability, for example. To support this, The Datasync Community Toolkit supports an online client in addition to offline usage.
+Creating a Http Client Factory To create an online client, you must create an IHttpClientFactory that creates the appropriate HttpClient objects that are used to communicate with the remote service. This can handle authentication, logging, and anything else that is required by the remote service.">
+    <meta property="og:url" content="http://localhost:1313/Datasync/in-depth/client/oneline-operations/index.html">
+    <meta property="og:site_name" content="Datasync Community Toolkit">
+    <meta property="og:title" content="Online operations :: Datasync Community Toolkit">
+    <meta property="og:description" content="Not all data needs to be synchronized. You may want to do an online search of records for a search capability, for example. To support this, The Datasync Community Toolkit supports an online client in addition to offline usage.
+Creating a Http Client Factory To create an online client, you must create an IHttpClientFactory that creates the appropriate HttpClient objects that are used to communicate with the remote service. This can handle authentication, logging, and anything else that is required by the remote service.">
+    <meta property="og:locale" content="en_us">
+    <meta property="og:type" content="article">
+    <meta property="article:section" content="In-depth">
+    <meta itemprop="name" content="Online operations :: Datasync Community Toolkit">
+    <meta itemprop="description" content="Not all data needs to be synchronized. You may want to do an online search of records for a search capability, for example. To support this, The Datasync Community Toolkit supports an online client in addition to offline usage.
+Creating a Http Client Factory To create an online client, you must create an IHttpClientFactory that creates the appropriate HttpClient objects that are used to communicate with the remote service. This can handle authentication, logging, and anything else that is required by the remote service.">
+    <meta itemprop="wordCount" content="1687">
+    <title>Online operations :: Datasync Community Toolkit</title><link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+<link rel="manifest" href="/favicon/site.webmanifest">
+    <link href="/Datasync/css/fontawesome-all.min.css?1724874042" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fontawesome-all.min.css?1724874042" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/nucleus.css?1724874042" rel="stylesheet">
+    <link href="/Datasync/css/auto-complete.css?1724874042" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/auto-complete.css?1724874042" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/perfect-scrollbar.min.css?1724874042" rel="stylesheet">
+    <link href="/Datasync/css/fonts.css?1724874042" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fonts.css?1724874042" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/theme.css?1724874042" rel="stylesheet">
+    <link href="/Datasync/css/theme-auto.css?1724874042" rel="stylesheet" id="R-variant-style">
+    <link href="/Datasync/css/chroma-auto.css?1724874042" rel="stylesheet" id="R-variant-chroma-style">
+    <link href="/Datasync/css/variant.css?1724874042" rel="stylesheet">
+    <link href="/Datasync/css/print.css?1724874042" rel="stylesheet" media="print">
+    <script src="/Datasync/js/variant.js?1724874042"></script>
+    <script>
+      window.relearn = window.relearn || {};
+      window.relearn.relBasePath='..\/..\/..';
+      window.relearn.relBaseUri='..\/..\/..\/..';
+      window.relearn.absBaseUri='http:\/\/localhost:1313\/Datasync';
+      window.relearn.disableAnchorCopy=false;
+      window.relearn.disableAnchorScrolling=false;
+      // variant stuff
+      window.variants && variants.init( [ 'auto' ] );
+      // translations
+      window.T_Copy_to_clipboard = `Copy to clipboard`;
+      window.T_Copied_to_clipboard = `Copied to clipboard!`;
+      window.T_Copy_link_to_clipboard = `Copy link to clipboard`;
+      window.T_Link_copied_to_clipboard = `Copied link to clipboard!`;
+      window.T_Reset_view = `Reset view`;
+      window.T_View_reset = `View reset!`;
+      window.T_No_results_found = `No results found for "{0}"`;
+      window.T_N_results_found = `{1} results found for "{0}"`;
+    </script>
+  </head>
+  <body class="mobile-support html" data-url="/Datasync/in-depth/client/oneline-operations/index.html">
+    <div id="R-body" class="default-animation">
+      <div id="R-body-overlay"></div>
+      <nav id="R-topbar">
+        <div class="topbar-wrapper">
+          <div class="topbar-sidebar-divider"></div>
+          <div class="topbar-area topbar-area-start" data-area="start">
+            <div class="topbar-button topbar-button-sidebar" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide"><button class="topbar-control" onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button>
+            </div>
+            <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button>
+              <div class="topbar-content">
+                <div class="topbar-content-wrapper"><nav class="TableOfContents">
+  <ul>
+    <li><a href="#creating-a-http-client-factory">Creating a Http Client Factory</a></li>
+    <li><a href="#create-a-datasync-service-client">Create a Datasync Service Client</a></li>
+    <li><a href="#creating-modifying-or-deleting-an-entity">Creating, modifying, or deleting an entity</a></li>
+    <li><a href="#retrieving-individual-records">Retrieving individual records</a></li>
+    <li><a href="#querying-for-data">Querying for data</a>
+      <ul>
+        <li><a href="#filtering-data">Filtering data</a></li>
+        <li><a href="#sorting-data">Sorting data</a></li>
+        <li><a href="#selecting-properties">Selecting properties</a></li>
+        <li><a href="#return-a-page-of-data">Return a page of data</a></li>
+        <li><a href="#conflict-resolution-and-optimistic-concurrency">Conflict resolution and optimistic concurrency</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/index.html"><span itemprop="name">Datasync Community Toolkit</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/in-depth/index.html"><span itemprop="name">In-depth</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/in-depth/client/index.html"><span itemprop="name">Client application</span></a><meta itemprop="position" content="3">&nbsp;>&nbsp;</li><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">Online operations</span><meta itemprop="position" content="4"></li>
+          </ol>
+          <div class="topbar-area topbar-area-end" data-area="end">
+            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/in-depth/client/index.html" title="Client application (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
+            </div>
+            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><span class="topbar-control"><i class="fa-fw fas fa-chevron-right"></i></span>
+            </div>
+            <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button>
+              <div class="topbar-content">
+                <div class="topbar-content-wrapper">
+                  <div class="topbar-area topbar-area-more" data-area="more">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div id="R-main-overlay"></div>
+      <main id="R-body-inner" class="highlightable default" tabindex="-1">
+        <div class="flex-block-wrapper">
+          <article class="default">
+            <header class="headline">
+            </header>
+
+<h1 id="online-operations">Online operations</h1>
+
+<p>Not all data needs to be synchronized.  You may want to do an online search of records for a search capability, for example.  To support this, The Datasync Community Toolkit supports an online client in addition to offline usage.</p>
+<h2 id="creating-a-http-client-factory">Creating a Http Client Factory</h2>
+<p>To create an online client, you must create an <code>IHttpClientFactory</code> that creates the appropriate <code>HttpClient</code> objects that are used to communicate with the remote service.  This can handle authentication, logging, and anything else that is required by the remote service.  At a minimum, a <code>BaseAddress</code> must be established.  To facilitate this, the Datasync Community Toolkit provides a default <code>HttpClientFactory</code> that can be used:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> CommunityToolkit.Datasync.Client.Http;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> IHttpClientFactory GetClientFactory()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  HttpClientOptions options = <span style="color:#66d9ef">new</span>()
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    Endpoint = <span style="color:#66d9ef">new</span> Uri(<span style="color:#e6db74">&#34;https://MYENDPOINT.azurewebsites.net&#34;</span>)
+</span></span><span style="display:flex;"><span>  };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  HttpClientFactory factory = <span style="color:#66d9ef">new</span>(options);
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>The <code>HttpClientOptions</code> allows you to specify the following values:</p>
+<ul>
+<li><code>Endpoint</code> - the URI to the backend datasync service.</li>
+<li><code>HttpPipeline</code> - a list of delegating handlers to use for adjusting the HTTP request pipeline.</li>
+<li><code>Timeout</code> - a <code>TimeSpan</code> (default: 60 seconds); specifies the <code>HttpClient.Timeout</code> value for created clients.</li>
+<li><code>UserAgent</code> - the User-Agent header value for each request.  By default, a Datasync service specific value is used.</li>
+</ul>
+<p>The HTTP pipeline is an important mechanism by which you can adjust the requests as they flow through the Datasync Community Toolkit.  For instance, you might want to use a custom delegating handler for authentication, another for logging, and another for adding an API key to the request.  If you are adding a custom <a href="https://learn.microsoft.com/dotnet/api/system.net.http.httpclienthandler?view=net-8.0" rel="external" target="_blank">HttpClientHandler</a>, then it should be the last element in the <code>HttpPipeline</code>.  You can specify a pipeline like this:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> CommunityToolkit.Datasync.Client.Http;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> IHttpClientFactory GetClientFactory()
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  HttpClientOptions options = <span style="color:#66d9ef">new</span>()
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    Endpoint = <span style="color:#66d9ef">new</span> Uri(<span style="color:#e6db74">&#34;https://MYENDPOINT.azurewebsites.net&#34;</span>),
+</span></span><span style="display:flex;"><span>    HttpPipeline = [
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">new</span> AuthenticatationDelegatingHandler(),
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">new</span> LoggingHandler(),
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">new</span> ApiKeyRequestHandler(<span style="color:#e6db74">&#34;X-API-Key&#34;</span>, <span style="color:#e6db74">&#34;my-api-key&#34;</span>),
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">new</span> CustomHttpClientHandler()
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    Timeout = TimeSpan.FromSeconds(<span style="color:#ae81ff">120</span>)
+</span></span><span style="display:flex;"><span>  };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  HttpClientFactory factory = <span style="color:#66d9ef">new</span>(options);
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>The first element in the list becomes the root handler, then each successive handler is chained to the <code>InnerHandler</code> of the previous handler.</p>
+<h2 id="create-a-datasync-service-client">Create a Datasync Service Client</h2>
+<p>Now that you have something to generate <code>HttpClient</code> objects, you can use it to create a <code>DatasyncServiceClient</code> for a specific service:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> httpClient = GetClientFactory().GetClient();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> tableEndpoint = <span style="color:#66d9ef">new</span> Uri(<span style="color:#e6db74">&#34;/tables/movies&#34;</span>, UriKind.Relative);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> moviesClient = <span style="color:#66d9ef">new</span> DatasyncServiceClient&lt;Movie&gt;(tableEndpoint, httpClient);</span></span></code></pre></div><p>You can also specify the <code>JsonSerializerOptions</code> to use for serialization and deserialization of content from the service.</p>
+<p>The <code>DatasyncServiceClient&lt;TEntity&gt;</code> uses two interfaces:</p>
+<ul>
+<li><code>IReadOnlyDatasyncServiceClient&lt;TEntity&gt;</code> provides all the read operations (but no write operations).</li>
+<li><code>IDatasyncServiceClient&lt;TEntity&gt;</code> provides both read and write operations.</li>
+</ul>
+<p>The entity must provide a string-based <code>Id</code> and may provide the following additional fields that have special meaning:</p>
+<ul>
+<li><code>UpdatedAt</code> - a <code>DateTimeOffset?</code> field.</li>
+<li><code>Version</code> - a <code>string?</code> or <code>byte[]?</code> field.</li>
+<li><code>Deleted</code> - a <code>bool</code> field.</li>
+</ul>
+<p>When using online only access, these fields are optional.  The following property types are supported by the remote service:</p>
+<ul>
+<li>All primitive types (char, string, int, long, etc.)</li>
+<li>Date/Time types: <code>DateTime</code>, <code>DateTimeOffset</code>, <code>DateOnly</code>, <code>TimeOnly</code></li>
+<li><code>Guid</code></li>
+<li>Anything that can be transparently serialized to a string using the <code>JsonSerializerOptions</code> provided.</li>
+</ul>
+<h2 id="creating-modifying-or-deleting-an-entity">Creating, modifying, or deleting an entity</h2>
+<p>Use the following:</p>
+<ul>
+<li><code>AddAsync(entity, options)</code></li>
+<li><code>RemoveAsync(id, options)</code></li>
+<li><code>ReplaceAsync(entity, options)</code></li>
+</ul>
+<p>The options is a <code>DatasyncServiceOptions</code> object, which includes the following properties:</p>
+<ul>
+<li><code>IncludeDeleted</code> - normally soft-deleted entities will not be affected.  Set this to <code>true</code> to affect soft-deleted entities.</li>
+<li><code>ThrowIfMissing</code> - throws an EntityNotFoundException if the entity is missing (where appropriate).</li>
+<li><code>Version</code> - if provided, the entity is not removed or replaced if the version provided does not match what the version of the entity on the server.</li>
+</ul>
+<p>Convenience methods are also included:</p>
+<ul>
+<li><code>AddAsync(entity)</code> - uses default settings.</li>
+<li><code>RemoveAsync(entity)</code> - uses default settings, deleting only if the Version matches.</li>
+<li><code>RemoveAsync(entity, force)</code> - uses default settings, deleting only if the Version matches or force is true.</li>
+<li><code>ReplaceAsync(entity)</code> - uses default settings, replacing only if the Version matches.</li>
+<li><code>ReplaceAsync(entity, force)</code> - uses default settings, replacing only if the Version matches or force is true.</li>
+</ul>
+<p>Each method returns a <code>ServiceResponse</code> (remove operations) or <code>ServiceResponse&lt;TEntity&gt;</code> value.  For example:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>ServiceResponse&lt;Movie&gt; response = <span style="color:#66d9ef">await</span> client.AddAsync(newEntity, cancellationToken);</span></span></code></pre></div><p>The ServiceResponse provides access to the underlying values of the <code>HttpResponseMessage</code>, but with a deserialized result.  This allows you to easily handle conflicts and update state.</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (response.IsSuccessful &amp;&amp; response.HasValue)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// response.Value is a Movie that returns the added or replaced movie.</span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (response.IsConflictStatusCode &amp;&amp; response.HasValue) 
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// response.Value is the movie value from the service that caused the conflict </span>
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (!response.IsSuccessful &amp;&amp; !response.IsConflictStatusCode &amp;&amp; response.HasContent)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// response.ContentStream holds the JSON error message for the status.</span>
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><h2 id="retrieving-individual-records">Retrieving individual records</h2>
+<p>You can retrieve individual records from the server using <code>GetAsync()</code>:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">string</span> id = <span style="color:#e6db74">&#34;&lt;id-of-entity-to-be-retrieved&gt;&#34;</span>;
+</span></span><span style="display:flex;"><span>ServiceResponse&lt;Movie&gt; response = <span style="color:#66d9ef">await</span> client.GetAsync(id);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (response.IsSuccessful &amp;&amp; response.HasValue)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> response.Value;
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>As with the modification methods, you can handle errors using the <code>response.ContentStream</code>.</p>
+<h2 id="querying-for-data">Querying for data</h2>
+<p>The <code>DatasyncServiceClient</code> supports a subset of LINQ methods to handle query capabilities:</p>
+<ul>
+<li><code>Where(predicate)</code> for filtering.</li>
+<li><code>OrderBy(keySelector)</code>, <code>OrderByDescending(keySelector)</code>, <code>ThenBy(keySelector)</code>, and <code>ThenByDescending(keySelector)</code> for sorting.</li>
+<li><code>Skip(count)</code> and <code>Take(count)</code> for paging.</li>
+<li><code>Select(selector)</code> for selecting properties.</li>
+</ul>
+<p>These can be used with a variety of terminating methods:</p>
+<ul>
+<li><code>.CountAsync()</code> and <code>.LongCountAsync()</code> to count the matching entities.</li>
+<li><code>.ToAsyncEnumerable()</code> to return an <code>IAsyncEnumerable&lt;TEntity&gt;</code>.</li>
+<li><code>.ToAsyncPageable()</code> to return pages of entities at a time.</li>
+<li><code>.ToArrayAsync()</code>, <code>.ToDictionaryAsync()</code>, <code>.ToHashSetAsync()</code>, and <code>.ToListAsync()</code> to return a collection asynchronously.</li>
+<li><code>.ToObservableCollectionAsync()</code> to return an observable collection.</li>
+</ul>
+<p>Using observable collections is common in UI focused applications.  For example, here is a snippet from an example view model:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#a6e22e">[ObservableProperty]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">string</span> searchString;
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">[ObservableProperty]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> ConcurrentObservableCollection&lt;Movie&gt; searchResults = <span style="color:#66d9ef">new</span>();
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">[RelayCommand]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">async</span> Task SearchCommandAsync(CancellationToken cancellationToken = <span style="color:#66d9ef">default</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">try</span>
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    _ = <span style="color:#66d9ef">await</span> service
+</span></span><span style="display:flex;"><span>      .Where(x =&gt; x.Title.Includes(searchString))
+</span></span><span style="display:flex;"><span>      .OrderBy(x =&gt; x.Title)
+</span></span><span style="display:flex;"><span>      .ThenByDescending(x =&gt; x.CreatedAt)
+</span></span><span style="display:flex;"><span>      .ToObservableCollectionAsync(searchResults, cancellationToken);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">catch</span> (Exception ex) 
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// TODO: Handle errors</span>
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><h3 id="filtering-data">Filtering data</h3>
+<p>Filtering is done on the service when the <code>.Where()</code> method is before the terminating method, and on the client when the <code>.Where()</code> method is after the terminating method.  For example:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> items = (<span style="color:#66d9ef">await</span> client.Where(x =&gt; !x.IsComplete)).ToListAsync()).Where(x =&gt; x.Title.StartsWith(<span style="color:#e6db74">&#34;The&#34;</span>));</span></span></code></pre></div><p>The first <code>Where()</code> clause (return only incomplete items) is executed by the service, whereas the second <code>Where()</code> clause (starting with &ldquo;The&rdquo;) is executed on the client.</p>
+<p>The where clause supports operations that can be translated into an OData subset.  Operations include:</p>
+<ul>
+<li>Relational operators (<code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>),</li>
+<li>Arithmetic operators (<code>+</code>, <code>-</code>, <code>/</code>, <code>*</code>, <code>%</code>),</li>
+<li>Number precision (<code>Math.Floor</code>, <code>Math.Ceiling</code>),</li>
+<li>String functions (<code>Length</code>, <code>Substring</code>, <code>Replace</code>, <code>IndexOf</code>, <code>Equals</code>, <code>StartsWith</code>, <code>EndsWith</code>) (ordinal and invariant cultures only),</li>
+<li>Date properties (<code>Year</code>, <code>Month</code>, <code>Day</code>, <code>Hour</code>, <code>Minute</code>, <code>Second</code>),</li>
+<li>Access properties of an object, and</li>
+<li>Expressions combining any of these operations.</li>
+</ul>
+<h3 id="sorting-data">Sorting data</h3>
+<p>Use <code>.OrderBy()</code>, <code>.OrderByDescending()</code>, <code>.ThenBy()</code>, and <code>.ThenByDescending()</code> with a property accessor to sort data.</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> items = <span style="color:#66d9ef">await</span> remoteTable.OrderBy(x =&gt; x.IsComplete).ThenBy(x =&gt; x.Title).ToListAsync();</span></span></code></pre></div><p>The sorting is done by the service.  You can&rsquo;t specify an expression in any sorting clause.  If you wish to sort by an expression, use client-side sorting:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> items = <span style="color:#66d9ef">await</span> remoteTable.ToListAsync().OrderBy(x =&gt; x.Title.ToLowerCase());</span></span></code></pre></div><h3 id="selecting-properties">Selecting properties</h3>
+<p>You can return a subset of data from the service:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> items = <span style="color:#66d9ef">await</span> remoteTable.Select(x =&gt; <span style="color:#66d9ef">new</span> { x.Id, x.Title, x.IsComplete }).ToListAsync();</span></span></code></pre></div><h3 id="return-a-page-of-data">Return a page of data</h3>
+<p>You can return a subset of the data set using <code>.Skip()</code> and <code>.Take()</code> to implement paging:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> pageOfItems = <span style="color:#66d9ef">await</span> remoteTable.Skip(<span style="color:#ae81ff">100</span>).Take(<span style="color:#ae81ff">10</span>).ToListAsync();</span></span></code></pre></div><p>You can also use an <code>IAsyncPageable&lt;T&gt;</code> to return pages at a time:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>IAsyncPageable&lt;Movie&gt; pageable = remoteTable.ToAsyncPageable();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">await</span> <span style="color:#66d9ef">foreach</span> (Page&lt;Movie&gt; pageOfMovies <span style="color:#66d9ef">in</span> pageable.AsPages())
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// Process each page of movies.</span>
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>In a real world app, you can use queries similar to the preceding example with a pager control or comparable UI to navigate between pages.</p>
+<p>All the functions described so far are additive, so we can keep chaining them. Each chained call affects more of the query. One more example:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> query = todoTable
+</span></span><span style="display:flex;"><span>                .Where(todoItem =&gt; todoItem.Complete == <span style="color:#66d9ef">false</span>)
+</span></span><span style="display:flex;"><span>                .Select(todoItem =&gt; todoItem.Text)
+</span></span><span style="display:flex;"><span>                .Skip(<span style="color:#ae81ff">3</span>).
+</span></span><span style="display:flex;"><span>                .Take(<span style="color:#ae81ff">3</span>);
+</span></span><span style="display:flex;"><span>List&lt;<span style="color:#66d9ef">string</span>&gt; items = <span style="color:#66d9ef">await</span> query.ToListAsync();</span></span></code></pre></div><h3 id="conflict-resolution-and-optimistic-concurrency">Conflict resolution and optimistic concurrency</h3>
+<p>Two or more clients can write changes to the same item at the same time. Without conflict detection, the last write would overwrite any previous updates. <strong>Optimistic concurrency control</strong> assumes that each transaction can commit and therefore doesn&rsquo;t use any resource locking.  Optimistic concurrency control verifies that no other transaction has modified the data before committing the data. If the data has been modified, the transaction is rolled back.</p>
+<p>Azure Mobile Apps supports optimistic concurrency control by tracking changes to each item using the <code>version</code> system property column that is defined for each table in your Mobile App backend. Each time a record is updated, Mobile Apps sets the <code>version</code> property for that record to a new value. During each update request, the <code>version</code> property of the record included with the request is compared to the same property for the record on the server. If the version passed with the request doesn&rsquo;t match the backend, then the client library raises a <code>ConflictException&lt;T&gt;</code> exception. The type included with the exception is the record from the backend containing the servers version of the record. The application can then use this information to decide whether to execute the update request again with the correct <code>version</code> value from the backend to commit changes.</p>
+<p>In addition to enabling optimistic concurrency, you must also catch the <code>ConflictException&lt;T&gt;</code> exception in your code.  Resolve the conflict by applying the correct <code>version</code> to the updated record and then repeat the call with the resolved record. The following code shows how to resolve a write conflict once detected:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">void</span> UpdateToDoItem(TodoItem item)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    ConflictException&lt;TodoItem&gt; exception = <span style="color:#66d9ef">null</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">try</span>
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">//update at the remote table</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">await</span> remoteTable.ReplaceAsync(item);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">catch</span> (ConflictException&lt;TodoItem&gt; writeException)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        exception = writeException;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (exception != <span style="color:#66d9ef">null</span>)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Conflict detected, the item has changed since the last query</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Resolve the conflict between the local and server item</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">await</span> ResolveConflict(exception.ClientEntity, exception.ServerEntity);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">private</span> <span style="color:#66d9ef">async</span> Task ResolveConflict(TodoItem localItem, TodoItem serverItem)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">//Ask user to choose the resolution between versions</span>
+</span></span><span style="display:flex;"><span>    MessageDialog msgDialog = <span style="color:#66d9ef">new</span> MessageDialog(
+</span></span><span style="display:flex;"><span>        String.Format(<span style="color:#e6db74">&#34;Server Text: \&#34;{0}\&#34; \nLocal Text: \&#34;{1}\&#34;\n&#34;</span>,
+</span></span><span style="display:flex;"><span>        serverItem.Text, localItem.Text),
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;CONFLICT DETECTED - Select a resolution:&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    UICommand localBtn = <span style="color:#66d9ef">new</span> UICommand(<span style="color:#e6db74">&#34;Commit Local Text&#34;</span>);
+</span></span><span style="display:flex;"><span>    UICommand ServerBtn = <span style="color:#66d9ef">new</span> UICommand(<span style="color:#e6db74">&#34;Leave Server Text&#34;</span>);
+</span></span><span style="display:flex;"><span>    msgDialog.Commands.Add(localBtn);
+</span></span><span style="display:flex;"><span>    msgDialog.Commands.Add(ServerBtn);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    localBtn.Invoked = <span style="color:#66d9ef">async</span> (IUICommand command) =&gt;
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// To resolve the conflict, update the version of the item being committed. Otherwise, you will keep</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// catching a MobileServicePreConditionFailedException.</span>
+</span></span><span style="display:flex;"><span>        localItem.Version = serverItem.Version;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Updating recursively here just in case another change happened while the user was making a decision</span>
+</span></span><span style="display:flex;"><span>        UpdateToDoItem(localItem);
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ServerBtn.Invoked = <span style="color:#66d9ef">async</span> (IUICommand command) =&gt;
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        RefreshTodoItems();
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">await</span> msgDialog.ShowAsync();
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
+            <footer class="footline">
+            </footer>
+          </article>
+        </div>
+      </main>
+    </div>
+    <aside id="R-sidebar" class="default-animation">
+      <div id="R-header-topbar" class="default-animation"></div>
+      <div id="R-header-wrapper" class="default-animation">
+        <div id="R-header" class="default-animation">
+<style>
+    #R-logo svg,
+    #R-logo svg * {
+      color: #282828;
+      color: var(--MENU-SECTIONS-BG-color);
+      fill: #282828 !important;
+      fill: var(--MENU-SECTIONS-BG-color) !important;
+      opacity: .945;
+    }
+    a#R-logo {
+      color: #282828;
+      color: var(--MENU-SECTIONS-BG-color);
+      font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+      font-size: 1.875rem;
+      font-weight: 300;
+      margin-top: 0rem;
+      max-width: 60%;
+      text-transform: uppercase;
+      width: 14.125rem;
+      white-space: nowrap;
+    }
+    a#R-logo:hover {
+      color: #282828;
+      color: var(--MENU-SECTIONS-BG-color);
+    }
+    #R-logo svg {
+      margin-bottom: -1.25rem;
+      margin-inline-start: -1.47rem;
+      margin-inline-end: .5rem;
+      width: 40.5%;
+    }
+    @media only all and (max-width: 59.999rem) {
+      a#R-logo {
+        font-size: 1.5625rem;
+        margin-top: -.1875rem;
+      }
+      #R-logo svg {
+        margin-bottom: -.75rem;
+        margin-inline-start: -1.47rem;
+        margin-inline-end: .5rem;
+      }
+    }
+  </style>
+  <a id="R-logo" href="/Datasync/index.html">
+    <img src="images/logo-with-title.png" alt="Datasync Community Toolkit"/>
+  </a>
+        </div>
+
+        <search>
+          <div class="searchbox default-animation">
+            <i class="fas fa-search" title="Search (CTRL+ALT+f)"></i>
+            <label class="a11y-only" for="R-search-by">Search</label>
+            <input data-search-input id="R-search-by" name="search-by" class="search-by" type="search" placeholder="Search...">
+            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-times" title="Clear search"></i></button>
+          </div>
+        </search>
+        <script>
+          var contentLangs=['en'];
+        </script>
+        <script src="/Datasync/js/auto-complete.js?1724874042" defer></script>
+        <script src="/Datasync/js/lunr/lunr.min.js?1724874042" defer></script>
+        <script src="/Datasync/js/lunr/lunr.stemmer.support.min.js?1724874042" defer></script>
+        <script src="/Datasync/js/lunr/lunr.multi.min.js?1724874042" defer></script>
+        <script src="/Datasync/js/lunr/lunr.en.min.js?1724874042" defer></script>
+        <script src="/Datasync/js/search.js?1724874042" defer></script>
+      </div>
+      <div id="R-homelinks" class="default-animation homelinks">
+        <ul>
+          <li><a class="padding" href="/Datasync/index.html"><i class="fa-fw fas fa-home"></i> Home</a></li>
+        </ul>
+        <hr class="padding">
+      </div>
+      <div id="R-content-wrapper" class="highlightable">
+        <div id="R-topics">
+          <ul class="enlarge morespace collapsible-menu">
+          <li data-nav-id="/Datasync/setup/index.html" class=""><a class="padding" href="/Datasync/setup/index.html">Getting started</a><ul id="R-subsections-6a385b5ee9f4b02ef7c93cf34bdd6ea2" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/setup/server/index.html" class=""><a class="padding" href="/Datasync/setup/server/index.html">Datasync server</a></li>
+          <li data-nav-id="/Datasync/setup/client/index.html" class=""><a class="padding" href="/Datasync/setup/client/index.html">Client application</a></li></ul></li>
+          <li data-nav-id="/Datasync/samples/index.html" class=""><a class="padding" href="/Datasync/samples/index.html">Samples</a><ul id="R-subsections-abc4562a0bcf1570d92f916bb82a8b39" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/samples/server/index.html" class=""><a class="padding" href="/Datasync/samples/server/index.html">Sample Server</a></li>
+          <li data-nav-id="/Datasync/samples/todoapp/index.html" class="alwaysopen"><a class="padding" href="/Datasync/samples/todoapp/index.html">Todo App</a><ul id="R-subsections-64deac9d85858c681d35e673e0fd3b13" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/samples/todoapp/winui3/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/winui3/index.html">WinUI3</a></li>
+          <li data-nav-id="/Datasync/samples/todoapp/wpf/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/wpf/index.html">WPF</a></li></ul></li></ul></li>
+          <li data-nav-id="/Datasync/in-depth/index.html" class="parent "><a class="padding" href="/Datasync/in-depth/index.html">In-depth</a><ul id="R-subsections-3229b26a09fade6cbffa6d892da9210c" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/in-depth/server/index.html" class="alwaysopen"><a class="padding" href="/Datasync/in-depth/server/index.html">Datasync Server</a><ul id="R-subsections-991d9dab262acb1d6880fda1bc7a5221" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/in-depth/server/databases/index.html" class="alwaysopen"><a class="padding" href="/Datasync/in-depth/server/databases/index.html">Database support</a><ul id="R-subsections-2d5568f2a27d469d423218e65149f559" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/in-depth/server/databases/cosmos/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/cosmos/index.html">Azure Cosmos DB</a></li>
+          <li data-nav-id="/Datasync/in-depth/server/databases/azuresql/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/azuresql/index.html">Azure SQL &amp; SQL Server</a></li>
+          <li data-nav-id="/Datasync/in-depth/server/databases/in-memory/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/in-memory/index.html">In-memory datastore</a></li>
+          <li data-nav-id="/Datasync/in-depth/server/databases/litedb/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/litedb/index.html">LiteDb</a></li>
+          <li data-nav-id="/Datasync/in-depth/server/databases/postgresql/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/postgresql/index.html">PostgreSQL</a></li>
+          <li data-nav-id="/Datasync/in-depth/server/databases/sqlite/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/sqlite/index.html">Sqlite</a></li></ul></li></ul></li>
+          <li data-nav-id="/Datasync/in-depth/client/index.html" class="parent alwaysopen"><a class="padding" href="/Datasync/in-depth/client/index.html">Client application</a><ul id="R-subsections-2bf83e84435a33452d7389fc82205491" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/in-depth/client/oneline-operations/index.html" class="active"><a class="padding" href="/Datasync/in-depth/client/oneline-operations/index.html">Online operations</a></li></ul></li></ul></li>
+          </ul>
+        </div>
+        <div class="padding footermargin footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter"></div>
+        <div id="R-menu-footer">
+          <hr class="padding default-animation footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter">
+          <div id="R-prefooter" class="footerLangSwitch footerVariantSwitch footerVisitedLinks">
+            <ul>
+              <li id="R-select-language-container" class="footerLangSwitch">
+                <div class="padding menu-control">
+                  <i class="fa-fw fas fa-language"></i>
+                  <span>&nbsp;</span>
+                  <div class="control-style">
+                    <label class="a11y-only" for="R-select-language">Language</label>
+                    <select id="R-select-language" onchange="location = this.querySelector( this.value ).dataset.url;">
+                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/Datasync/in-depth/client/oneline-operations/index.html" lang="en-us" selected></option>
+                    </select>
+                  </div>
+                  <div class="clear"></div>
+                </div>
+              </li>
+              <li id="R-select-variant-container" class="footerVariantSwitch">
+                <div class="padding menu-control">
+                  <i class="fa-fw fas fa-paint-brush"></i>
+                  <span>&nbsp;</span>
+                  <div class="control-style">
+                    <label class="a11y-only" for="R-select-variant">Theme</label>
+                    <select id="R-select-variant" onchange="window.variants && variants.changeVariant( this.value );">
+                      <option id="R-select-variant-auto" value="auto" selected>Auto</option>
+                    </select>
+                  </div>
+                  <div class="clear"></div>
+                </div>
+                <script>window.variants && variants.markSelectedVariant();</script>
+              </li>
+              <li class="footerVisitedLinks">
+                <div class="padding menu-control">
+                  <i class="fa-fw fas fa-history"></i>
+                  <span>&nbsp;</span>
+                  <div class="control-style">
+                    <button onclick="clearHistory();">Clear History</button>
+                  </div>
+                  <div class="clear"></div>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div id="R-footer" class="footerFooter showFooter">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn" title="love"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+          </div>
+        </div>
+      </div>
+    </aside>
+    <script src="/Datasync/js/clipboard.min.js?1724874042" defer></script>
+    <script src="/Datasync/js/perfect-scrollbar.min.js?1724874042" defer></script>
+    <script src="/Datasync/js/theme.js?1724874042" defer></script>
+  </body>
+</html>

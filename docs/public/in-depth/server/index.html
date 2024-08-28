@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr" itemscope itemtype="http://schema.org/Article">
+  <head><script src="/Datasync/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=Datasync/livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <meta name="generator" content="Hugo 0.133.1">
+    <meta name="generator" content="Relearn 6.2.0+tip">
+    <meta name="description" content="This article shows you how to configure and use the ASP.NET Core backend packages for the Datasync Community Toolkit to produce a datasync service.
+A datasync service is a set of RESTful Web API controllers that implement “CRUD” (Create-Read-Update-Delete) with an OData v4 based search capability. Each table controller serves one entity that must conform to the requirements needed for offline usage.
+Supported Platforms The ASP.NET Core packages support ASP.NET 8.">
+    <meta name="author" content="">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Datasync Server :: Datasync Community Toolkit">
+    <meta name="twitter:description" content="This article shows you how to configure and use the ASP.NET Core backend packages for the Datasync Community Toolkit to produce a datasync service.
+A datasync service is a set of RESTful Web API controllers that implement “CRUD” (Create-Read-Update-Delete) with an OData v4 based search capability. Each table controller serves one entity that must conform to the requirements needed for offline usage.
+Supported Platforms The ASP.NET Core packages support ASP.NET 8.">
+    <meta property="og:url" content="http://localhost:1313/Datasync/in-depth/server/index.html">
+    <meta property="og:site_name" content="Datasync Community Toolkit">
+    <meta property="og:title" content="Datasync Server :: Datasync Community Toolkit">
+    <meta property="og:description" content="This article shows you how to configure and use the ASP.NET Core backend packages for the Datasync Community Toolkit to produce a datasync service.
+A datasync service is a set of RESTful Web API controllers that implement “CRUD” (Create-Read-Update-Delete) with an OData v4 based search capability. Each table controller serves one entity that must conform to the requirements needed for offline usage.
+Supported Platforms The ASP.NET Core packages support ASP.NET 8.">
+    <meta property="og:locale" content="en_us">
+    <meta property="og:type" content="website">
+    <meta itemprop="name" content="Datasync Server :: Datasync Community Toolkit">
+    <meta itemprop="description" content="This article shows you how to configure and use the ASP.NET Core backend packages for the Datasync Community Toolkit to produce a datasync service.
+A datasync service is a set of RESTful Web API controllers that implement “CRUD” (Create-Read-Update-Delete) with an OData v4 based search capability. Each table controller serves one entity that must conform to the requirements needed for offline usage.
+Supported Platforms The ASP.NET Core packages support ASP.NET 8.">
+    <meta itemprop="wordCount" content="1604">
+    <title>Datasync Server :: Datasync Community Toolkit</title>
+    <link href="/Datasync/in-depth/server/index.xml" rel="alternate" type="application/rss+xml" title="Datasync Server :: Datasync Community Toolkit"><link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+<link rel="manifest" href="/favicon/site.webmanifest">
+    <link href="/Datasync/css/fontawesome-all.min.css?1724874042" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fontawesome-all.min.css?1724874042" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/nucleus.css?1724874042" rel="stylesheet">
+    <link href="/Datasync/css/auto-complete.css?1724874042" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/auto-complete.css?1724874042" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/perfect-scrollbar.min.css?1724874042" rel="stylesheet">
+    <link href="/Datasync/css/fonts.css?1724874042" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fonts.css?1724874042" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/theme.css?1724874042" rel="stylesheet">
+    <link href="/Datasync/css/theme-auto.css?1724874042" rel="stylesheet" id="R-variant-style">
+    <link href="/Datasync/css/chroma-auto.css?1724874042" rel="stylesheet" id="R-variant-chroma-style">
+    <link href="/Datasync/css/variant.css?1724874042" rel="stylesheet">
+    <link href="/Datasync/css/print.css?1724874042" rel="stylesheet" media="print">
+    <script src="/Datasync/js/variant.js?1724874042"></script>
+    <script>
+      window.relearn = window.relearn || {};
+      window.relearn.relBasePath='..\/..';
+      window.relearn.relBaseUri='..\/..\/..';
+      window.relearn.absBaseUri='http:\/\/localhost:1313\/Datasync';
+      window.relearn.disableAnchorCopy=false;
+      window.relearn.disableAnchorScrolling=false;
+      // variant stuff
+      window.variants && variants.init( [ 'auto' ] );
+      // translations
+      window.T_Copy_to_clipboard = `Copy to clipboard`;
+      window.T_Copied_to_clipboard = `Copied to clipboard!`;
+      window.T_Copy_link_to_clipboard = `Copy link to clipboard`;
+      window.T_Link_copied_to_clipboard = `Copied link to clipboard!`;
+      window.T_Reset_view = `Reset view`;
+      window.T_View_reset = `View reset!`;
+      window.T_No_results_found = `No results found for "{0}"`;
+      window.T_N_results_found = `{1} results found for "{0}"`;
+    </script>
+  </head>
+  <body class="mobile-support html" data-url="/Datasync/in-depth/server/index.html">
+    <div id="R-body" class="default-animation">
+      <div id="R-body-overlay"></div>
+      <nav id="R-topbar">
+        <div class="topbar-wrapper">
+          <div class="topbar-sidebar-divider"></div>
+          <div class="topbar-area topbar-area-start" data-area="start">
+            <div class="topbar-button topbar-button-sidebar" data-content-empty="disable" data-width-s="show" data-width-m="hide" data-width-l="hide"><button class="topbar-control" onclick="toggleNav()" type="button" title="Menu (CTRL&#43;ALT&#43;n)"><i class="fa-fw fas fa-bars"></i></button>
+            </div>
+            <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button>
+              <div class="topbar-content">
+                <div class="topbar-content-wrapper"><nav class="TableOfContents">
+  <ul>
+    <li><a href="#supported-platforms">Supported Platforms</a></li>
+    <li><a href="#create-a-new-datasync-service">Create a new datasync service</a></li>
+    <li><a href="#create-a-model-entity-class">Create a model entity class</a></li>
+    <li><a href="#update-the-dbcontext">Update the DbContext</a></li>
+    <li><a href="#create-a-table-controller">Create a table controller</a>
+      <ul>
+        <li><a href="#table-controller-options">Table controller options</a></li>
+      </ul>
+    </li>
+    <li><a href="#configure-access-permissions">Configure access permissions</a></li>
+    <li><a href="#configure-logging">Configure logging</a></li>
+    <li><a href="#monitor-repository-changes">Monitor repository changes</a>
+      <ul>
+        <li><a href="#option-1-implement-a-postcommithookasync">Option 1: Implement a PostCommitHookAsync</a></li>
+        <li><a href="#option-2-use-the-repositoryupdated-event-handler">Option 2: Use the RepositoryUpdated event handler</a></li>
+      </ul>
+    </li>
+    <li><a href="#openapi-support">OpenAPI Support</a>
+      <ul>
+        <li><a href="#nswag">NSwag</a></li>
+        <li><a href="#swashbuckle">Swashbuckle</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/index.html"><span itemprop="name">Datasync Community Toolkit</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/in-depth/index.html"><span itemprop="name">In-depth</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">Datasync Server</span><meta itemprop="position" content="3"></li>
+          </ol>
+          <div class="topbar-area topbar-area-end" data-area="end">
+            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/in-depth/index.html" title="In-depth (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
+            </div>
+            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/in-depth/server/databases/index.html" title="Database support (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
+            </div>
+            <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button>
+              <div class="topbar-content">
+                <div class="topbar-content-wrapper">
+                  <div class="topbar-area topbar-area-more" data-area="more">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div id="R-main-overlay"></div>
+      <main id="R-body-inner" class="highlightable default" tabindex="-1">
+        <div class="flex-block-wrapper">
+          <article class="default">
+            <header class="headline">
+            </header>
+
+<h1 id="datasync-server">Datasync Server</h1>
+
+<p>This article shows you how to configure and use the ASP.NET Core backend packages for the Datasync Community Toolkit to produce a datasync service.</p>
+<p>A datasync service is a set of RESTful Web API controllers that implement &ldquo;CRUD&rdquo; (Create-Read-Update-Delete) with an OData v4 based search capability.  Each table controller serves one entity that must conform to the requirements needed for offline usage.</p>
+<h2 id="supported-platforms">Supported Platforms</h2>
+<p>The ASP.NET Core packages support ASP.NET 8.0 or later.</p>
+<p>The datasync service support a number of backend database servers, and allows for the custom implementation of repositories.  Each entity that is synchronized must meet the following criteria:</p>
+<ul>
+<li>A string-style primary key.</li>
+<li>An automatically updated timestamp with millisecond accuracy.</li>
+<li>An automatically updated version.</li>
+</ul>
+<p>Default repository implementations are provided for Entity Framework Core, LiteDB, an in-memory store, and an Automapper store.  For specific database support, see the following:</p>
+<ul>
+<li><a href="/Datasync/in-depth/server/databases/cosmos/index.html">Azure Cosmos DB</a></li>
+<li><a href="/Datasync/in-depth/server/databases/azuresql/index.html">Azure SQL and SQL Server</a></li>
+<li><a href="/Datasync/in-depth/server/databases/in-memory/index.html">In Memory Datastore</a></li>
+<li><a href="/Datasync/in-depth/server/databases/litedb/index.html">LiteDb</a></li>
+<li><a href="/Datasync/in-depth/server/databases/postgresql/index.html">PostgreSQL</a></li>
+<li><a href="/Datasync/in-depth/server/databases/sqlite/index.html">Sqlite</a></li>
+</ul>
+<p>A datasync server based on the Datasync Community Toolkit supports:</p>
+<ul>
+<li>The Datasync Community Toolkit client libraries v8.0.0 and above.</li>
+<li>Azure Mobile Apps client libraries v6.0.0 and above.</li>
+</ul>
+<h2 id="create-a-new-datasync-service">Create a new datasync service</h2>
+<p>To create a new datasync service:</p>
+<ol>
+<li>Create an ASP.NET 8.0 (or later) WebAPI project.</li>
+<li>Add Entity Framework Core.</li>
+<li>Add Datasync Community Toolkit.</li>
+</ol>
+<p>For information on creating an ASP.NET Core service with Entity Framework Core, see <a href="https://learn.microsoft.com/aspnet/core/tutorials/first-web-api" rel="external" target="_blank">the official tutorial</a>.</p>
+<p>To enable datasync services, add the following NuGet libraries to your project:</p>
+<ul>
+<li><a href="https://www.nuget.org/packages/CommunityToolkit.Datasync.Server" rel="external" target="_blank">CommunityToolkit.Datasync.Server</a></li>
+<li><a href="https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.EntityFrameworkCore" rel="external" target="_blank">CommunityToolkit.Datasync.Server.EntityFrameworkCore</a> for Entity Framework Core based tables.</li>
+<li><a href="https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.LiteDb" rel="external" target="_blank">CommunityToolkit.Datasync.Server.LiteDb</a> for LiteDb based tables.</li>
+</ul>
+<p>Modify <code>Program.cs</code> and add the following line under all other service definitions:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>builder.Services.AddDatasyncServices();
+</span></span><span style="display:flex;"><span>builder.Services.AddControllers();</span></span></code></pre></div><p>Ensure you map the controllers when setting up your HTTP middleware pipeline.  You can see a full example in the <a href="https://github.com/CommunityToolkit/Datasync/blob/main/tests/CommunityToolkit.Datasync.TestService/Program.cs" rel="external" target="_blank">Test Service</a>.</p>
+<h2 id="create-a-model-entity-class">Create a model entity class</h2>
+<p>All model classes must implement <code>ITableData</code>.  Each repository type has an abstract class that implements <code>ITableData</code> and provides additional functionality to the repository.  For example, the Entity Framework Core repository provides:</p>
+<ul>
+<li><code>SqliteEntityTableData</code> for Sqlite support.</li>
+<li><code>CosmosEntityTableData</code> for Cosmos Db support.</li>
+<li><code>EntityTableData</code> for other database services.</li>
+</ul>
+<p>A typical &ldquo;TodoItem&rdquo; entity for Postgresql would look like this:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TodoItem</span> : EntityTableData
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">public</span> required <span style="color:#66d9ef">string</span> Title { <span style="color:#66d9ef">get</span>; <span style="color:#66d9ef">set</span>; }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">bool</span> IsComplete { <span style="color:#66d9ef">get</span>; <span style="color:#66d9ef">set</span>; }
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>The <code>ITableData</code> interfaces provides:</p>
+<ul>
+<li><code>Id</code> - a string that is set to be a globally unique ID for the entity.</li>
+<li><code>UpdatedAt</code> - a <code>DateTimeOffset?</code> providing the date/time that the entity was last updated (with millisecond accuracy).</li>
+<li><code>Version</code> - a <code>byte[]</code> providing an opaque value that changes on every write.</li>
+<li><code>Deleted</code> - a <code>bool</code> that is true if the entity has been marked for deletion but not yet purged.</li>
+</ul>
+<p>The Datasync libraries or the database maintains these properties.  Do not modify these properties in your own code.</p>
+<h2 id="update-the-dbcontext">Update the DbContext</h2>
+<p>Each model in the database must be registered in the <code>DbContext</code>.  For example:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDbContext</span>(DbContextOptions&lt;AppDbContext&gt; options) : DbContext(options)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">public</span> DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;();
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><h2 id="create-a-table-controller">Create a table controller</h2>
+<p>A table controller is a specialized ApiController that provides the CRUD operations.  Here is a minimal table controller:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#a6e22e">[Route(&#34;tables/[controller]</span><span style="color:#e6db74">&#34;)]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TodoItemController</span> : TableController&lt;TodoItem&gt;
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">public</span> TodoItemController(AppDbContext context) : <span style="color:#66d9ef">base</span>()
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    Repository = <span style="color:#66d9ef">new</span> EntityTableRepository&lt;TodoItem&gt;(context);
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><ul>
+<li>The controller must have a route.  By convention, the client looks for table controllers on a subpath of &lsquo;/tables&rsquo;, but they can be placed anywhere.</li>
+<li>The controller must inherit from <code>TableController&lt;TEntity&gt;</code>, where <code>&lt;TEntity&gt;</code> is an implementation of the <code>ITableData</code> implementation for your repository type.</li>
+<li>Assign a repository based on the same type as your model.</li>
+</ul>
+<h3 id="table-controller-options">Table controller options</h3>
+<p>You can configure certain aspects of the controller using <code>TableControllerOptions</code>:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#a6e22e">[Route(&#34;tables/[controller]</span><span style="color:#e6db74">&#34;)]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TodoItemController</span> : TableController&lt;TodoItem&gt;
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">public</span> TodoItemController(AppDbContext context) : <span style="color:#66d9ef">base</span>()
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    Repository = <span style="color:#66d9ef">new</span> EntityTableRepository&lt;TodoItem&gt;(context);
+</span></span><span style="display:flex;"><span>    Options = <span style="color:#66d9ef">new</span> TableControllerOptions { PageSize = <span style="color:#ae81ff">25</span> };
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>The options you can set include:</p>
+<ul>
+<li><code>PageSize</code> (int, default: 100) is the maximum number of items a query operation returns in a single page.</li>
+<li><code>MaxTop</code> (int, default: 512000) is the maximum number of items a user can request in a single operation.</li>
+<li><code>EnableSoftDelete</code> (bool, default: false) enables soft-delete, which marks items as deleted instead of deleting them from the database.  Soft delete allows clients to update their offline cache, but requires that deleted items are purged from the database separately.</li>
+<li><code>UnauthorizedStatusCode</code> (int, default: 401 Unauthorized) is the status code returned when the user isn&rsquo;t allowed to do an action.</li>
+</ul>
+<h2 id="configure-access-permissions">Configure access permissions</h2>
+<p>By default, a user can do anything that they want to entities within a table - create, read, update, and delete any record.  For more fine-grained control over authorization, create a class that implements <code>IAccessControlProvider</code>.  This implements three methods to implement per-item authorization:</p>
+<ul>
+<li><code>GetDataView()</code> returns a lambda that limits what the connected user can see.</li>
+<li><code>IsAuthorizedAsync()</code> determines if the connected user can perform the action on the specific entity that is being referenced.</li>
+<li><code>PreCommitHookAsync()</code> adjusts any entity immediately before being written to the repository.</li>
+</ul>
+<p>You can effectrively handle most access control cases with these three methods.  If you need access to the <code>HttpContext</code>, <a href="https://learn.microsoft.com/aspnet/core/fundamentals/use-http-context#httpcontext-isnt-thread-safe" rel="external" target="_blank">configure an HttpContextAccessor</a>.</p>
+<p>As an example, the following code implements a personal table where the user can only see the entities that they created.</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PrivateAccessControlProvider</span>&lt;T&gt;: IAccessControlProvider&lt;T&gt;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span> T : ITableData
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">where</span> T : IUserId
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> IHttpContextAccessor _accessor;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> PrivateAccessControlProvider(IHttpContextAccessor accessor)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        _accessor = accessor;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">string</span> UserId { <span style="color:#66d9ef">get</span> =&gt; _accessor.HttpContext.User?.Identity?.Name; }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Expression&lt;Func&lt;T,<span style="color:#66d9ef">bool</span>&gt;&gt; GetDataView()
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">return</span> (UserId == <span style="color:#66d9ef">null</span>)
+</span></span><span style="display:flex;"><span>        ? _ =&gt; <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>        : model =&gt; model.UserId == UserId;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> Task&lt;<span style="color:#66d9ef">bool</span>&gt; IsAuthorizedAsync(TableOperation op, T entity, CancellationToken token = <span style="color:#66d9ef">default</span>)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (op == TableOperation.Create || op == TableOperation.Query)
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> Task.FromResult(<span style="color:#66d9ef">true</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> Task.FromResult(entity?.UserId != <span style="color:#66d9ef">null</span> &amp;&amp; entity?.UserId == UserId);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">virtual</span> Task PreCommitHookAsync(TableOperation operation, T entity, CancellationToken token = <span style="color:#66d9ef">default</span>)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        entity.UserId == UserId;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Task.CompletedTask;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>The methods are async in case you need to do an extra database lookup to get the correct answer. You can implement the <code>IAccessControlProvider&lt;T&gt;</code> interface on the controller, but you still have to pass in the <code>IHttpContextAccessor</code> to access the <code>HttpContext</code> in a thread safe manner.</p>
+<p>To use this access control provider, update your <code>TableController</code> as follows:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#a6e22e">[Authorize]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">[Route(&#34;tables/[controller]</span><span style="color:#e6db74">&#34;)]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ModelController</span> : TableController&lt;Model&gt;
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ModelsController(AppDbContext context, IHttpContextAccessor accessor) : <span style="color:#66d9ef">base</span>()
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        AccessControlProvider = <span style="color:#66d9ef">new</span> PrivateAccessControlProvider&lt;Model&gt;(accessor);
+</span></span><span style="display:flex;"><span>        Repository = <span style="color:#66d9ef">new</span> EntityTableRepository&lt;Model&gt;(context);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>If you want to allow both unauthenticated and authenticated access to a table, decorate the controller with <code>[AllowAnonymous]</code> instead of <code>[Authorize]</code>.</p>
+<h2 id="configure-logging">Configure logging</h2>
+<p>Logging is handled through <a href="https://learn.microsoft.com/aspnet/core/fundamentals/logging/?view=aspnetcore-8.0" rel="external" target="_blank">the normal logging mechanism</a> for ASP.NET Core.  Assign the <code>ILogger</code> object to the <code>Logger</code> property:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#a6e22e">[Route(&#34;tables/[controller]</span><span style="color:#e6db74">&#34;)]
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74"></span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ModelController</span> : TableController&lt;Model&gt;
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ModelController(AppDbContext context, Ilogger&lt;ModelController&gt; logger) : <span style="color:#66d9ef">base</span>()
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        Repository = <span style="color:#66d9ef">new</span> EntityTableRepository&lt;Model&gt;(context);
+</span></span><span style="display:flex;"><span>        Logger = logger;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><h2 id="monitor-repository-changes">Monitor repository changes</h2>
+<p>When the repository is changed, you can trigger workflows, log the response to the client, or do other work in one of two methods:</p>
+<h3 id="option-1-implement-a-postcommithookasync">Option 1: Implement a PostCommitHookAsync</h3>
+<p>The <code>IAccessControlProvider&lt;T&gt;</code> interface provides a <code>PostCommitHookAsync()</code> method.  Th <code>PostCommitHookAsync()</code> method is called after the data is written to the repository but before returning the data to the client.  Care must be made to ensure that the data being returned to the client isn&rsquo;t changed in this method.</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MyAccessControlProvider</span>&lt;T&gt; : AccessControlProvider&lt;T&gt; <span style="color:#66d9ef">where</span> T : ITableData
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">async</span> Task PostCommitHookAsync(TableOperation op, T entity, CancellationToken cancellationToken = <span style="color:#66d9ef">default</span>)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Do any work you need to here.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Make sure you await any asynchronous operations.</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>Use this option if you&rsquo;re running asynchronous tasks as part of the hook.</p>
+<h3 id="option-2-use-the-repositoryupdated-event-handler">Option 2: Use the RepositoryUpdated event handler</h3>
+<p>The <code>TableController&lt;T&gt;</code> base class contains an event handler that is called at the same time as the <code>PostCommitHookAsync()</code> method.</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#a6e22e">[Authorize]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">[Route(tables/[controller]</span>)]
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ModelController</span> : TableController&lt;Model&gt;
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ModelController(AppDbContext context) : <span style="color:#66d9ef">base</span>()
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        Repository = <span style="color:#66d9ef">new</span> EntityTableRepository&lt;Model&gt;(context);
+</span></span><span style="display:flex;"><span>        RepositoryUpdated += OnRepositoryUpdated;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">internal</span> <span style="color:#66d9ef">void</span> OnRepositoryUpdated(<span style="color:#66d9ef">object</span> sender, RepositoryUpdatedEventArgs e) 
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// The RepositoryUpdatedEventArgs contains Operation, Entity, EntityName</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><h2 id="openapi-support">OpenAPI Support</h2>
+<p>You can publish the API defined by data sync controllers using <a href="/aspnet/core/tutorials/getting-started-with-nswag">NSwag</a> or <a href="/aspnet/core/tutorials/getting-started-with-swashbuckle">Swashbuckle</a>.  In both cases, start by setting up the service as you normally would for the chosen library.</p>
+<h3 id="nswag">NSwag</h3>
+<p>Follow the basic instructions for NSwag integration, then modify as follows:</p>
+<ol>
+<li>
+<p>Add packages to your project to support NSwag.  The following packages are required:</p>
+<ul>
+<li><a href="https://www.nuget.org/packages/NSwag.AspNetCore" rel="external" target="_blank">NSwag.AspNetCore</a>.</li>
+<li><a href="https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.NSwag" rel="external" target="_blank">CommunityToolkit.Datasync.Server.NSwag</a>.</li>
+</ul>
+</li>
+<li>
+<p>Add the following to the top of your <code>Program.cs</code> file:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> CommunityToolkit.Datasync.Server.NSwag;</span></span></code></pre></div></li>
+<li>
+<p>Add a service to generate an OpenAPI definition to your <code>Program.cs</code> file:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>builder.Services.AddOpenApiDocument(options =&gt;
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    options.AddDatasyncProcessors();
+</span></span><span style="display:flex;"><span>});</span></span></code></pre></div></li>
+<li>
+<p>Enable the middleware for serving the generated JSON document and the Swagger UI, also in <code>Program.cs</code>:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (app.Environment.IsDevelopment())
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    app.UseOpenApi();
+</span></span><span style="display:flex;"><span>    app.UseSwaggerUI3();
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div></li>
+</ol>
+<p>Browsing to the <code>/swagger</code> endpoint of the web service allows you to browse the API.  The OpenAPI definition can then be imported into other services (such as Azure API Management).  For more information on configuring NSwag, see <a href="https://learn.microsoft.com/aspnet/core/tutorials/getting-started-with-nswag" rel="external" target="_blank">Get started with NSwag and ASP.NET Core</a>.</p>
+<h3 id="swashbuckle">Swashbuckle</h3>
+<p>Follow the basic instructions for Swashbuckle integration, then modify as follows:</p>
+<ol>
+<li>
+<p>Add packages to your project to support Swashbuckle.  The following packages are required:</p>
+<ul>
+<li><a href="https://www.nuget.org/packages/Swashbuckle.AspNetCore" rel="external" target="_blank">Swashbuckle.AspNetCore</a>.</li>
+<li><a href="https://www.nuget.org/packages/Swashbuckle.AspNetCore.Newtonsoft" rel="external" target="_blank">Swashbuckle.AspNetCore.Newtonsoft</a>.</li>
+<li><a href="https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.Swashbuckle" rel="external" target="_blank">CommunityToolkit.Datasync.Server.Swashbuckle</a>.</li>
+</ul>
+</li>
+<li>
+<p>Add a service to generate an OpenAPI definition to your <code>Program.cs</code> file:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>builder.Services.AddSwaggerGen(options =&gt; 
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    options.AddDatasyncControllers();
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>builder.Services.AddSwaggerGenNewtonsoftSupport();</span></span></code></pre></div>
+<div class="box notices cstyle note">
+  <div class="box-label"><i class="fa-fw fas fa-exclamation-circle"></i> Note</div>
+  <div class="box-content">
+
+<p>The <code>AddDatasyncControllers()</code> method takes an optional <code>Assembly</code> that corresponds to the assembly that contains your table controllers.  The <code>Assembly</code> parameter is only required if your table controllers are in a different project to the service.</p>
+</div>
+</div></li>
+<li>
+<p>Enable the middleware for serving the generated JSON document and the Swagger UI, also in <code>Program.cs</code>:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> (app.Environment.IsDevelopment())
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    app.UseSwagger();
+</span></span><span style="display:flex;"><span>    app.UseSwaggerUI(options =&gt; 
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        options.SwaggerEndpoint(<span style="color:#e6db74">&#34;/swagger/v1/swagger.json&#34;</span>, <span style="color:#e6db74">&#34;v1&#34;</span>);
+</span></span><span style="display:flex;"><span>        options.RoutePrefix = <span style="color:#66d9ef">string</span>.Empty;
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div></li>
+</ol>
+<p>With this configuration, browsing to the root of the web service allows you to browse the API.  The OpenAPI definition can then be imported into other services (such as Azure API Management).  For more information on configuring Swashbuckle, see <a href="https://learn.microsoft.com/aspnet/core/tutorials/getting-started-with-swashbuckle" rel="external" target="_blank">Get started with Swashbuckle and ASP.NET Core</a>.</p>
+
+            <footer class="footline">
+            </footer>
+          </article>
+        </div>
+      </main>
+    </div>
+    <aside id="R-sidebar" class="default-animation">
+      <div id="R-header-topbar" class="default-animation"></div>
+      <div id="R-header-wrapper" class="default-animation">
+        <div id="R-header" class="default-animation">
+<style>
+    #R-logo svg,
+    #R-logo svg * {
+      color: #282828;
+      color: var(--MENU-SECTIONS-BG-color);
+      fill: #282828 !important;
+      fill: var(--MENU-SECTIONS-BG-color) !important;
+      opacity: .945;
+    }
+    a#R-logo {
+      color: #282828;
+      color: var(--MENU-SECTIONS-BG-color);
+      font-family: 'Work Sans', 'Helvetica', 'Tahoma', 'Geneva', 'Arial', sans-serif;
+      font-size: 1.875rem;
+      font-weight: 300;
+      margin-top: 0rem;
+      max-width: 60%;
+      text-transform: uppercase;
+      width: 14.125rem;
+      white-space: nowrap;
+    }
+    a#R-logo:hover {
+      color: #282828;
+      color: var(--MENU-SECTIONS-BG-color);
+    }
+    #R-logo svg {
+      margin-bottom: -1.25rem;
+      margin-inline-start: -1.47rem;
+      margin-inline-end: .5rem;
+      width: 40.5%;
+    }
+    @media only all and (max-width: 59.999rem) {
+      a#R-logo {
+        font-size: 1.5625rem;
+        margin-top: -.1875rem;
+      }
+      #R-logo svg {
+        margin-bottom: -.75rem;
+        margin-inline-start: -1.47rem;
+        margin-inline-end: .5rem;
+      }
+    }
+  </style>
+  <a id="R-logo" href="/Datasync/index.html">
+    <img src="images/logo-with-title.png" alt="Datasync Community Toolkit"/>
+  </a>
+        </div>
+
+        <search>
+          <div class="searchbox default-animation">
+            <i class="fas fa-search" title="Search (CTRL+ALT+f)"></i>
+            <label class="a11y-only" for="R-search-by">Search</label>
+            <input data-search-input id="R-search-by" name="search-by" class="search-by" type="search" placeholder="Search...">
+            <button class="search-clear" type="button" data-search-clear="" title="Clear search"><i class="fas fa-times" title="Clear search"></i></button>
+          </div>
+        </search>
+        <script>
+          var contentLangs=['en'];
+        </script>
+        <script src="/Datasync/js/auto-complete.js?1724874042" defer></script>
+        <script src="/Datasync/js/lunr/lunr.min.js?1724874042" defer></script>
+        <script src="/Datasync/js/lunr/lunr.stemmer.support.min.js?1724874042" defer></script>
+        <script src="/Datasync/js/lunr/lunr.multi.min.js?1724874042" defer></script>
+        <script src="/Datasync/js/lunr/lunr.en.min.js?1724874042" defer></script>
+        <script src="/Datasync/js/search.js?1724874042" defer></script>
+      </div>
+      <div id="R-homelinks" class="default-animation homelinks">
+        <ul>
+          <li><a class="padding" href="/Datasync/index.html"><i class="fa-fw fas fa-home"></i> Home</a></li>
+        </ul>
+        <hr class="padding">
+      </div>
+      <div id="R-content-wrapper" class="highlightable">
+        <div id="R-topics">
+          <ul class="enlarge morespace collapsible-menu">
+          <li data-nav-id="/Datasync/setup/index.html" class=""><a class="padding" href="/Datasync/setup/index.html">Getting started</a><ul id="R-subsections-6a385b5ee9f4b02ef7c93cf34bdd6ea2" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/setup/server/index.html" class=""><a class="padding" href="/Datasync/setup/server/index.html">Datasync server</a></li>
+          <li data-nav-id="/Datasync/setup/client/index.html" class=""><a class="padding" href="/Datasync/setup/client/index.html">Client application</a></li></ul></li>
+          <li data-nav-id="/Datasync/samples/index.html" class=""><a class="padding" href="/Datasync/samples/index.html">Samples</a><ul id="R-subsections-abc4562a0bcf1570d92f916bb82a8b39" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/samples/server/index.html" class=""><a class="padding" href="/Datasync/samples/server/index.html">Sample Server</a></li>
+          <li data-nav-id="/Datasync/samples/todoapp/index.html" class="alwaysopen"><a class="padding" href="/Datasync/samples/todoapp/index.html">Todo App</a><ul id="R-subsections-64deac9d85858c681d35e673e0fd3b13" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/samples/todoapp/winui3/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/winui3/index.html">WinUI3</a></li>
+          <li data-nav-id="/Datasync/samples/todoapp/wpf/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/wpf/index.html">WPF</a></li></ul></li></ul></li>
+          <li data-nav-id="/Datasync/in-depth/index.html" class="parent "><a class="padding" href="/Datasync/in-depth/index.html">In-depth</a><ul id="R-subsections-3229b26a09fade6cbffa6d892da9210c" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/in-depth/server/index.html" class="active parent alwaysopen"><a class="padding" href="/Datasync/in-depth/server/index.html">Datasync Server</a><ul id="R-subsections-991d9dab262acb1d6880fda1bc7a5221" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/in-depth/server/databases/index.html" class="alwaysopen"><a class="padding" href="/Datasync/in-depth/server/databases/index.html">Database support</a><ul id="R-subsections-2d5568f2a27d469d423218e65149f559" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/in-depth/server/databases/cosmos/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/cosmos/index.html">Azure Cosmos DB</a></li>
+          <li data-nav-id="/Datasync/in-depth/server/databases/azuresql/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/azuresql/index.html">Azure SQL &amp; SQL Server</a></li>
+          <li data-nav-id="/Datasync/in-depth/server/databases/in-memory/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/in-memory/index.html">In-memory datastore</a></li>
+          <li data-nav-id="/Datasync/in-depth/server/databases/litedb/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/litedb/index.html">LiteDb</a></li>
+          <li data-nav-id="/Datasync/in-depth/server/databases/postgresql/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/postgresql/index.html">PostgreSQL</a></li>
+          <li data-nav-id="/Datasync/in-depth/server/databases/sqlite/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/sqlite/index.html">Sqlite</a></li></ul></li></ul></li>
+          <li data-nav-id="/Datasync/in-depth/client/index.html" class="alwaysopen"><a class="padding" href="/Datasync/in-depth/client/index.html">Client application</a><ul id="R-subsections-2bf83e84435a33452d7389fc82205491" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/in-depth/client/oneline-operations/index.html" class=""><a class="padding" href="/Datasync/in-depth/client/oneline-operations/index.html">Online operations</a></li></ul></li></ul></li>
+          </ul>
+        </div>
+        <div class="padding footermargin footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter"></div>
+        <div id="R-menu-footer">
+          <hr class="padding default-animation footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter">
+          <div id="R-prefooter" class="footerLangSwitch footerVariantSwitch footerVisitedLinks">
+            <ul>
+              <li id="R-select-language-container" class="footerLangSwitch">
+                <div class="padding menu-control">
+                  <i class="fa-fw fas fa-language"></i>
+                  <span>&nbsp;</span>
+                  <div class="control-style">
+                    <label class="a11y-only" for="R-select-language">Language</label>
+                    <select id="R-select-language" onchange="location = this.querySelector( this.value ).dataset.url;">
+                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/Datasync/in-depth/server/index.html" lang="en-us" selected></option>
+                    </select>
+                  </div>
+                  <div class="clear"></div>
+                </div>
+              </li>
+              <li id="R-select-variant-container" class="footerVariantSwitch">
+                <div class="padding menu-control">
+                  <i class="fa-fw fas fa-paint-brush"></i>
+                  <span>&nbsp;</span>
+                  <div class="control-style">
+                    <label class="a11y-only" for="R-select-variant">Theme</label>
+                    <select id="R-select-variant" onchange="window.variants && variants.changeVariant( this.value );">
+                      <option id="R-select-variant-auto" value="auto" selected>Auto</option>
+                    </select>
+                  </div>
+                  <div class="clear"></div>
+                </div>
+                <script>window.variants && variants.markSelectedVariant();</script>
+              </li>
+              <li class="footerVisitedLinks">
+                <div class="padding menu-control">
+                  <i class="fa-fw fas fa-history"></i>
+                  <span>&nbsp;</span>
+                  <div class="control-style">
+                    <button onclick="clearHistory();">Clear History</button>
+                  </div>
+                  <div class="clear"></div>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div id="R-footer" class="footerFooter showFooter">
+	    <p>Built with <a href="https://github.com/McShelby/hugo-theme-relearn" title="love"><i class="fas fa-heart"></i></a> by <a href="https://gohugo.io/">Hugo</a></p>
+          </div>
+        </div>
+      </div>
+    </aside>
+    <script src="/Datasync/js/clipboard.min.js?1724874042" defer></script>
+    <script src="/Datasync/js/perfect-scrollbar.min.js?1724874042" defer></script>
+    <script src="/Datasync/js/theme.js?1724874042" defer></script>
+  </body>
+</html>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Datasync Server :: Datasync Community Toolkit</title>
+    <link>http://localhost:1313/Datasync/in-depth/server/index.html</link>
+    <description>This article shows you how to configure and use the ASP.NET Core backend packages for the Datasync Community Toolkit to produce a datasync service.&#xA;A datasync service is a set of RESTful Web API controllers that implement “CRUD” (Create-Read-Update-Delete) with an OData v4 based search capability. Each table controller serves one entity that must conform to the requirements needed for offline usage.&#xA;Supported Platforms The ASP.NET Core packages support ASP.NET 8.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="http://localhost:1313/Datasync/in-depth/server/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Database support</title>
+      <link>http://localhost:1313/Datasync/in-depth/server/databases/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Datasync/in-depth/server/databases/index.html</guid>
+      <description>Database Support Entity Framework Core doesn’t set up value generation for date/time columns. (See Date/time value generation). The default repository for Entity Framework Core automatically updates the UpdatedAt field for you. However, if your database is updated outside of the repository, you must arrange for the UpdatedAt and Version fields to be updated.&#xA;You can find sample implementations of each supported context in our Database Tests.&#xA;For specific database support, see the following:</description>
+    </item>
+  </channel>
+</rss>

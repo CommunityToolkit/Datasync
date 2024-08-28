@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Getting started :: Datasync Community Toolkit</title>
+    <link>http://localhost:1313/Datasync/setup/index.html</link>
+    <description></description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="http://localhost:1313/Datasync/setup/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Datasync server</title>
+      <link>http://localhost:1313/Datasync/setup/server/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Datasync/setup/server/index.html</guid>
+      <description>You can easily create a new datasync service using our template.&#xA;Install the template Install the template from NuGet:&#xA;dotnet new -i Microsoft.AspNetCore.Datasync.Template.CSharpCreate a new project with the template Use the dotnet new command to create a project:&#xA;mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe template is a standard Web API project with the addition of the datasync services, and includes a sample model and controller.</description>
+    </item>
+    <item>
+      <title>Client application</title>
+      <link>http://localhost:1313/Datasync/setup/client/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Datasync/setup/client/index.html</guid>
+      <description>Prerequisites For offline database access, you should create your application using Entity Framework Core v8.0 and a Sqlite database. When you construct your models for database storage, ensure they are constructed with the following requirements:&#xA;Primary key - Id, a string field. UpdatedAt - a DateTimeOffset? field. Version - a string? or byte[]? field. Deleted - a bool field. These are maintained by the server.&#xA;Note Sqlite stores DateTimeOffset using a second accuracy by default.</description>
+    </item>
+  </channel>
+</rss>
