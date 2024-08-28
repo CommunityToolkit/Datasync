@@ -28,8 +28,8 @@ The Datasync Community Toolkit is a free [dotnet Foundation] [Community Toolkit]
 
 ## More information
 
-* [In-depth with your ASP.NET Core datasync server](in-depth/server.md)
-* [In-depth with your client application](in-depth/client.md)
+* [In-depth with your ASP.NET Core datasync server](in-depth/server/)
+* [In-depth with your client application](in-depth/client/)
 
 <!-- Links -->
 [dotnet Foundation]: https://dotnetfoundation.org/

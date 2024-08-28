@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Client application :: Datasync Community Toolkit</title>
+    <link>http://localhost:1313/Datasync/in-depth/client/index.html</link>
+    <description>This guide shows you how to perform common scenarios using the Datasync Community Toolkit. Use the client library in any .NET 8 application, including AvaloniaUI, MAUI, Uno Platform, WinUI, and WPF applications.&#xA;This guide primary deals with offline operations. For online operations, see the Online operations guide.&#xA;Creating an offline-capable DbContext Use the OfflineDbContext as the base for your offline storage:&#xA;public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="http://localhost:1313/Datasync/in-depth/client/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Online operations</title>
+      <link>http://localhost:1313/Datasync/in-depth/client/oneline-operations/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Datasync/in-depth/client/oneline-operations/index.html</guid>
+      <description>Not all data needs to be synchronized. You may want to do an online search of records for a search capability, for example. To support this, The Datasync Community Toolkit supports an online client in addition to offline usage.&#xA;Creating a Http Client Factory To create an online client, you must create an IHttpClientFactory that creates the appropriate HttpClient objects that are used to communicate with the remote service. This can handle authentication, logging, and anything else that is required by the remote service.</description>
+    </item>
+  </channel>
+</rss>

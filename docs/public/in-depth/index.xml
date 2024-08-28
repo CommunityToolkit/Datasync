@@ -3,7 +3,7 @@
   <channel>
     <title>In-depth :: Datasync Community Toolkit</title>
     <link>http://localhost:1313/Datasync/in-depth/index.html</link>
-    <description></description>
+    <description>Offline data synchronization Offline data synchronization is a useful tool that synchronizes data from a cloud-based database to a Sqlite database stored with your application. When you app is offline, you can still create, modify, and search the data. Data is synchronized when your device is online.&#xA;Offline data synchronization has several benefits:&#xA;Improves app responsiveness Improves app reliability when there is bad network connectivity Limits network use on high-latency or metered networks Supports disconnected use.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="http://localhost:1313/Datasync/in-depth/index.xml" rel="self" type="application/rss+xml" />
@@ -19,7 +19,7 @@
       <link>http://localhost:1313/Datasync/in-depth/client/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/in-depth/client/index.html</guid>
-      <description></description>
+      <description>This guide shows you how to perform common scenarios using the Datasync Community Toolkit. Use the client library in any .NET 8 application, including AvaloniaUI, MAUI, Uno Platform, WinUI, and WPF applications.&#xA;This guide primary deals with offline operations. For online operations, see the Online operations guide.&#xA;Creating an offline-capable DbContext Use the OfflineDbContext as the base for your offline storage:&#xA;public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.</description>
     </item>
   </channel>
 </rss>

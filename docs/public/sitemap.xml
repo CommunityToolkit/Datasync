@@ -19,6 +19,9 @@
     <loc>http://localhost:1313/Datasync/in-depth/client/index.html</loc>
   </url>
   <url>
+    <loc>http://localhost:1313/Datasync/in-depth/client/oneline-operations/index.html</loc>
+  </url>
+  <url>
     <loc>http://localhost:1313/Datasync/samples/index.html</loc>
   </url>
   <url>

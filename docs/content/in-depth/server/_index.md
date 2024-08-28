@@ -43,9 +43,9 @@ For information on creating an ASP.NET Core service with Entity Framework Core, 
 
 To enable datasync services, add the following NuGet libraries to your project:
 
-* [CommunityToolkit.Datasync.Server]
-* [CommunityToolkit.Datasync.Server.EntityFrameworkCore] for Entity Framework Core based tables.
-* [CommunityToolkit.Datasync.Server.LiteDb] for LiteDb based tables.
+* [CommunityToolkit.Datasync.Server](https://www.nuget.org/packages/CommunityToolkit.Datasync.Server)
+* [CommunityToolkit.Datasync.Server.EntityFrameworkCore](https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.EntityFrameworkCore) for Entity Framework Core based tables.
+* [CommunityToolkit.Datasync.Server.LiteDb](https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.LiteDb) for LiteDb based tables.
 
 Modify `Program.cs` and add the following line under all other service definitions:
 
