@@ -1,7 +1,7 @@
 # 🧰 Datasync Toolkit
 
-The Datasync Toolkit (a part of the Community Toolkit) is a collection of libraries that implement a client-server system used for synchronizing data
-from the database table.  The Datasync Toolkit is a member of the Community Toolkit organization and published under the dotnet Foundation.
+The Datasync Community Toolkit is a collection of libraries that implement a client-server system used for synchronizing data
+from the database table.  The Datasync Community Toolkit is a member of the Community Toolkit organization and published under the dotnet Foundation.
 
 Currently, the library supports:
 
@@ -23,7 +23,7 @@ Other platforms may work, but have not been tested.
 
 ## 🙌 Getting Started
 
-Please take a look at the tutorials included in our [documentation][documentation].
+Please take a look at the tutorials included in our [documentation](https://CommunityToolkit.github.io/Datasync).
 
 You can easily get started by using the `dotnet new` command to create a new datasync server.  The template pre-configured ASP.NET Core, 
 Entity Framework Core, and the Datasync server libraries.  To install the template:
