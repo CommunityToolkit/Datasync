@@ -9,6 +9,7 @@
 #pragma warning disable IDE0028 // Simplify collection initialization
 
 using CommunityToolkit.Datasync.Client.Http;
+using CommunityToolkit.Datasync.Client.Offline.Operations;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon;
@@ -151,6 +152,39 @@ public class DatasyncServiceClient_Tests : IDisposable
     }
     #endregion
 
+    #region Ctors
+    [Fact]
+    public void Ctor_WithOptions()
+    {
+        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
+
+        HttpClientOptions options = new()
+        {
+            Endpoint = new Uri("http://localhost"),
+            HttpPipeline = [this.mockHandler]
+        };
+
+        DatasyncServiceClient<ClientMovie> serviceClient = new(options);
+
+        serviceClient.Endpoint.ToString().Should().Be("http://localhost/tables/clientmovie/");
+        serviceClient.Client.Should().NotBeNull();
+        serviceClient.JsonSerializerOptions.Should().BeSameAs(serializerOptions);
+    }
+
+    [Fact]
+    public void Ctor_WithoutSerializer()
+    {
+        JsonSerializerOptions serializerOptions = DatasyncSerializer.JsonSerializerOptions;
+        HttpClient client = new() { BaseAddress = new Uri("http://localhost/") };
+        Uri tableUri = new("/tables/movies", UriKind.Relative);
+        DatasyncServiceClient<ClientMovie> serviceClient = new(tableUri, client);
+
+        serviceClient.Endpoint.ToString().Should().Be("http://localhost/tables/movies/");
+        serviceClient.Client.Should().BeSameAs(client);
+        serviceClient.JsonSerializerOptions.Should().BeSameAs(serializerOptions);
+    }
+    #endregion
+
     #region AddAsync
     [Fact]
     public async Task AddAsync_Throws_On_Null()
@@ -189,7 +223,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Post);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
         (await request.Content.ReadAsStringAsync()).Should().Be(expected);
 
         response.Should().NotBeNull();
@@ -214,7 +248,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Post);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
         (await request.Content.ReadAsStringAsync()).Should().Be(expected);
 
         response.Should().NotBeNull();
@@ -243,7 +277,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Post);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
         (await request.Content.ReadAsStringAsync()).Should().Be(expected);
 
         ex.ClientEntity.Should().BeEquivalentTo(entity, this.entityEquivalentOptions);
@@ -327,7 +361,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$top=0&$count=true");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$top=0&$count=true");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -350,7 +384,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -382,7 +416,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -404,7 +438,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$top=0&$count=true");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$top=0&$count=true");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -427,7 +461,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -665,7 +699,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     [InlineData("$filter=booleanValue")]
     public async Task GetPageAsync_Success_ItemsOnly(string query)
     {
-        string expectedUri = string.IsNullOrEmpty(query) ? "http://localhost/tables/kitchensink" : $"http://localhost/tables/kitchensink?{query}";
+        string expectedUri = string.IsNullOrEmpty(query) ? "http://localhost/tables/kitchensink/" : $"http://localhost/tables/kitchensink/?{query}";
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         ServiceResponse<Page<ClientKitchenSink>> response = await client.GetPageAsync(query, new DatasyncServiceOptions());
@@ -696,7 +730,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     [InlineData("$filter=booleanValue")]
     public async Task GetPageAsync_Success_Items_TotalCount(string query)
     {
-        string expectedUri = string.IsNullOrEmpty(query) ? "http://localhost/tables/kitchensink" : $"http://localhost/tables/kitchensink?{query}";
+        string expectedUri = string.IsNullOrEmpty(query) ? "http://localhost/tables/kitchensink/" : $"http://localhost/tables/kitchensink/?{query}";
         Page<ClientKitchenSink> page = CreatePage(5, 20L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         ServiceResponse<Page<ClientKitchenSink>> response = await client.GetPageAsync(query, new DatasyncServiceOptions());
@@ -727,7 +761,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     [InlineData("$filter=booleanValue")]
     public async Task GetPageAsync_Success_Items_NextLink(string query)
     {
-        string expectedUri = string.IsNullOrEmpty(query) ? "http://localhost/tables/kitchensink" : $"http://localhost/tables/kitchensink?{query}";
+        string expectedUri = string.IsNullOrEmpty(query) ? "http://localhost/tables/kitchensink/" : $"http://localhost/tables/kitchensink/?{query}";
         Page<ClientKitchenSink> page = CreatePage(5, null, "$filter=booleanValue&$skip=5");
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         ServiceResponse<Page<ClientKitchenSink>> response = await client.GetPageAsync(query, new DatasyncServiceOptions());
@@ -867,7 +901,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$top=0&$count=true");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$top=0&$count=true");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -890,7 +924,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -922,7 +956,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -944,7 +978,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$top=0&$count=true");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$top=0&$count=true");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -967,7 +1001,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29&$top=0&$count=true");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -1149,7 +1183,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
     }
 
     [Fact]
@@ -1165,7 +1199,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
     }
 
     [Fact]
@@ -1187,12 +1221,12 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage page1Request = this.mockHandler.Requests[0];
         page1Request.Should().NotBeNull();
         page1Request.Method.Should().Be(HttpMethod.Get);
-        page1Request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        page1Request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
 
         HttpRequestMessage page2Request = this.mockHandler.Requests[1];
         page2Request.Should().NotBeNull();
         page2Request.Method.Should().Be(HttpMethod.Get);
-        page2Request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$skip=5");
+        page2Request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$skip=5");
     }
 
     [Fact]
@@ -1216,17 +1250,17 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage page1Request = this.mockHandler.Requests[0];
         page1Request.Should().NotBeNull();
         page1Request.Method.Should().Be(HttpMethod.Get);
-        page1Request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        page1Request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
 
         HttpRequestMessage page2Request = this.mockHandler.Requests[1];
         page2Request.Should().NotBeNull();
         page2Request.Method.Should().Be(HttpMethod.Get);
-        page2Request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$skip=5");
+        page2Request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$skip=5");
 
         HttpRequestMessage page3Request = this.mockHandler.Requests[2];
         page3Request.Should().NotBeNull();
         page3Request.Method.Should().Be(HttpMethod.Get);
-        page3Request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$skip=10");
+        page3Request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$skip=10");
     }
 
     [Fact]
@@ -1253,7 +1287,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29");
     }
 
     [Fact]
@@ -1269,7 +1303,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29&$orderby=guidValue,intValue desc&$skip=5&$top=100");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29&$orderby=guidValue,intValue desc&$skip=5&$top=100");
     }
     #endregion
 
@@ -1986,7 +2020,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
     }
 
     [Fact]
@@ -2001,7 +2035,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29");
     }
     #endregion
 
@@ -2019,7 +2053,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
     }
 
     [Fact]
@@ -2035,7 +2069,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29");
     }
     #endregion
 
@@ -2054,7 +2088,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
     }
 
     [Fact]
@@ -2071,7 +2105,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29");
     }
     #endregion
 
@@ -2089,7 +2123,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
     }
 
     [Fact]
@@ -2105,7 +2139,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
     }
 
     [Fact]
@@ -2121,7 +2155,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29");
     }
 
     [Fact]
@@ -2137,7 +2171,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29");
     }
     #endregion
 
@@ -2155,7 +2189,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
     }
 
     [Fact]
@@ -2173,7 +2207,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
     }
 
     [Fact]
@@ -2189,7 +2223,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29");
     }
 
     [Fact]
@@ -2207,7 +2241,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29");
     }
 
     class ClientKitchenSinkComparer : IEqualityComparer<ClientKitchenSink>
@@ -2233,7 +2267,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
     }
 
     [Fact]
@@ -2248,7 +2282,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29");
     }
     #endregion
 
@@ -2265,7 +2299,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
     }
 
     [Fact]
@@ -2281,7 +2315,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
     }
 
     [Fact]
@@ -2296,7 +2330,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29");
     }
 
     [Fact]
@@ -2312,7 +2346,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Get);
-        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink?$filter=%28stringValue eq %27abc%27%29");
+        request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/?$filter=%28stringValue eq %27abc%27%29");
     }
     #endregion
 
@@ -3915,6 +3949,38 @@ public class DatasyncServiceClient_Tests : IDisposable
         ServiceResponse<Page<ClientKitchenSink>> sut = new(responseMessage);
         Action act = () => _ = DatasyncServiceClient<ClientKitchenSink>.GetCountOrThrow(sut);
         act.Should().Throw<DatasyncException>();
+    }
+    #endregion
+
+    #region MakeAbsoluteUri
+    [Theory]
+    [InlineData(null, "https://test.zumo.com/tables/movies", "https://test.zumo.com/tables/movies/")]
+    [InlineData(null, "https://test.zumo.com/tables/movies/", "https://test.zumo.com/tables/movies/")]
+    [InlineData("https://test.zumo.com", "/tables/movies", "https://test.zumo.com/tables/movies/")]
+    [InlineData("https://test.zumo.com", "/tables/movies/", "https://test.zumo.com/tables/movies/")]
+    [InlineData("https://test.zumo.com/", "/tables/movies", "https://test.zumo.com/tables/movies/")]
+    [InlineData("https://test.zumo.com/", "/tables/movies/", "https://test.zumo.com/tables/movies/")]
+    [InlineData("https://test.zumo.com/tables", "movies", "https://test.zumo.com/movies/")]
+    [InlineData("https://test.zumo.com/tables", "movies/", "https://test.zumo.com/movies/")]
+    [InlineData("https://test.zumo.com/tables", "/api/movies", "https://test.zumo.com/api/movies/")]
+    [InlineData("https://test.zumo.com/tables", "/api/movies/", "https://test.zumo.com/api/movies/")]
+    public void MakeAbsoluteUri_Works(string ba, string bb, string expected)
+    {
+        Uri arg1 = string.IsNullOrEmpty(ba) ? null : new Uri(ba, UriKind.Absolute);
+        Uri arg2 = bb.StartsWith("http") ? new Uri(bb, UriKind.Absolute) : new Uri(bb, UriKind.Relative);
+        Uri actual = DatasyncServiceClient<ClientMovie>.MakeAbsoluteUri(arg1, arg2);
+
+        actual.ToString().Should().Be(expected);
+    }
+
+    [Fact]
+    public void MakeAbsoluteUri_BaseAddressRelative()
+    {
+        Uri arg1 = new("tables/movies", UriKind.Relative);
+        Uri arg2 = new("tables/movies", UriKind.Relative);
+
+        Action act = () => DatasyncServiceClient<ClientMovie>.MakeAbsoluteUri(arg1, arg2);
+        act.Should().Throw<UriFormatException>();
     }
     #endregion
 

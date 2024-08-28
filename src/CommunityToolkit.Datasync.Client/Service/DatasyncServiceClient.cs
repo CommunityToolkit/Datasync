@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Paging;
 using CommunityToolkit.Datasync.Client.Query;
 using CommunityToolkit.Datasync.Client.Query.Linq;
@@ -24,6 +25,31 @@ namespace CommunityToolkit.Datasync.Client;
 internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> where TEntity : class
 {
     /// <summary>
+    /// Creates a new <see cref="DatasyncServiceClient{TEntity}"/> using default information based on
+    /// the <see cref="HttpClientOptions"/> provided.
+    /// </summary>
+    /// <remarks>
+    /// The default path is /tables/entityName as a relative URI to the Endpoint in the options.
+    /// </remarks>
+    /// <param name="options">The <see cref="HttpClientOptions"/> to use.</param>
+    public DatasyncServiceClient(HttpClientOptions options)
+        : this(new Uri($"/tables/{typeof(TEntity).Name.ToLowerInvariant()}", UriKind.Relative), new HttpClientFactory(options).CreateClient())
+    {
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="DatasyncServiceClient{TEntity}"/> with the normal information required for 
+    /// communicating with a datasync service, using the default JSON Serializer Options.
+    /// </summary>
+    /// <param name="endpoint">The endpoint of the table controller that processes the entity.</param>
+    /// <param name="client">The <see cref="HttpClient"/> to use for communication.</param>
+    /// <exception cref="UriFormatException">Thrown if the endpoint is not valid.</exception>
+    public DatasyncServiceClient(Uri endpoint, HttpClient client)
+        : this(endpoint, client, DatasyncSerializer.JsonSerializerOptions)
+    {
+    }
+
+    /// <summary>
     /// Creates a new <see cref="DatasyncServiceClient{TEntity}"/> with the normal information required for 
     /// communicating with a datasync service.
     /// </summary>
@@ -33,6 +59,7 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
     /// <exception cref="UriFormatException">Thrown if the endpoint is not valid.</exception>
     public DatasyncServiceClient(Uri endpoint, HttpClient client, JsonSerializerOptions serializerOptions)
     {
+        endpoint = MakeAbsoluteUri(client.BaseAddress, endpoint);
         ThrowIf.IsNotValidEndpoint(endpoint, nameof(endpoint));
         ArgumentNullException.ThrowIfNull(client, nameof(client));
         ArgumentNullException.ThrowIfNull(serializerOptions, nameof(serializerOptions));
@@ -492,5 +519,29 @@ internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> 
         ServiceResponse<Page<TEntity>> result = await ServiceResponse<Page<TEntity>>.CreateAsync(response, JsonSerializerOptions, cancellationToken).ConfigureAwait(false);
         result.ThrowIfNotSuccessful(requireContent: true);
         return result.Value!;
+    }
+
+    /// <summary>
+    /// Converts a base address + relative/absolute URI into the appropriate URI for the datasync service.
+    /// </summary>
+    /// <param name="baseAddress">The base address from the client.</param>
+    /// <param name="relativeOrAbsoluteUri">A relative or absolute URI</param>
+    /// <returns></returns>
+    internal static Uri MakeAbsoluteUri(Uri? baseAddress, Uri relativeOrAbsoluteUri)
+    {
+        if (relativeOrAbsoluteUri.IsAbsoluteUri)
+        {
+            return new Uri($"{relativeOrAbsoluteUri.ToString().TrimEnd('/')}/");
+        }
+
+        if (baseAddress != null)
+        {
+            if (baseAddress.IsAbsoluteUri)
+            {
+                return new Uri($"{new Uri(baseAddress, relativeOrAbsoluteUri).ToString().TrimEnd('/')}/");
+            }
+        }
+
+        throw new UriFormatException("Invalid combination of baseAddress and relativeUri");
     }
 }
