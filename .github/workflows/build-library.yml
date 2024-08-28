@@ -217,28 +217,28 @@ jobs:
           --source MainLatest 
           --skip-duplicate
 
-  # release:
-  #   needs: [ sign ]
-  #   if: ${{ startsWith(github.ref, 'refs/heads/rel/') }}
-  #   environment: nuget-release-gate
-  #   runs-on: ubuntu-latest
+  release:
+    if: ${{ startsWith(github.ref, 'refs/heads/rel/') }}
+    needs: [ sign ]
+    environment: nuget-release-gate
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Setup .NET
-  #       uses: actions/setup-dotnet@v4
-  #       with:
-  #         dotnet-version: ${{ env.DOTNET_VERSION }}
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
   
-  #     - name: Download unsigned NuGet packages
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: nuget-signed
-  #         path: ${{ github.workspace }}/packages
+      - name: Download unsigned NuGet packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-signed
+          path: ${{ github.workspace }}/packages
 
-  #     - name: Push signed packages to NuGet.org
-  #       run: >
-  #         dotnet nuget push
-  #         ${{ github.workspace }}/packages/**/*.nupkg
-  #         --source https://api.nuget.org/v3/index.json
-  #         --api-key ${{ secrets.NUGET_PACKAGE_PUSH_TOKEN }}
-  #         --skip-duplicate
+      - name: Push signed packages to NuGet.org
+        run: >
+          dotnet nuget push
+          ${{ github.workspace }}/packages/**/*.nupkg
+          --source https://api.nuget.org/v3/index.json
+          --api-key ${{ secrets.NUGET_PACKAGE_PUSH_TOKEN }}
+          --skip-duplicate
