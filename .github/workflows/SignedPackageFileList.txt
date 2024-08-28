@@ -1,4 +1,4 @@
-**/CommunityToolkit.Datasync.Common
+**/CommunityToolkit.Datasync.Client
 **/CommunityToolkit.Datasync.Server
 **/CommunityToolkit.Datasync.Server.Abstractions
 **/CommunityToolkit.Datasync.Server.Automapper
