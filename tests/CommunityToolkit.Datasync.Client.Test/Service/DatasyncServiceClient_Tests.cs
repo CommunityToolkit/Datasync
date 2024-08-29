@@ -9,7 +9,6 @@
 #pragma warning disable IDE0028 // Simplify collection initialization
 
 using CommunityToolkit.Datasync.Client.Http;
-using CommunityToolkit.Datasync.Client.Offline.Operations;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon;
