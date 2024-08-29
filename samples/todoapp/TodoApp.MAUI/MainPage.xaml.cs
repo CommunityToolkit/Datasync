@@ -16,8 +16,8 @@ public partial class MainPage : ContentPage, IMVVMHelper
     public MainPage()
     {
         InitializeComponent();
-        this._viewModel = ServicesContainer.GetRequiredService<MainViewModel>();
-        this._viewModel.MvvmHelper = this;
+        this._viewModel = App.GetRequiredService<MainViewModel>();
+        //this._viewModel.MvvmHelper = this;
         BindingContext = this._viewModel;
     }
 
@@ -41,11 +41,12 @@ public partial class MainPage : ContentPage, IMVVMHelper
         }
     }
 
+    #region IMVVMHelper
     public Task RunOnUiThreadAsync(Action func)
         => MainThread.InvokeOnMainThreadAsync(func);
 
     public Task DisplayErrorAlertAsync(string title, string message)
         => RunOnUiThreadAsync(async () => await DisplayAlert(title, message, "OK"));
-
+    #endregion
 }
 

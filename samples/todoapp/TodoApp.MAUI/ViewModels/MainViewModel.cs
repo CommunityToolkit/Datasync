@@ -7,15 +7,13 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 using System.Windows.Input;
 using TodoApp.MAUI.Models;
-using TodoApp.MAUI.Utils;
+using TodoApp.MAUI.Services;
 
 namespace TodoApp.MAUI.ViewModels;
 
-public class MainViewModel(AppDbContext context) : INotifyPropertyChanged
+public class MainViewModel(AppDbContext context, IAlertService alertService) : INotifyPropertyChanged
 {
     private bool _isRefreshing = false;
-
-    public IMVVMHelper? MvvmHelper { get; set; }
 
     public ICommand AddItemCommand
         => new Command<Entry>(async (Entry entry) => await AddItemAsync(entry.Text));
@@ -50,18 +48,15 @@ public class MainViewModel(AppDbContext context) : INotifyPropertyChanged
         {
             await context.SynchronizeAsync();
             List<TodoItem> items = await context.TodoItems.ToListAsync();
-            await MvvmHelper!.RunOnUiThreadAsync(() =>
-            {
-                Items.ReplaceAll(items);
-            });
+            Items.ReplaceAll(items);
         }
         catch (Exception ex)
         {
-            await MvvmHelper!.DisplayErrorAlertAsync("RefreshItems", ex.Message);
+            await alertService.ShowErrorAlertAsync("RefreshItems", ex.Message);
         }
         finally
         {
-            await SetRefreshing(false);
+            IsRefreshing = false;
         }
     }
 
@@ -80,7 +75,7 @@ public class MainViewModel(AppDbContext context) : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            await MvvmHelper!.DisplayErrorAlertAsync("UpdateItem", ex.Message);
+            await alertService.ShowErrorAlertAsync("UpdateItem", ex.Message);
         }
     }
 
@@ -95,12 +90,9 @@ public class MainViewModel(AppDbContext context) : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            await MvvmHelper!.DisplayErrorAlertAsync("AddItem", ex.Message);
+            await alertService.ShowErrorAlertAsync("AddItem", ex.Message);
         }
     }
-
-    private Task SetRefreshing(bool value)
-        => MvvmHelper!.RunOnUiThreadAsync(() => IsRefreshing = value);
 
     #region INotifyPropertyChanged
     /// <summary>
