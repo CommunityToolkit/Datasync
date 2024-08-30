@@ -58,6 +58,22 @@ public class Integration_Pull_Tests : ServiceTest, IClassFixture<ServiceApplicat
     }
 
     [Fact]
+    public async Task PullAsync_ViaDbSet_Works_ByteVersion()
+    {
+        await this.context.ByteMovies.PullAsync();
+        List<ByteVersionMovie> movies = await this.context.ByteMovies.ToListAsync();
+
+        movies.Count.Should().Be(248);
+        foreach (ByteVersionMovie movie in movies)
+        {
+            InMemoryMovie serviceMovie = GetServerEntityById<InMemoryMovie>(movie.Id);
+            serviceMovie.Should().NotBeNull()
+                .And.BeEquivalentTo<IMovie>(serviceMovie)
+                .And.HaveEquivalentMetadataTo(serviceMovie);
+        }
+    }
+
+    [Fact]
     public async Task PullAsync_ViaContext_Works()
     {
         await this.context.PullAsync();
