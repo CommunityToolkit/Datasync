@@ -20,6 +20,11 @@ namespace CommunityToolkit.Datasync.Client.Offline.OperationsQueue;
 internal class OperationsQueueManager : IOperationsQueueManager
 {
     /// <summary>
+    /// A lock object for locking against concurrent changes to the queue.
+    /// </summary>
+    private readonly object pushlock = new();
+
+    /// <summary>
     /// The map of valid entities that can be synchronized to the service.
     /// </summary>
     internal OfflineDbContext _context;
@@ -296,10 +301,14 @@ internal class OperationsQueueManager : IOperationsQueueManager
 
         if (!response.IsSuccessful)
         {
-            operation.LastAttempt = DateTimeOffset.UtcNow;
-            operation.HttpStatusCode = response.StatusCode;
-            operation.State = OperationState.Failed;
-            _ = this._context.Update(operation);
+            lock (this.pushlock)
+            {
+                operation.LastAttempt = DateTimeOffset.UtcNow;
+                operation.HttpStatusCode = response.StatusCode;
+                operation.State = OperationState.Failed;
+                _ = this._context.Update(operation);
+            }
+
             return response;
         }
 
@@ -311,7 +320,11 @@ internal class OperationsQueueManager : IOperationsQueueManager
             ReplaceDatabaseValue(oldValue, newValue);
         }
 
-        _ = this._context.DatasyncOperationsQueue.Remove(operation);
+        lock (this.pushlock)
+        {
+            _ = this._context.DatasyncOperationsQueue.Remove(operation);
+        }
+
         return null;
     }
 
@@ -327,8 +340,11 @@ internal class OperationsQueueManager : IOperationsQueueManager
             throw new DatasyncException("Internal Datasync Error: invalid values for replacement.");
         }
 
-        EntityEntry tracker = this._context.Entry(oldValue);
-        tracker.CurrentValues.SetValues(newValue);
+        lock (this.pushlock)
+        {
+            EntityEntry tracker = this._context.Entry(oldValue);
+            tracker.CurrentValues.SetValues(newValue);
+        }
     }
 
     /// <summary>

@@ -20,16 +20,18 @@ public abstract class ServiceTest(ServiceApplicationFactory factory)
 
     protected DateTimeOffset StartTime { get; } = DateTimeOffset.UtcNow;
 
-    internal IntegrationDbContext GetOfflineContext(bool useRealFile = false)
+    internal IntegrationDbContext GetOfflineContext(bool useRealFile = false, bool enableLogging = false)
     {
         string filename = null;
         string connectionString = "Data Source=:memory:";
         if (useRealFile)
         {
             filename = Path.GetTempFileName();
-            SqliteConnectionStringBuilder builder = new();
-            builder.DataSource = filename;
-            builder.Mode = SqliteOpenMode.ReadWriteCreate;
+            SqliteConnectionStringBuilder builder = new()
+            {
+                DataSource = filename,
+                Mode = SqliteOpenMode.ReadWriteCreate
+            };
             connectionString = builder.ConnectionString;
         }
 
@@ -38,9 +40,12 @@ public abstract class ServiceTest(ServiceApplicationFactory factory)
 
         DbContextOptionsBuilder<IntegrationDbContext> optionsBuilder = new();
         optionsBuilder.UseSqlite(connection);
-        optionsBuilder.LogTo(Console.WriteLine);
-        optionsBuilder.EnableSensitiveDataLogging();
-        optionsBuilder.EnableDetailedErrors();
+        if (enableLogging)
+        {
+            optionsBuilder.LogTo(Console.WriteLine);
+            optionsBuilder.EnableSensitiveDataLogging();
+            optionsBuilder.EnableDetailedErrors();
+        }
 
         IntegrationDbContext context = new(optionsBuilder.Options) 
         {
@@ -70,6 +75,9 @@ public abstract class ServiceTest(ServiceApplicationFactory factory)
 
     internal TEntity GetServerEntityById<TEntity>(string id) where TEntity : InMemoryTableData
         => factory.GetServerEntityById<TEntity>(id);
+
+    internal void ResetInMemoryMovies()
+        => factory.ResetInMemoryMovies();
 
     protected void SeedKitchenSinkWithCountryData()
     {

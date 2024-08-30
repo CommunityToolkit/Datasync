@@ -70,6 +70,15 @@ public class ServiceApplicationFactory : WebApplicationFactory<Program>
             && movie.Duration >= 60 && movie.Duration <= 360;
     }
 
+    internal void ResetInMemoryMovies()
+    {
+        using IServiceScope scope = Services.CreateScope();
+        InMemoryRepository<InMemoryMovie> repository = scope.ServiceProvider.GetRequiredService<IRepository<InMemoryMovie>>() as InMemoryRepository<InMemoryMovie>;
+        List<InMemoryMovie> sourceData = TestCommon.TestData.Movies.OfType<InMemoryMovie>();
+        repository.Clear();
+        sourceData.ForEach(movie => repository.StoreEntity(movie));
+    }
+
     internal void RunWithRepository<TEntity>(Action<InMemoryRepository<TEntity>> action) where TEntity : InMemoryTableData
     {
         using IServiceScope scope = Services.CreateScope();
