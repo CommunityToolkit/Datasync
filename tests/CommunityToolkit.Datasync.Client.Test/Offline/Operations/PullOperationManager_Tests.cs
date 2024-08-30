@@ -183,12 +183,14 @@ public class PullOperationManager_Tests : BaseTest
     {
         DatasyncPullQuery<ClientMovie> query = new();
         QueryDescription qd = new QueryTranslator<ClientMovie>(query).Translate();
+        string expected = qd.ToODataQueryString();
 
         DateTimeOffset lastSynchronization = DateTimeOffset.FromUnixTimeSeconds(0L);
+        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization);
 
-        PullOperationManager.PrepareQueryDescription(qd, lastSynchronization);
-        string actual = Uri.UnescapeDataString(qd.ToODataQueryString());
+        string actual = Uri.UnescapeDataString(actualQD.ToODataQueryString());
         actual.Should().Be("$orderby=updatedAt&$count=true&__includedeleted=true");
+        qd.ToODataQueryString().Should().Be(expected);
     }
 
     [Fact]
@@ -197,12 +199,14 @@ public class PullOperationManager_Tests : BaseTest
         DatasyncPullQuery<ClientMovie> query = new();
         query.Where(x => x.Rating == TestCommon.Models.MovieRating.G);
         QueryDescription qd = new QueryTranslator<ClientMovie>(query).Translate();
+        string expected = qd.ToODataQueryString();
 
         DateTimeOffset lastSynchronization = DateTimeOffset.FromUnixTimeSeconds(0L);
+        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization);
 
-        PullOperationManager.PrepareQueryDescription(qd, lastSynchronization);
-        string actual = Uri.UnescapeDataString(qd.ToODataQueryString());
+        string actual = Uri.UnescapeDataString(actualQD.ToODataQueryString());
         actual.Should().Be("$filter=(rating eq 'G')&$orderby=updatedAt&$count=true&__includedeleted=true");
+        qd.ToODataQueryString().Should().Be(expected);
     }
 
     [Fact]
@@ -210,12 +214,14 @@ public class PullOperationManager_Tests : BaseTest
     {
         DatasyncPullQuery<ClientMovie> query = new();
         QueryDescription qd = new QueryTranslator<ClientMovie>(query).Translate();
+        string expected = qd.ToODataQueryString();
 
         DateTimeOffset lastSynchronization = DateTimeOffset.FromUnixTimeMilliseconds(1724444574291L);
+        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization);
 
-        PullOperationManager.PrepareQueryDescription(qd, lastSynchronization);
-        string actual = Uri.UnescapeDataString(qd.ToODataQueryString());
+        string actual = Uri.UnescapeDataString(actualQD.ToODataQueryString());
         actual.Should().Be("$filter=(updatedAt gt cast(2024-08-23T20:22:54.291Z,Edm.DateTimeOffset))&$orderby=updatedAt&$count=true&__includedeleted=true");
+        qd.ToODataQueryString().Should().Be(expected);
     }
 
     [Fact]
@@ -224,12 +230,14 @@ public class PullOperationManager_Tests : BaseTest
         DatasyncPullQuery<ClientMovie> query = new();
         query.Where(x => x.Rating == TestCommon.Models.MovieRating.G);
         QueryDescription qd = new QueryTranslator<ClientMovie>(query).Translate();
+        string expected = qd.ToODataQueryString();
 
         DateTimeOffset lastSynchronization = DateTimeOffset.FromUnixTimeMilliseconds(1724444574291L);
+        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization);
 
-        PullOperationManager.PrepareQueryDescription(qd, lastSynchronization);
-        string actual = Uri.UnescapeDataString(qd.ToODataQueryString());
+        string actual = Uri.UnescapeDataString(actualQD.ToODataQueryString());
         actual.Should().Be("$filter=((rating eq 'G') and (updatedAt gt cast(2024-08-23T20:22:54.291Z,Edm.DateTimeOffset)))&$orderby=updatedAt&$count=true&__includedeleted=true");
+        qd.ToODataQueryString().Should().Be(expected);
     }
     #endregion
 }
