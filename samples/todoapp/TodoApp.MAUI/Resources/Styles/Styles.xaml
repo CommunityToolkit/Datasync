@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Style x:Key="addItemEntry" TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="White" />
+        <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+        <Setter Property="IsSpellCheckEnabled" Value="True" />
+        <Setter Property="IsTextPredictionEnabled" Value="True" />
+        <Setter Property="Keyboard" Value="Text" />
+        <Setter Property="Margin" Value="0,0,12,0" />
+        <Setter Property="PlaceholderColor" Value="#C0C0C0" />
+        <Setter Property="TextColor" Value="Blue" />
+    </Style>
+
+    <Style x:Key="addItemIcon" TargetType="Image">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="HeightRequest" Value="20" />
+        <Setter Property="Margin" Value="5,2,0,2" />
+        <Setter Property="Source" Value="additem.png" />
+        <Setter Property="WidthRequest" Value="20" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style x:Key="listItemContainer" TargetType="Grid">
+        <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+        <Setter Property="VerticalOptions" Value="CenterAndExpand" />
+        <Setter Property="Padding" Value="20,0,20,0" />
+    </Style>
+
+    <Style x:Key="listItemIcon" TargetType="Image">
+        <Setter Property="HorizontalOptions" Value="End" />
+        <Setter Property="HeightRequest" Value="24" />
+        <Setter Property="Source" Value="completed.png" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="WidthRequest" Value="24" />
+    </Style>
+
+    <Style x:Key="listItemTitle" TargetType="Label">
+        <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+        <Setter Property="VerticalOptions" Value="CenterAndExpand" />
+        <Setter Property="TextColor" Value="Black" />
+    </Style>
+
+    <Style x:Key="roundedCornerFrame" TargetType="Frame">
+        <Setter Property="BackgroundColor" Value="White" />
+        <Setter Property="BorderColor" Value="#808080" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="HasShadow" Value="False" />
+        <Setter Property="Margin" Value="10" />
+        <Setter Property="Padding" Value="2" />
+    </Style>
+
+    <Style x:Key="titleViewContainer" TargetType="StackLayout">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+        <Setter Property="VerticalOptions" Value="FillAndExpand" />
+    </Style>
+
+    <Style x:Key="titleViewLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="HorizontalOptions" Value="StartAndExpand" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style x:Key="titleViewIcon" TargetType="ImageButton">
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="HorizontalOptions" Value="End" />
+    </Style>
+
+    <Style x:Key="titleViewRefreshIcon" TargetType="ImageButton" BasedOn="{StaticResource titleViewIcon}">
+        <Setter Property="Source" Value="refresh.png" />
+    </Style>
+
+    <Style TargetType="NavigationPage">
+        <Setter Property="BarBackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Gray950}}" />
+        <Setter Property="BarTextColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource White}}" />
+        <Setter Property="IconColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource White}}" />
+    </Style>
+</ResourceDictionary>

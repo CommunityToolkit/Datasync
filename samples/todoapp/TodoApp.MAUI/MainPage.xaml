@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:TodoApp.MAUI.Models"
+             xmlns:viewmodels="clr-namespace:TodoApp.MAUI.ViewModels"
+             x:DataType="viewmodels:MainViewModel"
+             x:Class="TodoApp.MAUI.MainPage"
+             Title="TodoApp">
+    <NavigationPage.TitleView>
+        <StackLayout Style="{StaticResource titleViewContainer}">
+            <Label Style="{StaticResource titleViewLabel}">TodoApp</Label>
+            <ImageButton Style="{StaticResource titleViewRefreshIcon}" Command="{Binding RefreshItemsCommand}" />
+        </StackLayout>
+    </NavigationPage.TitleView>
+
+    <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BackgroundColor="Azure">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- List of items -->
+        <ListView ItemsSource="{Binding Items}" ItemTapped="OnListItemTapped">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="models:TodoItem">
+                    <ViewCell>
+                        <Grid Style="{StaticResource listItemContainer}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <Label Style="{StaticResource listItemTitle}" Text="{Binding Title}" />
+                            <Image Grid.Column="1" IsVisible="{Binding IsComplete}" Style="{StaticResource listItemIcon}" />
+                        </Grid>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!-- Entry box -->
+        <Frame Grid.Row="1" Style="{StaticResource roundedCornerFrame}">
+            <HorizontalStackLayout>
+                <Image Style="{StaticResource addItemIcon}" />
+                <Entry 
+                    x:Name="addItemEntry" 
+                    Style="{StaticResource addItemEntry}"
+                    Placeholder="Enter Todo Item Text"
+                    ReturnCommand="{Binding AddItemCommand}"
+                    ReturnCommandParameter="{Binding Source={x:Reference addItemEntry}}" />
+            </HorizontalStackLayout>
+        </Frame>
+    </Grid>
+</ContentPage>

@@ -46,6 +46,9 @@
     <loc>http://localhost:1313/Datasync/in-depth/server/databases/litedb/index.html</loc>
   </url>
   <url>
+    <loc>http://localhost:1313/Datasync/samples/todoapp/maui/index.html</loc>
+  </url>
+  <url>
     <loc>http://localhost:1313/Datasync/in-depth/server/databases/postgresql/index.html</loc>
   </url>
   <url>

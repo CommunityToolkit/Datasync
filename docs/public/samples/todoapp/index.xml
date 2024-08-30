@@ -8,18 +8,25 @@
     <language>en-us</language>
     <atom:link href="http://localhost:1313/Datasync/samples/todoapp/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>MAUI</title>
+      <link>http://localhost:1313/Datasync/samples/todoapp/maui/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Datasync/samples/todoapp/maui/index.html</guid>
+      <description>Run the application first The MAUI sample uses an in-memory Sqlite store for storing its data. To run the application locally:&#xA;Configure Visual Studio for MAUI development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, right-click the TodoApp.MAUI project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. The application runs on Android, iOS, and Windows. Each platform needs slightly different setup.</description>
+    </item>
+    <item>
       <title>WinUI3</title>
       <link>http://localhost:1313/Datasync/samples/todoapp/winui3/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/samples/todoapp/winui3/index.html</guid>
-      <description>You can find our sample TodoApp for WinUI3 on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:&#xA;​ AppDbContext.cs 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.</description>
+      <description>Run the application first The WinUI3 sample uses an in-memory Sqlite store for storing its data. To run the application locally:&#xA;Configure Visual Studio for WinUI3 development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, right-click the TodoApp.WinUI3 project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. If you bump into issues at this point, ensure you can properly develop and run WinUI3 applications outside of the datasync service.</description>
     </item>
     <item>
       <title>WPF</title>
       <link>http://localhost:1313/Datasync/samples/todoapp/wpf/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/samples/todoapp/wpf/index.html</guid>
-      <description>You can find our sample TodoApp for WPF on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:&#xA;​ AppDbContext.cs 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.</description>
+      <description>You can find our sample TodoApp for WPF on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:&#xA;​&#xD;AppDbContext.cs&#xD;1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.</description>
     </item>
   </channel>
 </rss>
