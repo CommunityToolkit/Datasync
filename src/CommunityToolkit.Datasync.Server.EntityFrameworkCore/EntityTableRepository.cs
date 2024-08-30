@@ -2,9 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
 
 namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore;
 
@@ -109,7 +109,7 @@ public class EntityTableRepository<TEntity> : IRepository<TEntity> where TEntity
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            throw new HttpException(StatusCodes.Status409Conflict, ex.Message, ex) { Payload = await GetEntityAsync(id, cancellationToken).ConfigureAwait(false) };
+            throw new HttpException((int)HttpStatusCode.Conflict, ex.Message, ex) { Payload = await GetEntityAsync(id, cancellationToken).ConfigureAwait(false) };
         }
         catch (DbUpdateException ex)
         {
@@ -136,7 +136,7 @@ public class EntityTableRepository<TEntity> : IRepository<TEntity> where TEntity
             // We do not use Any() here because it is not supported by all providers (e.g. Cosmos)
             if (DataSet.Count(x => x.Id == entity.Id) > 0)
             {
-                throw new HttpException(StatusCodes.Status409Conflict) { Payload = await GetEntityAsync(entity.Id, cancellationToken).ConfigureAwait(false) };
+                throw new HttpException((int)HttpStatusCode.Conflict) { Payload = await GetEntityAsync(entity.Id, cancellationToken).ConfigureAwait(false) };
             }
 
             UpdateManagedProperties(entity);
@@ -150,17 +150,17 @@ public class EntityTableRepository<TEntity> : IRepository<TEntity> where TEntity
     {
         if (string.IsNullOrEmpty(id))
         {
-            throw new HttpException(StatusCodes.Status400BadRequest, "ID is required");
+            throw new HttpException((int)HttpStatusCode.BadRequest, "ID is required");
         }
 
         await WrapExceptionAsync(id, async () =>
         {
-            TEntity storedEntity = await DataSet.FindAsync(new object[] { id }, cancellationToken).ConfigureAwait(false)
-                ?? throw new HttpException(StatusCodes.Status404NotFound);
+            TEntity storedEntity = await DataSet.FindAsync([id], cancellationToken).ConfigureAwait(false)
+                ?? throw new HttpException((int)HttpStatusCode.NotFound);
 
             if (version?.Length > 0 && !storedEntity.Version.SequenceEqual(version))
             {
-                throw new HttpException(StatusCodes.Status412PreconditionFailed) { Payload = await GetEntityAsync(id, cancellationToken).ConfigureAwait(false) };
+                throw new HttpException((int)HttpStatusCode.PreconditionFailed) { Payload = await GetEntityAsync(id, cancellationToken).ConfigureAwait(false) };
             }
 
             _ = DataSet.Remove(storedEntity);
@@ -173,11 +173,11 @@ public class EntityTableRepository<TEntity> : IRepository<TEntity> where TEntity
     {
         if (string.IsNullOrEmpty(id))
         {
-            throw new HttpException(StatusCodes.Status400BadRequest, "ID is required");
+            throw new HttpException((int)HttpStatusCode.BadRequest, "ID is required");
         }
 
         TEntity entity = await DataSet.AsNoTracking().SingleOrDefaultAsync(x => x.Id == id, cancellationToken).ConfigureAwait(false)
-            ?? throw new HttpException(StatusCodes.Status404NotFound);
+            ?? throw new HttpException((int)HttpStatusCode.NotFound);
 
         return entity;
     }
@@ -187,17 +187,17 @@ public class EntityTableRepository<TEntity> : IRepository<TEntity> where TEntity
     {
         if (string.IsNullOrEmpty(entity.Id))
         {
-            throw new HttpException(StatusCodes.Status400BadRequest, "ID is required");
+            throw new HttpException((int)HttpStatusCode.BadRequest, "ID is required");
         }
 
         await WrapExceptionAsync(entity.Id, async () =>
         {
             TEntity storedEntity = await DataSet.FindAsync(new object[] { entity.Id }, cancellationToken).ConfigureAwait(false)
-                ?? throw new HttpException(StatusCodes.Status404NotFound);
+                ?? throw new HttpException((int)HttpStatusCode.NotFound);
 
             if (version?.Length > 0 && !storedEntity.Version.SequenceEqual(version))
             {
-                throw new HttpException(StatusCodes.Status412PreconditionFailed) { Payload = await GetEntityAsync(entity.Id, cancellationToken).ConfigureAwait(false) };
+                throw new HttpException((int)HttpStatusCode.PreconditionFailed) { Payload = await GetEntityAsync(entity.Id, cancellationToken).ConfigureAwait(false) };
             }
 
             UpdateManagedProperties(entity);
