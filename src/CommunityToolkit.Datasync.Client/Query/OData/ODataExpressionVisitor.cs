@@ -187,7 +187,7 @@ internal class ODataExpressionVisitor : QueryNodeVisitor<QueryNode>
     /// <param name="node">The node to visit</param>
     protected void Accept(QueryNode parent, QueryNode node)
     {
-        ArgumentNullException.ThrowIfNull(node, nameof(node));
+        ArgumentNullException.ThrowIfNull(node);
         node.Accept(this);
     }
 }

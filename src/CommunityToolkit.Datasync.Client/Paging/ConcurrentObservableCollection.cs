@@ -40,7 +40,7 @@ public class ConcurrentObservableCollection<T> : ObservableCollection<T>
     /// <param name="collection">The new collection.</param>
     public void ReplaceAll(IEnumerable<T> collection)
     {
-        ArgumentNullException.ThrowIfNull(collection, nameof(collection));
+        ArgumentNullException.ThrowIfNull(collection);
         try
         {
             this.suppressNotification = true;
@@ -65,7 +65,7 @@ public class ConcurrentObservableCollection<T> : ObservableCollection<T>
     /// <returns><c>true</c> if any records were added; <c>false</c> otherwise.</returns>
     public bool AddRange(IEnumerable<T> collection)
     {
-        ArgumentNullException.ThrowIfNull(collection, nameof(collection));
+        ArgumentNullException.ThrowIfNull(collection);
         bool changed = false;
         try
         {
@@ -97,8 +97,8 @@ public class ConcurrentObservableCollection<T> : ObservableCollection<T>
     /// <returns><c>true</c> if the item was added, <c>false</c> otherwise.</returns>
     public bool AddIfMissing(Func<T, bool> match, T item)
     {
-        ArgumentNullException.ThrowIfNull(match, nameof(match));
-        ArgumentNullException.ThrowIfNull(item, nameof(item));
+        ArgumentNullException.ThrowIfNull(match);
+        ArgumentNullException.ThrowIfNull(item);
         if (!this.Any(match))
         {
             Add(item);
@@ -115,7 +115,7 @@ public class ConcurrentObservableCollection<T> : ObservableCollection<T>
     /// <returns><c>true</c> if an item was removed, <c>false</c> otherwise.</returns>
     public bool RemoveIf(Func<T, bool> match)
     {
-        ArgumentNullException.ThrowIfNull(match, nameof(match));
+        ArgumentNullException.ThrowIfNull(match);
         T[] itemsToRemove = this.Where(match).ToArray();
         foreach (T? item in itemsToRemove)
         {
@@ -134,8 +134,8 @@ public class ConcurrentObservableCollection<T> : ObservableCollection<T>
     /// <returns><c>true</c> if an item was replaced, <c>false</c> otherwise.</returns>
     public bool ReplaceIf(Func<T, bool> match, T replacement)
     {
-        ArgumentNullException.ThrowIfNull(match, nameof(match));
-        ArgumentNullException.ThrowIfNull(replacement, nameof(replacement));
+        ArgumentNullException.ThrowIfNull(match);
+        ArgumentNullException.ThrowIfNull(replacement);
         T[] itemsToReplace = this.Where(match).ToArray();
         foreach (T? item in itemsToReplace)
         {

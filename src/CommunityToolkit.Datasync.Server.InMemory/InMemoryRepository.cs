@@ -4,7 +4,6 @@
 
 using CommunityToolkit.Datasync.Server.Abstractions.Http;
 using System.Collections.Concurrent;
-using System.Text.Json;
 
 namespace CommunityToolkit.Datasync.Server.InMemory;
 

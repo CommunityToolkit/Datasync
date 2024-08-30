@@ -55,8 +55,8 @@ internal sealed class VisitorHelper : ExpressionVisitor
     /// </returns>
     public static Expression VisitAll(Expression expression, Func<Expression, Func<Expression, Expression>, Expression> visitor)
     {
-        ArgumentNullException.ThrowIfNull(expression, nameof(expression));
-        ArgumentNullException.ThrowIfNull(visitor, nameof(visitor));
+        ArgumentNullException.ThrowIfNull(expression);
+        ArgumentNullException.ThrowIfNull(visitor);
         return new VisitorHelper() { visitor = visitor }.Visit(expression);
     }
 
@@ -73,8 +73,8 @@ internal sealed class VisitorHelper : ExpressionVisitor
     /// </returns>
     public static Expression VisitMembers(Expression expression, Func<MemberExpression, Func<MemberExpression, Expression>, Expression> visitor)
     {
-        ArgumentNullException.ThrowIfNull(expression, nameof(expression));
-        ArgumentNullException.ThrowIfNull(visitor, nameof(visitor));
+        ArgumentNullException.ThrowIfNull(expression);
+        ArgumentNullException.ThrowIfNull(visitor);
         return new VisitorHelper() { memberVisitor = visitor }.Visit(expression);
     }
 

@@ -21,9 +21,9 @@ internal class QueueHandler<T> where T : class
     /// <param name="jobRunner">The job runner.</param>
     public QueueHandler(int maxThreads, Func<T, Task> jobRunner)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(maxThreads, 1, nameof(maxThreads));
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(maxThreads, 8, nameof(maxThreads));
-        ArgumentNullException.ThrowIfNull(jobRunner, nameof(jobRunner));
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxThreads, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(maxThreads, 8);
+        ArgumentNullException.ThrowIfNull(jobRunner);
         ExecutionDataflowBlockOptions options = new() { MaxDegreeOfParallelism = maxThreads };
         this.jobs = new(jobRunner, options);
     }

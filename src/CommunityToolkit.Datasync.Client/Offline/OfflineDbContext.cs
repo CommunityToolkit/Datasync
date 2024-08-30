@@ -240,7 +240,7 @@ public abstract partial class OfflineDbContext : DbContext
     /// <returns>The results of the pull operation.</returns>
     public Task<PullResult> PullAsync(IEnumerable<Type> entityTypes, PullOptions pullOptions, CancellationToken cancellationToken  = default)
     {
-        ArgumentNullException.ThrowIfNull(entityTypes, nameof(entityTypes));
+        ArgumentNullException.ThrowIfNull(entityTypes);
         ArgumentValidationException.ThrowIfNotValid(pullOptions, nameof(pullOptions));
 
         OfflineOptions offlineOptions = BuildDatasyncOfflineOptions();
@@ -281,7 +281,7 @@ public abstract partial class OfflineDbContext : DbContext
     /// <returns>The results of the pull operation.</returns>
     internal async Task<PullResult> PullAsync(IEnumerable<PullRequest> pullRequests, PullOptions pullOptions, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(pullRequests, nameof(pullRequests));
+        ArgumentNullException.ThrowIfNull(pullRequests);
         ArgumentValidationException.ThrowIfNotValid(pullOptions, nameof(pullOptions));
         
         if (!pullRequests.Any())
