@@ -81,7 +81,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
     /// </remarks>
     internal Dictionary<string, Type> GetEntityMap(OfflineDbContext context)
     {
-        ArgumentNullException.ThrowIfNull(context, nameof(context));
+        ArgumentNullException.ThrowIfNull(context);
 
         Type[] modelEntities = context.Model.GetEntityTypes().Select(m => m.ClrType).ToArray();
         Type[] synchronizableEntities = context.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
@@ -239,7 +239,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
     /// <returns>The results of the push operation (asynchronously)</returns>
     internal async Task<PushResult> PushAsync(IEnumerable<Type> entityTypes, PushOptions pushOptions, CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(entityTypes, nameof(entityTypes));
+        ArgumentNullException.ThrowIfNull(entityTypes);
         ArgumentValidationException.ThrowIfNotValid(pushOptions, nameof(pushOptions));
         PushResult pushResult = new();
 

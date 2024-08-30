@@ -29,7 +29,7 @@ internal class QueryTranslator<T> where T : class
     /// <param name="query">The <see cref="IDatasyncQueryable{TEntity}"/> to translate.</param>
     internal QueryTranslator(IDatasyncQueryable<T> query)
     {
-        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        ArgumentNullException.ThrowIfNull(query);
         Query = query.Queryable;
         QueryDescription = new() { QueryParameters = query.QueryParameters, RequestTotalCount = query.RequestTotalCount };
         NamingPolicy = ((DatasyncServiceClient<T>)query.ServiceClient).JsonSerializerOptions.PropertyNamingPolicy;
@@ -41,7 +41,7 @@ internal class QueryTranslator<T> where T : class
     /// <param name="query">The <see cref="IDatasyncPullQuery{TEntity}"/> to translate.</param>
     internal QueryTranslator(IDatasyncPullQuery<T> query)
     {
-        ArgumentNullException.ThrowIfNull(query, nameof(query));
+        ArgumentNullException.ThrowIfNull(query);
         Query = query.Queryable;
         QueryDescription = new() { QueryParameters = query.QueryParameters, RequestTotalCount = false };
         NamingPolicy = DatasyncSerializer.JsonSerializerOptions.PropertyNamingPolicy;

@@ -33,7 +33,7 @@ public class DatasyncOfflineOptionsBuilder
     /// <returns>The current builder for chaining.</returns>
     public DatasyncOfflineOptionsBuilder UseHttpClientFactory(IHttpClientFactory httpClientFactory)
     {
-        ArgumentNullException.ThrowIfNull(httpClientFactory, nameof(httpClientFactory));
+        ArgumentNullException.ThrowIfNull(httpClientFactory);
         this._httpClientFactory = httpClientFactory;
         return this;
     }
@@ -46,7 +46,7 @@ public class DatasyncOfflineOptionsBuilder
     /// <returns>The current builder for chaining.</returns>
     public DatasyncOfflineOptionsBuilder UseHttpClient(HttpClient httpClient)
     {
-        ArgumentNullException.ThrowIfNull(httpClient, nameof(httpClient));
+        ArgumentNullException.ThrowIfNull(httpClient);
         this._httpClientFactory = new BasicHttpClientFactory(httpClient);
         return this;
     }
@@ -59,7 +59,7 @@ public class DatasyncOfflineOptionsBuilder
     /// <returns>The current builder for chaining.</returns>
     public DatasyncOfflineOptionsBuilder UseEndpoint(Uri endpoint)
     {
-        ArgumentNullException.ThrowIfNull(endpoint, nameof(endpoint));
+        ArgumentNullException.ThrowIfNull(endpoint);
         ThrowIf.IsNotValidEndpoint(endpoint, nameof(endpoint));
         this._httpClientFactory = new HttpClientFactory(new HttpClientOptions { Endpoint = endpoint });
         return this;
@@ -73,7 +73,7 @@ public class DatasyncOfflineOptionsBuilder
     /// <returns>The current builder for chaining.</returns>
     public DatasyncOfflineOptionsBuilder UseHttpClientOptions(HttpClientOptions clientOptions)
     {
-        ArgumentNullException.ThrowIfNull(clientOptions, nameof(clientOptions));
+        ArgumentNullException.ThrowIfNull(clientOptions);
         this._httpClientFactory = new HttpClientFactory(clientOptions);
         return this;
     }
@@ -86,7 +86,7 @@ public class DatasyncOfflineOptionsBuilder
     /// <returns>The current builder for chaining.</returns>
     public DatasyncOfflineOptionsBuilder Entity<TEntity>(Action<EntityOfflineOptions<TEntity>> configure) where TEntity : class
     {
-        ArgumentNullException.ThrowIfNull(configure, nameof(configure));
+        ArgumentNullException.ThrowIfNull(configure);
         if (!this._entities.TryGetValue(typeof(TEntity).FullName!, out EntityOfflineOptions? options))
         {
             throw new DatasyncException($"Entity is not synchronizable.");
@@ -108,8 +108,8 @@ public class DatasyncOfflineOptionsBuilder
     /// <returns>The current builder for chaining.</returns>
     public DatasyncOfflineOptionsBuilder Entity(Type entityType, Action<EntityOfflineOptions> configure)
     {
-        ArgumentNullException.ThrowIfNull(entityType, nameof(entityType));
-        ArgumentNullException.ThrowIfNull(configure, nameof(configure));
+        ArgumentNullException.ThrowIfNull(entityType);
+        ArgumentNullException.ThrowIfNull(configure);
         if (!this._entities.TryGetValue(entityType.FullName!, out EntityOfflineOptions? options))
         {
             throw new DatasyncException($"Entity is not synchronizable.");

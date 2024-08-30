@@ -108,7 +108,7 @@ internal sealed class FilterBuildingExpressionVisitor
     /// <returns>the table member name</returns>
     internal static string GetTableMemberName(Expression expression, JsonNamingPolicy namingPolicy)
     {
-        ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+        ArgumentNullException.ThrowIfNull(expression);
         if (expression is MemberExpression member)
         {
             if (member.Expression.NodeType == ExpressionType.Parameter)
