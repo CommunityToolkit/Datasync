@@ -16,7 +16,7 @@ public class HttpException : DatasyncToolkitException
     /// <summary>
     /// Initializes a new instance of the <see cref="HttpException"/> class.
     /// </summary>
-    /// <param name="statusCode">The HTTP status code to use when responding to the cleint.</param>
+    /// <param name="statusCode">The HTTP status code to use when responding to the client.</param>
     public HttpException(int statusCode) : base()
     {
         StatusCode = statusCode;

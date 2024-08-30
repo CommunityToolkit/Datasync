@@ -22,7 +22,7 @@ public class LiteDbRepository<TEntity> : IRepository<TEntity> where TEntity : Li
     private readonly static SemaphoreSlim semaphore = new(1, 1);
 
     /// <summary>
-    /// Creates a new <see cref="LiteDbRepository{TEntity}"/> usign the provided database connection.
+    /// Creates a new <see cref="LiteDbRepository{TEntity}"/> using the provided database connection.
     /// </summary>
     /// <remarks>
     /// The collection name is based on the entity type.

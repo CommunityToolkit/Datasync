@@ -24,7 +24,7 @@ public interface IDatasyncQueryMethods<TEntity> where TEntity : class
     /// Ensure the query will get the total count for all the records that would have been returned
     /// ignoring any take paging/limit clause specified by client or server.
     /// </summary>
-    /// <param name="enabled">If <c>true</c>, enables this requst.</param>
+    /// <param name="enabled">If <c>true</c>, enables this request.</param>
     /// <returns>The composed query object.</returns>
     IDatasyncQueryable<TEntity> IncludeTotalCount(bool enabled = true);
 

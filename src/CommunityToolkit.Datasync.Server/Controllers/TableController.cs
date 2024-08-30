@@ -171,7 +171,7 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
     /// <param name="operation">The operation being performed.</param>
     /// <param name="entity">The entity that was updated (except for a hard-delete, which is the entity before deletion)</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>A taks the completes when the post-commit hook has been called.</returns>
+    /// <returns>A task the completes when the post-commit hook has been called.</returns>
     [NonAction]
     protected virtual ValueTask PostCommitHookAsync(TableOperation operation, TEntity entity, CancellationToken cancellationToken = default)
     {

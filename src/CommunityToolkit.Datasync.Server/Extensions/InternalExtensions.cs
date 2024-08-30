@@ -161,7 +161,7 @@ internal static class InternalExtensions
     /// be "in view".
     /// </summary>
     /// <param name="request">The <see cref="HttpRequest"/> being processed.</param>
-    /// <returns><c>true</c> if deleted items shoudl be considered "in view"; <c>false</c> otherwise.</returns>
+    /// <returns><c>true</c> if deleted items should be considered "in view"; <c>false</c> otherwise.</returns>
     internal static bool ShouldIncludeDeletedEntities(this HttpRequest request)
     {
         if (request.Query.TryGetValue(IncludeDeletedParameterName, out StringValues deletedQueryParameter))
@@ -173,7 +173,7 @@ internal static class InternalExtensions
     }
 
     /// <summary>
-    /// Convertes the provided ETag into a byte array.
+    /// Converts the provided ETag into a byte array.
     /// </summary>
     /// <param name="etag">The ETag to convert.</param>
     /// <returns>The ETag converted to a byte array.</returns>

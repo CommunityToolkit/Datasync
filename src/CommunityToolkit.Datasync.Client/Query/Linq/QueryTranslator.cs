@@ -63,7 +63,7 @@ internal class QueryTranslator<T> where T : class
     internal JsonNamingPolicy NamingPolicy { get; }
 
     /// <summary>
-    /// Replacable function for GetTableMemberName.
+    /// Replaceable function for GetTableMemberName.
     /// </summary>
     internal Func<MemberExpression, JsonNamingPolicy, string> GetTableMemberName { get; set; } = DefaultGetTableMemberName;
 
@@ -146,7 +146,7 @@ internal class QueryTranslator<T> where T : class
                 break;
 
             default:
-                throw new NotSupportedException($"'{methodName}' caluse in query expression is not supported.");
+                throw new NotSupportedException($"'{methodName}' clause in query expression is not supported.");
         }
     }
 

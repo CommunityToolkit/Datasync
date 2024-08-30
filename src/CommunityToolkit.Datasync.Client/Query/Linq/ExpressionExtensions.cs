@@ -27,7 +27,7 @@ internal static class ExpressionExtensions
     {
         List<Expression> subtrees = [];
 
-        // The dependenty and isMemberInit flags are used to communicate between different layers
+        // The dependent and isMemberInit flags are used to communicate between different layers
         // of the recursive visitor.
         bool dependent = false;
         bool isMemberInit = false;
@@ -50,7 +50,7 @@ internal static class ExpressionExtensions
                 // If nothing in my subtree is dependent
                 if (!dependent)
                 {
-                    // A NewExpression itself will appear to be indepentt, but if the parent is a MemberInitExpression,
+                    // A NewExpression itself will appear to be independent, but if the parent is a MemberInitExpression,
                     // then the NewExpression can't be evaluated by itself.  The MemberInitExpression will determine
                     // if the full expression is dependent or not, so don't check it here.
                     if (expr is NewExpression newExpression && parentIsMemberInit)

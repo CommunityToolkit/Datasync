@@ -31,7 +31,7 @@ internal sealed class VisitorHelper : ExpressionVisitor
     /// <summary>
     /// A visitor callback for the VisitMember method that takes the
     /// MemberExpression along with a function that will recurse and
-    /// returns the visisted expression or a modified value.
+    /// returns the visited expression or a modified value.
     /// </summary>
     private Func<MemberExpression, Func<MemberExpression, Expression>, Expression> memberVisitor;
 
@@ -82,7 +82,7 @@ internal sealed class VisitorHelper : ExpressionVisitor
     /// Visit every node.
     /// </summary>
     /// <param name="expression">The expression to visit.</param>
-    /// <returns>The visisted expression.</returns>
+    /// <returns>The visited expression.</returns>
     [ExcludeFromCodeCoverage]
     public override Expression Visit(Expression expression)
         => this.visitor != null ? this.visitor(expression, e => base.Visit(e)) : base.Visit(expression);

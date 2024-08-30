@@ -22,7 +22,7 @@ public class Page<TEntity>
     public long? Count { get; set; }
 
     /// <summary>
-    /// The Uri to the nexty page in the result set.
+    /// The Uri to the next page in the result set.
     /// </summary>
     public string? NextLink { get; set; }
 }
