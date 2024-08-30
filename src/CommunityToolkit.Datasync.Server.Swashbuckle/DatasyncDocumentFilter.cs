@@ -12,7 +12,7 @@ using System.Reflection;
 namespace CommunityToolkit.Datasync.Server.Swashbuckle;
 
 /// <summary>
-/// An <see cref="IDocumentFilter"/> that adds the relevant schema and paramter definitions
+/// An <see cref="IDocumentFilter"/> that adds the relevant schema and parameter definitions
 /// to generate an OpenAPI v3.0.3 definition for Datasync <see cref="TableController{TEntity}"/>
 /// controllers.
 /// </summary>

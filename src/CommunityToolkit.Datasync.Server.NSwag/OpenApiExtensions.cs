@@ -44,7 +44,7 @@ public static partial class OpenApiDatasyncExtensions
     /// <param name="operation">The <see cref="OpenApiOperation"/> to edit.</param>
     /// <param name="statusCode">The HTTP status code to add.</param>
     /// <param name="schema">The <see cref="JsonSchema"/> for the response content.</param>
-    /// <param name="includeETagHeader">If <c>true</c>, incude the <c>ETag</c> header description.</param>
+    /// <param name="includeETagHeader">If <c>true</c>, include the <c>ETag</c> header description.</param>
     internal static void SetResponse(this OpenApiOperation operation, HttpStatusCode statusCode, JsonSchema? schema = null, bool includeETagHeader = true)
     {
         int statusId = (int)statusCode;

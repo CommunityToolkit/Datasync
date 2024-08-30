@@ -60,7 +60,7 @@ public class InMemoryRepository<TEntity> : IRepository<TEntity> where TEntity : 
     internal List<TEntity> GetEntities() => [.. this._entities.Values];
 
     /// <summary>
-    /// Clears the repository of all entities so that tests are predicatable.
+    /// Clears the repository of all entities so that tests are predictable.
     /// </summary>
     internal void Clear() => this._entities.Clear();
     #endregion

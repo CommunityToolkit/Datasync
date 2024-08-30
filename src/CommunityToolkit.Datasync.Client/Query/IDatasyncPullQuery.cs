@@ -10,7 +10,7 @@ namespace CommunityToolkit.Datasync.Client.Offline;
 /// Represents a query that can be evaluated against an OData table for pull operations.
 /// </summary>
 /// <remarks>
-/// Rather than implenting <see cref="IQueryable{T}"/> directly, we've implemented the portion of the LINQ query
+/// Rather than implementing <see cref="IQueryable{T}"/> directly, we've implemented the portion of the LINQ query
 /// pattern we support on a datasync service.  You can use the <see cref="IDatasyncQueryable{TEntity}"/>
 /// instance to build up a query using normal LINQ patterns.
 /// </remarks>

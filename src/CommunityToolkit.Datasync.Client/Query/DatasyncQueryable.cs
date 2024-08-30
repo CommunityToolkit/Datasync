@@ -12,7 +12,7 @@ namespace CommunityToolkit.Datasync.Client.Query;
 /// Represents a query that can be evaluated against an OData table.
 /// </summary>
 /// <remarks>
-/// Rather than implenting <see cref="IQueryable{T}"/> directly, we've implemented the portion of  the LINQ query
+/// Rather than implementing <see cref="IQueryable{T}"/> directly, we've implemented the portion of  the LINQ query
 /// pattern we support on a datasync service.  You can use the <see cref="IDatasyncQueryable{TEntity}"/> instance
 /// to build up a query using normal LINQ patterns.
 /// </remarks>
@@ -76,7 +76,7 @@ internal class DatasyncQueryable<TEntity> : IDatasyncQueryable<TEntity> where TE
     /// Ensure the query will get the total count for all the records that would have been returned
     /// ignoring any take paging/limit clause specified by client or server.
     /// </summary>
-    /// <param name="enabled">If <c>true</c>, enables this requst.</param>
+    /// <param name="enabled">If <c>true</c>, enables this request.</param>
     /// <returns>The composed query object.</returns>
     public IDatasyncQueryable<TEntity> IncludeTotalCount(bool enabled = true)
     {

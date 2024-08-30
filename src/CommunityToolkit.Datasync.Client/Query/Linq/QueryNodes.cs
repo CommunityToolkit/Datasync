@@ -183,7 +183,7 @@ internal sealed class MemberAccessNode(QueryNode instance, string memberName) : 
     public override QueryNodeKind Kind => QueryNodeKind.MemberAccess;
 
     /// <summary>
-    /// The name of the member (property, field, etc.) we are acccessing
+    /// The name of the member (property, field, etc.) we are accessing
     /// </summary>
     public string MemberName { get; set; } = memberName;
 }
