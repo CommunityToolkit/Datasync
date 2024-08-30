@@ -19,7 +19,7 @@
       <link>http://localhost:1313/Datasync/setup/client/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/setup/client/index.html</guid>
-      <description>Prerequisites For offline database access, you should create your application using Entity Framework Core v8.0 and a Sqlite database. When you construct your models for database storage, ensure they are constructed with the following requirements:&#xA;Primary key - Id, a string field. UpdatedAt - a DateTimeOffset? field. Version - a string? or byte[]? field. Deleted - a bool field. These are maintained by the server.&#xA;Note Sqlite stores DateTimeOffset using a second accuracy by default.</description>
+      <description>Prerequisites For offline database access, you should create your application using Entity Framework Core v8.0 and a Sqlite database. When you construct your models for database storage, ensure they are constructed with the following requirements:&#xA;Primary key - Id, a string field. UpdatedAt - a DateTimeOffset? field. Version - a string? or byte[]? field. Deleted - a bool field. These are maintained by the server.&#xA;Note&#xD;Sqlite stores DateTimeOffset using a second accuracy by default.</description>
     </item>
   </channel>
 </rss>

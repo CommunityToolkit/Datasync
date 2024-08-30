@@ -5,34 +5,26 @@
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.133.1">
     <meta name="generator" content="Relearn 6.2.0+tip">
-    <meta name="description" content="You can easily create a new datasync service using our template.
-Install the template Install the template from NuGet:
-dotnet new -i Microsoft.AspNetCore.Datasync.Template.CSharpCreate a new project with the template Use the dotnet new command to create a project:
-mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe template is a standard Web API project with the addition of the datasync services, and includes a sample model and controller.">
+    <meta name="description" content="Run the application first The MAUI sample uses an in-memory Sqlite store for storing its data. To run the application locally:
+Configure Visual Studio for MAUI development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, right-click the TodoApp.MAUI project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. The application runs on Android, iOS, and Windows. Each platform needs slightly different setup.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Datasync server :: Datasync Community Toolkit">
-    <meta name="twitter:description" content="You can easily create a new datasync service using our template.
-Install the template Install the template from NuGet:
-dotnet new -i Microsoft.AspNetCore.Datasync.Template.CSharpCreate a new project with the template Use the dotnet new command to create a project:
-mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe template is a standard Web API project with the addition of the datasync services, and includes a sample model and controller.">
-    <meta property="og:url" content="http://localhost:1313/Datasync/setup/server/index.html">
+    <meta name="twitter:title" content="MAUI :: Datasync Community Toolkit">
+    <meta name="twitter:description" content="Run the application first The MAUI sample uses an in-memory Sqlite store for storing its data. To run the application locally:
+Configure Visual Studio for MAUI development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, right-click the TodoApp.MAUI project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. The application runs on Android, iOS, and Windows. Each platform needs slightly different setup.">
+    <meta property="og:url" content="http://localhost:1313/Datasync/samples/todoapp/maui/index.html">
     <meta property="og:site_name" content="Datasync Community Toolkit">
-    <meta property="og:title" content="Datasync server :: Datasync Community Toolkit">
-    <meta property="og:description" content="You can easily create a new datasync service using our template.
-Install the template Install the template from NuGet:
-dotnet new -i Microsoft.AspNetCore.Datasync.Template.CSharpCreate a new project with the template Use the dotnet new command to create a project:
-mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe template is a standard Web API project with the addition of the datasync services, and includes a sample model and controller.">
+    <meta property="og:title" content="MAUI :: Datasync Community Toolkit">
+    <meta property="og:description" content="Run the application first The MAUI sample uses an in-memory Sqlite store for storing its data. To run the application locally:
+Configure Visual Studio for MAUI development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, right-click the TodoApp.MAUI project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. The application runs on Android, iOS, and Windows. Each platform needs slightly different setup.">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="article">
-    <meta property="article:section" content="Getting started">
-    <meta itemprop="name" content="Datasync server :: Datasync Community Toolkit">
-    <meta itemprop="description" content="You can easily create a new datasync service using our template.
-Install the template Install the template from NuGet:
-dotnet new -i Microsoft.AspNetCore.Datasync.Template.CSharpCreate a new project with the template Use the dotnet new command to create a project:
-mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe template is a standard Web API project with the addition of the datasync services, and includes a sample model and controller.">
-    <meta itemprop="wordCount" content="66">
-    <title>Datasync server :: Datasync Community Toolkit</title><link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <meta property="article:section" content="Samples">
+    <meta itemprop="name" content="MAUI :: Datasync Community Toolkit">
+    <meta itemprop="description" content="Run the application first The MAUI sample uses an in-memory Sqlite store for storing its data. To run the application locally:
+Configure Visual Studio for MAUI development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, right-click the TodoApp.MAUI project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. The application runs on Android, iOS, and Windows. Each platform needs slightly different setup.">
+    <meta itemprop="wordCount" content="347">
+    <title>MAUI :: Datasync Community Toolkit</title><link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
 <link rel="manifest" href="/favicon/site.webmanifest">
@@ -49,8 +41,8 @@ mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe tem
     <script src="/Datasync/js/variant.js?1725059400"></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.relBasePath='..\/..';
-      window.relearn.relBaseUri='..\/..\/..';
+      window.relearn.relBasePath='..\/..\/..';
+      window.relearn.relBaseUri='..\/..\/..\/..';
       window.relearn.absBaseUri='http:\/\/localhost:1313\/Datasync';
       window.relearn.disableAnchorCopy=false;
       window.relearn.disableAnchorScrolling=false;
@@ -67,7 +59,7 @@ mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe tem
       window.T_N_results_found = `{1} results found for "{0}"`;
     </script>
   </head>
-  <body class="mobile-support html" data-url="/Datasync/setup/server/index.html">
+  <body class="mobile-support html" data-url="/Datasync/samples/todoapp/maui/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
       <nav id="R-topbar">
@@ -80,8 +72,9 @@ mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe tem
               <div class="topbar-content">
                 <div class="topbar-content-wrapper"><nav class="TableOfContents">
   <ul>
-    <li><a href="#install-the-template">Install the template</a></li>
-    <li><a href="#create-a-new-project-with-the-template">Create a new project with the template</a></li>
+    <li><a href="#run-the-application-first">Run the application first</a></li>
+    <li><a href="#deploy-a-datasync-server-to-azure">Deploy a datasync server to Azure</a></li>
+    <li><a href="#update-the-application-for-datasync-operations">Update the application for datasync operations</a></li>
   </ul>
 </nav>
                 </div>
@@ -90,13 +83,14 @@ mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe tem
           </div>
           <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li
             itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/index.html"><span itemprop="name">Datasync Community Toolkit</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/setup/index.html"><span itemprop="name">Getting started</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">Datasync server</span><meta itemprop="position" content="3"></li>
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/samples/index.html"><span itemprop="name">Samples</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/samples/todoapp/index.html"><span itemprop="name">Todo App</span></a><meta itemprop="position" content="3">&nbsp;>&nbsp;</li><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">MAUI</span><meta itemprop="position" content="4"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
-            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/setup/index.html" title="Getting started (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
+            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/samples/todoapp/index.html" title="Todo App (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
             </div>
-            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/setup/client/index.html" title="Client application (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
+            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/samples/todoapp/winui3/index.html" title="WinUI3 (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
             </div>
             <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button>
               <div class="topbar-content">
@@ -116,16 +110,60 @@ mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe tem
             <header class="headline">
             </header>
 
-<h1 id="datasync-server">Datasync server</h1>
+<h1 id="maui">MAUI</h1>
 
-<p>You can easily create a new datasync service using our template.</p>
-<h2 id="install-the-template">Install the template</h2>
-<p>Install the template from NuGet:</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>dotnet new -i Microsoft.AspNetCore.Datasync.Template.CSharp</span></span></code></pre></div><h2 id="create-a-new-project-with-the-template">Create a new project with the template</h2>
-<p>Use the <code>dotnet new</code> command to create a project:</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mkdir My.Datasync.Server
-</span></span><span style="display:flex;"><span>cd My.Datasync.Server
-</span></span><span style="display:flex;"><span>dotnet new datasync-server</span></span></code></pre></div><p>The template is a standard Web API project with the addition of the datasync services, and includes a sample model and controller.</p>
+<h2 id="run-the-application-first">Run the application first</h2>
+<p>The MAUI sample uses an in-memory Sqlite store for storing its data.  To run the application locally:</p>
+<ul>
+<li><a href="https://learn.microsoft.com/dotnet/maui/get-started/installation" rel="external" target="_blank">Configure Visual Studio for MAUI development</a>.</li>
+<li>Open <code>samples/todoapp/Samples.TodoApp.sln</code> in Visual Studio.</li>
+<li>In the Solution Explorer, right-click the <code>TodoApp.MAUI</code> project, then select <strong>Set as Startup Project</strong>.</li>
+<li>Select a target (in the top bar), then press F5 to run the application.</li>
+</ul>
+<p>The application runs on Android, iOS, and Windows.  Each platform needs slightly different setup.  Read the MAUI documentation for more information.</p>
+<h2 id="deploy-a-datasync-server-to-azure">Deploy a datasync server to Azure</h2>
+<p>Before you begin adjusting the application for offline usage, you must <a href="/Datasync/samples/server/index.html">deploy a datasync service</a>.  Make a note of the URI of the service before continuing.</p>
+<h2 id="update-the-application-for-datasync-operations">Update the application for datasync operations</h2>
+<p>All the changes are isolated to the <code>Database/AppDbContext.cs</code> file.</p>
+<ol>
+<li>
+<p>Change the definition of the class so that it inherits from <code>OfflineDbContext</code>:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDbContext</span>(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// Rest of the class</span>
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div></li>
+<li>
+<p>Add the <code>OnDatasyncInitialization()</code> method:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">void</span> OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    HttpClientOptions clientOptions = <span style="color:#66d9ef">new</span>()
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        Endpoint = <span style="color:#66d9ef">new</span> Uri(<span style="color:#e6db74">&#34;https://YOURSITEHERE.azurewebsites.net/&#34;</span>),
+</span></span><span style="display:flex;"><span>        HttpPipeline = [<span style="color:#66d9ef">new</span> LoggingHandler()]
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>    _ = optionsBuilder.UseHttpClientOptions(clientOptions);
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>Replace the Endpoint with the URI of your datasync service.</p>
+</li>
+<li>
+<p>Update the <code>SynchronizeAsync()</code> method.</p>
+<p>The <code>SynchronizeAsync()</code> method is used by the application to synchronize data to and from the datasync service.  It is called primarily from the <code>MainViewModel</code> which drives the UI interactions for the main list.</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">async</span> Task SynchronizeAsync(CancellationToken cancellationToken = <span style="color:#66d9ef">default</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>   PushResult pushResult = <span style="color:#66d9ef">await</span> <span style="color:#66d9ef">this</span>.PushAsync(cancellationToken);
+</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">if</span> (!pushResult.IsSuccessful)
+</span></span><span style="display:flex;"><span>   {
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ApplicationException(<span style="color:#e6db74">$&#34;Push failed: {pushResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}&#34;</span>);
+</span></span><span style="display:flex;"><span>   }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   PullResult pullResult = <span style="color:#66d9ef">await</span> <span style="color:#66d9ef">this</span>.PullAsync(cancellationToken);
+</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">if</span> (!pullResult.IsSuccessful)
+</span></span><span style="display:flex;"><span>   {
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ApplicationException(<span style="color:#e6db74">$&#34;Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}&#34;</span>);
+</span></span><span style="display:flex;"><span>   }
+</span></span><span style="display:flex;"><span> }</span></span></code></pre></div></li>
+</ol>
+<p>You can now re-run your application. Watch the console logs to show the interactions with the datasync service.  Press the refresh button to synchronize data with the cloud.  When you restart the application, your changes will automatically populate the database again.</p>
+<p>Obviously, you will want to do much more in a &ldquo;real world&rdquo; application, including proper error handling, authentication, and using a Sqlite file instead of an in-memory database.  This example shows off the minimum required to add datasync services to an application.</p>
 
             <footer class="footline">
             </footer>
@@ -212,13 +250,13 @@ mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe tem
       <div id="R-content-wrapper" class="highlightable">
         <div id="R-topics">
           <ul class="enlarge morespace collapsible-menu">
-          <li data-nav-id="/Datasync/setup/index.html" class="parent "><a class="padding" href="/Datasync/setup/index.html">Getting started</a><ul id="R-subsections-6a385b5ee9f4b02ef7c93cf34bdd6ea2" class="morespace collapsible-menu">
-          <li data-nav-id="/Datasync/setup/server/index.html" class="active"><a class="padding" href="/Datasync/setup/server/index.html">Datasync server</a></li>
+          <li data-nav-id="/Datasync/setup/index.html" class=""><a class="padding" href="/Datasync/setup/index.html">Getting started</a><ul id="R-subsections-6a385b5ee9f4b02ef7c93cf34bdd6ea2" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/setup/server/index.html" class=""><a class="padding" href="/Datasync/setup/server/index.html">Datasync server</a></li>
           <li data-nav-id="/Datasync/setup/client/index.html" class=""><a class="padding" href="/Datasync/setup/client/index.html">Client application</a></li></ul></li>
-          <li data-nav-id="/Datasync/samples/index.html" class=""><a class="padding" href="/Datasync/samples/index.html">Samples</a><ul id="R-subsections-abc4562a0bcf1570d92f916bb82a8b39" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/samples/index.html" class="parent "><a class="padding" href="/Datasync/samples/index.html">Samples</a><ul id="R-subsections-abc4562a0bcf1570d92f916bb82a8b39" class="morespace collapsible-menu">
           <li data-nav-id="/Datasync/samples/server/index.html" class=""><a class="padding" href="/Datasync/samples/server/index.html">Sample Server</a></li>
-          <li data-nav-id="/Datasync/samples/todoapp/index.html" class="alwaysopen"><a class="padding" href="/Datasync/samples/todoapp/index.html">Todo App</a><ul id="R-subsections-64deac9d85858c681d35e673e0fd3b13" class="morespace collapsible-menu">
-          <li data-nav-id="/Datasync/samples/todoapp/maui/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/maui/index.html">MAUI</a></li>
+          <li data-nav-id="/Datasync/samples/todoapp/index.html" class="parent alwaysopen"><a class="padding" href="/Datasync/samples/todoapp/index.html">Todo App</a><ul id="R-subsections-64deac9d85858c681d35e673e0fd3b13" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/samples/todoapp/maui/index.html" class="active"><a class="padding" href="/Datasync/samples/todoapp/maui/index.html">MAUI</a></li>
           <li data-nav-id="/Datasync/samples/todoapp/winui3/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/winui3/index.html">WinUI3</a></li>
           <li data-nav-id="/Datasync/samples/todoapp/wpf/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/wpf/index.html">WPF</a></li></ul></li></ul></li>
           <li data-nav-id="/Datasync/in-depth/index.html" class=""><a class="padding" href="/Datasync/in-depth/index.html">In-depth</a><ul id="R-subsections-3229b26a09fade6cbffa6d892da9210c" class="morespace collapsible-menu">
@@ -246,7 +284,7 @@ mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe tem
                   <div class="control-style">
                     <label class="a11y-only" for="R-select-language">Language</label>
                     <select id="R-select-language" onchange="location = this.querySelector( this.value ).dataset.url;">
-                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/Datasync/setup/server/index.html" lang="en-us" selected></option>
+                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/Datasync/samples/todoapp/maui/index.html" lang="en-us" selected></option>
                     </select>
                   </div>
                   <div class="clear"></div>

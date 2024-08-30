@@ -5,40 +5,40 @@
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.133.1">
     <meta name="generator" content="Relearn 6.2.0+tip">
-    <meta name="description" content="You can find our sample TodoApp for WinUI3 on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:
-​ AppDbContext.cs 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.">
+    <meta name="description" content="Run the application first The WinUI3 sample uses an in-memory Sqlite store for storing its data. To run the application locally:
+Configure Visual Studio for WinUI3 development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, right-click the TodoApp.WinUI3 project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. If you bump into issues at this point, ensure you can properly develop and run WinUI3 applications outside of the datasync service.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="WinUI3 :: Datasync Community Toolkit">
-    <meta name="twitter:description" content="You can find our sample TodoApp for WinUI3 on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:
-​ AppDbContext.cs 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.">
+    <meta name="twitter:description" content="Run the application first The WinUI3 sample uses an in-memory Sqlite store for storing its data. To run the application locally:
+Configure Visual Studio for WinUI3 development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, right-click the TodoApp.WinUI3 project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. If you bump into issues at this point, ensure you can properly develop and run WinUI3 applications outside of the datasync service.">
     <meta property="og:url" content="http://localhost:1313/Datasync/samples/todoapp/winui3/index.html">
     <meta property="og:site_name" content="Datasync Community Toolkit">
     <meta property="og:title" content="WinUI3 :: Datasync Community Toolkit">
-    <meta property="og:description" content="You can find our sample TodoApp for WinUI3 on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:
-​ AppDbContext.cs 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.">
+    <meta property="og:description" content="Run the application first The WinUI3 sample uses an in-memory Sqlite store for storing its data. To run the application locally:
+Configure Visual Studio for WinUI3 development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, right-click the TodoApp.WinUI3 project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. If you bump into issues at this point, ensure you can properly develop and run WinUI3 applications outside of the datasync service.">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="article">
     <meta property="article:section" content="Samples">
     <meta itemprop="name" content="WinUI3 :: Datasync Community Toolkit">
-    <meta itemprop="description" content="You can find our sample TodoApp for WinUI3 on our GitHub repository. All of our logic has been placed in the Database/AppDbContext.cs file:
-​ AppDbContext.cs 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.">
-    <meta itemprop="wordCount" content="188">
+    <meta itemprop="description" content="Run the application first The WinUI3 sample uses an in-memory Sqlite store for storing its data. To run the application locally:
+Configure Visual Studio for WinUI3 development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, right-click the TodoApp.WinUI3 project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. If you bump into issues at this point, ensure you can properly develop and run WinUI3 applications outside of the datasync service.">
+    <meta itemprop="wordCount" content="348">
     <title>WinUI3 :: Datasync Community Toolkit</title><link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
 <link rel="manifest" href="/favicon/site.webmanifest">
-    <link href="/Datasync/css/fontawesome-all.min.css?1724874042" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fontawesome-all.min.css?1724874042" rel="stylesheet"></noscript>
-    <link href="/Datasync/css/nucleus.css?1724874042" rel="stylesheet">
-    <link href="/Datasync/css/auto-complete.css?1724874042" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/auto-complete.css?1724874042" rel="stylesheet"></noscript>
-    <link href="/Datasync/css/perfect-scrollbar.min.css?1724874042" rel="stylesheet">
-    <link href="/Datasync/css/fonts.css?1724874042" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fonts.css?1724874042" rel="stylesheet"></noscript>
-    <link href="/Datasync/css/theme.css?1724874042" rel="stylesheet">
-    <link href="/Datasync/css/theme-auto.css?1724874042" rel="stylesheet" id="R-variant-style">
-    <link href="/Datasync/css/chroma-auto.css?1724874042" rel="stylesheet" id="R-variant-chroma-style">
-    <link href="/Datasync/css/variant.css?1724874042" rel="stylesheet">
-    <link href="/Datasync/css/print.css?1724874042" rel="stylesheet" media="print">
-    <script src="/Datasync/js/variant.js?1724874042"></script>
+    <link href="/Datasync/css/fontawesome-all.min.css?1725059400" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fontawesome-all.min.css?1725059400" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/nucleus.css?1725059400" rel="stylesheet">
+    <link href="/Datasync/css/auto-complete.css?1725059400" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/auto-complete.css?1725059400" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/perfect-scrollbar.min.css?1725059400" rel="stylesheet">
+    <link href="/Datasync/css/fonts.css?1725059400" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fonts.css?1725059400" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/theme.css?1725059400" rel="stylesheet">
+    <link href="/Datasync/css/theme-auto.css?1725059400" rel="stylesheet" id="R-variant-style">
+    <link href="/Datasync/css/chroma-auto.css?1725059400" rel="stylesheet" id="R-variant-chroma-style">
+    <link href="/Datasync/css/variant.css?1725059400" rel="stylesheet">
+    <link href="/Datasync/css/print.css?1725059400" rel="stylesheet" media="print">
+    <script src="/Datasync/js/variant.js?1725059400"></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..\/..';
@@ -70,7 +70,13 @@
             </div>
             <div class="topbar-button topbar-button-toc" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="Table of Contents (CTRL&#43;ALT&#43;t)"><i class="fa-fw fas fa-list-alt"></i></button>
               <div class="topbar-content">
-                <div class="topbar-content-wrapper"> 
+                <div class="topbar-content-wrapper"><nav class="TableOfContents">
+  <ul>
+    <li><a href="#run-the-application-first">Run the application first</a></li>
+    <li><a href="#deploy-a-datasync-server-to-azure">Deploy a datasync server to Azure</a></li>
+    <li><a href="#update-the-application-for-datasync-operations">Update the application for datasync operations</a></li>
+  </ul>
+</nav>
                 </div>
               </div>
             </div>
@@ -82,7 +88,7 @@
             itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">WinUI3</span><meta itemprop="position" content="4"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
-            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/samples/todoapp/index.html" title="Todo App (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
+            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/samples/todoapp/maui/index.html" title="MAUI (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
             </div>
             <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/samples/todoapp/wpf/index.html" title="WPF (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
             </div>
@@ -106,99 +112,58 @@
 
 <h1 id="winui3">WinUI3</h1>
 
-<p>You can find <a href="https://github.com/CommunityToolkit/Datasync/tree/main/samples/todoapp/TodoApp.WinUI3" rel="external" target="_blank">our sample TodoApp for WinUI3</a> on our GitHub repository.  All of our logic has been placed in the <code>Database/AppDbContext.cs</code> file:</p>
-
-<div class="tab-panel" data-tab-group="5010f48879be302db203b8f2c7a36905">
-  <div class="tab-nav">
-    <div class="tab-nav-title">&#8203;</div>
-    <button
-      data-tab-item="appdbcontextcs"
-      class="tab-nav-button tab-panel-style cstyle initial active" tabindex="-1"
-      onclick="switchTab('5010f48879be302db203b8f2c7a36905','appdbcontextcs')"
-    >
-      <span class="tab-nav-text">AppDbContext.cs</span>
-    </button>
-  </div>
-  <div class="tab-content-container">
-    <div
-      data-tab-item="appdbcontextcs"
-      class="tab-content tab-panel-style cstyle initial active">
-      <div class="tab-content-text">
-
-<div class="highlight wrap-code" lineNos="true"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
-</span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDbContext</span>(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options)
-</span></span><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;();
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">void</span> OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>        HttpClientOptions clientOptions = <span style="color:#66d9ef">new</span>()
-</span></span><span style="display:flex;"><span>        {
-</span></span><span style="display:flex;"><span>            Endpoint = <span style="color:#66d9ef">new</span> Uri(<span style="color:#e6db74">&#34;https://YOURSITEHERE.azurewebsites.net/&#34;</span>),
-</span></span><span style="display:flex;"><span>            HttpPipeline = [<span style="color:#66d9ef">new</span> LoggingHandler()]
-</span></span><span style="display:flex;"><span>        };
-</span></span><span style="display:flex;"><span>        _ = optionsBuilder.UseHttpClientOptions(clientOptions);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">async</span> Task SynchronizeAsync(CancellationToken cancellationToken = <span style="color:#66d9ef">default</span>)
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>        PushResult pushResult = <span style="color:#66d9ef">await</span> <span style="color:#66d9ef">this</span>.PushAsync(cancellationToken);
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (!pushResult.IsSuccessful)
-</span></span><span style="display:flex;"><span>        {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ApplicationException(<span style="color:#e6db74">$&#34;Push failed: {pushResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}&#34;</span>);
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        PullResult pullResult = <span style="color:#66d9ef">await</span> <span style="color:#66d9ef">this</span>.PullAsync(cancellationToken);
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (!pullResult.IsSuccessful)
-</span></span><span style="display:flex;"><span>        {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ApplicationException(<span style="color:#e6db74">$&#34;Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}&#34;</span>);
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}</span></span></code></pre></td></tr></table>
-</div>
-</div></div>
-    </div>
-  </div>
-</div>
-<p>To enable offline synchronization:</p>
+<h2 id="run-the-application-first">Run the application first</h2>
+<p>The WinUI3 sample uses an in-memory Sqlite store for storing its data.  To run the application locally:</p>
 <ul>
-<li>Switch from <code>DbContext</code> to <code>OfflineDbContext</code>.</li>
-<li>Define your <code>OnDatasyncInitialization()</code> method (don&rsquo;t forget to change the URL to the URL of your datasync server).</li>
-<li>Where appropriate, use <code>PushAsync()</code> and <code>PullAsync()</code> to communicate with the server.</li>
+<li><a href="https://learn.microsoft.com/windows/apps/get-started/start-here" rel="external" target="_blank">Configure Visual Studio for WinUI3 development</a>.</li>
+<li>Open <code>samples/todoapp/Samples.TodoApp.sln</code> in Visual Studio.</li>
+<li>In the Solution Explorer, right-click the <code>TodoApp.WinUI3</code> project, then select <strong>Set as Startup Project</strong>.</li>
+<li>Select a target (in the top bar), then press F5 to run the application.</li>
 </ul>
-<p>We have placed a <code>SynchronizeAsync()</code> method on the database context, which is used in the view model for the single page we have.</p>
+<p>If you bump into issues at this point, ensure you can properly develop and run WinUI3 applications outside of the datasync service.</p>
+<h2 id="deploy-a-datasync-server-to-azure">Deploy a datasync server to Azure</h2>
+<p>Before you begin adjusting the application for offline usage, you must <a href="/Datasync/samples/server/index.html">deploy a datasync service</a>.  Make a note of the URI of the service before continuing.</p>
+<h2 id="update-the-application-for-datasync-operations">Update the application for datasync operations</h2>
+<p>All the changes are isolated to the <code>Database/AppDbContext.cs</code> file.</p>
+<ol>
+<li>
+<p>Change the definition of the class so that it inherits from <code>OfflineDbContext</code>:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AppDbContext</span>(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// Rest of the class</span>
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div></li>
+<li>
+<p>Add the <code>OnDatasyncInitialization()</code> method:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">void</span> OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    HttpClientOptions clientOptions = <span style="color:#66d9ef">new</span>()
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        Endpoint = <span style="color:#66d9ef">new</span> Uri(<span style="color:#e6db74">&#34;https://YOURSITEHERE.azurewebsites.net/&#34;</span>),
+</span></span><span style="display:flex;"><span>        HttpPipeline = [<span style="color:#66d9ef">new</span> LoggingHandler()]
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>    _ = optionsBuilder.UseHttpClientOptions(clientOptions);
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>Replace the Endpoint with the URI of your datasync service.</p>
+</li>
+<li>
+<p>Update the <code>SynchronizeAsync()</code> method.</p>
+<p>The <code>SynchronizeAsync()</code> method is used by the application to synchronize data to and from the datasync service.  It is called primarily from the <code>MainViewModel</code> which drives the UI interactions for the main list.</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">async</span> Task SynchronizeAsync(CancellationToken cancellationToken = <span style="color:#66d9ef">default</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>   PushResult pushResult = <span style="color:#66d9ef">await</span> <span style="color:#66d9ef">this</span>.PushAsync(cancellationToken);
+</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">if</span> (!pushResult.IsSuccessful)
+</span></span><span style="display:flex;"><span>   {
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ApplicationException(<span style="color:#e6db74">$&#34;Push failed: {pushResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}&#34;</span>);
+</span></span><span style="display:flex;"><span>   }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>   PullResult pullResult = <span style="color:#66d9ef">await</span> <span style="color:#66d9ef">this</span>.PullAsync(cancellationToken);
+</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">if</span> (!pullResult.IsSuccessful)
+</span></span><span style="display:flex;"><span>   {
+</span></span><span style="display:flex;"><span>     <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ApplicationException(<span style="color:#e6db74">$&#34;Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}&#34;</span>);
+</span></span><span style="display:flex;"><span>   }
+</span></span><span style="display:flex;"><span> }</span></span></code></pre></div></li>
+</ol>
+<p>You can now re-run your application. Watch the console logs to show the interactions with the datasync service.  Press the refresh button to synchronize data with the cloud.  When you restart the application, your changes will automatically populate the database again.</p>
+<p>Obviously, you will want to do much more in a &ldquo;real world&rdquo; application, including proper error handling, authentication, and using a Sqlite file instead of an in-memory database.  This example shows off the minimum required to add datasync services to an application.</p>
 
             <footer class="footline">
             </footer>
@@ -269,12 +234,12 @@
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/Datasync/js/auto-complete.js?1724874042" defer></script>
-        <script src="/Datasync/js/lunr/lunr.min.js?1724874042" defer></script>
-        <script src="/Datasync/js/lunr/lunr.stemmer.support.min.js?1724874042" defer></script>
-        <script src="/Datasync/js/lunr/lunr.multi.min.js?1724874042" defer></script>
-        <script src="/Datasync/js/lunr/lunr.en.min.js?1724874042" defer></script>
-        <script src="/Datasync/js/search.js?1724874042" defer></script>
+        <script src="/Datasync/js/auto-complete.js?1725059400" defer></script>
+        <script src="/Datasync/js/lunr/lunr.min.js?1725059400" defer></script>
+        <script src="/Datasync/js/lunr/lunr.stemmer.support.min.js?1725059400" defer></script>
+        <script src="/Datasync/js/lunr/lunr.multi.min.js?1725059400" defer></script>
+        <script src="/Datasync/js/lunr/lunr.en.min.js?1725059400" defer></script>
+        <script src="/Datasync/js/search.js?1725059400" defer></script>
       </div>
       <div id="R-homelinks" class="default-animation homelinks">
         <ul>
@@ -291,6 +256,7 @@
           <li data-nav-id="/Datasync/samples/index.html" class="parent "><a class="padding" href="/Datasync/samples/index.html">Samples</a><ul id="R-subsections-abc4562a0bcf1570d92f916bb82a8b39" class="morespace collapsible-menu">
           <li data-nav-id="/Datasync/samples/server/index.html" class=""><a class="padding" href="/Datasync/samples/server/index.html">Sample Server</a></li>
           <li data-nav-id="/Datasync/samples/todoapp/index.html" class="parent alwaysopen"><a class="padding" href="/Datasync/samples/todoapp/index.html">Todo App</a><ul id="R-subsections-64deac9d85858c681d35e673e0fd3b13" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/samples/todoapp/maui/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/maui/index.html">MAUI</a></li>
           <li data-nav-id="/Datasync/samples/todoapp/winui3/index.html" class="active"><a class="padding" href="/Datasync/samples/todoapp/winui3/index.html">WinUI3</a></li>
           <li data-nav-id="/Datasync/samples/todoapp/wpf/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/wpf/index.html">WPF</a></li></ul></li></ul></li>
           <li data-nav-id="/Datasync/in-depth/index.html" class=""><a class="padding" href="/Datasync/in-depth/index.html">In-depth</a><ul id="R-subsections-3229b26a09fade6cbffa6d892da9210c" class="morespace collapsible-menu">
@@ -356,8 +322,8 @@
         </div>
       </div>
     </aside>
-    <script src="/Datasync/js/clipboard.min.js?1724874042" defer></script>
-    <script src="/Datasync/js/perfect-scrollbar.min.js?1724874042" defer></script>
-    <script src="/Datasync/js/theme.js?1724874042" defer></script>
+    <script src="/Datasync/js/clipboard.min.js?1725059400" defer></script>
+    <script src="/Datasync/js/perfect-scrollbar.min.js?1725059400" defer></script>
+    <script src="/Datasync/js/theme.js?1725059400" defer></script>
   </body>
 </html>

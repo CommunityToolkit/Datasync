@@ -4,12 +4,11 @@
 
 using System.Diagnostics;
 using TodoApp.MAUI.Models;
-using TodoApp.MAUI.Utils;
 using TodoApp.MAUI.ViewModels;
 
 namespace TodoApp.MAUI;
 
-public partial class MainPage : ContentPage, IMVVMHelper
+public partial class MainPage : ContentPage
 {
     private readonly MainViewModel _viewModel;
 
@@ -17,7 +16,6 @@ public partial class MainPage : ContentPage, IMVVMHelper
     {
         InitializeComponent();
         this._viewModel = App.GetRequiredService<MainViewModel>();
-        //this._viewModel.MvvmHelper = this;
         BindingContext = this._viewModel;
     }
 
@@ -40,13 +38,5 @@ public partial class MainPage : ContentPage, IMVVMHelper
             itemList.SelectedItem = null;
         }
     }
-
-    #region IMVVMHelper
-    public Task RunOnUiThreadAsync(Action func)
-        => MainThread.InvokeOnMainThreadAsync(func);
-
-    public Task DisplayErrorAlertAsync(string title, string message)
-        => RunOnUiThreadAsync(async () => await DisplayAlert(title, message, "OK"));
-    #endregion
 }
 

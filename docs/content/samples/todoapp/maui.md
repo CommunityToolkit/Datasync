@@ -1,17 +1,17 @@
 +++
-title = "WinUI3"
+title = "MAUI"
 +++
 
 ## Run the application first
 
-The WinUI3 sample uses an in-memory Sqlite store for storing its data.  To run the application locally:
+The MAUI sample uses an in-memory Sqlite store for storing its data.  To run the application locally:
 
-* [Configure Visual Studio for WinUI3 development](https://learn.microsoft.com/windows/apps/get-started/start-here).
+* [Configure Visual Studio for MAUI development](https://learn.microsoft.com/dotnet/maui/get-started/installation).
 * Open `samples/todoapp/Samples.TodoApp.sln` in Visual Studio.
-* In the Solution Explorer, right-click the `TodoApp.WinUI3` project, then select **Set as Startup Project**.
+* In the Solution Explorer, right-click the `TodoApp.MAUI` project, then select **Set as Startup Project**.
 * Select a target (in the top bar), then press F5 to run the application.
 
-If you bump into issues at this point, ensure you can properly develop and run WinUI3 applications outside of the datasync service.
+The application runs on Android, iOS, and Windows.  Each platform needs slightly different setup.  Read the MAUI documentation for more information.
 
 ## Deploy a datasync server to Azure
 
