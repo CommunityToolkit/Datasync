@@ -14,6 +14,8 @@ public class IntegrationDbContext(DbContextOptions<IntegrationDbContext> options
 {
     public DbSet<ClientMovie> Movies => Set<ClientMovie>();
 
+    public DbSet<ByteVersionMovie> ByteMovies => Set<ByteVersionMovie>();
+
     public ServiceApplicationFactory Factory { get; set; }
 
     public SqliteConnection Connection { get; set; }
@@ -24,6 +26,12 @@ public class IntegrationDbContext(DbContextOptions<IntegrationDbContext> options
     {
         optionsBuilder.UseHttpClient(Factory.CreateClient());
         optionsBuilder.Entity<ClientMovie>(cfg =>
+        {
+            cfg.ClientName = "movies";
+            cfg.Endpoint = new Uri($"/{Factory.MovieEndpoint}", UriKind.Relative);
+        });
+
+        optionsBuilder.Entity<ByteVersionMovie>(cfg =>
         {
             cfg.ClientName = "movies";
             cfg.Endpoint = new Uri($"/{Factory.MovieEndpoint}", UriKind.Relative);
