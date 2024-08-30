@@ -161,11 +161,12 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
             object? result = await JsonSerializer.DeserializeAsync(response.ContentStream, pageType, context.JsonSerializerOptions, cancellationToken).ConfigureAwait(false)
                 ?? throw new DatasyncPullException("JSON result is null") { ServiceResponse = response };
 
-            return new Page<object>()
+            Page<object> page = new Page<object>()
             {
                 Items = (IEnumerable<object>)itemsPropInfo.GetValue(result)!,
                 NextLink = (string?)nextLinkPropInfo.GetValue(result)
             };
+            return page;
         }
         catch (JsonException ex)
         {
