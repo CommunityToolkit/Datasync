@@ -74,7 +74,12 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
                 if (metadata.UpdatedAt.HasValue && metadata.UpdatedAt.Value > lastSynchronization)
                 {
                     lastSynchronization = metadata.UpdatedAt.Value;
-                    await DeltaTokenStore.SetDeltaTokenAsync(pullResponse.QueryId, metadata.UpdatedAt.Value, cancellationToken).ConfigureAwait(false);
+                    bool isAdded = await DeltaTokenStore.SetDeltaTokenAsync(pullResponse.QueryId, metadata.UpdatedAt.Value, cancellationToken).ConfigureAwait(false);
+                    if (isAdded)
+                    {
+                        // Sqlite oddity - you can't add then update; it changes the change type to UPDATE, which then fails.
+                        _ = await context.SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
+                    }
                 }
             }
 
@@ -117,7 +122,7 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
         foreach (PullRequest request in requests)
         {
             DateTimeOffset lastSynchronization = await context.DeltaTokenStore.GetDeltaTokenAsync(request.QueryId, cancellationToken).ConfigureAwait(false);
-            PrepareQueryDescription(request.QueryDescription, lastSynchronization);
+            request.QueryDescription = PrepareQueryDescription(request.QueryDescription, lastSynchronization);
             serviceRequestQueue.Enqueue(request);
         }
 
@@ -171,10 +176,12 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
     /// <summary>
     /// Prepares the query description for use as a pull request.
     /// </summary>
-    /// <param name="query">The query description to modify.</param>
+    /// <param name="source">The query description to modify.</param>
     /// <param name="lastSynchronization">The last synchronization date/time</param>
-    internal static void PrepareQueryDescription(QueryDescription query, DateTimeOffset lastSynchronization)
+    /// <returns>A modified query description for the actual query.</returns>
+    internal static QueryDescription PrepareQueryDescription(QueryDescription source, DateTimeOffset lastSynchronization)
     {
+        QueryDescription query = new(source);
         if (lastSynchronization.ToUnixTimeMilliseconds() > 0L)
         {
             BinaryOperatorNode deltaTokenFilter = new(BinaryOperatorKind.GreaterThan)
@@ -185,12 +192,13 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
             query.Filter = query.Filter is null ? deltaTokenFilter : new BinaryOperatorNode(BinaryOperatorKind.And, query.Filter, deltaTokenFilter);
         }
 
-        query.QueryParameters.Add(ODataQueryParameters.IncludeDeleted, "true");
+        query.QueryParameters[ODataQueryParameters.IncludeDeleted] = "true";
         query.RequestTotalCount = true;
         query.Top = null;
         query.Skip = 0;
         query.Ordering.Clear();
         query.Ordering.Add(new OrderByNode(new MemberAccessNode(null, "updatedAt"), true));
+        return query;
     }
 
     /// <summary>

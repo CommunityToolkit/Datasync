@@ -6,16 +6,52 @@ using CommunityToolkit.Datasync.Server.InMemory;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Models;
 using CommunityToolkit.Datasync.TestCommon.TestData;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Spatial;
 using System.Linq.Expressions;
 
 namespace CommunityToolkit.Datasync.Client.Test.Helpers;
 
+[ExcludeFromCodeCoverage]
 public abstract class ServiceTest(ServiceApplicationFactory factory)
 {
     protected readonly HttpClient client = factory.CreateClient();
 
     protected DateTimeOffset StartTime { get; } = DateTimeOffset.UtcNow;
+
+    internal IntegrationDbContext GetOfflineContext(bool useRealFile = false)
+    {
+        string filename = null;
+        string connectionString = "Data Source=:memory:";
+        if (useRealFile)
+        {
+            filename = Path.GetTempFileName();
+            SqliteConnectionStringBuilder builder = new();
+            builder.DataSource = filename;
+            builder.Mode = SqliteOpenMode.ReadWriteCreate;
+            connectionString = builder.ConnectionString;
+        }
+
+        SqliteConnection connection = new(connectionString);
+        connection.Open();
+
+        DbContextOptionsBuilder<IntegrationDbContext> optionsBuilder = new();
+        optionsBuilder.UseSqlite(connection);
+        optionsBuilder.LogTo(Console.WriteLine);
+        optionsBuilder.EnableSensitiveDataLogging();
+        optionsBuilder.EnableDetailedErrors();
+
+        IntegrationDbContext context = new(optionsBuilder.Options) 
+        {
+            Factory = factory,
+            Filename = filename,
+            Connection = connection
+        };
+
+        context.Database.EnsureCreated();
+        return context;
+    }
 
     internal DatasyncServiceClient<ClientMovie> GetMovieClient()
         => new(new Uri($"/{factory.MovieEndpoint}", UriKind.Relative), this.client);

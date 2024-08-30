@@ -5,8 +5,6 @@
 using CommunityToolkit.Datasync.Client.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Models;
-using Microsoft.AspNetCore.Http.Metadata;
-using System.Net;
 
 namespace CommunityToolkit.Datasync.Client.Test.Service;
 
@@ -15,6 +13,7 @@ namespace CommunityToolkit.Datasync.Client.Test.Service;
 /// </summary>
 /// <param name="factory"></param>
 [ExcludeFromCodeCoverage]
+[Collection("SynchronizedOfflineTests")]
 public class Integration_Query_Tests(ServiceApplicationFactory factory) : ServiceTest(factory), IClassFixture<ServiceApplicationFactory>
 {
     [Fact]

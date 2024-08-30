@@ -16,6 +16,7 @@ namespace CommunityToolkit.Datasync.Client.Test.Service;
 /// </summary>
 /// <param name="factory"></param>
 [ExcludeFromCodeCoverage]
+[Collection("SynchronizedOfflineTests")]
 public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(factory), IClassFixture<ServiceApplicationFactory>
 {
     #region AddAsync

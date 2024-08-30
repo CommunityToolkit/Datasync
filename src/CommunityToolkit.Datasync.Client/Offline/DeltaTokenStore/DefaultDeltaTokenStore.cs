@@ -48,8 +48,8 @@ internal class DefaultDeltaTokenStore(OfflineDbContext context) : IDeltaTokenSto
     /// <param name="queryId">The query ID of the table.</param>
     /// <param name="value">The value of the delta token.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
-    /// <returns>A task that completes when the delta token has been set in the persistent store.</returns>
-    public async Task SetDeltaTokenAsync(string queryId, DateTimeOffset value, CancellationToken cancellationToken = default)
+    /// <returns>true if this query ID was set for the first time; false otherwise.</returns>
+    public async Task<bool> SetDeltaTokenAsync(string queryId, DateTimeOffset value, CancellationToken cancellationToken = default)
     {
         ValidateQueryId(queryId);
         long unixms = value.ToUnixTimeMilliseconds();
@@ -57,12 +57,15 @@ internal class DefaultDeltaTokenStore(OfflineDbContext context) : IDeltaTokenSto
         if (deltaToken is null)
         {
             _ = context.DatasyncDeltaTokens.Add(new DatasyncDeltaToken() { Id = queryId, Value = unixms });
+            return true;
         }
         else if (deltaToken.Value != unixms)
         {
             deltaToken.Value = unixms;
             _ = context.DatasyncDeltaTokens.Update(deltaToken);
         }
+
+        return false;
     }
 
     /// <summary>

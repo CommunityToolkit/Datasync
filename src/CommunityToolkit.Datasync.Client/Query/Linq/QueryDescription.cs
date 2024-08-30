@@ -15,6 +15,30 @@ namespace CommunityToolkit.Datasync.Client.Query.Linq;
 internal class QueryDescription
 {
     /// <summary>
+    /// Creates a new blank <see cref="QueryDescription"/>
+    /// </summary>
+    internal QueryDescription()
+    {
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="QueryDescription"/> based on a source <see cref="QueryDescription"/>.
+    /// </summary>
+    /// <param name="source">The source of the <see cref="QueryDescription"/></param>
+    internal QueryDescription(QueryDescription source)
+    {
+        Filter = source.Filter; // Note: we don't clone the filter, so you have to be careful to not change any nodes.
+        RequestTotalCount = source.RequestTotalCount;
+        Ordering = [..source.Ordering];
+        ProjectionArgumentType = source.ProjectionArgumentType;
+        Projections = [..source.Projections];
+        QueryParameters = new Dictionary<string, string>(source.QueryParameters);
+        Selection = new List<string>(source.Selection);
+        Skip = source.Skip;
+        Top = source.Top;
+    }
+
+    /// <summary>
     /// The <see cref="QueryNode"/> for the query filter expression.
     /// </summary>
     public QueryNode Filter { get; set; }
