@@ -9,19 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Images\AddItem.png" />
-    <None Remove="Images\RefreshItems.png" />
+    <None Remove="Images\completed.png" />
+    <None Remove="Images\incomplete.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Images\AddItem.png" />
-    <Content Include="Images\RefreshItems.png" />
+    <Resource Include="Images\completed.png" />
+    <Resource Include="Images\incomplete.png" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

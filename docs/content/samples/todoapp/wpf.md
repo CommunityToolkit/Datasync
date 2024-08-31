@@ -2,44 +2,71 @@
 title = "WPF"
 +++
 
-You can find [our sample TodoApp for WPF](https://github.com/CommunityToolkit/Datasync/tree/main/samples/todoapp/TodoApp.WPF) on our GitHub repository.  All of our logic has been placed in the `Database/AppDbContext.cs` file:
+## Run the application first
 
-{{< highlight lineNos="true" type="csharp" wrap="true" title="AppDbContext.cs" >}}
-public class AppDbContext(DbContextOptions<AppDbContext> options) : OfflineDbContext(options)
-{
-    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+The WPF sample uses an in-memory Sqlite store for storing its data.  To run the application locally:
 
-    protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
-    {
-        HttpClientOptions clientOptions = new()
-        {
-            Endpoint = new Uri("https://YOURSITEHERE.azurewebsites.net/"),
-            HttpPipeline = [new LoggingHandler()]
-        };
-        _ = optionsBuilder.UseHttpClientOptions(clientOptions);
+* [Configure Visual Studio for WPF development](https://learn.microsoft.com/visualstudio/get-started/csharp/tutorial-wpf).
+* Open `samples/todoapp/Samples.TodoApp.sln` in Visual Studio.
+* In the Solution Explorer, right-click the `TodoApp.WPF` project, then select **Set as Startup Project**.
+* Select a target (in the top bar), then press F5 to run the application.
+
+If you bump into issues at this point, ensure you can properly develop and run WPF applications outside of the datasync service.
+
+## Deploy a datasync server to Azure
+
+Before you begin adjusting the application for offline usage, you must [deploy a datasync service](../server.md).  Make a note of the URI of the service before continuing.
+
+## Update the application for datasync operations
+
+All the changes are isolated to the `Database/AppDbContext.cs` file.
+
+1. Change the definition of the class so that it inherits from `OfflineDbContext`:
+
+   ```csharp
+   public class AppDbContext(DbContextOptions<AppDbContext> options) : OfflineDbContext(options)
+   {
+     // Rest of the class
+   }
+   ```
+
+2. Add the `OnDatasyncInitialization()` method:
+
+   ```csharp
+   protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
+   {
+       HttpClientOptions clientOptions = new()
+       {
+           Endpoint = new Uri("https://YOURSITEHERE.azurewebsites.net/"),
+           HttpPipeline = [new LoggingHandler()]
+       };
+       _ = optionsBuilder.UseHttpClientOptions(clientOptions);
+   }
+   ```
+
+   Replace the Endpoint with the URI of your datasync service.
+
+3. Update the `SynchronizeAsync()` method.
+
+   The `SynchronizeAsync()` method is used by the application to synchronize data to and from the datasync service.  It is called primarily from the `MainViewModel` which drives the UI interactions for the main list.
+
+   ```csharp
+   public async Task SynchronizeAsync(CancellationToken cancellationToken = default)
+   {
+      PushResult pushResult = await this.PushAsync(cancellationToken);
+      if (!pushResult.IsSuccessful)
+      {
+        throw new ApplicationException($"Push failed: {pushResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
+      }
+
+      PullResult pullResult = await this.PullAsync(cancellationToken);
+      if (!pullResult.IsSuccessful)
+      {
+        throw new ApplicationException($"Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
+      }
     }
+    ```
 
-    public async Task SynchronizeAsync(CancellationToken cancellationToken = default)
-    {
-        PushResult pushResult = await this.PushAsync(cancellationToken);
-        if (!pushResult.IsSuccessful)
-        {
-            throw new ApplicationException($"Push failed: {pushResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
-        }
+You can now re-run your application. Watch the console logs to show the interactions with the datasync service.  Press the refresh button to synchronize data with the cloud.  When you restart the application, your changes will automatically populate the database again.
 
-        PullResult pullResult = await this.PullAsync(cancellationToken);
-        if (!pullResult.IsSuccessful)
-        {
-            throw new ApplicationException($"Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
-        }
-    }
-}
-{{< /highlight >}}
-
-To enable offline synchronization:
-
-* Switch from `DbContext` to `OfflineDbContext`.
-* Define your `OnDatasyncInitialization()` method (don't forget to change the URL to the URL of your datasync server).
-* Where appropriate, use `PushAsync()` and `PullAsync()` to communicate with the server.
-
-We have placed a `SynchronizeAsync()` method on the database context, which is used in the view model for the single page we have.
+Obviously, you will want to do much more in a "real world" application, including proper error handling, authentication, and using a Sqlite file instead of an in-memory database.  This example shows off the minimum required to add datasync services to an application.

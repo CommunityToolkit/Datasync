@@ -54,7 +54,7 @@ public class DbContextInitializer(AppDbContext context) : IDbInitializer
     /// <inheritdoc />
     public void Initialize()
     {
-        context.Database.EnsureCreated();
+        _ = context.Database.EnsureCreated();
         // Task.Run(async () => await context.SynchronizeAsync());
     }
 

@@ -7,88 +7,78 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using TodoApp.WPF.Database;
+using TodoApp.WPF.Services;
 
 namespace TodoApp.WPF.ViewModels;
 
-/// <summary>
-/// The view model for the TodoListWindow.
-/// </summary>
-public partial class TodoListViewModel(AppDbContext service) : ObservableRecipient
+public partial class TodoListViewModel(AppDbContext context, IAlertService alertService) : ObservableRecipient
 {
-    internal event EventHandler<NotificationEventArgs>? NotificationHandler;
+    [ObservableProperty]
+    private bool isRefreshing;
 
     [ObservableProperty]
-    private bool isRefreshing = false;
+    private ConcurrentObservableCollection<TodoItem> items = [];
 
     [ObservableProperty]
-    private ConcurrentObservableCollection<TodoItem> items = new([.. service.TodoItems]);
-
-    [ObservableProperty]
-    private string title = string.Empty;
+    private string addItemTitle = string.Empty;
 
     [RelayCommand]
     public async Task AddItemAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            // Create a new item
+            // Create the new item
             TodoItem addition = new()
             {
                 Id = Guid.NewGuid().ToString("N"),
-                Title = Title
+                Title = AddItemTitle
             };
 
-            // Add te item to the database
-            _ = service.TodoItems.Add(addition);
-            _ = await service.SaveChangesAsync(cancellationToken);
+            // Add the item to the database
+            _ = context.TodoItems.Add(addition);
+            _ = await context.SaveChangesAsync(cancellationToken);
 
-            // Add the item to the end of the list.
+            // Add the item to the end of the list
             Items.Add(addition);
 
-            // Update the title field ready for ext insertion.
-            Title = string.Empty;
+            // Update the title field ready for next insertion.
+            AddItemTitle = string.Empty;
         }
         catch (Exception ex)
         {
-            NotificationHandler?.Invoke(this, new NotificationEventArgs(ex.GetType().Name, ex.Message, true));
-        }
-        finally
-        {
-            NotificationHandler?.Invoke(this, new NotificationEventArgs("Item Added", "", false));
+            await alertService.ShowErrorAlertAsync("AddItem", ex.Message);
         }
     }
 
     [RelayCommand]
-    public async Task EditItemAsync(string itemId, CancellationToken cancellationToken = default)
+    public async Task UpdateItemAsync(TodoItem item, CancellationToken cancellationToken = default)
     {
         try
         {
-            // Retrieve the item (by ID) from the service.
-            TodoItem item = await service.TodoItems.FindAsync([itemId], cancellationToken)
-                ?? throw new ApplicationException($"Item with ID '{itemId}' not found.");
+            TodoItem? storedItem = await context.TodoItems.FindAsync([item.Id], cancellationToken);
+            if (storedItem is not null)
+            {
+                storedItem.IsComplete = !storedItem.IsComplete;
 
-            // Update the item in the database
-            item.IsComplete = !item.IsComplete;
-            _ = service.TodoItems.Update(item);
-            _ = await service.SaveChangesAsync(cancellationToken);
+                // Store the updated item in the database
+                _ = context.TodoItems.Update(storedItem);
+                _ = await context.SaveChangesAsync(cancellationToken);
 
-            // Update the item in the list
-            _ = Items.ReplaceIf(x => x.Id == itemId, item);
+                // WPF does not respect changes to the observable collection in other threads
+                // so we just refresh the items
+                List<TodoItem> dbItems = await context.TodoItems.ToListAsync(cancellationToken);
+                Items.Clear();
+                _ = Items.AddRange(dbItems);
+            }
+            else
+            {
+                await alertService.ShowErrorAlertAsync("UpdateItem", "Item not found");
+            }
         }
         catch (Exception ex)
         {
-            NotificationHandler?.Invoke(this, new NotificationEventArgs(ex.GetType().Name, ex.Message, true));
+            await alertService.ShowErrorAlertAsync("UpdateItem", ex.Message);
         }
-        finally
-        {
-            NotificationHandler?.Invoke(this, new NotificationEventArgs("Item Updated", "", false));
-        }
-    }
-
-    [RelayCommand]
-    public async Task LoadPageAsync(CancellationToken cancellationToken = default)
-    {
-        await RefreshItemsAsync(cancellationToken);
     }
 
     [RelayCommand]
@@ -96,25 +86,19 @@ public partial class TodoListViewModel(AppDbContext service) : ObservableRecipie
     {
         try
         {
-            IsRefreshing = true;
+            // Synchronize with the remote service
+            await context.SynchronizeAsync(cancellationToken);
 
-            // Synchronize data with the remote service (if any).
-            await service.SynchronizeAsync(cancellationToken);
+            // Retrieve the items from the service
+            List<TodoItem> dbItems = await context.TodoItems.ToListAsync(cancellationToken);
 
-            // Pull all items from the database.
-            IEnumerable<TodoItem> itemsFromDatabase = await service.TodoItems.ToListAsync(cancellationToken);
-
-            // Replace all the items in the collection.
-            Items.ReplaceAll(itemsFromDatabase);
+            // Replace the items in the collection
+            Items.Clear();
+            _ = Items.AddRange(dbItems);
         }
         catch (Exception ex)
         {
-            NotificationHandler?.Invoke(this, new NotificationEventArgs(ex.GetType().Name, ex.Message, true));
-        }
-        finally
-        {
-            IsRefreshing = false;
-            NotificationHandler?.Invoke(this, new NotificationEventArgs("Items Refreshed", "", false));
+            await alertService.ShowErrorAlertAsync("AddItem", ex.Message);
         }
     }
 }

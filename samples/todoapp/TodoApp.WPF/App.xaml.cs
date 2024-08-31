@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using TodoApp.WPF.Database;
+using TodoApp.WPF.Services;
 using TodoApp.WPF.ViewModels;
 
 namespace TodoApp.WPF;
@@ -17,15 +18,10 @@ namespace TodoApp.WPF;
 public partial class App : Application, IDisposable
 {
     private readonly SqliteConnection dbConnection;
-
-    /// <summary>
-    /// The IoC service provider
-    /// </summary>
     public IServiceProvider Services { get; }
 
     public App()
     {
-        // Create the connection to the SQLite database
         this.dbConnection = new SqliteConnection("Data Source=:memory:");
         this.dbConnection.Open();
 
@@ -33,6 +29,7 @@ public partial class App : Application, IDisposable
         Services = new ServiceCollection()
             .AddTransient<TodoListViewModel>()
             .AddScoped<IDbInitializer, DbContextInitializer>()
+            .AddScoped<IAlertService, AlertService>()
             .AddDbContext<AppDbContext>(options => options.UseSqlite(this.dbConnection))
             .BuildServiceProvider();
 
@@ -42,7 +39,6 @@ public partial class App : Application, IDisposable
 
     private void InitializeDatabase()
     {
-        // using IServiceScope scope = Ioc.Default.CreateScope();
         using IServiceScope scope = Services.CreateScope();
         IDbInitializer initializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
         initializer.Initialize();

@@ -29,7 +29,6 @@ public partial class MainPage : ContentPage
     {
         if (e.Item is TodoItem item)
         {
-            Debug.WriteLine($"[UI] >>> Item clicked: {item.Id}");
             this._viewModel.SelectItemCommand.Execute(item);
         }
 
