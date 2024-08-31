@@ -6,7 +6,6 @@ using CommunityToolkit.Datasync.Client;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using TodoApp.WPF.Database;
 using TodoApp.WPF.Services;
 
@@ -24,9 +23,8 @@ public partial class TodoListViewModel(AppDbContext context, IAlertService alert
     private string addItemTitle = string.Empty;
 
     [RelayCommand]
-    public async Task AddItemCommand(CancellationToken cancellationToken = default)
+    public async Task AddItemAsync(CancellationToken cancellationToken = default)
     {
-        Debug.WriteLine("AddItemCommand");
         try
         {
             // Create the new item
@@ -50,16 +48,42 @@ public partial class TodoListViewModel(AppDbContext context, IAlertService alert
         {
             await alertService.ShowErrorAlertAsync("AddItem", ex.Message);
         }
-        finally
+    }
+
+    [RelayCommand]
+    public async Task UpdateItemAsync(TodoItem item, CancellationToken cancellationToken = default)
+    {
+        try
         {
-            await alertService.ShowInfoAlertAsync("Item Added");
+            TodoItem? storedItem = await context.TodoItems.FindAsync([item.Id], cancellationToken);
+            if (storedItem is not null)
+            {
+                storedItem.IsComplete = !storedItem.IsComplete;
+
+                // Store the updated item in the database
+                _ = context.TodoItems.Update(storedItem);
+                _ = await context.SaveChangesAsync(cancellationToken);
+
+                // WPF does not respect changes to the observable collection in other threads
+                // so we just refresh the items
+                List<TodoItem> dbItems = await context.TodoItems.ToListAsync(cancellationToken);
+                Items.Clear();
+                _ = Items.AddRange(dbItems);
+            }
+            else
+            {
+                await alertService.ShowErrorAlertAsync("UpdateItem", "Item not found");
+            }
+        }
+        catch (Exception ex)
+        {
+            await alertService.ShowErrorAlertAsync("UpdateItem", ex.Message);
         }
     }
 
     [RelayCommand]
-    public async Task RefreshItemsCommand(CancellationToken cancellationToken = default)
+    public async Task RefreshItemsAsync(CancellationToken cancellationToken = default)
     {
-        Debug.WriteLine("RefreshItemsCommand");
         try
         {
             // Synchronize with the remote service
@@ -75,10 +99,6 @@ public partial class TodoListViewModel(AppDbContext context, IAlertService alert
         catch (Exception ex)
         {
             await alertService.ShowErrorAlertAsync("AddItem", ex.Message);
-        }
-        finally
-        {
-            await alertService.ShowInfoAlertAsync("Items Refreshed");
         }
     }
 }

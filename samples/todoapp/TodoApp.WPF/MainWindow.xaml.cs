@@ -3,6 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using TodoApp.WPF.Database;
 using TodoApp.WPF.ViewModels;
 
 namespace TodoApp.WPF;
@@ -19,5 +22,11 @@ public partial class MainWindow : Window
         InitializeComponent();
         this.viewModel = App.GetRequiredService<TodoListViewModel>();
         DataContext = this.viewModel;
+    }
+
+    protected void ListViewItem_DoubleClickEventHandler(object sender, MouseButtonEventArgs e)
+    {
+        TodoItem? item = ((ListViewItem)sender).Content as TodoItem;
+        this.viewModel.UpdateItemCommand.Execute(item);
     }
 }

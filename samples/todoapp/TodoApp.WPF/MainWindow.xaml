@@ -4,9 +4,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TodoApp.WPF"
+        xmlns:conv="clr-namespace:TodoApp.WPF.Converters"
         mc:Ignorable="d"
         Title="MainWindow" Height="420" Width="800"
         ResizeMode="CanMinimize">
+    <Window.Resources>
+        <conv:BooleanToImageConverter x:Key="BooleanToImageConverter" />
+
+        <DataTemplate x:Key="CompletedIconTemplate">
+            <Image Width="16" Height="16" Source="{Binding Path=IsComplete, Converter={StaticResource BooleanToImageConverter}}" />
+        </DataTemplate>
+    </Window.Resources>
+    
     <StackPanel Margin="10">
         <!-- List View-->
         <GroupBox Header="Tasks" Height="300">
@@ -19,16 +28,15 @@
                     VerticalAlignment="Top">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Id" Width="35" DisplayMemberBinding="{Binding Id}"/>
-                            <GridViewColumn Header="Title" Width="585" DisplayMemberBinding="{Binding Title}"/>
-                            <!-- TODO: Image Check for completed-->
+                            <GridViewColumn Header="Title" Width="650" DisplayMemberBinding="{Binding Title}"/>
+                            <GridViewColumn Header="Completed" Width="75" CellTemplate="{StaticResource CompletedIconTemplate}"/>
                         </GridView>
                     </ListView.View>
-                    <!--<ListView.Resources>
+                    <ListView.Resources>
                         <Style TargetType="ListViewItem">
                             <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_DoubleClickEventHandler" />
                         </Style>
-                    </ListView.Resources>-->
+                    </ListView.Resources>
                 </ListView>
             </StackPanel>
         </GroupBox>
@@ -37,7 +45,7 @@
             <StackPanel Margin="5">
                 <DockPanel Height="26">
                     <TextBox x:Name="NewTodoItemTitle"
-                             Width="585"
+                             Width="560"
                              HorizontalAlignment="Left"
                              Margin="5,0,5,0"
                              Text="{Binding AddItemTitle, Mode=TwoWay}"
@@ -46,10 +54,12 @@
                             Width="75"
                             HorizontalAlignment="Right"
                             Content="Add" 
+                            Margin="5,0,5,0"
                             Command="{Binding AddItemCommand}"/>
                     <Button x:Name="RefreshTodoItemsButton"
                             Width="75"
                             HorizontalAlignment="Right"
+                            Margin="5,0,5,0"
                             Content="Refresh" 
                             Command="{Binding RefreshItemsCommand}"/>
                 </DockPanel>
