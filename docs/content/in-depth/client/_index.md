@@ -101,6 +101,10 @@ There are four ways to configure a HttpClient for communication with the datasyn
    }
    ```
 
+> [!TIP]
+> You can easily set up basic and bearer authentication when using `HttpClientOptions` using the `GenericAuthenticationProvider`.
+> See the [authentication guide](./auth.md) for more details.
+
 You must configure one of these options so that the data synchronization services know which datasync service to communicate with.
 
 ### Configuring entities to synchronize

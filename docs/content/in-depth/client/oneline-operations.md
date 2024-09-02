@@ -55,6 +55,9 @@ public IHttpClientFactory GetClientFactory()
 
 The first element in the list becomes the root handler, then each successive handler is chained to the `InnerHandler` of the previous handler.
 
+> [!TIP]
+> You can easily set up basic and bearer authentication using the `GenericAuthenticationProvider`.  See the [authentication guide](./auth.md) for more details.
+
 ## Create a Datasync Service Client
 
 Now that you have something to generate `HttpClient` objects, you can use it to create a `DatasyncServiceClient` for a specific service:

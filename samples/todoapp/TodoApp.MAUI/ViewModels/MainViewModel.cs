@@ -3,41 +3,22 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel;
-using System.Windows.Input;
 using TodoApp.MAUI.Models;
 using TodoApp.MAUI.Services;
 
 namespace TodoApp.MAUI.ViewModels;
 
-public class MainViewModel(AppDbContext context, IAlertService alertService) : INotifyPropertyChanged
+public class MainViewModel(AppDbContext context, IAlertService alertService) : ObservableRecipient
 {
+    [ObservableProperty]
     private bool _isRefreshing = false;
 
-    public ICommand AddItemCommand
-        => new Command<Entry>(async (Entry entry) => await AddItemAsync(entry.Text));
+    [ObservableProperty]
+    private ConcurrentObservableCollection<TodoItem> items = [];
 
-    public ICommand RefreshItemsCommand
-        => new Command(async () => await RefreshItemsAsync());
-
-    public ICommand SelectItemCommand
-        => new Command<TodoItem>(async (TodoItem item) => await UpdateItemAsync(item.Id, !item.IsComplete));
-
-    public ConcurrentObservableCollection<TodoItem> Items { get; } = new();
-
-    public bool IsRefreshing
-    {
-        get => this._isRefreshing;
-        set => SetProperty(ref this._isRefreshing, value, nameof(IsRefreshing));
-    }
-
-    public async void OnActivated()
-    {
-        await RefreshItemsAsync();
-    }
-
-    public async Task RefreshItemsAsync()
+    public async Task RefreshItemsAsync(CancellationToken cancellationToken = default)
     {
         if (IsRefreshing)
         {
@@ -46,8 +27,8 @@ public class MainViewModel(AppDbContext context, IAlertService alertService) : I
 
         try
         {
-            await context.SynchronizeAsync();
-            List<TodoItem> items = await context.TodoItems.ToListAsync();
+            await context.SynchronizeAsync(cancellationToken);
+            List<TodoItem> items = await context.TodoItems.ToListAsync(cancellationToken);
             Items.ReplaceAll(items);
         }
         catch (Exception ex)
@@ -60,17 +41,17 @@ public class MainViewModel(AppDbContext context, IAlertService alertService) : I
         }
     }
 
-    public async Task UpdateItemAsync(string itemId, bool isComplete)
+    public async Task UpdateItemAsync(string itemId, CancellationToken cancellationToken = default)
     {
         try
         {
             TodoItem? item = await context.TodoItems.FindAsync([itemId]);
             if (item is not null)
             {
-                item.IsComplete = isComplete;
+                item.IsComplete = !item.IsComplete;
                 _ = context.TodoItems.Update(item);
                 _ = Items.ReplaceIf(x => x.Id == itemId, item);
-                _ = await context.SaveChangesAsync();
+                _ = await context.SaveChangesAsync(cancellationToken);
             }
         }
         catch (Exception ex)
@@ -79,13 +60,13 @@ public class MainViewModel(AppDbContext context, IAlertService alertService) : I
         }
     }
 
-    public async Task AddItemAsync(string text)
+    public async Task AddItemAsync(string text, CancellationToken cancellationToken = default)
     {
         try
         {
             TodoItem item = new() { Title = text };
             _ = context.TodoItems.Add(item);
-            _ = await context.SaveChangesAsync();
+            _ = await context.SaveChangesAsync(cancellationToken);
             Items.Add(item);
         }
         catch (Exception ex)
@@ -93,40 +74,4 @@ public class MainViewModel(AppDbContext context, IAlertService alertService) : I
             await alertService.ShowErrorAlertAsync("AddItem", ex.Message);
         }
     }
-
-    #region INotifyPropertyChanged
-    /// <summary>
-    /// The event handler required by <see cref="INotifyPropertyChanged"/>
-    /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    /// <summary>
-    /// Sets a backing store value and notify watchers of the change.  The type must
-    /// implement <see cref="IEquatable{T}"/> for proper comparisons.
-    /// </summary>
-    /// <typeparam name="T">The type of the value</typeparam>
-    /// <param name="storage">The backing store</param>
-    /// <param name="value">The new value</param>
-    /// <param name="propertyName"></param>
-    protected void SetProperty<T>(ref T storage, T value, string? propertyName = null) where T : notnull
-    {
-        if (!storage.Equals(value))
-        {
-            storage = value;
-            NotifyPropertyChanged(propertyName);
-        }
-    }
-
-    /// <summary>
-    /// Notifies the data context that the property named has changed value.
-    /// </summary>
-    /// <param name="propertyName">The name of the property</param>
-    protected void NotifyPropertyChanged(string? propertyName = null)
-    {
-        if (propertyName != null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-    #endregion
 }
