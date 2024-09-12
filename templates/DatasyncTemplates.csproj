@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Authors>Community Toolkit</Authors>
+    <Authors>Microsoft.Toolkit,dotnetfoundation,Community Toolkit</Authors>
     <Company>.NET Foundation</Company>
     <Copyright>(c) .NET Foundation and Contributors. All rights reserved.</Copyright>
     <LicenseUrl>https://github.com/CommunityToolkit/Datasync/blob/main/LICENSE.md</LicenseUrl>
