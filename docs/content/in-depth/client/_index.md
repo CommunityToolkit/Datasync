@@ -147,6 +147,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : OfflineDbCon
        optionsBuilder.UseEndpoint(new Uri("https://YOURSITEHERE.azurewebsites.net/"));
     }
 }
+```
 
 ## Pushing data to the remote service
 
