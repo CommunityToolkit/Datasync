@@ -22,7 +22,7 @@ namespace CommunityToolkit.Datasync.Client;
 /// for HTTP datasync services.
 /// </summary>
 /// <typeparam name="TEntity">The type of entity being processed by this service client.</typeparam>
-internal class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> where TEntity : class
+public class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> where TEntity : class
 {
     /// <summary>
     /// Creates a new <see cref="DatasyncServiceClient{TEntity}"/> using default information based on
