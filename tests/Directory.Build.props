@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Authors>Community Toolkit</Authors>
+    <Authors>Microsoft.Toolkit,dotnetfoundation,Community Toolkit</Authors>
     <Company>Community Toolkit</Company>
     <Copyright>(c) .NET Foundation and Contributors. All rights reserved.</Copyright>
     <Description>A test package for supporting the Datasync Toolkit.</Description>
