@@ -52,7 +52,7 @@ internal class OfflineOptions()
         {
             return new()
             {
-                Endpoint = new Uri($"/tables/{entityType.Name.ToLowerInvariant()}", UriKind.Relative),
+                Endpoint = new Uri($"tables/{entityType.Name.ToLowerInvariant()}", UriKind.Relative),
                 HttpClient = HttpClientFactory.CreateClient(),
                 QueryDescription = new QueryDescription()
             };
