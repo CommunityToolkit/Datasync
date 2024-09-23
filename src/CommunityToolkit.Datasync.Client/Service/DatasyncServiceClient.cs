@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Http;
+using CommunityToolkit.Datasync.Client.Offline.Operations;
 using CommunityToolkit.Datasync.Client.Paging;
 using CommunityToolkit.Datasync.Client.Query;
 using CommunityToolkit.Datasync.Client.Query.Linq;
@@ -146,7 +147,7 @@ public class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> wh
         ArgumentNullException.ThrowIfNull(query);
         ArgumentNullException.ThrowIfNull(options);
         QueryDescription queryDescription = new QueryTranslator<TEntity>(query).Translate();
-        
+
         // Make our query as efficient as possible for the specific task.
         queryDescription.Ordering.Clear();
         queryDescription.Selection.Clear();
@@ -183,7 +184,7 @@ public class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> wh
         {
             return result;
         }
-        
+
         result.ThrowIfNotSuccessful(requireContent: true);
         return result;
     }
@@ -529,19 +530,6 @@ public class DatasyncServiceClient<TEntity> : IDatasyncServiceClient<TEntity> wh
     /// <returns></returns>
     internal static Uri MakeAbsoluteUri(Uri? baseAddress, Uri relativeOrAbsoluteUri)
     {
-        if (relativeOrAbsoluteUri.IsAbsoluteUri)
-        {
-            return new Uri($"{relativeOrAbsoluteUri.ToString().TrimEnd('/')}/");
-        }
-
-        if (baseAddress != null)
-        {
-            if (baseAddress.IsAbsoluteUri)
-            {
-                return new Uri($"{new Uri(baseAddress, relativeOrAbsoluteUri).ToString().TrimEnd('/')}/");
-            }
-        }
-
-        throw new UriFormatException("Invalid combination of baseAddress and relativeUri");
+        return ExecutableOperation.MakeAbsoluteUri(baseAddress, relativeOrAbsoluteUri);
     }
 }

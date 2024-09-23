@@ -29,7 +29,7 @@ public class DatasyncOfflineOptionsBuilder_Tests : BaseTest
 
     [Fact]
     public void UseHttpClientFactory_Null()
-    { 
+    {
         Type[] entityTypes = [typeof(ClientMovie), typeof(ClientKitchenSink)];
         DatasyncOfflineOptionsBuilder sut = new(entityTypes);
         Action act = () => _ = sut.UseHttpClientFactory(null);

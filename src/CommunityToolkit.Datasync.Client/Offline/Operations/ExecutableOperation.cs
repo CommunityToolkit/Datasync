@@ -32,6 +32,15 @@ internal abstract class ExecutableOperation
 
         if (baseAddress != null)
         {
+            if (baseAddress is { IsAbsoluteUri: true, Segments.Length: > 1 })
+            {
+                relativeOrAbsoluteUri = new Uri(relativeOrAbsoluteUri.ToString().TrimStart('/'), UriKind.Relative);
+                if (baseAddress.ToString()[^1] != '/')
+                {
+                    baseAddress = new Uri($"{baseAddress}/");
+                }
+            }
+
             if (baseAddress.IsAbsoluteUri)
             {
                 return new Uri($"{new Uri(baseAddress, relativeOrAbsoluteUri).ToString().TrimEnd('/')}/");

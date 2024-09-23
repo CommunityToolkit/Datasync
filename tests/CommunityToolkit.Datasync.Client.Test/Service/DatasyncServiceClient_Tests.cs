@@ -1204,7 +1204,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     [Fact]
     public async Task Query_TwoPagesOfItems()
     {
-        Page<ClientKitchenSink> 
+        Page<ClientKitchenSink>
             page1 = CreatePage(5, null, "$skip=5"),
             page2 = CreatePage(5);
 
@@ -3959,10 +3959,14 @@ public class DatasyncServiceClient_Tests : IDisposable
     [InlineData("https://test.zumo.com", "/tables/movies/", "https://test.zumo.com/tables/movies/")]
     [InlineData("https://test.zumo.com/", "/tables/movies", "https://test.zumo.com/tables/movies/")]
     [InlineData("https://test.zumo.com/", "/tables/movies/", "https://test.zumo.com/tables/movies/")]
-    [InlineData("https://test.zumo.com/tables", "movies", "https://test.zumo.com/movies/")]
-    [InlineData("https://test.zumo.com/tables", "movies/", "https://test.zumo.com/movies/")]
-    [InlineData("https://test.zumo.com/tables", "/api/movies", "https://test.zumo.com/api/movies/")]
-    [InlineData("https://test.zumo.com/tables", "/api/movies/", "https://test.zumo.com/api/movies/")]
+    //[InlineData("https://test.zumo.com/tables", "movies", "https://test.zumo.com/movies/")]
+    //[InlineData("https://test.zumo.com/tables", "movies/", "https://test.zumo.com/movies/")]
+    //[InlineData("https://test.zumo.com/tables", "/api/movies", "https://test.zumo.com/api/movies/")]
+    //[InlineData("https://test.zumo.com/tables", "api/movies/", "https://test.zumo.com/api/movies/")]
+    [InlineData("https://test.zumo.com/childpath/", "api/movies/", "https://test.zumo.com/childpath/api/movies/")]
+    [InlineData("https://test.zumo.com/childpath", "api/movies/", "https://test.zumo.com/childpath/api/movies/")]
+    [InlineData("https://test.zumo.com/childpath/", "/api/movies/", "https://test.zumo.com/childpath/api/movies/")]
+    [InlineData("https://test.zumo.com/childpath", "/api/movies/", "https://test.zumo.com/childpath/api/movies/")]
     public void MakeAbsoluteUri_Works(string ba, string bb, string expected)
     {
         Uri arg1 = string.IsNullOrEmpty(ba) ? null : new Uri(ba, UriKind.Absolute);
