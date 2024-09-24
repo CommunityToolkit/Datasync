@@ -5,34 +5,26 @@
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.134.3">
     <meta name="generator" content="Relearn 6.2.0+tip">
-    <meta name="description" content="Samples There are a variety of samples in the samples folder of our repository. You can find a walk-through of the code below.
-Servers A typical server Clients The TodoApp
-The Todo App is a typical data-driven application. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.
-AvaloniaUI MAUI Uno Platform WinUI3 WPF">
+    <meta name="description" content="Most of the time, you will want to use bearer authentication so that you can use a JWT (Json Web Token) obtained from an OIDC server. This is so prevalent that we provide an easy mechanism to add this to your application via a GenericAuthenticationProvider. The authentication provider only requests tokens from your token retrieval method when required (when the provided token is close to expiring or has expired).
+The GenericAuthenticationProvider and associated classes are in the CommunityToolkit.Datasync.Client.Authentication namespace.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Samples :: Datasync Community Toolkit">
-    <meta name="twitter:description" content="Samples There are a variety of samples in the samples folder of our repository. You can find a walk-through of the code below.
-Servers A typical server Clients The TodoApp
-The Todo App is a typical data-driven application. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.
-AvaloniaUI MAUI Uno Platform WinUI3 WPF">
-    <meta property="og:url" content="http://localhost:1313/Datasync/samples/index.html">
+    <meta name="twitter:title" content="Authentication :: Datasync Community Toolkit">
+    <meta name="twitter:description" content="Most of the time, you will want to use bearer authentication so that you can use a JWT (Json Web Token) obtained from an OIDC server. This is so prevalent that we provide an easy mechanism to add this to your application via a GenericAuthenticationProvider. The authentication provider only requests tokens from your token retrieval method when required (when the provided token is close to expiring or has expired).
+The GenericAuthenticationProvider and associated classes are in the CommunityToolkit.Datasync.Client.Authentication namespace.">
+    <meta property="og:url" content="http://localhost:1313/Datasync/in-depth/client/auth/index.html">
     <meta property="og:site_name" content="Datasync Community Toolkit">
-    <meta property="og:title" content="Samples :: Datasync Community Toolkit">
-    <meta property="og:description" content="Samples There are a variety of samples in the samples folder of our repository. You can find a walk-through of the code below.
-Servers A typical server Clients The TodoApp
-The Todo App is a typical data-driven application. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.
-AvaloniaUI MAUI Uno Platform WinUI3 WPF">
+    <meta property="og:title" content="Authentication :: Datasync Community Toolkit">
+    <meta property="og:description" content="Most of the time, you will want to use bearer authentication so that you can use a JWT (Json Web Token) obtained from an OIDC server. This is so prevalent that we provide an easy mechanism to add this to your application via a GenericAuthenticationProvider. The authentication provider only requests tokens from your token retrieval method when required (when the provided token is close to expiring or has expired).
+The GenericAuthenticationProvider and associated classes are in the CommunityToolkit.Datasync.Client.Authentication namespace.">
     <meta property="og:locale" content="en_us">
-    <meta property="og:type" content="website">
-    <meta itemprop="name" content="Samples :: Datasync Community Toolkit">
-    <meta itemprop="description" content="Samples There are a variety of samples in the samples folder of our repository. You can find a walk-through of the code below.
-Servers A typical server Clients The TodoApp
-The Todo App is a typical data-driven application. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.
-AvaloniaUI MAUI Uno Platform WinUI3 WPF">
-    <meta itemprop="wordCount" content="68">
-    <title>Samples :: Datasync Community Toolkit</title>
-    <link href="/Datasync/samples/index.xml" rel="alternate" type="application/rss+xml" title="Samples :: Datasync Community Toolkit"><link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <meta property="og:type" content="article">
+    <meta property="article:section" content="In-depth">
+    <meta itemprop="name" content="Authentication :: Datasync Community Toolkit">
+    <meta itemprop="description" content="Most of the time, you will want to use bearer authentication so that you can use a JWT (Json Web Token) obtained from an OIDC server. This is so prevalent that we provide an easy mechanism to add this to your application via a GenericAuthenticationProvider. The authentication provider only requests tokens from your token retrieval method when required (when the provided token is close to expiring or has expired).
+The GenericAuthenticationProvider and associated classes are in the CommunityToolkit.Datasync.Client.Authentication namespace.">
+    <meta itemprop="wordCount" content="537">
+    <title>Authentication :: Datasync Community Toolkit</title><link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
 <link rel="manifest" href="/favicon/site.webmanifest">
@@ -49,8 +41,8 @@ AvaloniaUI MAUI Uno Platform WinUI3 WPF">
     <script src="/Datasync/js/variant.js?1727192619"></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.relBasePath='..';
-      window.relearn.relBaseUri='..\/..';
+      window.relearn.relBasePath='..\/..\/..';
+      window.relearn.relBaseUri='..\/..\/..\/..';
       window.relearn.absBaseUri='http:\/\/localhost:1313\/Datasync';
       window.relearn.disableAnchorCopy=false;
       window.relearn.disableAnchorScrolling=false;
@@ -67,7 +59,7 @@ AvaloniaUI MAUI Uno Platform WinUI3 WPF">
       window.T_N_results_found = `{1} results found for "{0}"`;
     </script>
   </head>
-  <body class="mobile-support html" data-url="/Datasync/samples/index.html">
+  <body class="mobile-support html" data-url="/Datasync/in-depth/client/auth/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
       <nav id="R-topbar">
@@ -80,12 +72,16 @@ AvaloniaUI MAUI Uno Platform WinUI3 WPF">
               <div class="topbar-content">
                 <div class="topbar-content-wrapper"><nav class="TableOfContents">
   <ul>
-    <li><a href="#samples">Samples</a>
+    <li><a href="#set-up-authentication-and-authorization-on-the-datasync-service">Set up authentication and authorization on the datasync service</a></li>
+    <li><a href="#create-a-method-to-retrieve-the-token">Create a method to retrieve the token</a></li>
+    <li><a href="#add-the-genericauthenticationprovider-to-your-client">Add the GenericAuthenticationProvider to your client</a>
       <ul>
-        <li><a href="#servers">Servers</a></li>
-        <li><a href="#clients">Clients</a></li>
+        <li><a href="#build-httpclientoptions-with-the-authentication-provider">Build HttpClientOptions with the authentication provider</a></li>
       </ul>
     </li>
+    <li><a href="#forcing-a-login-request">Forcing a login request</a></li>
+    <li><a href="#refresh-token">Refresh token</a></li>
+    <li><a href="#other-options">Other options</a></li>
   </ul>
 </nav>
                 </div>
@@ -94,12 +90,14 @@ AvaloniaUI MAUI Uno Platform WinUI3 WPF">
           </div>
           <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li
             itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/index.html"><span itemprop="name">Datasync Community Toolkit</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">Samples</span><meta itemprop="position" content="2"></li>
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/in-depth/index.html"><span itemprop="name">In-depth</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/in-depth/client/index.html"><span itemprop="name">Client application</span></a><meta itemprop="position" content="3">&nbsp;>&nbsp;</li><li
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">Authentication</span><meta itemprop="position" content="4"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
-            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/setup/client/index.html" title="Client application (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
+            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/in-depth/client/oneline-operations/index.html" title="Online operations (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
             </div>
-            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/samples/server/index.html" title="Sample Server (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
+            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><span class="topbar-control"><i class="fa-fw fas fa-chevron-right"></i></span>
             </div>
             <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button>
               <div class="topbar-content">
@@ -119,29 +117,62 @@ AvaloniaUI MAUI Uno Platform WinUI3 WPF">
             <header class="headline">
             </header>
 
-<h1 id="samples">Samples</h1>
+<h1 id="authentication">Authentication</h1>
 
-<h2 id="samples">Samples</h2>
-<p>There are a variety of samples in the <a href="https://github.com/CommunityToolkit/Datasync/tree/main/samples" rel="external" target="_blank">samples folder</a> of our repository.  You can find a walk-through of the code below.</p>
-<h3 id="servers">Servers</h3>
+<p>Most of the time, you will want to use bearer authentication so that you can use a JWT (Json Web Token) obtained from an OIDC server.  This is so prevalent that we provide an easy mechanism to add this to your application via a <code>GenericAuthenticationProvider</code>.  The authentication provider only requests tokens from your token retrieval method when required (when the provided token is close to expiring or has expired).</p>
+<p>The <code>GenericAuthenticationProvider</code> and associated classes are in the <code>CommunityToolkit.Datasync.Client.Authentication</code> namespace.</p>
+<h2 id="set-up-authentication-and-authorization-on-the-datasync-service">Set up authentication and authorization on the datasync service</h2>
+<p>You must set up authentication and authorization on the datasync service first.  The authentication and authorization is regular ASP.NET Core
+identity, so <a href="https://learn.microsoft.com/aspnet/core/security/" rel="external" target="_blank">follow the instructions</a> for your particular provider.</p>
+<h2 id="create-a-method-to-retrieve-the-token">Create a method to retrieve the token</h2>
+<p>You need to implement a method to retrieve the token.  Normally, this uses the library that is provided for the purpose.  For example:</p>
 <ul>
-<li><a href="/Datasync/samples/server/index.html">A typical server</a></li>
+<li>Microsoft logins use <a href="https://www.nuget.org/packages/Microsoft.Identity.Client" rel="external" target="_blank">Microsoft.Identity.Client</a>.</li>
+<li>Other logins on MAUI may use <a href="https://learn.microsoft.com/dotnet/maui/platform-integration/communication/authentication" rel="external" target="_blank">WebAuthenticator</a></li>
 </ul>
-<h3 id="clients">Clients</h3>
-<ul>
-<li>
-<p>The TodoApp</p>
-<p>The Todo App is a typical data-driven application.  We start with data stored in a normal <a href="https://learn.microsoft.com/ef/core/" rel="external" target="_blank">Entity Framework Core</a> DbContext, then modify it to synchronize the data to the remote cloud database.</p>
-<ul>
-<li><a href="./todoapp/avalonia.md">AvaloniaUI</a></li>
-<li><a href="/Datasync/samples/todoapp/maui/index.html">MAUI</a></li>
-<li><a href="./todoapp/uno.md">Uno Platform</a></li>
-<li><a href="/Datasync/samples/todoapp/winui3/index.html">WinUI3</a></li>
-<li><a href="/Datasync/samples/todoapp/wpf/index.html">WPF</a></li>
-</ul>
-</li>
-</ul>
+<p>Whatever mechanism you use, this must be set up first. If your application is unable to get a token, the authentication middleware cannot pass it onto the server.</p>
+<h2 id="add-the-genericauthenticationprovider-to-your-client">Add the GenericAuthenticationProvider to your client</h2>
+<p>The <code>GenericAuthenticationProvider</code> takes a function that retrieves the token.  For example:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">async</span> Task&lt;AuthenticationToken&gt; GetTokenAsync(CancellationToken cancellationToken = <span style="color:#66d9ef">default</span>)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">// Put the logic to retrieve the JWT here.</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  DateTimeOffset expiresOn = expiry-date;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#66d9ef">new</span> AuthenticationToken() 
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    Token = <span style="color:#e6db74">&#34;the JWT you need to pass to the service&#34;</span>,
+</span></span><span style="display:flex;"><span>    UserId = <span style="color:#e6db74">&#34;the user ID&#34;</span>,
+</span></span><span style="display:flex;"><span>    DisplayName = <span style="color:#e6db74">&#34;the display Name&#34;</span>,
+</span></span><span style="display:flex;"><span>    ExpiresOn = expiresOn
+</span></span><span style="display:flex;"><span>  };
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>You can now create a GenericAuthenticationProvider:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>GenericAuthenticationProvider authProvider = <span style="color:#66d9ef">new</span>(GetTokenAsync);</span></span></code></pre></div><h3 id="build-httpclientoptions-with-the-authentication-provider">Build HttpClientOptions with the authentication provider</h3>
+<p>The authentication provider is a <code>DelegatingHandler</code>, so it belongs in the <code>HttpPipeline</code>:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>HttpClientOptions options = <span style="color:#66d9ef">new</span>() 
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  HttpPipeline = [ authProvider ],
+</span></span><span style="display:flex;"><span>  Endpont = <span style="color:#e6db74">&#34;https://myservice.azurewebsites.net&#34;</span>
+</span></span><span style="display:flex;"><span>};</span></span></code></pre></div><p>You can then use this options structure when constructing a client (either in the <code>OnDatasyncInitialization()</code> method or when constructing the <code>DatasyncServiceClient</code>).</p>
 
+<div class="box notices cstyle tip">
+  <div class="box-label"><i class="fa-fw fas fa-lightbulb"></i> Tip</div>
+  <div class="box-content">
+
+<p>It&rsquo;s normal to inject the authentication provider as a singleton in an MVVM scenario with dependency injection.</p>
+</div>
+</div><h2 id="forcing-a-login-request">Forcing a login request</h2>
+<p>Sometimes, you want to force a login request; for example, in response to a button click.  You can call <code>LoginAsync()</code> on the authentication provider to trigger a login sequence.  The token will then be used until it expires.</p>
+<h2 id="refresh-token">Refresh token</h2>
+<p>Most providers allow you to request a &ldquo;refresh token&rdquo; that can be used to silently request an access token for use in accessing the datasync service. You can store and retrieve refresh tokens from local storage in your token retrieval method.  The <code>GenericAuthenticationProvider</code> does not natively handle refresh tokens for you.</p>
+<h2 id="other-options">Other options</h2>
+<p>You can specify which header is used for authorization.  For example, Azure App Service Authentication and Authorization service uses the <code>X-ZUMO-AUTH</code> header to transmit the token.  This is easily set up:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>GenericAuthenticationProvider authProvider = <span style="color:#66d9ef">new</span>(GetTokenAsync, <span style="color:#e6db74">&#34;X-ZUMO-AUTH&#34;</span>);</span></span></code></pre></div><p>Similarly, you can specify the authentication type for the authorization header (instead of Bearer):</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>GenericAuthenticationProvider authProvider = <span style="color:#66d9ef">new</span>(GetTokenAsync, <span style="color:#e6db74">&#34;Authorization&#34;</span>, <span style="color:#e6db74">&#34;Basic&#34;</span>);</span></span></code></pre></div><p>This gives you significant flexibility to build the authentication mechanism appropriate for your application.</p>
+<p>By default, a new token is requested if the old token is expired or within 2 minutes of expiry.  You can adjust the amount of buffer time using the <code>RefreshBufferTimeSpan</code> property:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>GenericAuthenticationProvider authProvider = <span style="color:#66d9ef">new</span>(GetTokenAsync)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  RefreshBufferTimeSpan = TimeSpan.FromSeconds(<span style="color:#ae81ff">30</span>)
+</span></span><span style="display:flex;"><span>};</span></span></code></pre></div>
             <footer class="footline">
             </footer>
           </article>
@@ -230,13 +261,13 @@ AvaloniaUI MAUI Uno Platform WinUI3 WPF">
           <li data-nav-id="/Datasync/setup/index.html" class=""><a class="padding" href="/Datasync/setup/index.html">Getting started</a><ul id="R-subsections-6a385b5ee9f4b02ef7c93cf34bdd6ea2" class="morespace collapsible-menu">
           <li data-nav-id="/Datasync/setup/server/index.html" class=""><a class="padding" href="/Datasync/setup/server/index.html">Datasync server</a></li>
           <li data-nav-id="/Datasync/setup/client/index.html" class=""><a class="padding" href="/Datasync/setup/client/index.html">Client application</a></li></ul></li>
-          <li data-nav-id="/Datasync/samples/index.html" class="active parent "><a class="padding" href="/Datasync/samples/index.html">Samples</a><ul id="R-subsections-abc4562a0bcf1570d92f916bb82a8b39" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/samples/index.html" class=""><a class="padding" href="/Datasync/samples/index.html">Samples</a><ul id="R-subsections-abc4562a0bcf1570d92f916bb82a8b39" class="morespace collapsible-menu">
           <li data-nav-id="/Datasync/samples/server/index.html" class=""><a class="padding" href="/Datasync/samples/server/index.html">Sample Server</a></li>
           <li data-nav-id="/Datasync/samples/todoapp/index.html" class="alwaysopen"><a class="padding" href="/Datasync/samples/todoapp/index.html">Todo App</a><ul id="R-subsections-64deac9d85858c681d35e673e0fd3b13" class="morespace collapsible-menu">
           <li data-nav-id="/Datasync/samples/todoapp/maui/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/maui/index.html">MAUI</a></li>
           <li data-nav-id="/Datasync/samples/todoapp/winui3/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/winui3/index.html">WinUI3</a></li>
           <li data-nav-id="/Datasync/samples/todoapp/wpf/index.html" class=""><a class="padding" href="/Datasync/samples/todoapp/wpf/index.html">WPF</a></li></ul></li></ul></li>
-          <li data-nav-id="/Datasync/in-depth/index.html" class=""><a class="padding" href="/Datasync/in-depth/index.html">In-depth</a><ul id="R-subsections-3229b26a09fade6cbffa6d892da9210c" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/in-depth/index.html" class="parent "><a class="padding" href="/Datasync/in-depth/index.html">In-depth</a><ul id="R-subsections-3229b26a09fade6cbffa6d892da9210c" class="morespace collapsible-menu">
           <li data-nav-id="/Datasync/in-depth/server/index.html" class="alwaysopen"><a class="padding" href="/Datasync/in-depth/server/index.html">Datasync Server</a><ul id="R-subsections-991d9dab262acb1d6880fda1bc7a5221" class="morespace collapsible-menu">
           <li data-nav-id="/Datasync/in-depth/server/databases/index.html" class="alwaysopen"><a class="padding" href="/Datasync/in-depth/server/databases/index.html">Database support</a><ul id="R-subsections-2d5568f2a27d469d423218e65149f559" class="morespace collapsible-menu">
           <li data-nav-id="/Datasync/in-depth/server/databases/cosmos/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/cosmos/index.html">Azure Cosmos DB</a></li>
@@ -245,9 +276,9 @@ AvaloniaUI MAUI Uno Platform WinUI3 WPF">
           <li data-nav-id="/Datasync/in-depth/server/databases/litedb/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/litedb/index.html">LiteDb</a></li>
           <li data-nav-id="/Datasync/in-depth/server/databases/postgresql/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/postgresql/index.html">PostgreSQL</a></li>
           <li data-nav-id="/Datasync/in-depth/server/databases/sqlite/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/sqlite/index.html">Sqlite</a></li></ul></li></ul></li>
-          <li data-nav-id="/Datasync/in-depth/client/index.html" class="alwaysopen"><a class="padding" href="/Datasync/in-depth/client/index.html">Client application</a><ul id="R-subsections-2bf83e84435a33452d7389fc82205491" class="morespace collapsible-menu">
+          <li data-nav-id="/Datasync/in-depth/client/index.html" class="parent alwaysopen"><a class="padding" href="/Datasync/in-depth/client/index.html">Client application</a><ul id="R-subsections-2bf83e84435a33452d7389fc82205491" class="morespace collapsible-menu">
           <li data-nav-id="/Datasync/in-depth/client/oneline-operations/index.html" class=""><a class="padding" href="/Datasync/in-depth/client/oneline-operations/index.html">Online operations</a></li>
-          <li data-nav-id="/Datasync/in-depth/client/auth/index.html" class=""><a class="padding" href="/Datasync/in-depth/client/auth/index.html">Authentication</a></li></ul></li></ul></li>
+          <li data-nav-id="/Datasync/in-depth/client/auth/index.html" class="active"><a class="padding" href="/Datasync/in-depth/client/auth/index.html">Authentication</a></li></ul></li></ul></li>
           </ul>
         </div>
         <div class="padding footermargin footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter"></div>
@@ -262,7 +293,7 @@ AvaloniaUI MAUI Uno Platform WinUI3 WPF">
                   <div class="control-style">
                     <label class="a11y-only" for="R-select-language">Language</label>
                     <select id="R-select-language" onchange="location = this.querySelector( this.value ).dataset.url;">
-                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/Datasync/samples/index.html" lang="en-us" selected></option>
+                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/Datasync/in-depth/client/auth/index.html" lang="en-us" selected></option>
                     </select>
                   </div>
                   <div class="clear"></div>

@@ -12,7 +12,7 @@
       <link>http://localhost:1313/Datasync/in-depth/server/databases/cosmos/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/in-depth/server/databases/cosmos/index.html</guid>
-      <description>Azure Cosmos DB Azure Cosmos DB is a fully managed NoSQL database for high-performance applications of any size or scale. See Azure Cosmos DB Provider for information on using Azure Cosmos DB with Entity Framework Core. When using Azure Cosmos DB with the Datasync Community Toolkit:&#xA;Set up the Cosmos Container with a composite index that specifies the UpdatedAt and Id fields. Composite indices can be added to a container through the Azure portal, ARM, Bicep, Terraform, or within code.</description>
+      <description>Azure Cosmos DB Azure Cosmos DB is a fully managed NoSQL database for high-performance applications of any size or scale. See Azure Cosmos DB Provider for information on using Azure Cosmos DB with Entity Framework Core. When using Azure Cosmos DB with the Datasync Community Toolkit:&#xA;Set up the Cosmos Container with a composite index that specifies the UpdatedAt and Id fields. Composite indices can be added to a container through the Azure portal, ARM, Bicep, Terraform, or within code. Here’s an example bicep resource definition:</description>
     </item>
     <item>
       <title>Azure SQL &amp; SQL Server</title>
@@ -40,7 +40,7 @@
       <link>http://localhost:1313/Datasync/in-depth/server/databases/postgresql/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/in-depth/server/databases/postgresql/index.html</guid>
-      <description>PostgreSQL Create a trigger for each entity:&#xA;CREATE OR REPLACE FUNCTION entity_datasync() RETURNS trigger AS $$ BEGIN NEW.&#34;UpdatedAt&#34; = NOW() AT TIME ZONE &#39;UTC&#39;; NEW.&#34;Version&#34; = convert_to(gen_random_uuid()::text, &#39;UTF8&#39;); RETURN NEW; END; $$ LANGUAGE plpgsql; CREATE OR REPLACE TRIGGER entity_datasync BEFORE INSERT OR UPDATE ON &#34;entity&#34; FOR EACH ROW EXECUTE PROCEDURE entity_datasync();You can install this trigger using either a migration or immediately after EnsureCreated() to create the database.&#xA;In the OnModelCreating() method of your context, add the following for each entity:</description>
+      <description>PostgreSQL Create a trigger for each entity:&#xA;CREATE OR REPLACE FUNCTION entity_datasync() RETURNS trigger AS $$ BEGIN NEW.&#34;UpdatedAt&#34; = NOW() AT TIME ZONE &#39;UTC&#39;; NEW.&#34;Version&#34; = convert_to(gen_random_uuid()::text, &#39;UTF8&#39;); RETURN NEW; END; $$ LANGUAGE plpgsql; CREATE OR REPLACE TRIGGER entity_datasync BEFORE INSERT OR UPDATE ON &#34;entity&#34; FOR EACH ROW EXECUTE PROCEDURE entity_datasync();You can install this trigger using either a migration or immediately after EnsureCreated() to create the database.&#xA;In the OnModelCreating() method of your context, add the following for each entity:&#xA;protected override void OnModelCreating(ModelBuilder modelBuilder) { // Repeat the next line for each synchronizable entity modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.UpdatedAt).HasDefaultValueSql(&#34;NOW() AT TIME ZONE &#39;UTC&#39;&#34;); base.OnModelCreating(modelBuilder); } Test PostgreSQL Context</description>
     </item>
     <item>
       <title>Sqlite</title>
