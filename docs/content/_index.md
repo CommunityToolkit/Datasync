@@ -8,7 +8,7 @@ description = "A set of .NET libraries for synchronizing data between cloud and 
 
 The Datasync Community Toolkit is a free [dotnet Foundation] [Community Toolkit] set of libraries that assists in providing offline data to your desktop and mobile applications.  The data is stored in the cloud and synchronized to a local Sqlite database.
 
-{{% badge style="primary" title="Version" %}}8.0.0{{% /badge %}}
+{{% badge style="primary" title="Version" %}}8.0.1{{% /badge %}}
 
 ## Get started
 
@@ -20,9 +20,7 @@ The Datasync Community Toolkit is a free [dotnet Foundation] [Community Toolkit]
 
 * [A sample server](samples/server.md)
 * [Sample clients](samples/todoapp)
-  * [AvaloniaUI](samples/todoapp/avalonia.md)
   * [MAUI](samples/todoapp/maui.md)
-  * [Uno Platform](samples/todoapp/uno.md)
   * [WinUI3](samples/todoapp/winui3.md)
   * [WPF](samples/todoapp/wpf.md)
 

@@ -3,7 +3,7 @@
   <channel>
     <title>Client application :: Datasync Community Toolkit</title>
     <link>http://localhost:1313/Datasync/in-depth/client/index.html</link>
-    <description>This guide shows you how to perform common scenarios using the Datasync Community Toolkit. Use the client library in any .NET 8 application, including AvaloniaUI, MAUI, Uno Platform, WinUI, and WPF applications.&#xA;This guide primary deals with offline operations. For online operations, see the Online operations guide.&#xA;Creating an offline-capable DbContext Use the OfflineDbContext as the base for your offline storage:&#xA;public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.</description>
+    <description>This guide shows you how to perform common scenarios using the Datasync Community Toolkit. Use the client library in any .NET 8 application, including AvaloniaUI, MAUI, Uno Platform, WinUI, and WPF applications.&#xA;This guide primary deals with offline operations. For online operations, see the Online operations guide.&#xA;Creating an offline-capable DbContext Use the OfflineDbContext as the base for your offline storage:&#xA;public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : OfflineDbContext(options) { public DbSet&lt;TodoItem&gt; TodoItems =&gt; Set&lt;TodoItem&gt;(); protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder) { HttpClientOptions clientOptions = new() { Endpoint = new Uri(&#34;https://YOURSITEHERE.azurewebsites.net/&#34;), HttpPipeline = [new LoggingHandler()] }; _ = optionsBuilder.UseHttpClientOptions(clientOptions); } }&#xD;Note&#xD;Sqlite stores DateTimeOffset using a second accuracy by default. The Datasync Community Toolkit does not rely on the storage of the UpdatedAt field, but it is transmitted with millisecond accuracy. Consider using a ValueConverter to store the value as a long value instead.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="http://localhost:1313/Datasync/in-depth/client/index.xml" rel="self" type="application/rss+xml" />
@@ -12,7 +12,14 @@
       <link>http://localhost:1313/Datasync/in-depth/client/oneline-operations/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/in-depth/client/oneline-operations/index.html</guid>
-      <description>Not all data needs to be synchronized. You may want to do an online search of records for a search capability, for example. To support this, The Datasync Community Toolkit supports an online client in addition to offline usage.&#xA;Creating a Http Client Factory To create an online client, you must create an IHttpClientFactory that creates the appropriate HttpClient objects that are used to communicate with the remote service. This can handle authentication, logging, and anything else that is required by the remote service.</description>
+      <description>Not all data needs to be synchronized. You may want to do an online search of records for a search capability, for example. To support this, The Datasync Community Toolkit supports an online client in addition to offline usage.&#xA;Creating a Http Client Factory To create an online client, you must create an IHttpClientFactory that creates the appropriate HttpClient objects that are used to communicate with the remote service. This can handle authentication, logging, and anything else that is required by the remote service. At a minimum, a BaseAddress must be established. To facilitate this, the Datasync Community Toolkit provides a default HttpClientFactory that can be used:</description>
+    </item>
+    <item>
+      <title>Authentication</title>
+      <link>http://localhost:1313/Datasync/in-depth/client/auth/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Datasync/in-depth/client/auth/index.html</guid>
+      <description>Most of the time, you will want to use bearer authentication so that you can use a JWT (Json Web Token) obtained from an OIDC server. This is so prevalent that we provide an easy mechanism to add this to your application via a GenericAuthenticationProvider. The authentication provider only requests tokens from your token retrieval method when required (when the provided token is close to expiring or has expired).&#xA;The GenericAuthenticationProvider and associated classes are in the CommunityToolkit.Datasync.Client.Authentication namespace.</description>
     </item>
   </channel>
 </rss>
