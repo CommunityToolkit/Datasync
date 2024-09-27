@@ -17,7 +17,6 @@ permissions:
 
 jobs:
   stale:
-
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -27,13 +26,15 @@ jobs:
     - uses: actions/stale@v9
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        days-before-stale: 30
+        days-before-stale: 21
         days-before-close: 14
         enable-statistics: true
-        any-of-labels: 'waiting-for-'
+        any-of-labels: 'Awaiting Response'
         remove-stale-when-updated: true
-        stale-issue-message: 'We have noticed this issue has not been updated within 30 days.  If there is no action on this issue in the next 14 days, we will automatically close it.'
-        stale-pr-message: 'We have noticed this PR has not been updated within 30 days.  If there is no action on this PR in the next 14 days, we will automatically close it.'
+        stale-issue-message: 'We have noticed this issue has not been updated within 21 days.  If there is no action on this issue in the next 14 days, we will automatically close it.'
+        stale-pr-message: 'We have noticed this PR has not been updated within 21 days.  If there is no action on this PR in the next 14 days, we will automatically close it.'
+        close-issue-message: 'This issue has been stale for 5 weeks and has been automatically closed.'
+        close-pr-message: 'This PR has been stale for 5 weeks and has been automatically closed.'
         stale-issue-label: 'stale'
         stale-pr-label: 'stale'
 
