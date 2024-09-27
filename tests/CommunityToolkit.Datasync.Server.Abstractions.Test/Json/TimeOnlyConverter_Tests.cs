@@ -9,23 +9,33 @@ namespace CommunityToolkit.Datasync.Server.Abstractions.Test.Json;
 [ExcludeFromCodeCoverage]
 public class TimeOnlyConverter_Tests : SerializerTests
 {
-    [Fact]
-    public void Converter_ReadsJson()
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_ReadsJson(string culture)
     {
         string json = """{"updatedAt":"12:30:15.123"}""";
-        TimeOnly value = TimeOnly.Parse("12:30:15.123");
+        TimeOnly value = new(12, 30, 15, 123);
 
-        Entity entity = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
-        entity.UpdatedAt.Ticks.Should().Be(value.Ticks);
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
+            entity.UpdatedAt.Ticks.Should().Be(value.Ticks);
+        });
     }
 
-    [Fact]
-    public void Converter_WritesJson()
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_WritesJson(string culture)
     {
         string json = """{"updatedAt":"12:30:15.123"}""";
-        Entity entity = new() { UpdatedAt = TimeOnly.Parse("12:30:15.1234567") };
-        string actual = JsonSerializer.Serialize(entity, SerializerOptions);
-        Assert.Equal(json, actual);
+        TimeOnly value = new(12, 30, 15, 123, 456);
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = new() { UpdatedAt = value };
+            string actual = JsonSerializer.Serialize(entity, SerializerOptions);
+            Assert.Equal(json, actual);
+        });
     }
 
     [Fact]
