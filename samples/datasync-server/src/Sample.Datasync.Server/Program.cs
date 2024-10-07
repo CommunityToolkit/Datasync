@@ -23,12 +23,15 @@ builder.Services.AddControllers();
 
 if (nswagEnabled)
 {
-    _ = builder.Services.AddOpenApiDocument(options => options.AddDatasyncProcessor());
+    _ = builder.Services
+        .AddOpenApiDocument(options => options.AddDatasyncProcessor());
 }
 
 if (swashbuckleEnabled)
 {
-    _ = builder.Services.AddSwaggerGen(options => options.AddDatasyncControllers());
+    _ = builder.Services
+        .AddEndpointsApiExplorer()
+        .AddSwaggerGen(options => options.AddDatasyncControllers());
 }
 
 WebApplication app = builder.Build();
