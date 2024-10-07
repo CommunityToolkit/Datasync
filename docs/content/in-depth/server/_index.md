@@ -109,7 +109,7 @@ public class TodoItemController : TableController<TodoItem>
 }
 ```
 
-* The controller must have a route.  By convention, the client looks for table controllers on a subpath of '/tables', but they can be placed anywhere.
+* The controller must have a route.  By convention, the client looks for table controllers on a subpath of '/tables', but they can be placed anywhere.  Make sure you are using the `RouteAttribute` from `Microsoft.AspNetCore.Mvc`.  Your routing will appear broken if you are using `Microsoft.AspNetCore.Components.RouteAttribute`.
 * The controller must inherit from `TableController<TEntity>`, where `<TEntity>` is an implementation of the `ITableData` implementation for your repository type.
 * Assign a repository based on the same type as your model.
 
