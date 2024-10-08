@@ -50,6 +50,13 @@ public class NSwag_Tests
     }
 
     [Fact]
+    public void NSwag_AddMissingSchemaProperties_CornerCase()
+    {
+        Action act = () => DatasyncOperationProcessor.AddMissingSchemaProperties(null);
+        act.Should().NotThrow();
+    }
+
+    [Fact]
     public void ContainsRequestHeader_ReturnsFalse_WhenQueryParam()
     {
         OpenApiOperation sut = new();

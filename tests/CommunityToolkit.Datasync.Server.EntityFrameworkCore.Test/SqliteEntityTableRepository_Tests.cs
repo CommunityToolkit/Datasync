@@ -4,8 +4,11 @@
 
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Models;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
+
+using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
@@ -37,6 +40,27 @@ public class SqliteEntityTableRepository_Tests : RepositoryTests<SqliteEntityMov
     protected override Task<string> GetRandomEntityIdAsync(bool exists)
         => Task.FromResult(exists ? this.movies[this.random.Next(Context.Movies.Count())].Id : Guid.NewGuid().ToString());
     #endregion
+
+    [SkippableFact]
+    public async Task IdGenerator_Ulid_CanCreate()
+    {
+        Skip.IfNot(CanRunLiveTests());
+
+        IRepository<SqliteEntityMovie> repository = await GetPopulatedRepositoryAsync();
+        string generatedId = string.Empty;
+        ((EntityTableRepository<SqliteEntityMovie>) repository).IdGenerator = _ => { generatedId = Ulid.NewUlid().ToString(); return generatedId; };
+
+        SqliteEntityMovie addition = TestData.Movies.OfType<SqliteEntityMovie>(TestData.Movies.BlackPanther);
+        addition.Id = null;
+        SqliteEntityMovie sut = addition.Clone();
+        await repository.CreateAsync(sut);
+        SqliteEntityMovie actual = await GetEntityAsync(sut.Id);
+
+        actual.Should().BeEquivalentTo<IMovie>(addition);
+        actual.UpdatedAt.Should().BeAfter(StartTime);
+        generatedId.Should().NotBeNullOrEmpty();
+        actual.Id.Should().Be(generatedId);
+    }
 
     [Fact]
     public void EntityTableRepository_BadDbSet_Throws()
