@@ -31,16 +31,16 @@ public class ExecutableOperation_Tests
     }
 
     [Theory]
-    [InlineData(null, "https://test.zumo.com/tables/movies", "https://test.zumo.com/tables/movies/")]
-    [InlineData(null, "https://test.zumo.com/tables/movies/", "https://test.zumo.com/tables/movies/")]
-    [InlineData("https://test.zumo.com", "/tables/movies", "https://test.zumo.com/tables/movies/")]
-    [InlineData("https://test.zumo.com", "/tables/movies/", "https://test.zumo.com/tables/movies/")]
-    [InlineData("https://test.zumo.com/", "/tables/movies", "https://test.zumo.com/tables/movies/")]
-    [InlineData("https://test.zumo.com/", "/tables/movies/", "https://test.zumo.com/tables/movies/")]
-    [InlineData("https://test.zumo.com/tables", "movies", "https://test.zumo.com/movies/")]
-    [InlineData("https://test.zumo.com/tables", "movies/", "https://test.zumo.com/movies/")]
-    [InlineData("https://test.zumo.com/tables", "/api/movies", "https://test.zumo.com/api/movies/")]
-    [InlineData("https://test.zumo.com/tables", "/api/movies/", "https://test.zumo.com/api/movies/")]
+    [InlineData(null, "https://test.zumo.com/tables/movies", "https://test.zumo.com/tables/movies")]
+    [InlineData(null, "https://test.zumo.com/tables/movies/", "https://test.zumo.com/tables/movies")]
+    [InlineData("https://test.zumo.com", "/tables/movies", "https://test.zumo.com/tables/movies")]
+    [InlineData("https://test.zumo.com", "/tables/movies/", "https://test.zumo.com/tables/movies")]
+    [InlineData("https://test.zumo.com/", "/tables/movies", "https://test.zumo.com/tables/movies")]
+    [InlineData("https://test.zumo.com/", "/tables/movies/", "https://test.zumo.com/tables/movies")]
+    [InlineData("https://test.zumo.com/tables", "movies", "https://test.zumo.com/movies")]
+    [InlineData("https://test.zumo.com/tables", "movies/", "https://test.zumo.com/movies")]
+    [InlineData("https://test.zumo.com/tables", "/api/movies", "https://test.zumo.com/api/movies")]
+    [InlineData("https://test.zumo.com/tables", "/api/movies/", "https://test.zumo.com/api/movies")]
     public void MakeAbsoluteUri_Works(string ba, string bb, string expected)
     {
         Uri arg1 = string.IsNullOrEmpty(ba) ? null : new Uri(ba, UriKind.Absolute);

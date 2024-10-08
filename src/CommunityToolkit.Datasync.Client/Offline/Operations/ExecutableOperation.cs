@@ -26,18 +26,18 @@ internal abstract class ExecutableOperation
     /// <returns></returns>
     internal static Uri MakeAbsoluteUri(Uri? baseAddress, Uri relativeOrAbsoluteUri, string? itemId = null)
     {
-        itemId ??= string.Empty;
+        itemId = string.IsNullOrWhiteSpace(itemId) ? string.Empty : $"/{itemId}";
 
         if (relativeOrAbsoluteUri.IsAbsoluteUri)
         {
-            return new Uri($"{relativeOrAbsoluteUri.ToString().TrimEnd('/')}/{itemId}");
+            return new Uri($"{relativeOrAbsoluteUri.ToString().TrimEnd('/')}{itemId}");
         }
 
         if (baseAddress != null)
         {
             if (baseAddress.IsAbsoluteUri)
             {
-                return new Uri($"{new Uri(baseAddress, relativeOrAbsoluteUri).ToString().TrimEnd('/')}/{itemId}");
+                return new Uri($"{new Uri(baseAddress, relativeOrAbsoluteUri).ToString().TrimEnd('/')}{itemId}");
             }
         }
 
