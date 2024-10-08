@@ -21,8 +21,8 @@ internal class ReplaceOperation(DatasyncOperation operation) : ExecutableOperati
     /// <returns>The result of the push operation (async).</returns>
     internal override async Task<ServiceResponse> ExecuteAsync(EntityDatasyncOptions options, CancellationToken cancellationToken = default)
     {
-        Uri endpoint = MakeAbsoluteUri(options.HttpClient.BaseAddress, options.Endpoint);
-        using HttpRequestMessage request = new(HttpMethod.Put, new Uri(endpoint, operation.ItemId))
+        Uri endpoint = MakeAbsoluteUri(options.HttpClient.BaseAddress, options.Endpoint, operation.ItemId);
+        using HttpRequestMessage request = new(HttpMethod.Put, endpoint)
         {
             Content = new StringContent(operation.Item, JsonMediaType)
         };

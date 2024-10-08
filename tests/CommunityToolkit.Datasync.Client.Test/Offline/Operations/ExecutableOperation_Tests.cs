@@ -50,6 +50,37 @@ public class ExecutableOperation_Tests
         actual.ToString().Should().Be(expected);
     }
 
+
+    [Theory]
+    [InlineData(null, "https://test.zumo.com/tables/movies", "123", "https://test.zumo.com/tables/movies/123")]
+    [InlineData(null, "https://test.zumo.com/tables/movies/", "123", "https://test.zumo.com/tables/movies/123")]
+    [InlineData("https://test.zumo.com", "/tables/movies", "123", "https://test.zumo.com/tables/movies/123")]
+    [InlineData("https://test.zumo.com", "/tables/movies/", "123", "https://test.zumo.com/tables/movies/123")]
+    [InlineData("https://test.zumo.com/", "/tables/movies", "123", "https://test.zumo.com/tables/movies/123")]
+    [InlineData("https://test.zumo.com/", "/tables/movies/", "123", "https://test.zumo.com/tables/movies/123")]
+    [InlineData("https://test.zumo.com/tables", "movies", "123", "https://test.zumo.com/movies/123")]
+    [InlineData("https://test.zumo.com/tables", "movies/", "123", "https://test.zumo.com/movies/123")]
+    [InlineData("https://test.zumo.com/tables", "/api/movies", "123", "https://test.zumo.com/api/movies/123")]
+    [InlineData("https://test.zumo.com/tables", "/api/movies/", "123", "https://test.zumo.com/api/movies/123")]
+    [InlineData(null, "https://test.zumo.com/tables/movies", "E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D", "https://test.zumo.com/tables/movies/E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D")]
+    [InlineData(null, "https://test.zumo.com/tables/movies/", "E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D", "https://test.zumo.com/tables/movies/E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D")]
+    [InlineData("https://test.zumo.com", "/tables/movies", "E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D", "https://test.zumo.com/tables/movies/E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D")]
+    [InlineData("https://test.zumo.com", "/tables/movies/", "E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D", "https://test.zumo.com/tables/movies/E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D")]
+    [InlineData("https://test.zumo.com/", "/tables/movies", "E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D", "https://test.zumo.com/tables/movies/E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D")]
+    [InlineData("https://test.zumo.com/", "/tables/movies/", "E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D", "https://test.zumo.com/tables/movies/E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D")]
+    [InlineData("https://test.zumo.com/tables", "movies", "E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D", "https://test.zumo.com/movies/E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D")]
+    [InlineData("https://test.zumo.com/tables", "movies/", "E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D", "https://test.zumo.com/movies/E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D")]
+    [InlineData("https://test.zumo.com/tables", "/api/movies", "E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D", "https://test.zumo.com/api/movies/E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D")]
+    [InlineData("https://test.zumo.com/tables", "/api/movies/", "E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D", "https://test.zumo.com/api/movies/E0B4E855-4C95-4E9F-8859-581CABB4B66F:5BE95902-65E3-4A21-97B8-D38F36331E8D")]
+    public void MakeAbsoluteUri_WorksWithId(string ba, string bb, string itemId, string expected)
+    {
+        Uri arg1 = string.IsNullOrEmpty(ba) ? null : new Uri(ba, UriKind.Absolute);
+        Uri arg2 = bb.StartsWith("http") ? new Uri(bb, UriKind.Absolute) : new Uri(bb, UriKind.Relative);
+        Uri actual = ExecutableOperation.MakeAbsoluteUri(arg1, arg2, itemId);
+
+        actual.ToString().Should().Be(expected);
+    }
+
     [Fact]
     public void MakeAbsoluteUri_BaseAddressRelative()
     {
