@@ -4,8 +4,11 @@
 
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Models;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
+
+using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
@@ -37,4 +40,51 @@ public class RepositoryControlledEntityTableRepository_Tests : RepositoryTests<R
     protected override Task<string> GetRandomEntityIdAsync(bool exists)
         => Task.FromResult(exists ? this.movies[this.random.Next(Context.Movies.Count())].Id : Guid.NewGuid().ToString());
     #endregion
+
+    [SkippableFact]
+    public async Task IdGenerator_Ulid_CanCreate()
+    {
+        Skip.IfNot(CanRunLiveTests());
+
+        IRepository<RepositoryControlledEntityMovie> repository = await GetPopulatedRepositoryAsync();
+        string generatedId = string.Empty;
+        ((EntityTableRepository<RepositoryControlledEntityMovie>)repository).IdGenerator = _ => { generatedId = Ulid.NewUlid().ToString(); return generatedId; };
+
+        RepositoryControlledEntityMovie addition = TestData.Movies.OfType<RepositoryControlledEntityMovie>(TestData.Movies.BlackPanther);
+        addition.Id = null;
+        RepositoryControlledEntityMovie sut = addition.Clone();
+        await repository.CreateAsync(sut);
+        RepositoryControlledEntityMovie actual = await GetEntityAsync(sut.Id);
+
+        actual.Should().BeEquivalentTo<IMovie>(addition);
+        actual.UpdatedAt.Should().BeAfter(StartTime);
+        generatedId.Should().NotBeNullOrEmpty();
+        actual.Id.Should().Be(generatedId);
+    }
+
+    [SkippableFact]
+    public async Task VersionGenerator_Ticks_CanCreate()
+    {
+        Skip.IfNot(CanRunLiveTests());
+
+        IRepository<RepositoryControlledEntityMovie> repository = await GetPopulatedRepositoryAsync();
+        byte[] generatedVersion = [];
+        ((EntityTableRepository<RepositoryControlledEntityMovie>)repository).VersionGenerator = () =>
+        {
+            DateTimeOffset offset = DateTimeOffset.UtcNow;
+            generatedVersion = BitConverter.GetBytes(offset.Ticks);
+            return generatedVersion;
+        };
+
+        RepositoryControlledEntityMovie addition = TestData.Movies.OfType<RepositoryControlledEntityMovie>(TestData.Movies.BlackPanther);
+        addition.Id = null;
+        RepositoryControlledEntityMovie sut = addition.Clone();
+        await repository.CreateAsync(sut);
+        RepositoryControlledEntityMovie actual = await GetEntityAsync(sut.Id);
+
+        actual.Should().BeEquivalentTo<IMovie>(addition);
+        actual.UpdatedAt.Should().BeAfter(StartTime);
+        generatedVersion.Should().NotBeNullOrEmpty();
+        actual.Version.Should().BeEquivalentTo(generatedVersion);
+    }
 }

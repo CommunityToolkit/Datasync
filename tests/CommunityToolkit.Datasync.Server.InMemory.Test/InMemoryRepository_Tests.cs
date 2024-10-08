@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Models;
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Server.InMemory.Test;
@@ -123,5 +124,52 @@ public class InMemoryRepository_Tests : RepositoryTests<InMemoryMovie>
         Func<Task> act = async () => await sut.ReplaceAsync(replacement);
 
         await act.Should().ThrowAsync<ApplicationException>();
+    }
+
+    [SkippableFact]
+    public async Task IdGenerator_Ulid_CanCreate()
+    {
+        Skip.IfNot(CanRunLiveTests());
+
+        IRepository<InMemoryMovie> repository = await GetPopulatedRepositoryAsync();
+        string generatedId = string.Empty;
+        ((InMemoryRepository<InMemoryMovie>)repository).IdGenerator = _ => { generatedId = Ulid.NewUlid().ToString(); return generatedId; };
+
+        InMemoryMovie addition = TestData.Movies.OfType<InMemoryMovie>(TestData.Movies.BlackPanther);
+        addition.Id = null;
+        InMemoryMovie sut = addition.Clone();
+        await repository.CreateAsync(sut);
+        InMemoryMovie actual = await GetEntityAsync(sut.Id);
+
+        actual.Should().BeEquivalentTo<IMovie>(addition);
+        actual.UpdatedAt.Should().BeAfter(StartTime);
+        generatedId.Should().NotBeNullOrEmpty();
+        actual.Id.Should().Be(generatedId);
+    }
+
+    [SkippableFact]
+    public async Task VersionGenerator_Ticks_CanCreate()
+    {
+        Skip.IfNot(CanRunLiveTests());
+
+        IRepository<InMemoryMovie> repository = await GetPopulatedRepositoryAsync();
+        byte[] generatedVersion = [];
+        ((InMemoryRepository<InMemoryMovie>)repository).VersionGenerator = () =>
+        {
+            DateTimeOffset offset = DateTimeOffset.UtcNow;
+            generatedVersion = BitConverter.GetBytes(offset.Ticks);
+            return generatedVersion;
+        };
+
+        InMemoryMovie addition = TestData.Movies.OfType<InMemoryMovie>(TestData.Movies.BlackPanther);
+        addition.Id = null;
+        InMemoryMovie sut = addition.Clone();
+        await repository.CreateAsync(sut);
+        InMemoryMovie actual = await GetEntityAsync(sut.Id);
+
+        actual.Should().BeEquivalentTo<IMovie>(addition);
+        actual.UpdatedAt.Should().BeAfter(StartTime);
+        generatedVersion.Should().NotBeNullOrEmpty();
+        actual.Version.Should().BeEquivalentTo(generatedVersion);
     }
 }

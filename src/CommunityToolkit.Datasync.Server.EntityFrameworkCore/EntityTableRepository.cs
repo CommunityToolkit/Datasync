@@ -60,10 +60,14 @@ public class EntityTableRepository<TEntity> : IRepository<TEntity> where TEntity
     }
 
     /// <summary>
-    /// Creates a new ID for an entity when one is not provided.
+    /// The mechanism by which an Id is generated when one is not provided.
     /// </summary>
-    /// <returns>A globally unique identifier for the entity.</returns>
-    protected string CreateId() => Guid.NewGuid().ToString();
+    public Func<TEntity, string> IdGenerator { get; set; } = _ => Guid.NewGuid().ToString("N");
+
+    /// <summary>
+    /// The mechanism by which a new version byte array is generated.
+    /// </summary>
+    public Func<byte[]> VersionGenerator { get; set; } = () => Guid.NewGuid().ToByteArray();
 
     /// <summary>
     /// Retrieves an untracked version of an entity from the database.
@@ -87,7 +91,7 @@ public class EntityTableRepository<TEntity> : IRepository<TEntity> where TEntity
 
         if (this.shouldUpdateVersion)
         {
-            entity.Version = Guid.NewGuid().ToByteArray();
+            entity.Version = VersionGenerator.Invoke();
         }
     }
 
@@ -128,7 +132,7 @@ public class EntityTableRepository<TEntity> : IRepository<TEntity> where TEntity
     {
         if (string.IsNullOrEmpty(entity.Id))
         {
-            entity.Id = CreateId();
+            entity.Id = IdGenerator.Invoke(entity);
         }
 
         await WrapExceptionAsync(entity.Id, async () =>
@@ -192,7 +196,7 @@ public class EntityTableRepository<TEntity> : IRepository<TEntity> where TEntity
 
         await WrapExceptionAsync(entity.Id, async () =>
         {
-            TEntity storedEntity = await DataSet.FindAsync(new object[] { entity.Id }, cancellationToken).ConfigureAwait(false)
+            TEntity storedEntity = await DataSet.FindAsync([entity.Id], cancellationToken).ConfigureAwait(false)
                 ?? throw new HttpException((int)HttpStatusCode.NotFound);
 
             if (version?.Length > 0 && !storedEntity.Version.SequenceEqual(version))
