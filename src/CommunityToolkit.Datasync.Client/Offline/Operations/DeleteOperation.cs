@@ -21,8 +21,8 @@ internal class DeleteOperation(DatasyncOperation operation) : ExecutableOperatio
     /// <returns>The result of the push operation (async).</returns>
     internal override async Task<ServiceResponse> ExecuteAsync(EntityDatasyncOptions options, CancellationToken cancellationToken = default)
     {
-        Uri endpoint = MakeAbsoluteUri(options.HttpClient.BaseAddress, options.Endpoint);
-        using HttpRequestMessage request = new(HttpMethod.Delete, new Uri(endpoint, operation.ItemId));
+        Uri endpoint = MakeAbsoluteUri(options.HttpClient.BaseAddress, options.Endpoint, operation.ItemId);
+        using HttpRequestMessage request = new(HttpMethod.Delete, endpoint);
         if (!string.IsNullOrEmpty(operation.EntityVersion))
         {
             request.Headers.IfMatch.Add(new EntityTagHeaderValue($"\"{operation.EntityVersion}\""));

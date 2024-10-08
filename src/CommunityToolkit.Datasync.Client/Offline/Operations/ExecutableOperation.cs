@@ -22,19 +22,22 @@ internal abstract class ExecutableOperation
     /// </summary>
     /// <param name="baseAddress">The base address from the client.</param>
     /// <param name="relativeOrAbsoluteUri">A relative or absolute URI</param>
+    /// <param name="itemId">The id of the item to append to the URI.</param>
     /// <returns></returns>
-    internal static Uri MakeAbsoluteUri(Uri? baseAddress, Uri relativeOrAbsoluteUri)
+    internal static Uri MakeAbsoluteUri(Uri? baseAddress, Uri relativeOrAbsoluteUri, string? itemId = null)
     {
+        itemId = string.IsNullOrWhiteSpace(itemId) ? string.Empty : $"/{itemId}";
+
         if (relativeOrAbsoluteUri.IsAbsoluteUri)
         {
-            return new Uri($"{relativeOrAbsoluteUri.ToString().TrimEnd('/')}/");
+            return new Uri($"{relativeOrAbsoluteUri.ToString().TrimEnd('/')}{itemId}");
         }
 
         if (baseAddress != null)
         {
             if (baseAddress.IsAbsoluteUri)
             {
-                return new Uri($"{new Uri(baseAddress, relativeOrAbsoluteUri).ToString().TrimEnd('/')}/");
+                return new Uri($"{new Uri(baseAddress, relativeOrAbsoluteUri).ToString().TrimEnd('/')}{itemId}");
             }
         }
 

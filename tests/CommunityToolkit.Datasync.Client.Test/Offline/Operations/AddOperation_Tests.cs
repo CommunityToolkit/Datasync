@@ -53,7 +53,7 @@ public class AddOperation_Tests
         HttpRequestMessage request = handler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Post);
-        request.RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/");
+        request.RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies");
         (await request.Content.ReadAsStringAsync()).Should().Be(itemJson);
 
         response.Should().NotBeNull();
