@@ -110,7 +110,7 @@ public class DatasyncOperationProcessor : IOperationProcessor
         }
     }
 
-    private static void AddMissingSchemaProperties(JsonSchema? schema)
+    internal static void AddMissingSchemaProperties(JsonSchema? schema)
     {
         if (schema is null)
         {

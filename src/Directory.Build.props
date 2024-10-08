@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Authors>Microsoft.Toolkit,dotnetfoundation,Community Toolkit</Authors>
+    <Authors>Microsoft.Toolkit,dotnetfoundation</Authors>
     <Company>.NET Foundation</Company>
     <Copyright>(c) .NET Foundation and Contributors. All rights reserved.</Copyright>
     <LicenseUrl>https://github.com/CommunityToolkit/Datasync/blob/main/LICENSE.md</LicenseUrl>

@@ -51,13 +51,23 @@ public class LiteDbRepository<TEntity> : IRepository<TEntity> where TEntity : Li
     public virtual ILiteCollection<TEntity> Collection { get; }
 
     /// <summary>
+    /// The mechanism by which an Id is generated when one is not provided.
+    /// </summary>
+    public Func<TEntity, string> IdGenerator { get; set; } = _ => Guid.NewGuid().ToString("N");
+
+    /// <summary>
+    /// The mechanism by which a new version byte array is generated.
+    /// </summary>
+    public Func<byte[]> VersionGenerator { get; set; } = () => Guid.NewGuid().ToByteArray();
+
+    /// <summary>
     /// Updates the system properties for the provided entity on write.
     /// </summary>
     /// <param name="entity">The entity to update.</param>
-    protected static void UpdateEntity(TEntity entity)
+    protected void UpdateEntity(TEntity entity)
     {
         entity.UpdatedAt = DateTimeOffset.UtcNow;
-        entity.Version = Guid.NewGuid().ToByteArray();
+        entity.Version = VersionGenerator.Invoke();
     }
 
     /// <summary>
@@ -101,7 +111,7 @@ public class LiteDbRepository<TEntity> : IRepository<TEntity> where TEntity : Li
     {
         if (string.IsNullOrEmpty(entity.Id))
         {
-            entity.Id = Guid.NewGuid().ToString();
+            entity.Id = IdGenerator.Invoke(entity);
         }
 
         await ExecuteOnLockedCollectionAsync(() =>
