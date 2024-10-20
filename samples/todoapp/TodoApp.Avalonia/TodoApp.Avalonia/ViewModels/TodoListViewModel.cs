@@ -42,7 +42,7 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
             _ = await context.SaveChangesAsync(cancellationToken);
 
             // Add the item to the end of the list
-            Items.Add(new TodoItemViewModel(addition));
+            Items.Add(new TodoItemViewModel(addition, this));
 
             // Update the title field ready for next insertion.
             NewItemContent = string.Empty;
@@ -72,41 +72,43 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
     /// </summary>
     /// <param name="item">the item to remove</param>
     [RelayCommand]
-    private void RemoveItem(TodoItemViewModel item)
+    private async Task RemoveItemAsync(TodoItemViewModel item)
     {
         // Remove the given item from the list
         Items.Remove(item);
+        
+        _ = context.TodoItems.Remove(item.GetToDoItem());
+        _ = await context.SaveChangesAsync();
     }
     
 
-    [RelayCommand]
-    public async Task UpdateItemAsync(TodoItem item, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateItemAsync(TodoItemViewModel item, CancellationToken cancellationToken = default)
     {
         try
         {
-            TodoItem? storedItem = await context.TodoItems.FindAsync([item.Id], cancellationToken);
+            TodoItem? storedItem = await context.TodoItems.FindAsync([item.GetToDoItem().Id], cancellationToken);
             if (storedItem is not null)
             {
-                storedItem.IsComplete = !storedItem.IsComplete;
+                storedItem.IsComplete = item.IsChecked;
 
                 // Store the updated item in the database
                 _ = context.TodoItems.Update(storedItem);
                 _ = await context.SaveChangesAsync(cancellationToken);
+                
+                item.IsChecked = storedItem.IsComplete;
 
-                // WPF does not respect changes to the observable collection in other threads
-                // so we just refresh the items
-                List<TodoItem> dbItems = await context.TodoItems.ToListAsync(cancellationToken);
-                Items.Clear();
-                _ = Items.AddRange(dbItems.Select(x => new TodoItemViewModel(x)));
+                return true;
             }
             else
             {
                 this.ShowErrorAlert("Item not found");
+                return false;
             }
         }
         catch (Exception ex)
         {
             this.ShowErrorAlert(ex.Message);
+            return false;
         }
     }
 
@@ -123,7 +125,7 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
 
             // Replace the items in the collection
             Items.Clear();
-            _ = Items.AddRange(dbItems.Select(x => new TodoItemViewModel(x)));
+            _ = Items.AddRange(dbItems.Select(x => new TodoItemViewModel(x, this)));
         }
         catch (Exception ex)
         {
