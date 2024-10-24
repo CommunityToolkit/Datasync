@@ -5,7 +5,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TodoApp.WinUI3.Database;
+namespace TodoApp.Uno.Database;
 
 /// <summary>
 /// An interface to initialize a database.

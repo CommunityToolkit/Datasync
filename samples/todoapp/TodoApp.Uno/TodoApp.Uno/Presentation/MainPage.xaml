@@ -24,6 +24,10 @@
         <Button Content="Go to Second Page"
             AutomationProperties.AutomationId="SecondPageButton"
             Command="{Binding GoToSecond}" />
+
+        <Button Content="Go To TodoList Page"
+                AutomationProperties.AutomationId="TodoListPageButton"
+                Command="{Binding GoToTodoList}" />
       </StackPanel>
     </Grid>
   </ScrollViewer>

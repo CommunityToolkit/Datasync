@@ -1,4 +1,4 @@
-﻿namespace TodoApp.Uno.Presentation;
+namespace TodoApp.Uno.Presentation;
 
 public sealed partial class MainPage : Page
 {

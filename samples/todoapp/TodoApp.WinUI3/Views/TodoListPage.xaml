@@ -47,12 +47,18 @@
             ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListView.ItemTemplate>
                 <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        
                     <CheckBox
                         Margin="10"
                         Command="{Binding ViewModel.EditItemCommand, ElementName=ThisPage}"
                         CommandParameter="{Binding Id}"
                         Content="{Binding Title}"
                         IsChecked="{Binding IsComplete}"  />
+
+                        <TextBlock Margin="10"
+                                   Text="{Binding Version}" />   
+                    </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

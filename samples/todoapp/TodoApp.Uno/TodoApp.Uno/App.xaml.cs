@@ -1,3 +1,12 @@
+using System;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using TodoApp.Uno.Database;
+using TodoApp.Uno.ViewModels;
+using TodoApp.Uno.Views;
 using Uno.Resizetizer;
 
 namespace TodoApp.Uno;
@@ -10,13 +19,20 @@ public partial class App : Application
     public App()
     {
         this.InitializeComponent();
+
+
     }
 
     protected Window? MainWindow { get; private set; }
-    protected IHost? Host { get; private set; }
+    public IHost? Host { get; private set; }
+
+    private SqliteConnection dbConnection;
 
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        this.dbConnection = new SqliteConnection("Data Source=:memory:");
+        this.dbConnection.Open();
+
         var builder = this.CreateBuilder(args)
             // Add navigation support for toolkit controls such as TabBar and NavigationView
             .UseToolkitNavigation()
@@ -78,6 +94,9 @@ public partial class App : Application
                 {
                     // TODO: Register your services
                     //services.AddSingleton<IMyService, MyService>();
+                    services.AddTransient<TodoListViewModel>();
+                    services.AddScoped<IDbInitializer, DbContextInitializer>();
+                    services.AddDbContext<AppDbContext>(options => options.UseSqlite(this.dbConnection));
                 })
                 .UseNavigation(RegisterRoutes)
             );
@@ -88,7 +107,17 @@ public partial class App : Application
 #endif
         MainWindow.SetWindowIcon();
 
+        //Host = builder.Build();
+
         Host = await builder.NavigateAsync<Shell>();
+
+        InitializeDatabase();
+    }
+
+    private void InitializeDatabase()
+    {
+        IDbInitializer? initializer = Host?.Services?.GetRequiredService<IDbInitializer>();
+        initializer?.Initialize();
     }
 
     private static void RegisterRoutes(IViewRegistry views, IRouteRegistry routes)
@@ -96,15 +125,17 @@ public partial class App : Application
         views.Register(
             new ViewMap(ViewModel: typeof(ShellViewModel)),
             new ViewMap<MainPage, MainViewModel>(),
-            new DataViewMap<SecondPage, SecondViewModel, Entity>()
+            new DataViewMap<SecondPage, SecondViewModel, Entity>(),
+            new ViewMap<TodoListPage, TodoListViewModel>()
         );
 
         routes.Register(
             new RouteMap("", View: views.FindByViewModel<ShellViewModel>(),
                 Nested:
                 [
-                    new ("Main", View: views.FindByViewModel<MainViewModel>(), IsDefault:true),
+                    new ("Main", View: views.FindByViewModel<MainViewModel>(), IsDefault: false),
                     new ("Second", View: views.FindByViewModel<SecondViewModel>()),
+                    new ("TodoList", View: views.FindByViewModel<TodoListViewModel>(), IsDefault: true)
                 ]
             )
         );

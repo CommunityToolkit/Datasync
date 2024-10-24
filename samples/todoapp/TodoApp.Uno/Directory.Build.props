@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <!--<Nullable>enable</Nullable>-->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 
     <!--

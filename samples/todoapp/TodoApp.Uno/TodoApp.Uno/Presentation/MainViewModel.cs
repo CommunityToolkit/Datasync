@@ -1,3 +1,5 @@
+using TodoApp.Uno.ViewModels;
+
 namespace TodoApp.Uno.Presentation;
 
 public partial class MainViewModel : ObservableObject
@@ -17,6 +19,7 @@ public partial class MainViewModel : ObservableObject
         Title += $" - {localizer["ApplicationName"]}";
         Title += $" - {appInfo?.Value?.Environment}";
         GoToSecond = new AsyncRelayCommand(GoToSecondView);
+        GoToTodoList = new AsyncRelayCommand(GoToTodoListView);
     }
     public string? Title { get; }
 
@@ -25,6 +28,14 @@ public partial class MainViewModel : ObservableObject
     private async Task GoToSecondView()
     {
         await _navigator.NavigateViewModelAsync<SecondViewModel>(this, data: new Entity(Name!));
+    }
+
+
+    public ICommand GoToTodoList { get; }
+
+    private async Task GoToTodoListView()
+    {
+        await _navigator.NavigateViewModelAsync<TodoListViewModel>(this);
     }
 
 }
