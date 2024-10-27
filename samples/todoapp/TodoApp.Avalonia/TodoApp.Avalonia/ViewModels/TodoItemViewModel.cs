@@ -11,29 +11,21 @@ using TodoApp.Avalonia.Services;
 
 namespace TodoApp.Avalonia.ViewModels;
 
-public partial class TodoItemViewModel : ViewModelBase
+public partial class TodoItemViewModel(TodoListViewModel parent, AppDbContext context) : ViewModelBase
 {
     private TodoItem? _todoItem;
 
-    private TodoListViewModel _Parent;
-
     /// <summary>
-    /// Creates a new blank ToDoItemViewModel
-    /// </summary>
-    public TodoItemViewModel(TodoListViewModel _parent)
-    {
-        this._Parent = _parent;
-    }
-
-    /// <summary>
-    /// Creates a new ToDoItemViewModel for the given <see cref="Models.ToDoItem"/>
+    /// Creates a new ToDoItemViewModel for the given <see cref="Database.TodoItem"/>
     /// </summary>
     /// <param name="item">The item to load</param>
-    public TodoItemViewModel(TodoItem item, TodoListViewModel _parent) : this(_parent)
+    /// <param name="parent">The <see cref="TodoListViewModel"/> which is the parent</param>
+    /// <param name="context">The <see cref="AppDbContext"/> to use</param>
+    public TodoItemViewModel(TodoItem item, TodoListViewModel parent, AppDbContext context) : this(parent, context)
     {
         // Init the properties with the given values
-        IsChecked = item.IsComplete;
-        Content = item.Title;
+        this._isChecked = item.IsComplete;
+        this._content = item.Title;
 
         this._todoItem = item;
     }
@@ -50,16 +42,43 @@ public partial class TodoItemViewModel : ViewModelBase
         get { return _isChecked; }
         set
         {
-            if (SetProperty(ref this._isChecked, value))
-            {
-                _ = UpdateIsCheckedAsync(); // TODO use Task instead here 
-            }
+            UpdateIsChecked(value); 
         }
     }
 
-    private async Task UpdateIsCheckedAsync()
+    private async void UpdateIsChecked(bool value)
     {
-        await this._Parent.UpdateItemAsync(this);
+        await UpdateIsCheckedAsync(value);
+    }
+    
+    private async Task UpdateIsCheckedAsync(bool newValue, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            TodoItem? storedItem = await context.TodoItems.FindAsync([GetToDoItem().Id], cancellationToken);
+            
+            if (storedItem is not null)
+            {
+                storedItem.IsComplete = newValue;
+
+                // Store the updated item in the database
+                _ = context.TodoItems.Update(storedItem);
+                _ = await context.SaveChangesAsync(cancellationToken);
+
+                parent.ShowInfoAlert("Saved changes successfully");
+                SetProperty(ref this._isChecked, storedItem.IsComplete);
+            }
+            else
+            {
+                parent.ShowErrorAlert("Item not found");
+                OnPropertyChanged(nameof(IsChecked)); // Notify the UI about the current value 
+            }
+        }
+        catch (Exception ex)
+        {
+            parent.ShowErrorAlert(ex.Message);
+            OnPropertyChanged(nameof(IsChecked)); // Notify the UI about the current value 
+        }
     }
     
 

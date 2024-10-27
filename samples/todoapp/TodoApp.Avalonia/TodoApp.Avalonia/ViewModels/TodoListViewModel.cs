@@ -42,7 +42,7 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
             _ = await context.SaveChangesAsync(cancellationToken);
 
             // Add the item to the end of the list
-            Items.Add(new TodoItemViewModel(addition, this));
+            Items.Add(new TodoItemViewModel(addition, this, context));
 
             // Update the title field ready for next insertion.
             NewItemContent = string.Empty;
@@ -82,36 +82,6 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
     }
     
 
-    public async Task<bool> UpdateItemAsync(TodoItemViewModel item, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            TodoItem? storedItem = await context.TodoItems.FindAsync([item.GetToDoItem().Id], cancellationToken);
-            if (storedItem is not null)
-            {
-                storedItem.IsComplete = item.IsChecked;
-
-                // Store the updated item in the database
-                _ = context.TodoItems.Update(storedItem);
-                _ = await context.SaveChangesAsync(cancellationToken);
-                
-                item.IsChecked = storedItem.IsComplete;
-
-                return true;
-            }
-            else
-            {
-                this.ShowErrorAlert("Item not found");
-                return false;
-            }
-        }
-        catch (Exception ex)
-        {
-            this.ShowErrorAlert(ex.Message);
-            return false;
-        }
-    }
-
     [RelayCommand]
     public async Task RefreshItemsAsync(CancellationToken cancellationToken = default)
     {
@@ -125,7 +95,7 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
 
             // Replace the items in the collection
             Items.Clear();
-            _ = Items.AddRange(dbItems.Select(x => new TodoItemViewModel(x, this)));
+            _ = Items.AddRange(dbItems.Select(x => new TodoItemViewModel(x, this, context)));
         }
         catch (Exception ex)
         {
