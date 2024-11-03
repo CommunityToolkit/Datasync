@@ -32,9 +32,9 @@ public partial class App : Application, IDisposable
     public App()
     {
         InitializeComponent();
-#if AoT
+
         DatasyncSerializer.JsonSerializerOptions.TypeInfoResolver = TodoItemSerializationContext.Default;
-#endif 
+
         this.dbConnection = new SqliteConnection("Data Source=:memory:");
         this.dbConnection.Open();
 
@@ -46,9 +46,7 @@ public partial class App : Application, IDisposable
                 options =>
                 {
                     options.UseSqlite(this.dbConnection);
-#if AoT
                     options.UseModel(AppDbContextModel.Instance);
-#endif
                 })
             .BuildServiceProvider();
 
