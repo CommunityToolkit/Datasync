@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace CommunityToolkit.Datasync.Client.Serialization;
 
-internal static class DatasyncSerializer
+public static class DatasyncSerializer
 {
     private readonly static Lazy<JsonSerializerOptions> _initializer = new(GetJsonSerializerOptions);
 
@@ -16,7 +16,7 @@ internal static class DatasyncSerializer
     /// Accessor for the common <see cref="JsonSerializerOptions"/> to use for serializing and deserializing 
     /// content in the service.
     /// </summary>
-    internal static JsonSerializerOptions JsonSerializerOptions { get => _initializer.Value; }
+    public static JsonSerializerOptions JsonSerializerOptions { get => _initializer.Value; }
 
     /// <summary>
     /// Serializes an object using the serializer options.

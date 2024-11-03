@@ -9,6 +9,8 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        AppContext.SetSwitch("Microsoft.EntityFrameworkCore.Issue31751", true);
+
         MauiAppBuilder builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()

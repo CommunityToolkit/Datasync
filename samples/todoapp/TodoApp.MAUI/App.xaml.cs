@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using TodoApp.MAUI.Models;
 using TodoApp.MAUI.ViewModels;
 using TodoApp.MAUI.Services;
+using CommunityToolkit.Datasync.Client.Serialization;
+using TodoApp.MAUI.Infrastructure.CompiledModels;
 
 namespace TodoApp.MAUI;
 
@@ -30,7 +32,9 @@ public partial class App : Application, IDisposable
     public App()
     {
         InitializeComponent();
-
+#if AoT
+        DatasyncSerializer.JsonSerializerOptions.TypeInfoResolver = TodoItemSerializationContext.Default;
+#endif 
         this.dbConnection = new SqliteConnection("Data Source=:memory:");
         this.dbConnection.Open();
 
@@ -38,7 +42,14 @@ public partial class App : Application, IDisposable
             .AddTransient<MainViewModel>()
             .AddTransient<IAlertService, AlertService>()
             .AddScoped<IDbInitializer, DbContextInitializer>()
-            .AddDbContext<AppDbContext>(options => options.UseSqlite(this.dbConnection))
+            .AddDbContext<AppDbContext>(
+                options =>
+                {
+                    options.UseSqlite(this.dbConnection);
+#if AoT
+                    options.UseModel(AppDbContextModel.Instance);
+#endif
+                })
             .BuildServiceProvider();
 
         InitializeDatabase();

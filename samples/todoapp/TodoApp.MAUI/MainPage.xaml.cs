@@ -18,17 +18,17 @@ public partial class MainPage : ContentPage
         BindingContext = this._viewModel;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        this._viewModel.RefreshItemsCommand.Execute();
+        await this._viewModel.RefreshItemsAsync();
     }
 
-    public void OnListItemTapped(object sender, ItemTappedEventArgs e)
+    public async void OnListItemTapped(object sender, ItemTappedEventArgs e)
     {
         if (e.Item is TodoItem item)
         {
-            this._viewModel.UpdateItemCommand.Execute(item);
+            await _viewModel.UpdateItemAsync(item.Id);
         }
 
         if (sender is ListView itemList)

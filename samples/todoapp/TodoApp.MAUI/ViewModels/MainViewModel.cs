@@ -4,20 +4,33 @@
 
 using CommunityToolkit.Datasync.Client;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using TodoApp.MAUI.Models;
 using TodoApp.MAUI.Services;
 
 namespace TodoApp.MAUI.ViewModels;
 
-public class MainViewModel(AppDbContext context, IAlertService alertService) : ObservableRecipient
+
+partial class MainViewModel : ObservableObject
 {
     [ObservableProperty]
     private bool _isRefreshing = false;
 
     [ObservableProperty]
     private ConcurrentObservableCollection<TodoItem> items = [];
+    private readonly AppDbContext _context;
+    private readonly IAlertService _alertService;
 
+
+
+    public MainViewModel(AppDbContext context, IAlertService alertService)
+    {
+        _context = context;
+        _alertService = alertService;
+    }
+
+    [RelayCommand]
     public async Task RefreshItemsAsync(CancellationToken cancellationToken = default)
     {
         if (IsRefreshing)
@@ -27,13 +40,13 @@ public class MainViewModel(AppDbContext context, IAlertService alertService) : O
 
         try
         {
-            await context.SynchronizeAsync(cancellationToken);
-            List<TodoItem> items = await context.TodoItems.ToListAsync(cancellationToken);
+            await _context.SynchronizeAsync(cancellationToken);
+            List<TodoItem> items = await _context.TodoItems.ToListAsync(cancellationToken);
             Items.ReplaceAll(items);
         }
         catch (Exception ex)
         {
-            await alertService.ShowErrorAlertAsync("RefreshItems", ex.Message);
+            await _alertService.ShowErrorAlertAsync("RefreshItems", ex.Message);
         }
         finally
         {
@@ -45,33 +58,33 @@ public class MainViewModel(AppDbContext context, IAlertService alertService) : O
     {
         try
         {
-            TodoItem? item = await context.TodoItems.FindAsync([itemId]);
+            TodoItem? item = await _context.TodoItems.FindAsync([itemId]);
             if (item is not null)
             {
                 item.IsComplete = !item.IsComplete;
-                _ = context.TodoItems.Update(item);
+                _ = _context.TodoItems.Update(item);
                 _ = Items.ReplaceIf(x => x.Id == itemId, item);
-                _ = await context.SaveChangesAsync(cancellationToken);
+                _ = await _context.SaveChangesAsync(cancellationToken);
             }
         }
         catch (Exception ex)
         {
-            await alertService.ShowErrorAlertAsync("UpdateItem", ex.Message);
+            await _alertService.ShowErrorAlertAsync("UpdateItem", ex.Message);
         }
     }
-
+    [RelayCommand]
     public async Task AddItemAsync(string text, CancellationToken cancellationToken = default)
     {
         try
         {
             TodoItem item = new() { Title = text };
-            _ = context.TodoItems.Add(item);
-            _ = await context.SaveChangesAsync(cancellationToken);
+            _ = _context.TodoItems.Add(item);
+            _ = await _context.SaveChangesAsync(cancellationToken);
             Items.Add(item);
         }
         catch (Exception ex)
         {
-            await alertService.ShowErrorAlertAsync("AddItem", ex.Message);
+            await _alertService.ShowErrorAlertAsync("AddItem", ex.Message);
         }
     }
 }

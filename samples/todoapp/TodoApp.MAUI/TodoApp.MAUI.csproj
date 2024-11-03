@@ -36,6 +36,31 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+		<Configurations>Debug;Release;ReleaseAoT</Configurations>
+		<PublishAot>True</PublishAot>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='ReleaseAoT|net8.0-android|AnyCPU'">
+	  <RunAOTCompilation>True</RunAOTCompilation>
+	  <AndroidUseAapt2>True</AndroidUseAapt2>
+	  <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
+	  <AndroidPackageFormat>aab</AndroidPackageFormat>
+	  <Optimize>True</Optimize>
+	  <DefineConstants>$(DefineConstants);AoT</DefineConstants>
+	  <PublishTrimmed>True</PublishTrimmed>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='ReleaseAoT|net8.0-ios|AnyCPU'">
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='ReleaseAoT|net8.0-maccatalyst|AnyCPU'">
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='ReleaseAoT|net8.0-windows10.0.19041.0|AnyCPU'">
+	  <Optimize>True</Optimize>
+	  <DefineConstants>$(DefineConstants);AoT</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -70,7 +95,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj" />
+	  <ProjectReference Include="..\TodoApp.MAUI.Infrastructure\TodoApp.MAUI.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -5,13 +5,9 @@
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Offline;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using TodoApp.WinUI3.Services;
+using TodoApp.MAUI.Infrastructure.Services;
 
-namespace TodoApp.WinUI3.Database;
+namespace TodoApp.MAUI.Models;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : OfflineDbContext(options)
 {
@@ -21,7 +17,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : OfflineDbCon
     {
         HttpClientOptions clientOptions = new()
         {
-            Endpoint = new Uri("https://localhost:5001/"),
+            Endpoint = new Uri("https://********-****.****.devtunnels.ms/"),
             HttpPipeline = [new LoggingHandler()]
         };
         _ = optionsBuilder.UseHttpClientOptions(clientOptions);
@@ -45,8 +41,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : OfflineDbCon
 
 /// <summary>
 /// Use this class to initialize the database.  In this sample, we just create
-/// the database using <see cref="DatabaseFacade.EnsureCreated"/>.  However, you
-/// may want to use migrations.
+/// the database. However, you may want to use migrations.
 /// </summary>
 /// <param name="context">The context for the database.</param>
 public class DbContextInitializer(AppDbContext context) : IDbInitializer
@@ -54,11 +49,17 @@ public class DbContextInitializer(AppDbContext context) : IDbInitializer
     /// <inheritdoc />
     public void Initialize()
     {
-        _ = context.Database.EnsureCreated();
+        //_ = context.Database.EnsureCreated();
+        context.Database.Migrate();
         Task.Run(async () => await context.SynchronizeAsync());
     }
 
     /// <inheritdoc />
-    public Task InitializeAsync(CancellationToken cancellationToken = default)
-        => context.Database.EnsureCreatedAsync(cancellationToken);
+    public async Task InitializeAsync(CancellationToken cancellationToken = default)
+    {
+        await context.Database.MigrateAsync(cancellationToken);
+        //await context.Database.EnsureCreatedAsync(cancellationToken);
+        await context.SynchronizeAsync(cancellationToken);
+
+    }
 }
