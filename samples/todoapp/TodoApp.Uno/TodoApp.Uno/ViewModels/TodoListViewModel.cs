@@ -40,10 +40,6 @@ public partial class TodoListViewModel(AppDbContext service) : ObservableRecipie
             {
                 Id = Guid.NewGuid().ToString("N"),
                 Title = Title,
-                Deleted = false,
-                IsComplete = false,
-                UpdatedAt = DateTimeOffset.Now,
-                Version = "1"
             };
 
             // Add te item to the database

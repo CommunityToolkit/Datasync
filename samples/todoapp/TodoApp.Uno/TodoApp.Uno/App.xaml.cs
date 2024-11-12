@@ -94,9 +94,10 @@ public partial class App : Application
                 {
                     // TODO: Register your services
                     //services.AddSingleton<IMyService, MyService>();
-                    services.AddTransient<TodoListViewModel>();
-                    services.AddScoped<IDbInitializer, DbContextInitializer>();
                     services.AddDbContext<AppDbContext>(options => options.UseSqlite(this.dbConnection));
+                    services.AddScoped<IDbInitializer, DbContextInitializer>();
+                    services.AddTransient<TodoListViewModel>();
+
                 })
                 .UseNavigation(RegisterRoutes)
             );

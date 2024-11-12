@@ -57,7 +57,12 @@
                         IsChecked="{Binding IsComplete}"  />
 
                         <TextBlock Margin="10"
-                                   Text="{Binding Version}" />   
+                                   Text="Version: " />
+                        <TextBlock Margin="10"
+                                   Text="{Binding Version}" />
+
+                        <TextBlock Margin="10"
+                                   Text="{Binding UpdatedAt}" />
                     </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>

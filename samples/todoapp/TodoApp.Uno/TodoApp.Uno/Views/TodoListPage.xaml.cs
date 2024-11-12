@@ -35,10 +35,10 @@ public sealed partial class TodoListPage : Page
     // on loaded override
     private async void TodoListPage_Loaded(object sender, RoutedEventArgs e)
     {
-        if (ViewModel.LoadPageCommand.CanExecute(null))
-        {
-            await ViewModel.LoadPageCommand.ExecuteAsync(null);
-        }
+        //if (ViewModel.LoadPageCommand.CanExecute(null))
+        //{
+        //    await ViewModel.LoadPageCommand.ExecuteAsync(null);
+        //}
     }
 
     private void TextBox_KeyDown(object sender, KeyRoutedEventArgs e)
