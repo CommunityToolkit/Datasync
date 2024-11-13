@@ -9,9 +9,9 @@
     <atom:link href="http://localhost:1313/Datasync/in-depth/client/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Online operations</title>
-      <link>http://localhost:1313/Datasync/in-depth/client/oneline-operations/index.html</link>
+      <link>http://localhost:1313/Datasync/in-depth/client/online-operations/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/Datasync/in-depth/client/oneline-operations/index.html</guid>
+      <guid>http://localhost:1313/Datasync/in-depth/client/online-operations/index.html</guid>
       <description>Not all data needs to be synchronized. You may want to do an online search of records for a search capability, for example. To support this, The Datasync Community Toolkit supports an online client in addition to offline usage.&#xA;Creating a Http Client Factory To create an online client, you must create an IHttpClientFactory that creates the appropriate HttpClient objects that are used to communicate with the remote service. This can handle authentication, logging, and anything else that is required by the remote service. At a minimum, a BaseAddress must be established. To facilitate this, the Datasync Community Toolkit provides a default HttpClientFactory that can be used:</description>
     </item>
     <item>
