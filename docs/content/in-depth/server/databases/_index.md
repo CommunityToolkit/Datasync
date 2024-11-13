@@ -11,9 +11,9 @@ You can find sample implementations of each supported context in our [Database T
 
 For specific database support, see the following:
 
-* [Azure Cosmos DB](./databases/cosmos.md)
-* [Azure SQL and SQL Server](./databases/azuresql.md)
-* [In Memory Datastore](./databases/in-memory.md)
-* [LiteDb](./databases/litedb.md)
-* [PostgreSQL](./databases/postgresql.md)
-* [Sqlite](./databases/sqlite.md)
+* [Azure Cosmos DB](./cosmos.md)
+* [Azure SQL and SQL Server](./azuresql.md)
+* [In Memory Datastore](./in-memory.md)
+* [LiteDb](./litedb.md)
+* [PostgreSQL](./postgresql.md)
+* [Sqlite](./sqlite.md)

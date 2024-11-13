@@ -19,7 +19,7 @@
       <link>http://localhost:1313/Datasync/in-depth/server/databases/azuresql/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/in-depth/server/databases/azuresql/index.html</guid>
-      <description>Azure SQL and SQL Server Create a trigger for each entity:&#xA;CREATE OR ALTER TRIGGER [dbo].[TodoItems_UpdatedAt] ON [dbo].[TodoItems] AFTER INSERT, UPDATE AS BEGIN SET NOCOUNT ON; UPDATE [dbo].[TodoItems] SET [UpdatedAt] = GETUTCDATE() WHERE [Id] IN (SELECT [Id] FROM INSERTED); ENDYou can install this trigger using either a migration or immediately after EnsureCreated() to create the database.&#xA;Test Azure SQL Context</description>
+      <description>Azure SQL and SQL Server Create a trigger for each entity:&#xA;CREATE OR ALTER TRIGGER [dbo].[TodoItems_UpdatedAt] ON [dbo].[TodoItems] AFTER INSERT, UPDATE AS BEGIN SET NOCOUNT ON; UPDATE [dbo].[TodoItems] SET [UpdatedAt] = GETUTCDATE() WHERE [Id] IN (SELECT [Id] FROM INSERTED); ENDYou can install this trigger using either a migration or immediately after EnsureCreated() to create the database. As with any Entity Framework Core based system, you must adjust your model within your DbContext as follows:&#xA;protected void OnModelCreating(ModelBuilder builder) { base.OnModelCreating(builder); builder.Entity&lt;TodoItem&gt;().ToTable(t =&gt; t.HasTrigger(&#34;TodoItems_UpdatedAt&#34;)); }For more information, review the Entity Framework Core release notes.</description>
     </item>
     <item>
       <title>In-memory datastore</title>
