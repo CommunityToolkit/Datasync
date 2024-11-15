@@ -2,16 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Client.Http;
-using CommunityToolkit.Datasync.Client.Offline;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TodoApp.WinUI3.Services;
+using CommunityToolkit.Datasync.Client.Http;
+using CommunityToolkit.Datasync.Client.Offline;
+using Microsoft.EntityFrameworkCore;
+using TodoApp.Uno.Services;
 
-namespace TodoApp.WinUI3.Database;
+namespace TodoApp.Uno.Database;
 
 //public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 public class AppDbContext(DbContextOptions<AppDbContext> options) : OfflineDbContext(options)
