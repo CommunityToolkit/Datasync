@@ -411,4 +411,76 @@ public class OperationsQueueManager_Tests : BaseTest
         act.Should().Throw<InvalidOperationException>();
     }
     #endregion
+
+    #region LazyLoadingProxies Support
+    [Fact]
+    public async Task LLP_PushAsync_Addition_Works()
+    {
+        TestDbContext llpContext = CreateContext(x => x.UseLazyLoadingProxies());
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        string clientMovieJson = DatasyncSerializer.Serialize(clientMovie);
+        llpContext.Movies.Add(clientMovie);
+        llpContext.SaveChanges();
+
+        ClientMovie responseMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, UpdatedAt = DateTimeOffset.UtcNow, Version = Guid.NewGuid().ToString() };
+        string expectedJson = DatasyncSerializer.Serialize(responseMovie);
+        llpContext.Handler.AddResponseContent(expectedJson, HttpStatusCode.Created);
+
+        PushResult results = await llpContext.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        results.IsSuccessful.Should().BeTrue();
+        results.CompletedOperations.Should().Be(1);
+        results.FailedRequests.Should().BeEmpty();
+
+        llpContext.DatasyncOperationsQueue.Should().BeEmpty();
+
+        ClientMovie actualMovie = llpContext.Movies.SingleOrDefault(x => x.Id == clientMovie.Id);
+        actualMovie.UpdatedAt!.Should().BeCloseTo((DateTimeOffset)responseMovie.UpdatedAt, TimeSpan.FromMicroseconds(1000));
+        actualMovie.Version.Should().Be(responseMovie.Version);
+    }
+
+    [Fact]
+    public async Task LLP_PushAsync_Removal_Works()
+    {
+        TestDbContext llpContext = CreateContext(x => x.UseLazyLoadingProxies());
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        llpContext.Movies.Add(clientMovie);
+        llpContext.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+
+        llpContext.Movies.Remove(clientMovie);
+        llpContext.SaveChanges();
+        llpContext.Handler.AddResponse(HttpStatusCode.NoContent);
+
+        PushResult results = await llpContext.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        results.IsSuccessful.Should().BeTrue();
+        results.CompletedOperations.Should().Be(1);
+        results.FailedRequests.Should().BeEmpty();
+
+        llpContext.DatasyncOperationsQueue.Should().BeEmpty();
+        llpContext.Movies.Find(clientMovie.Id).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task LLP_PushAsync_Replacement_Works()
+    {
+        TestDbContext llpContext = CreateContext(x => x.UseLazyLoadingProxies());
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        llpContext.Movies.Add(clientMovie);
+        llpContext.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+
+        clientMovie.Title = "Foo";
+        llpContext.Update(clientMovie);
+        llpContext.SaveChanges();
+
+        ClientMovie responseMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, UpdatedAt = DateTimeOffset.UtcNow, Version = Guid.NewGuid().ToString() };
+        string expectedJson = DatasyncSerializer.Serialize(responseMovie);
+        llpContext.Handler.AddResponseContent(expectedJson, HttpStatusCode.OK);
+
+        PushResult results = await llpContext.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        results.IsSuccessful.Should().BeTrue();
+        results.CompletedOperations.Should().Be(1);
+        results.FailedRequests.Should().BeEmpty();
+
+        llpContext.DatasyncOperationsQueue.Should().BeEmpty();
+    }
+    #endregion
 }
