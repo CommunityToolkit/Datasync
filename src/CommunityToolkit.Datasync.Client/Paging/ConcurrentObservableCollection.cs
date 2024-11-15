@@ -16,7 +16,7 @@ namespace CommunityToolkit.Datasync.Client;
 /// <typeparam name="T"></typeparam>
 public class ConcurrentObservableCollection<T> : ObservableCollection<T>
 {
-    private readonly SynchronizationContext context = SynchronizationContext.Current!;
+    private readonly SynchronizationContext? currentContext = SynchronizationContext.Current;
     private bool suppressNotification = false;
 
     /// <summary>
@@ -151,31 +151,30 @@ public class ConcurrentObservableCollection<T> : ObservableCollection<T>
     /// </summary>
     /// <param name="e">The event arguments</param>
     protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
-        => DispatchCallback(new SynchronizationContextAdapter(this.context), RaiseCollectionChanged, e);
+    {
+        if (this.currentContext is null || SynchronizationContext.Current == this.currentContext)
+        {
+            RaiseCollectionChanged(e);
+        }
+        else
+        {
+            this.currentContext.Send(RaiseCollectionChanged, e);
+        }
+    }
 
     /// <summary>
     /// Event trigger to indicate that a property has changed in a thread-safe way.
     /// </summary>
     /// <param name="e">The event arguments</param>
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
-        => DispatchCallback(new SynchronizationContextAdapter(this.context), RaisePropertyChanged, e);
-
-    /// <summary>
-    /// Dispatches the callback to the synchronization context.  If the synchronization context is
-    /// the current one, we can avoid a dispatch and just call the callback directly.
-    /// </summary>
-    /// <param name="context">The context to send the request to.</param>
-    /// <param name="callback">The callback method.</param>
-    /// <param name="param">The parameter for the callback method.</param>
-    internal static void DispatchCallback(ISynchronizationContext context, SendOrPostCallback callback, object? param)
     {
-        if (context.IsCurrentContext())
+        if (this.currentContext is null || SynchronizationContext.Current == this.currentContext)
         {
-            callback(param);
+            RaisePropertyChanged(e);
         }
         else
         {
-            context.Send(callback, param);
+            this.currentContext.Send(RaisePropertyChanged, e);
         }
     }
 

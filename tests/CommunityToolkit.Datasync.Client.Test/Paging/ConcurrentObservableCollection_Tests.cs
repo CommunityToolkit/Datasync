@@ -180,40 +180,4 @@ public class ConcurrentObservableCollection_Tests
         actual.Should().BeFalse();
         this.movies.Should().HaveCount(count).And.NotContain(item);
     }
-
-    [Fact]
-    public void DispatchCallback_DispatchesToSynchronizationContext()
-    {
-        int contextCaller = 0;
-        int functionCaller = 0;
-
-        void dispatcher(object p) { functionCaller++; }
-
-        ISynchronizationContext context = Substitute.For<ISynchronizationContext>();
-        context.IsCurrentContext().Returns(false);
-        context.When(x => x.Send(Arg.Any<SendOrPostCallback>(), Arg.Any<object>())).Do(x => contextCaller++);
-
-        ConcurrentObservableCollection<InMemoryMovie>.DispatchCallback(context, dispatcher, new object());
-
-        contextCaller.Should().Be(1);
-        functionCaller.Should().Be(0);
-    }
-
-    [Fact]
-    public void DispatchCallback_DispatchesLocally()
-    {
-        int contextCaller = 0;
-        int functionCaller = 0;
-
-        void dispatcher(object p) { functionCaller++; }
-
-        ISynchronizationContext context = Substitute.For<ISynchronizationContext>();
-        context.IsCurrentContext().Returns(true);
-        context.When(x => x.Send(Arg.Any<SendOrPostCallback>(), Arg.Any<object>())).Do(x => contextCaller++);
-
-        ConcurrentObservableCollection<InMemoryMovie>.DispatchCallback(context, dispatcher, new object());
-
-        contextCaller.Should().Be(0);
-        functionCaller.Should().Be(1);
-    }
 }
