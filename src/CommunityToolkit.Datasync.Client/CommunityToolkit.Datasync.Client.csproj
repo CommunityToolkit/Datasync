@@ -9,10 +9,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Azure.Core.Spatial" Version="1.1.0" />
-    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="8.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Azure.Core.Spatial" />
+    <PackageReference Include="System.Threading.Tasks.Dataflow" />
   </ItemGroup>
 </Project>
