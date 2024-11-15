@@ -105,9 +105,8 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
 
         services
             .AddScoped<IFilterBinder, DatasyncFilterBinder>()
-            .AddScoped<ODataQuerySettings>()
+            .AddScoped<ODataQuerySettings>(_ => new ODataQuerySettings { EnsureStableOrdering = true })
             .AddSingleton<ODataUriResolver>(_ => new UnqualifiedODataUriResolver { EnableCaseInsensitive = true })
-            .AddScoped<ODataSimplifiedOptions>()
             .AddScoped<ODataUriParserSettings>();
 
         IServiceProvider provider = services.BuildServiceProvider();

@@ -123,7 +123,7 @@ public class OperationsQueueManager_Tests : BaseTest
     }
 
     [Fact]
-    public async void PushAsync_Addition_Works()
+    public async Task PushAsync_Addition_Works()
     {
         ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
         string clientMovieJson = DatasyncSerializer.Serialize(clientMovie);

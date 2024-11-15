@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Azure.Core.Serialization;
 using CommunityToolkit.Datasync.Server.Abstractions.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Headers;
@@ -66,7 +65,7 @@ internal static class InternalExtensions
             new DateTimeOffsetConverter(),
             new DateTimeConverter(),
             new TimeOnlyConverter(),
-            new MicrosoftSpatialGeoJsonConverter()
+            new SpatialGeoJsonConverter()
         },
         NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals,
         ReferenceHandler = ReferenceHandler.Preserve
