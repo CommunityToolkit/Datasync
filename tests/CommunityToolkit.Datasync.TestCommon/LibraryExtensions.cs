@@ -68,7 +68,7 @@ public static class LibraryExtensions
             new DateTimeOffsetConverter(),
             new DateTimeConverter(),
             new TimeOnlyConverter(),
-            new MicrosoftSpatialGeoJsonConverter()
+            new SpatialGeoJsonConverter()
         },
         DefaultIgnoreCondition = JsonIgnoreCondition.Never,
         DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
