@@ -4,6 +4,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Core.Spatial" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Azure.Core.Spatial" />
   </ItemGroup>
 </Project>
