@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -39,23 +40,36 @@ public partial class TodoItemViewModel(TodoListViewModel parent, AppDbContext co
 
     public bool IsChecked
     {
-        get { return _isChecked; }
+        get { return this._isChecked; }
         set
         {
-            UpdateIsChecked(value); 
+            var oldValue = this._isChecked;
+            if (SetProperty(ref this._isChecked, value))
+            {
+                SaveIsChecked(value, oldValue); 
+            }
         }
     }
-
-    private async void UpdateIsChecked(bool value)
+    
+    private async void SaveIsChecked(bool value, bool oldValue)
     {
-        await UpdateIsCheckedAsync(value);
+        await SaveIsCheckedAsync(value, oldValue);
     }
     
-    private async Task UpdateIsCheckedAsync(bool newValue, CancellationToken cancellationToken = default)
+    // a counter that can be used to track save requests. Only used to demonstrate an exception after every third 
+    // save operation. 
+    int updateCounter = 0; 
+    
+    private async Task SaveIsCheckedAsync(bool newValue, bool oldValue, CancellationToken cancellationToken = default)
     {
         try
         {
             TodoItem? storedItem = await context.TodoItems.FindAsync([GetToDoItem().Id], cancellationToken);
+
+            if (++this.updateCounter % 3 == 0)
+            {
+                throw new IOException("Unable to save the item a third time. Please try again.");
+            }
             
             if (storedItem is not null)
             {
@@ -66,18 +80,16 @@ public partial class TodoItemViewModel(TodoListViewModel parent, AppDbContext co
                 _ = await context.SaveChangesAsync(cancellationToken);
 
                 parent.ShowInfoAlert("Saved changes successfully");
-                SetProperty(ref this._isChecked, storedItem.IsComplete);
             }
             else
             {
-                parent.ShowErrorAlert("Item not found");
-                OnPropertyChanged(nameof(IsChecked)); // Notify the UI about the current value 
+                throw new Exception("Item not found");
             }
         }
         catch (Exception ex)
         {
+            SetProperty(ref this._isChecked, oldValue, nameof(IsChecked)); // Notify the UI about the current value 
             parent.ShowErrorAlert(ex.Message);
-            OnPropertyChanged(nameof(IsChecked)); // Notify the UI about the current value 
         }
     }
     
