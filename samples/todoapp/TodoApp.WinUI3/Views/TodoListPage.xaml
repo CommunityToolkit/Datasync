@@ -52,7 +52,7 @@
                         Command="{Binding ViewModel.EditItemCommand, ElementName=ThisPage}"
                         CommandParameter="{Binding Id}"
                         Content="{Binding Title}"
-                        IsChecked="{Binding IsComplete}"  />
+                        IsChecked="{Binding IsComplete, Mode=TwoWay, UpdateSourceTrigger=Explicit}"  />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
