@@ -16,7 +16,7 @@ namespace CommunityToolkit.Datasync.Client;
 /// <typeparam name="T"></typeparam>
 public class ConcurrentObservableCollection<T> : ObservableCollection<T>
 {
-    private readonly SynchronizationContext context = SynchronizationContext.Current!;
+    private readonly SynchronizationContext context = SynchronizationContext.Current ?? new SynchronizationContext();
     private bool suppressNotification = false;
 
     /// <summary>
