@@ -1,0 +1,90 @@
+<Project Sdk="Uno.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst;net8.0-windows10.0.26100;net8.0-browserwasm;net8.0-desktop</TargetFrameworks>
+
+    <OutputType>Exe</OutputType>
+    <UnoSingleProject>true</UnoSingleProject>
+
+    <!-- Display name -->
+    <ApplicationTitle>TodoApp.Uno</ApplicationTitle>
+    <!-- App Identifier -->
+    <ApplicationId>com.companyname.TodoApp.Uno</ApplicationId>
+    <!-- Versions -->
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
+    <!-- Package Publisher -->
+    <ApplicationPublisher>Your.Name</ApplicationPublisher>
+    <!-- Package Description -->
+    <Description>TodoApp.Uno powered by Uno Platform.</Description>
+    <!--
+      If you encounter this error message:
+
+        error NETSDK1148: A referenced assembly was compiled using a newer version of Microsoft.Windows.SDK.NET.dll.
+        Please update to a newer .NET SDK in order to reference this assembly.
+      This means that the two packages below must be aligned with the "build" version number of
+      the "Microsoft.Windows.SDK.BuildTools" package above, and the "revision" version number
+      must be the highest found in https://www.nuget.org/packages/Microsoft.Windows.SDK.NET.Ref.
+    -->
+    <!--<WindowsSdkPackageVersion>10.0.19041.38</WindowsSdkPackageVersion>-->
+    <WindowsSdkPackageVersion>10.0.26100.57</WindowsSdkPackageVersion>
+
+    <!--
+      UnoFeatures let's you quickly add and manage implicit package references based on the features you want to use.
+      https://aka.platform.uno/singleproject-features
+    -->
+    <UnoFeatures>
+      <!--Material;-->
+      Dsp;
+      Hosting;
+      Toolkit;
+      Logging;
+      Lottie;
+      Mvvm;
+      Configuration;
+      <!--Http;-->
+      <!--Serialization;-->
+      <!--Localization;-->
+      Navigation;
+      <!--ThemeService;-->
+    </UnoFeatures>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net8.0-ios'">
+    <ProvisioningType>manual</ProvisioningType>
+    <CodesignProvision>VS: WildCard Development</CodesignProvision>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Assets\AddItem.png" />
+    <None Remove="Assets\LockScreenLogo.scale-200.png" />
+    <None Remove="Assets\RefreshItems.png" />
+    <None Remove="Assets\SplashScreen.scale-200.png" />
+    <None Remove="Assets\Square150x150Logo.scale-200.png" />
+    <None Remove="Assets\Square44x44Logo.scale-200.png" />
+    <None Remove="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
+    <None Remove="Assets\StoreLogo.png" />
+    <None Remove="Assets\Wide310x150Logo.scale-200.png" />
+    <None Remove="Views\TodoListPage.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\TodoListPage.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.WinUI.Behaviors" />
+    <PackageReference Include="CommunityToolkit.WinUI.Converters" />
+    <PackageReference Include="Refit" />
+    <PackageReference Include="System.Formats.Asn1" />
+    <PackageReference Include="System.IO.Packaging" />
+    <PackageReference Include="System.Private.Uri" />
+    <PackageReference Include="System.Text.Json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\TodoListPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+</Project>
