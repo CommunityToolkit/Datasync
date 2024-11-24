@@ -96,13 +96,14 @@ namespace TodoApp.Avalonia.Services;
         {
             MainView view = (MainView)DialogManager.GetVisualForContext(context)!;
 
-            view.ControlNotifications.Show(message, NotificationType.Warning);
+            view.ControlNotifications.Show(message, NotificationType.Error);
         }
 
         public static void ShowInfoAlert(this object context, string message)
         {
+            if (Design.IsDesignMode) return;
             MainView view = (MainView)DialogManager.GetVisualForContext(context)!;
-
+            
             view.ControlNotifications.Show(message, NotificationType.Information, TimeSpan.FromSeconds(3));
         }
 	}

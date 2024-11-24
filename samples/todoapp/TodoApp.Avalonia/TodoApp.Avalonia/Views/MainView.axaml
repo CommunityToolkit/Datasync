@@ -1,22 +1,27 @@
-<UserControl x:Class="TodoApp.Avalonia.Views.MainView" xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:services="clr-namespace:TodoApp.Avalonia.Services" xmlns:vm="clr-namespace:TodoApp.Avalonia.ViewModels" d:DesignHeight="450" d:DesignWidth="800" services:DialogManager.Register="{Binding}" x:DataType="vm:TodoListViewModel" mc:Ignorable="d">
-    <Design.DataContext>
-        <!--
-            This only sets the DataContext for the previewer in an IDE,
-            to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs)
-        -->
-        <vm:TodoListViewModel />
-    </Design.DataContext>
-
+<UserControl x:Class="TodoApp.Avalonia.Views.MainView" xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:services="clr-namespace:TodoApp.Avalonia.Services"
+             xmlns:vm="clr-namespace:TodoApp.Avalonia.ViewModels" 
+             d:DesignWidth="500" d:DesignHeight="450"
+             services:DialogManager.Register="{Binding}" 
+             Design.DataContext="{x:Static vm:DesingTimeViewModels.TodoListDesignerViewModel}"
+             x:DataType="vm:TodoListViewModel" mc:Ignorable="d">
     <Panel>
-        <WindowNotificationManager x:Name="ControlNotifications" />
+        <WindowNotificationManager x:Name="ControlNotifications"
+                                   ZIndex="2" />
         <!--  We give a name to the root grid in order to access it later  -->
         <Grid x:Name="Root" RowDefinitions="Auto, *, Auto">
 
             <!--  This is our title text block. We use Style.Classes to style it accordingly  -->
-            <TextBlock Classes="h1" Text="My ToDo-List" />
-            <Button HorizontalAlignment="Right"
-                    Command="{Binding RefreshItemsCommand}"
-                    Content="Refesh" />
+            <Grid ColumnDefinitions="Auto,*">
+                <TextBlock Classes="h1" Text="My ToDo-List" />
+                <Button Grid.Column="1" 
+                        Command="{Binding RefreshItemsCommand}">
+                    <PathIcon Data="{DynamicResource RefreshIconData}"></PathIcon>
+                </Button>
+            </Grid>
 
             <ScrollViewer Grid.Row="1">
                 <!--  This ItemsControl show all added ToDoItems.  -->
@@ -27,7 +32,7 @@
                         <!--  Our Item will be represented by a CheckBox and a Delete-Button  -->
                         <DataTemplate DataType="vm:TodoItemViewModel">
                             <Grid ColumnDefinitions="*, Auto">
-                                <CheckBox Content="{Binding Content}" IsChecked="{Binding IsChecked}" />
+                                <CheckBox Content="{Binding Content}" IsChecked="{Binding IsComplete}" />
 
                                 <!--  Note how we use the Root-Grid to get the MainViewModel here. As we use compiled bindings we have to cast the DataContext  -->
                                 <!--  The command parameter is the local ToDoItemViewModel being processed  -->

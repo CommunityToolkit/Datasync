@@ -25,27 +25,30 @@ public partial class TodoItemViewModel(TodoListViewModel parent, AppDbContext co
     public TodoItemViewModel(TodoItem item, TodoListViewModel parent, AppDbContext context) : this(parent, context)
     {
         // Init the properties with the given values
-        this._isChecked = item.IsComplete;
-        this._content = item.Title;
+        this._IsComplete = item.IsComplete;
+        this._content = item.Content;
 
         this._todoItem = item;
     }
 
+    // NOTE: This property is made without source generator. Uncomment the line below to use the source generator
+    // [ObservableProperty] 
+    private bool _IsComplete;
+    
     /// <summary>
     /// Gets or sets the checked status of each item
     /// </summary>
-    // NOTE: This property is made without source generator. Uncomment the line below to use the source generator
-    // [ObservableProperty] 
-    private bool _isChecked;
-
-    public bool IsChecked
+    public bool IsComplete
     {
-        get { return this._isChecked; }
+        get { return this._IsComplete; }
         set
         {
-            var oldValue = this._isChecked;
-            if (SetProperty(ref this._isChecked, value))
+            // Stpre the old value in order to undo the changes, if the save operation failed
+            bool oldValue = this._IsComplete;
+            
+            if (SetProperty(ref this._IsComplete, value))
             {
+                // save the item in case the have an updated value
                 SaveIsChecked(value, oldValue); 
             }
         }
@@ -64,31 +67,38 @@ public partial class TodoItemViewModel(TodoListViewModel parent, AppDbContext co
     {
         try
         {
+            // lookup the stored item
             TodoItem? storedItem = await context.TodoItems.FindAsync([GetToDoItem().Id], cancellationToken);
 
+            // this is just to show how errors are handled. Feel free to comment it.
             if (++this.updateCounter % 3 == 0)
             {
+                await Task.Delay(500);
                 throw new IOException("Unable to save the item a third time. Please try again.");
             }
             
             if (storedItem is not null)
             {
+                // update the stored item
                 storedItem.IsComplete = newValue;
 
                 // Store the updated item in the database
                 _ = context.TodoItems.Update(storedItem);
                 _ = await context.SaveChangesAsync(cancellationToken);
 
+                // Show an info to the user
                 parent.ShowInfoAlert("Saved changes successfully");
             }
             else
             {
-                throw new Exception("Item not found");
+                // If no item was found, throw an exection
+                throw new NullReferenceException("Item not found");
             }
         }
         catch (Exception ex)
         {
-            SetProperty(ref this._isChecked, oldValue, nameof(IsChecked)); // Notify the UI about the current value 
+            // Set the Property back to it's old value
+            SetProperty(ref this._IsComplete, oldValue, nameof(IsComplete)); 
             parent.ShowErrorAlert(ex.Message);
         }
     }
@@ -100,18 +110,23 @@ public partial class TodoItemViewModel(TodoListViewModel parent, AppDbContext co
     [ObservableProperty] private string? _content;
 
     /// <summary>
-    /// Gets a ToDoItem of this ViewModel
+    /// Gets a ToDoItem for this Item-ViewModel
     /// </summary>
     /// <returns>The ToDoItem</returns>
     public TodoItem GetToDoItem()
     {
         if (this._todoItem is not null)
         {
-            this._todoItem.Title = Content;
+            this._todoItem.Content = Content ?? string.Empty;
+            this._todoItem.IsComplete = IsComplete;
             return this._todoItem;
         }
 
         // if no todoItem model is found, return a new one
-        return new TodoItem() { IsComplete = this.IsChecked, Title = this.Content };
+        return new TodoItem()
+        {
+            IsComplete = this.IsComplete, 
+            Content = this.Content ?? string.Empty
+        };
     }
 }

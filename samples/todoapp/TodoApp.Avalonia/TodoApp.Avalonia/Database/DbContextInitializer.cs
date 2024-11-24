@@ -20,10 +20,16 @@ public class DbContextInitializer(AppDbContext context) : IDbInitializer
     public void Initialize()
     {
         _ = context.Database.EnsureCreated();
-        // Task.Run(async () => await context.SynchronizeAsync());
+        Task.Run(async () => await context.SynchronizeAsync());
     }
 
     /// <inheritdoc />
-    public Task InitializeAsync(CancellationToken cancellationToken = default)
-        => context.Database.EnsureCreatedAsync(cancellationToken);
+    public async Task InitializeAsync(CancellationToken cancellationToken = default)
+    {
+        await context.Database.EnsureCreatedAsync(cancellationToken);
+        
+        #if DEBUG
+        await context.AddSampleDataAsync();
+        #endif
+    }
 }

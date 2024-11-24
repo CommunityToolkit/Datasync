@@ -24,16 +24,27 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public async Task SynchronizeAsync(CancellationToken cancellationToken = default)
     {
-        //PushResult pushResult = await this.PushAsync(cancellationToken);
-        //if (!pushResult.IsSuccessful)
-        //{
-        //    throw new ApplicationException($"Push failed: {pushResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
-        //}
-
-        //PullResult pullResult = await this.PullAsync(cancellationToken);
-        //if (!pullResult.IsSuccessful)
-        //{
-        //    throw new ApplicationException($"Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
-        //}
+        // PushResult pushResult = await this.PushAsync(cancellationToken);
+        // if (!pushResult.IsSuccessful)
+        // {
+        //     throw new ApplicationException($"Push failed: {pushResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
+        // }
+        //
+        // PullResult pullResult = await this.PullAsync(cancellationToken);
+        // if (!pullResult.IsSuccessful)
+        // {
+        //     throw new ApplicationException($"Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
+        // }
     }
+    
+    #if DEBUG
+    internal async Task AddSampleDataAsync(CancellationToken cancellationToken = default)
+    {
+        TodoItems.Add(new TodoItem() { Content = "Say Hello", IsComplete = true });
+        TodoItems.Add(new TodoItem() { Content = "Learn DataSync", IsComplete = false });
+        TodoItems.Add(new TodoItem() { Content = "Learn Avalonia", IsComplete = false });
+
+        await SaveChangesAsync();
+    }
+    #endif
 }

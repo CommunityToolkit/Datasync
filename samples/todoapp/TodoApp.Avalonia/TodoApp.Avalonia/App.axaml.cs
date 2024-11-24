@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core;
@@ -15,14 +16,25 @@ using TodoApp.Avalonia.Views;
 
 namespace TodoApp.Avalonia;
 
-public partial class App : Application
+public partial class App : Application, IDisposable
 {
     private readonly SqliteConnection dbConnection;
     public IServiceProvider Services { get; }
-    
+    public string Test { get; } = "test";
+
     public App()
     {
-        this.dbConnection = new SqliteConnection("Data Source=:memory:");
+#if DEBUG
+        string dbFile = ":memory:";
+#else
+        string dbFile = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                        "DataSylc.Avalonia.Sample", 
+                        "TodoList.db")";
+#endif
+        
+        this.dbConnection = new SqliteConnection($"Data Source={dbFile}");
+
         this.dbConnection.Open();
 
         // Create the IoC Services provider.
@@ -32,7 +44,7 @@ public partial class App : Application
             .AddDbContext<AppDbContext>(options => options.UseSqlite(this.dbConnection))
             .BuildServiceProvider();
     }
-    
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -40,7 +52,6 @@ public partial class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Line below is needed to remove Avalonia data validation.
@@ -53,19 +64,19 @@ public partial class App : Application
             singleViewPlatform.MainView = new MainView { DataContext = GetRequiredService<TodoListViewModel>() };
         }
 
-        
+
         // Initialize the database after DataContext was set
         InitializeDatabase();
-        
+
         base.OnFrameworkInitializationCompleted();
     }
-    
-    private void InitializeDatabase()
+
+    private async void InitializeDatabase()
     {
         using IServiceScope scope = Services.CreateScope();
         IDbInitializer initializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-        initializer.Initialize();
-        
+        await initializer.InitializeAsync();
+
         Dispatcher.UIThread.Post(
             () => GetRequiredService<TodoListViewModel>().ShowInfoAlert("All data loaded"),
             DispatcherPriority.Loaded);
@@ -83,6 +94,7 @@ public partial class App : Application
         => ((App)App.Current!).Services.GetRequiredService<TService>();
 
     #region IDisposable
+
     private bool hasDisposed;
 
     protected virtual void Dispose(bool disposing)
@@ -103,5 +115,6 @@ public partial class App : Application
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
     #endregion
 }

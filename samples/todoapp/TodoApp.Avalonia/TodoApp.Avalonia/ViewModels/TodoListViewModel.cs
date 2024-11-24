@@ -34,7 +34,7 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
             TodoItem addition = new()
             {
                 Id = Guid.NewGuid().ToString("N"),
-                Title = NewItemContent ?? throw new InvalidOperationException("New item content may not be null or empty")
+                Content = NewItemContent ?? throw new InvalidOperationException("New item content may not be null or empty")
             };
 
             // Add the item to the database
@@ -77,6 +77,7 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
         // Remove the given item from the list
         Items.Remove(item);
         
+        // Remove it also from the data base
         _ = context.TodoItems.Remove(item.GetToDoItem());
         _ = await context.SaveChangesAsync();
     }
