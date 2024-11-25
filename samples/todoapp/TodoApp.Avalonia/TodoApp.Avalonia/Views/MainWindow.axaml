@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:TodoApp.Avalonia.Views"
         mc:Ignorable="d"
-        Width="300" Height="500"
+        Width="450" Height="800"
         x:Class="TodoApp.Avalonia.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
+        Design.DataContext="{x:Static vm:DesingTimeViewModels.TodoListDesignerViewModel}"
         Title="TodoApp.Avalonia">
         <views:MainView />
 </Window>

@@ -2,9 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using TodoApp.Avalonia.ViewModels;
 
 namespace TodoApp.Avalonia.Database;
 
@@ -36,15 +40,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         //     throw new ApplicationException($"Pull failed: {pullResult.FailedRequests.FirstOrDefault().Value.ReasonPhrase}");
         // }
     }
-    
-    #if DEBUG
+
+#if DEBUG
     internal async Task AddSampleDataAsync(CancellationToken cancellationToken = default)
     {
-        TodoItems.Add(new TodoItem() { Content = "Say Hello", IsComplete = true });
-        TodoItems.Add(new TodoItem() { Content = "Learn DataSync", IsComplete = false });
-        TodoItems.Add(new TodoItem() { Content = "Learn Avalonia", IsComplete = false });
-
+        await TodoItems.AddRangeAsync(
+            new TodoItem() { Id = Guid.NewGuid().ToString("N"), Content = """Say "Hello" to DataSync and Avalonia""" , IsComplete = true }, 
+            new TodoItem() { Id = Guid.NewGuid().ToString("N"), Content = "Learn DataSync", IsComplete = false }, 
+            new TodoItem() { Id = Guid.NewGuid().ToString("N"), Content = "Learn Avalonia", IsComplete = false });
+        
         await SaveChangesAsync();
+
+        // Make sure the ViewModel has fetched the latest changes
+        TodoListViewModel todoListViewModel =
+            (Application.Current as App)?.Services.GetRequiredService<TodoListViewModel>()!;
+
+        await todoListViewModel.RefreshItemsAsync();
     }
-    #endif
+#endif
 }

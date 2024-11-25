@@ -21,6 +21,11 @@
             <Setter Property="FontSize" Value="15" />
             <Setter Property="Margin" Value="5" />
         </Style>
+        
+        <!-- Our Text should wrap long line -->
+        <Style Selector="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
 
         <!-- We want our CheckBox to be stretched horizontally (the default is left-aligned) -->
         <Style Selector="CheckBox">
@@ -35,6 +40,5 @@
         <Style Selector="Button:disabled PathIcon">
             <Setter Property="Opacity" Value="0.4" />
         </Style>
-
     </Application.Styles>
 </Application>

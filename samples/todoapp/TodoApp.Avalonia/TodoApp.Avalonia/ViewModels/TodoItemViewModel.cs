@@ -65,10 +65,11 @@ public partial class TodoItemViewModel(TodoListViewModel parent, AppDbContext co
     
     private async Task SaveIsCheckedAsync(bool newValue, bool oldValue, CancellationToken cancellationToken = default)
     {
+        TodoItem? storedItem = null;
         try
         {
             // lookup the stored item
-            TodoItem? storedItem = await context.TodoItems.FindAsync([GetToDoItem().Id], cancellationToken);
+            storedItem = await context.TodoItems.FindAsync([GetToDoItem().Id], cancellationToken);
 
             // this is just to show how errors are handled. Feel free to comment it.
             if (++this.updateCounter % 3 == 0)
@@ -99,6 +100,7 @@ public partial class TodoItemViewModel(TodoListViewModel parent, AppDbContext co
         {
             // Set the Property back to it's old value
             SetProperty(ref this._IsComplete, oldValue, nameof(IsComplete)); 
+            if (storedItem is not null) storedItem.IsComplete = oldValue;
             parent.ShowErrorAlert(ex.Message);
         }
     }
