@@ -92,7 +92,7 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
             await context.SynchronizeAsync(cancellationToken);
 
             // Retrieve the items from the service
-            List<TodoItem> dbItems = await context.TodoItems.ToListAsync(cancellationToken);
+            List<TodoItem> dbItems = await context.TodoItems.OrderBy(item => item.Id).ToListAsync(cancellationToken);
 
             // Replace the items in the collection
             Items.Clear();
