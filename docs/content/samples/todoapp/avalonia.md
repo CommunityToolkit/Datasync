@@ -8,7 +8,7 @@ The Avalonia sample uses an in-memory Sqlite store (debug mode) or a file Sqlite
 
 * [Configure Visual Studio for Avalonia development](https://docs.avaloniaui.net/docs/welcome).
 * Open `samples/todoapp/Samples.TodoApp.sln` in Visual Studio.
-* In the Solution Explorer, right-click the `TodoApp.Avalonia/TodoApp.Avalonia.Desktop` project, then select **Set as Startup Project**.
+* In the Solution Explorer, expand the folder `TodoApp.Avalonia` and right-click the `TodoApp.Avalonia.Desktop` project, then select **Set as Startup Project**.
 * Select a target (in the top bar), then press F5 to run the application.
 
 > [!TIP] 
