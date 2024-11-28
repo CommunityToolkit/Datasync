@@ -1,6 +1,5 @@
 {
-  
-  "openapi": "3.0.0",
+    "openapi": "3.0.0",
   "info": {
     "title": "My Title",
     "version": "1.0.0"
@@ -223,6 +222,15 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KitchenSink"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Created",
@@ -576,6 +584,15 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KitchenSink"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -660,6 +677,15 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TodoItem"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": "Created",
@@ -1013,6 +1039,15 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TodoItem"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -1085,6 +1120,23 @@
     "schemas": {
       "KitchenSink": {
         "title": "KitchenSink",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The globally unique ID for the entity"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "The ISO-8601 date/time string describing the last time the entity was updated with ms accuracy."
+          },
+          "version": {
+            "type": "string",
+            "description": "An opaque string that changes whenever the entity changes."
+          }
+        },
         "definitions": {
           "KitchenSinkState": {
             "type": "integer",
@@ -1246,6 +1298,23 @@
       },
       "TodoItem": {
         "title": "TodoItem",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The globally unique ID for the entity"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "The ISO-8601 date/time string describing the last time the entity was updated with ms accuracy."
+          },
+          "version": {
+            "type": "string",
+            "description": "An opaque string that changes whenever the entity changes."
+          }
+        },
         "definitions": {
           "EntityTableData": {
             "allOf": [

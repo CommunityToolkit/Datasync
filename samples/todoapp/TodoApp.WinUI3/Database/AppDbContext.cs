@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+#define OFFLINESYNC_ENABLED
+
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Offline;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +16,7 @@ using TodoApp.WinUI3.Services;
 namespace TodoApp.WinUI3.Database;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+// public class AppDbContext(DbContextOptions<AppDbContext> options) : OfflineDbContext(options)
 {
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
@@ -21,7 +24,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     //{
     //    HttpClientOptions clientOptions = new()
     //    {
-    //        Endpoint = new Uri("https://YOURSITEHERE.azurewebsites.net/"),
+    //        Endpoint = new Uri("https://app-qhvxwauvecrtg.azurewebsites.net/"),
     //        HttpPipeline = [new LoggingHandler()]
     //    };
     //    _ = optionsBuilder.UseHttpClientOptions(clientOptions);

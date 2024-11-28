@@ -38,6 +38,13 @@ public class GenericAuthenticationProvider_Tests
     #endregion
 
     [Fact]
+    public void Ctor_WhiteSpace_Header_Throws()
+    {
+        Action act = () => _ = new GenericAuthenticationProvider(_ => Task.FromResult(ValidAuthenticationToken), "X-ZUMO-AUTH", " ");
+        act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
     public void Ctor_NullTokenRequestor_Throws()
     {
         Action act = () => _ = new GenericAuthenticationProvider(null);
@@ -61,7 +68,6 @@ public class GenericAuthenticationProvider_Tests
     [InlineData(" ")]
     [InlineData("\t")]
     [InlineData(" \t ")]
-    [Trait("Method", "Ctor")]
     public void Ctor_Authorization_RequiresType(string authType)
     {
         Action act = () => _ = new GenericAuthenticationProvider(_ => Task.FromResult(ValidAuthenticationToken), "Authorization", authType);

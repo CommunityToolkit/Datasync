@@ -112,7 +112,7 @@ jobs:
           ./tools/sign code azure-key-vault
           **/*.nupkg
           --base-directory "${{ github.workspace }}/packages"
-          --file-list "${{ github.workspace }}/SignedPackageFileList.txt"
+          --file-list "${{ github.workspace }}/SignedTemplateFileList.txt"
           --timestamp-url "http://timestamp.digicert.com"
           --publisher-name ".NET Foundation"
           --description "Community Datasync Toolkit"

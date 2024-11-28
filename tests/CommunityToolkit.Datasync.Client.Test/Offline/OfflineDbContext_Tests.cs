@@ -67,10 +67,10 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$orderby=updatedAt&$count=true&__includedeleted=true");
-        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
-        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
-        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
 
         DatasyncDeltaToken token = this.context.DatasyncDeltaTokens.Find(["CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie"]);
         token.Should().NotBeNull();
@@ -103,10 +103,10 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$orderby=updatedAt&$count=true&__includedeleted=true");
-        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
-        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
-        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
 
         DatasyncDeltaToken token = this.context.DatasyncDeltaTokens.Find(["CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie"]);
         token.Should().NotBeNull();
@@ -147,10 +147,10 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true&__includedeleted=true");
-        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
-        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
-        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
 
         DatasyncDeltaToken token = this.context.DatasyncDeltaTokens.Find(["q-CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie-abc"]);
         token.Should().NotBeNull();
@@ -191,10 +191,10 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true&__includedeleted=true");
-        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
-        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
-        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
 
         DatasyncDeltaToken token = this.context.DatasyncDeltaTokens.Find(["q-CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie-a87ec01f71a5577199797b433e3bcc6b"]);
         token.Should().NotBeNull();
@@ -242,10 +242,10 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true&__includedeleted=true");
-        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
-        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
-        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
 
         DatasyncDeltaToken token = this.context.DatasyncDeltaTokens.Find(["q-CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie-a87ec01f71a5577199797b433e3bcc6b"]);
         token.Should().NotBeNull();
@@ -281,10 +281,10 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$orderby=updatedAt&$count=true&__includedeleted=true");
-        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
-        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
-        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
 
         DatasyncDeltaToken token = this.context.DatasyncDeltaTokens.Find(["CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie"]);
         token.Should().NotBeNull();
@@ -321,10 +321,10 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$filter=%28updatedAt gt cast%282024-08-23T20%3A22%3A54.291Z%2CEdm.DateTimeOffset%29%29&$orderby=updatedAt&$count=true&__includedeleted=true");
-        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
-        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
-        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$filter=%28updatedAt gt cast%282024-08-23T20%3A22%3A54.291Z%2CEdm.DateTimeOffset%29%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
     }
 
     [Fact]
@@ -362,10 +362,10 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$filter=%28updatedAt gt cast%282024-08-23T20%3A22%3A54.291Z%2CEdm.DateTimeOffset%29%29&$orderby=updatedAt&$count=true&__includedeleted=true");
-        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
-        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
-        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$filter=%28updatedAt gt cast%282024-08-23T20%3A22%3A54.291Z%2CEdm.DateTimeOffset%29%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
     }
 
     [Fact]
@@ -410,10 +410,10 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$orderby=updatedAt&$count=true&__includedeleted=true");
-        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=5");
-        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=10");
-        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/?$skip=15");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
+        this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
+        this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
     }
 
     [Fact]
@@ -426,7 +426,7 @@ public class OfflineDbContext_Tests : BaseTest
         pullResult.IsSuccessful.Should().BeFalse();
         pullResult.FailedRequests.Should().HaveCount(1);
         KeyValuePair<Uri, ServiceResponse> kv = pullResult.FailedRequests.Single();
-        kv.Key.Should().Be("https://test.zumo.net/tables/movies/?$orderby=updatedAt&$count=true&__includedeleted=true");
+        kv.Key.Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true&__includedeleted=true");
     }
 
     [Fact]
@@ -521,7 +521,7 @@ public class OfflineDbContext_Tests : BaseTest
     }
 
     [Fact]
-    public async void PushAsync_Addition_Works()
+    public async Task PushAsync_Addition_Works()
     {
         ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
         string clientMovieJson = DatasyncSerializer.Serialize(clientMovie);
@@ -545,7 +545,7 @@ public class OfflineDbContext_Tests : BaseTest
     }
 
     [Fact]
-    public async void DbSet_PushAsync_Addition_Works()
+    public async Task DbSet_PushAsync_Addition_Works()
     {
         ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
         string clientMovieJson = DatasyncSerializer.Serialize(clientMovie);

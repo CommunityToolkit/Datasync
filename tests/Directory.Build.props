@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Authors>Community Toolkit</Authors>
+    <Authors>Microsoft.Toolkit,dotnetfoundation</Authors>
     <Company>Community Toolkit</Company>
     <Copyright>(c) .NET Foundation and Contributors. All rights reserved.</Copyright>
     <Description>A test package for supporting the Datasync Toolkit.</Description>
@@ -33,27 +33,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.12.0" />
-    <PackageReference Include="FluentAssertions.Web" Version="1.2.5" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.3" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageReference Include="NSubstitute" Version="5.1.0" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
-    <PackageReference Include="xunit" Version="2.7.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="6.0.2">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="coverlet.msbuild" Version="6.0.2">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="XUnit.Combinatorial" Version="1.6.24" />
-    <PackageReference Include="XUnit.SkippableFact" Version="1.4.13" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="FluentAssertions.Web" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NSubstitute" />
+    <PackageReference Include="System.Text.RegularExpressions" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="XUnit.Combinatorial" />
+    <PackageReference Include="XUnit.SkippableFact" />
   </ItemGroup>
 
   <ItemGroup>

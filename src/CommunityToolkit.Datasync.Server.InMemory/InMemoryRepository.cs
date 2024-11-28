@@ -34,10 +34,20 @@ public class InMemoryRepository<TEntity> : IRepository<TEntity> where TEntity : 
     {
         foreach (TEntity entity in entities)
         {
-            entity.Id ??= Guid.NewGuid().ToString();
+            entity.Id ??= IdGenerator.Invoke(entity);
             StoreEntity(entity);
         }
     }
+
+    /// <summary>
+    /// The mechanism by which an Id is generated when one is not provided.
+    /// </summary>
+    public Func<TEntity, string> IdGenerator { get; set; } = _ => Guid.NewGuid().ToString("N");
+
+    /// <summary>
+    /// The mechanism by which a new version byte array is generated.
+    /// </summary>
+    public Func<byte[]> VersionGenerator { get; set; } = () => Guid.NewGuid().ToByteArray();
 
     #region Internal properties and methods for testing.
     /// <summary>
@@ -95,7 +105,7 @@ public class InMemoryRepository<TEntity> : IRepository<TEntity> where TEntity : 
     internal void StoreEntity(TEntity entity)
     {
         entity.UpdatedAt = DateTimeOffset.UtcNow;
-        entity.Version = Guid.NewGuid().ToByteArray();
+        entity.Version = VersionGenerator.Invoke();
         this._entities[entity.Id] = Disconnect(entity);
     }
 
@@ -124,7 +134,7 @@ public class InMemoryRepository<TEntity> : IRepository<TEntity> where TEntity : 
         ThrowExceptionIfSet();
         if (string.IsNullOrEmpty(entity.Id))
         {
-            entity.Id = Guid.NewGuid().ToString();
+            entity.Id = IdGenerator.Invoke(entity);
         }
 
         if (this._entities.TryGetValue(entity.Id, out TEntity? storedEntity))

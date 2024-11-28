@@ -28,7 +28,7 @@ public class NSwag_Tests
 
         // There is an x-generator field that is library specific and completely irrelevant
         // to the comparison, so this line will remove it for comparison purposes.
-        Regex generatorRegex = new("\"x-generator\": \"[^\\\"]+\",");
+        Regex generatorRegex = new("\"x-generator\": \"[^\\\"]+\",[\r\n]+");
         actualContent = generatorRegex.Replace(actualContent, "", 1);
         expectedContent = generatorRegex.Replace(expectedContent, "", 1);
 
@@ -47,6 +47,13 @@ public class NSwag_Tests
         }
 
         actualContent.Should().Be(expectedContent);
+    }
+
+    [Fact]
+    public void NSwag_AddMissingSchemaProperties_CornerCase()
+    {
+        Action act = () => DatasyncOperationProcessor.AddMissingSchemaProperties(null);
+        act.Should().NotThrow();
     }
 
     [Fact]

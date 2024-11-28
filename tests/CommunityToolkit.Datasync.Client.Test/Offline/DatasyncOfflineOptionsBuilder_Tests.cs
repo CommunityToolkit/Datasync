@@ -243,7 +243,7 @@ public class DatasyncOfflineOptionsBuilder_Tests : BaseTest
         OfflineOptions options = sut.Build();
         EntityDatasyncOptions result = options.GetOptions(typeof(Entity3));
         result.HttpClient.Should().NotBeNull();
-        result.Endpoint.ToString().Should().Be("/tables/entity3");
+        result.Endpoint.ToString().Should().Be("tables/entity3");
         result.QueryDescription.ToODataQueryString().Should().Be("");
     }
 }

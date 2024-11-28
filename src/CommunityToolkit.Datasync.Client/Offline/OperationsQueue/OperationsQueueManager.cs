@@ -69,7 +69,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
     internal List<EntityEntry> GetChangedEntitiesInScope()
         => ChangeTracker.Entries()
             .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
-            .Where(e => this._entityMap.ContainsKey(e.Entity.GetType().FullName.AsNullableEmptyString()))
+            .Where(e => this._entityMap.ContainsKey(e.Metadata.Name.AsNullableEmptyString()))
             .ToList();
 
     /// <summary>

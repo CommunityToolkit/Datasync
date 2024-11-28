@@ -23,12 +23,13 @@ public abstract class BaseTest
     /// <summary>
     /// Creates a version of the TestDbContext backed by SQLite.
     /// </summary>
-    protected static TestDbContext CreateContext()
+    protected static TestDbContext CreateContext(Action<DbContextOptionsBuilder<TestDbContext>> configureOptions = null)
     {
         SqliteConnection connection = new("Data Source=:memory:");
         connection.Open();
         DbContextOptionsBuilder<TestDbContext> optionsBuilder = new DbContextOptionsBuilder<TestDbContext>()
             .UseSqlite(connection);
+        configureOptions?.Invoke(optionsBuilder);
         TestDbContext context = new(optionsBuilder.Options) { Connection = connection };
 
         // Ensure the database is created.

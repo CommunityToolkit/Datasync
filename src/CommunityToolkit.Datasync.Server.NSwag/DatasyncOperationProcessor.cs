@@ -65,6 +65,7 @@ public class DatasyncOperationProcessor : IOperationProcessor
         string path = context.OperationDescription.Path;
         Type entityType = GetTableEntityType(context.ControllerType);
         JsonSchema entitySchemaRef = GetEntityReference(context, entityType);
+        AddMissingSchemaProperties(entitySchemaRef.Reference);
 
         if (method.Equals("DELETE", StringComparison.InvariantCultureIgnoreCase))
         {
@@ -91,6 +92,8 @@ public class DatasyncOperationProcessor : IOperationProcessor
         if (method.Equals("POST", StringComparison.InvariantCultureIgnoreCase))
         {
             operation.AddConditionalRequestSupport(entitySchemaRef, true);
+            operation.TryAddConsumes("application/json");
+            operation.Parameters.Add(new OpenApiParameter { Schema = entitySchemaRef, Kind = OpenApiParameterKind.Body });
             operation.SetResponse(HttpStatusCode.Created, entitySchemaRef);
             operation.SetResponse(HttpStatusCode.BadRequest);
         }
@@ -98,11 +101,48 @@ public class DatasyncOperationProcessor : IOperationProcessor
         if (method.Equals("PUT", StringComparison.InvariantCultureIgnoreCase))
         {
             operation.AddConditionalRequestSupport(entitySchemaRef);
+            operation.TryAddConsumes("application/json");
+            operation.Parameters.Add(new OpenApiParameter { Schema = entitySchemaRef, Kind = OpenApiParameterKind.Body });
             operation.SetResponse(HttpStatusCode.OK, entitySchemaRef);
             operation.SetResponse(HttpStatusCode.BadRequest);
             operation.SetResponse(HttpStatusCode.NotFound);
             operation.SetResponse(HttpStatusCode.Gone);
         }
+    }
+
+    internal static void AddMissingSchemaProperties(JsonSchema? schema)
+    {
+        if (schema is null)
+        {
+            return;
+        }
+
+        if (schema.Properties.ContainsKey("id") && schema.Properties.ContainsKey("updatedAt") && schema.Properties.ContainsKey("version"))
+        {
+            // Nothing to do - the correct properties are already in the schma.
+            return;
+        }
+
+        _ = schema.Properties.TryAdd("id", new JsonSchemaProperty
+        {
+            Type = JsonObjectType.String,
+            Description = "The globally unique ID for the entity",
+            IsRequired = true
+        });
+        _ = schema.Properties.TryAdd("updatedAt", new JsonSchemaProperty
+        { 
+            Type = JsonObjectType.String,
+            Description = "The ISO-8601 date/time string describing the last time the entity was updated with ms accuracy.",
+            IsRequired = false
+        });
+        _ = schema.Properties.TryAdd("version", new JsonSchemaProperty
+        {
+            Type = JsonObjectType.String, 
+            Description = "An opaque string that changes whenever the entity changes.", 
+            IsRequired = false 
+        });
+
+        return;
     }
 
     /// <summary>

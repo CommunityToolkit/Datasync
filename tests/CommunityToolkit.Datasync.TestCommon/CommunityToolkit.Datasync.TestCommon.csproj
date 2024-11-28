@@ -12,7 +12,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Spatial" Version="7.20.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Spatial" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +26,4 @@
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.InMemory\CommunityToolkit.Datasync.Server.InMemory.csproj" />
   </ItemGroup>
-
-  <Import Project="..\EFCore.Packages.props" />
 </Project>

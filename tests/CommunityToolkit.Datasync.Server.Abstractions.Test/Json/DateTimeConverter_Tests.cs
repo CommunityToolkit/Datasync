@@ -9,32 +9,48 @@ namespace CommunityToolkit.Datasync.Server.Abstractions.Test.Json;
 [ExcludeFromCodeCoverage]
 public class DateTimeConverter_Tests : SerializerTests
 {
-    [Fact]
-    public void Converter_ReadsJson()
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_ReadsJson(string culture)
     {
         string json = """{"updatedAt":"2021-08-21T12:30:15.123+00:00"}""";
-        DateTime value = DateTime.Parse("2021-08-21T12:30:15.123+00:00");
+        DateTime value = new(2021, 8, 21, 12, 30, 15, 123, DateTimeKind.Utc);
 
-        Entity entity = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
-        entity.UpdatedAt.ToFileTime().Should().Be(value.ToFileTime());
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
+            entity.UpdatedAt.ToFileTime().Should().Be(value.ToFileTime());
+        });
     }
 
-    [Fact]
-    public void Converter_WritesJson()
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_WritesJson(string culture)
     {
         string json = """{"updatedAt":"2021-08-21T12:30:15.123Z"}""";
-        Entity entity = new() { UpdatedAt = DateTime.Parse("2021-08-21T12:30:15.1234567+00:00") };
-        string actual = JsonSerializer.Serialize(entity, SerializerOptions);
-        Assert.Equal(json, actual);
+        DateTime value = new(2021, 8, 21, 12, 30, 15, 123, 456, DateTimeKind.Utc);
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = new() { UpdatedAt = value };
+            string actual = JsonSerializer.Serialize(entity, SerializerOptions);
+            Assert.Equal(json, actual);
+        });
     }
 
-    [Fact]
-    public void Converter_WritesJson_WithTimeZone()
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_WritesJson_WithTimeZone(string culture)
     {
         string json = """{"updatedAt":"2021-08-21T12:30:15.123Z"}""";
-        Entity entity = new() { UpdatedAt = DateTime.Parse("2021-08-21T20:30:15.1234567+08:00") };
-        string actual = JsonSerializer.Serialize(entity, SerializerOptions);
-        Assert.Equal(json, actual);
+        DateTime value = DateTime.Parse("2021-08-21T20:30:15.1234567+08:00");
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = new() { UpdatedAt = value };
+            string actual = JsonSerializer.Serialize(entity, SerializerOptions);
+            Assert.Equal(json, actual);
+        });
     }
 
     [Fact]

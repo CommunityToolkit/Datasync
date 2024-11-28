@@ -4,7 +4,7 @@
 
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.TestCommon.Databases;
-
+using System.Text.Json;
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Client.Test.Serialization;
@@ -30,5 +30,19 @@ public class DatasyncSerializer_Tests
 
         actual = DatasyncSerializer.Serialize(movie, typeof(ClientMovie));
         actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public void CanSetSerializerOptions()
+    {
+        JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
+        JsonSerializerOptions sut = DatasyncSerializer.JsonSerializerOptions;
+        sut.Should().NotBeNull().And.NotBe(options);
+
+        DatasyncSerializer.JsonSerializerOptions = options;
+        DatasyncSerializer.JsonSerializerOptions.Should().Be(options);
+
+        DatasyncSerializer.JsonSerializerOptions = null;
+        DatasyncSerializer.JsonSerializerOptions.Should().Be(sut);
     }
 }

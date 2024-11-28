@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.TestCommon;
+using CommunityToolkit.Datasync.TestCommon.Models;
 using LiteDB;
 
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
@@ -67,4 +68,51 @@ public class LiteDbRepository_Tests : RepositoryTests<LiteDbMovie>, IDisposable
         }
     }
     #endregion
+
+    [SkippableFact]
+    public async Task IdGenerator_Ulid_CanCreate()
+    {
+        Skip.IfNot(CanRunLiveTests());
+
+        IRepository<LiteDbMovie> repository = await GetPopulatedRepositoryAsync();
+        string generatedId = string.Empty;
+        ((LiteDbRepository<LiteDbMovie>)repository).IdGenerator = _ => { generatedId = Ulid.NewUlid().ToString(); return generatedId; };
+
+        LiteDbMovie addition = TestData.Movies.OfType<LiteDbMovie>(TestData.Movies.BlackPanther);
+        addition.Id = null;
+        LiteDbMovie sut = addition.Clone();
+        await repository.CreateAsync(sut);
+        LiteDbMovie actual = await GetEntityAsync(sut.Id);
+
+        actual.Should().BeEquivalentTo<IMovie>(addition);
+        actual.UpdatedAt.Should().BeAfter(StartTime);
+        generatedId.Should().NotBeNullOrEmpty();
+        actual.Id.Should().Be(generatedId);
+    }
+
+    [SkippableFact]
+    public async Task VersionGenerator_Ticks_CanCreate()
+    {
+        Skip.IfNot(CanRunLiveTests());
+
+        IRepository<LiteDbMovie> repository = await GetPopulatedRepositoryAsync();
+        byte[] generatedVersion = [];
+        ((LiteDbRepository<LiteDbMovie>)repository).VersionGenerator = () =>
+        {
+            DateTimeOffset offset = DateTimeOffset.UtcNow;
+            generatedVersion = BitConverter.GetBytes(offset.Ticks);
+            return generatedVersion;
+        };
+
+        LiteDbMovie addition = TestData.Movies.OfType<LiteDbMovie>(TestData.Movies.BlackPanther);
+        addition.Id = null;
+        LiteDbMovie sut = addition.Clone();
+        await repository.CreateAsync(sut);
+        LiteDbMovie actual = await GetEntityAsync(sut.Id);
+
+        actual.Should().BeEquivalentTo<IMovie>(addition);
+        actual.UpdatedAt.Should().BeAfter(StartTime);
+        generatedVersion.Should().NotBeNullOrEmpty();
+        actual.Version.Should().BeEquivalentTo(generatedVersion);
+    }
 }

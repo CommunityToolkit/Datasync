@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TodoApp.WinUI3.Database;
@@ -25,7 +26,7 @@ public partial class TodoListViewModel(AppDbContext service) : ObservableRecipie
     private bool isRefreshing;
 
     [ObservableProperty]
-    private ConcurrentObservableCollection<TodoItem> items = [];
+    private ConcurrentObservableCollection<TodoItemViewModel> items = [];
 
     [ObservableProperty]
     private string title = string.Empty;
@@ -47,7 +48,7 @@ public partial class TodoListViewModel(AppDbContext service) : ObservableRecipie
             _ = await service.SaveChangesAsync(cancellationToken);
 
             // Add the item to the end of the list.
-            Items.Add(addition);
+            Items.Add(new TodoItemViewModel(addition));
 
             // Update the title field ready for ext insertion.
             Title = string.Empty;
@@ -77,7 +78,7 @@ public partial class TodoListViewModel(AppDbContext service) : ObservableRecipie
             _ = await service.SaveChangesAsync(cancellationToken);
 
             // Update the item in the list
-            _ = Items.ReplaceIf(x => x.Id == itemId, item);
+            _ = Items.ReplaceIf(x => x.Id == itemId, new TodoItemViewModel(item));
         }
         catch (Exception ex)
         {
@@ -106,10 +107,11 @@ public partial class TodoListViewModel(AppDbContext service) : ObservableRecipie
             await service.SynchronizeAsync(cancellationToken);
 
             // Pull all items from the database.
-            IEnumerable<TodoItem> itemsFromDatabase = await service.TodoItems.ToListAsync(cancellationToken);
+            IEnumerable<TodoItem> itemsFromDatabase = await service.TodoItems.OrderBy(item => item.Id).ToListAsync(cancellationToken);
 
             // Replace all the items in the collection.
-            Items.ReplaceAll(itemsFromDatabase);
+
+            Items.ReplaceAll(itemsFromDatabase.Select(item => new TodoItemViewModel(item)));
         }
         catch (Exception ex)
         {

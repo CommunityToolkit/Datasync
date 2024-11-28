@@ -15,8 +15,10 @@ public class AppDbContext : DbContext
 
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
+    public DbSet<TodoList> TodoLists => Set<TodoList>();
+
     public async Task InitializeDatabaseAsync() 
     {
-        await Database.EnsureCreatedAsync();
+        _ = await Database.EnsureCreatedAsync();
     }
 }

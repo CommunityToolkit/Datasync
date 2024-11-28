@@ -12,14 +12,14 @@
       <link>http://localhost:1313/Datasync/setup/server/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/setup/server/index.html</guid>
-      <description>You can easily create a new datasync service using our template.&#xA;Install the template Install the template from NuGet:&#xA;dotnet new -i Microsoft.AspNetCore.Datasync.Template.CSharpCreate a new project with the template Use the dotnet new command to create a project:&#xA;mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe template is a standard Web API project with the addition of the datasync services, and includes a sample model and controller.</description>
+      <description>You can easily create a new datasync service using our template.&#xA;Install the template Install the template from NuGet:&#xA;dotnet new -i CommunityToolkit.Datasync.Server.Template.CSharpCreate a new project with the template Use the dotnet new command to create a project:&#xA;mkdir My.Datasync.Server cd My.Datasync.Server dotnet new datasync-serverThe template is a standard Web API project with the addition of the datasync services, and includes a sample model and controller. It will also appear in the Visual Studio project selector after installation.</description>
     </item>
     <item>
       <title>Client application</title>
       <link>http://localhost:1313/Datasync/setup/client/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/setup/client/index.html</guid>
-      <description>Prerequisites For offline database access, you should create your application using Entity Framework Core v8.0 and a Sqlite database. When you construct your models for database storage, ensure they are constructed with the following requirements:&#xA;Primary key - Id, a string field. UpdatedAt - a DateTimeOffset? field. Version - a string? or byte[]? field. Deleted - a bool field. These are maintained by the server.&#xA;Note&#xD;Sqlite stores DateTimeOffset using a second accuracy by default.</description>
+      <description>Prerequisites For offline database access, you should create your application using Entity Framework Core v8.0 and a Sqlite database. When you construct your models for database storage, ensure they are constructed with the following requirements:&#xA;Primary key - Id, a string field. UpdatedAt - a DateTimeOffset? field. Version - a string? or byte[]? field. Deleted - a bool field. These are maintained by the server.&#xA;Note&#xD;Sqlite stores DateTimeOffset using a second accuracy by default. The Datasync Community Toolkit does not rely on the storage of the UpdatedAt field, but it is transmitted with millisecond accuracy. Consider using a ValueConverter to store the value as a long value instead.</description>
     </item>
   </channel>
 </rss>

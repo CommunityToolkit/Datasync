@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -14,6 +15,7 @@ namespace CommunityToolkit.Datasync.Server.Abstractions.Json;
 public class DateTimeConverter : JsonConverter<DateTime>
 {
     private const string format = "yyyy-MM-dd'T'HH:mm:ss.fffK";
+    private static readonly CultureInfo culture = new("en-US");
 
     /// <inheritdoc />
     public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -21,5 +23,5 @@ public class DateTimeConverter : JsonConverter<DateTime>
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
-        => writer.WriteStringValue(value.ToUniversalTime().ToString(format));
+        => writer.WriteStringValue(value.ToUniversalTime().ToString(format, culture));
 }

@@ -2,10 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Azure.Core.Serialization;
 using CommunityToolkit.Datasync.Server.Abstractions.Json;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+
+#pragma warning disable IDE0028 // Simplify collection initialization
 
 namespace CommunityToolkit.Datasync.Server.Abstractions.Test.Json;
 
@@ -25,7 +27,7 @@ public abstract class SerializerTests
             new DateTimeOffsetConverter(),
             new DateTimeConverter(),
             new TimeOnlyConverter(),
-            new MicrosoftSpatialGeoJsonConverter()
+            new SpatialGeoJsonConverter()
         },
         DefaultIgnoreCondition = JsonIgnoreCondition.Never,
         DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
@@ -37,4 +39,25 @@ public abstract class SerializerTests
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         ReadCommentHandling = JsonCommentHandling.Skip
     };
+
+    public static TheoryData<string> Locales => new()
+    {
+        "fr-FR",
+        "da-DA",
+        "en-US"
+    };
+
+    protected static void TestWithCulture(string culture, Action act)
+    {
+        CultureInfo currentCulture = Thread.CurrentThread.CurrentCulture;
+        Thread.CurrentThread.CurrentCulture = new CultureInfo(culture);
+        try
+        {
+            act.Invoke();
+        }
+        finally
+        {
+            Thread.CurrentThread.CurrentCulture = currentCulture;
+        }
+    }
 }

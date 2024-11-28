@@ -12,8 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.5" />
-    <PackageReference Include="Microsoft.Azure.Core.Spatial" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OData" />
   </ItemGroup>
 
   <ItemGroup>

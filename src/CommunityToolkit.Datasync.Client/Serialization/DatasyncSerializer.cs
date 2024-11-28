@@ -2,21 +2,28 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Azure.Core.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace CommunityToolkit.Datasync.Client.Serialization;
 
-internal static class DatasyncSerializer
+/// <summary>
+/// The serialization settings for Datasync settings.
+/// </summary>
+public static class DatasyncSerializer
 {
     private readonly static Lazy<JsonSerializerOptions> _initializer = new(GetJsonSerializerOptions);
+    private static JsonSerializerOptions? _userSuppliedOptions;
 
     /// <summary>
     /// Accessor for the common <see cref="JsonSerializerOptions"/> to use for serializing and deserializing 
     /// content in the service.
     /// </summary>
-    internal static JsonSerializerOptions JsonSerializerOptions { get => _initializer.Value; }
+    public static JsonSerializerOptions JsonSerializerOptions
+    { 
+        get => _userSuppliedOptions ?? _initializer.Value;
+        set => _userSuppliedOptions = value;
+    }
 
     /// <summary>
     /// Serializes an object using the serializer options.
@@ -24,7 +31,7 @@ internal static class DatasyncSerializer
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <param name="obj">The object.</param>
     /// <returns>The serialized version of the object.</returns>
-    internal static string Serialize<T>(T obj)
+    public static string Serialize<T>(T obj)
         => JsonSerializer.Serialize(obj, JsonSerializerOptions);
 
     /// <summary>
@@ -33,7 +40,7 @@ internal static class DatasyncSerializer
     /// <param name="obj">The object.</param>
     /// <param name="objType">The type of the object.</param>
     /// <returns>The serialized version of the object.</returns>
-    internal static string Serialize(object obj, Type objType)
+    public static string Serialize(object obj, Type objType)
         => JsonSerializer.Serialize(obj, objType, JsonSerializerOptions);
 
     /// <summary>
@@ -41,7 +48,7 @@ internal static class DatasyncSerializer
     /// content in the service.  You should never have to call this.
     /// </summary>
     /// <returns>A configured <see cref="JsonSerializerOptions"/> object.</returns>
-    internal static JsonSerializerOptions GetJsonSerializerOptions() => new(JsonSerializerDefaults.Web)
+    public static JsonSerializerOptions GetJsonSerializerOptions() => new(JsonSerializerDefaults.Web)
     {
         AllowTrailingCommas = true,
         Converters =
@@ -50,7 +57,7 @@ internal static class DatasyncSerializer
             new DateTimeOffsetConverter(),
             new DateTimeConverter(),
             new TimeOnlyConverter(),
-            new MicrosoftSpatialGeoJsonConverter()
+            new SpatialGeoJsonConverter()
         },
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
         DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
