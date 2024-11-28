@@ -12,9 +12,28 @@ namespace TodoApp.Avalonia.Database;
 /// </summary>
 public abstract class OfflineClientEntity
 {
+    /// <summary>
+    /// Gets or sets the ID of this item.
+    /// </summary>
+    /// <remarks>
+    /// The default is <see cref="Guid.NewGuid"/>.
+    /// </remarks>
+   
     [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
+    
+    /// <summary>
+    /// Gets or sets the last update time.
+    /// </summary>
     public DateTimeOffset? UpdatedAt { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the version info.
+    /// </summary>
     public string? Version { get; set; }
+    
+    /// <summary>
+    /// Gets or sets whether the item was deleted.
+    /// </summary>
     public bool Deleted { get; set; }
 }

@@ -12,18 +12,28 @@ using TodoApp.Avalonia.Services;
 
 namespace TodoApp.Avalonia.ViewModels;
 
-public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
+/// <summary>
+/// A ViewModel used to represent a list of <see cref="TodoItem"/>s
+/// </summary>
+/// <param name="context">the <see cref="AppDbContext"/> to use</param>
+public partial class TodoListViewModel(AppDbContext context) : ViewModelBase, IDialogBus
 {
+    /// <summary>
+    /// Gets or sets if the data is currently being refreshed.
+    /// </summary>
     [ObservableProperty]
     private bool isRefreshing;
 
+    /// <summary>
+    /// Gets or sets a collection of <see cref="TodoItemViewModel"/>s
+    /// </summary>
     [ObservableProperty]
     private ConcurrentObservableCollection<TodoItemViewModel> items = [];
     
     // -- Adding new Items --
     
     /// <summary>
-    /// This command is used to add a new Item to the List
+    /// This command is used to add a new Item to the <see cref="Items"/>
     /// </summary>
     [RelayCommand (CanExecute = nameof(CanAddItem))]
     private async Task AddItemAsync(CancellationToken cancellationToken)
@@ -44,7 +54,7 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
             // Add the item to the end of the list
             Items.Add(new TodoItemViewModel(addition, this, context));
 
-            // Update the title field ready for next insertion.
+            // Clear the NewItemContent-property for next insertion.
             NewItemContent = string.Empty;
         }
         catch (Exception ex)
@@ -61,28 +71,31 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
     private string? _newItemContent;
 
     /// <summary>
-    /// Returns if a new Item can be added. We require to have the NewItem some Text
+    /// Returns <c>true</c> if a new Item can be added. We require to have the NewItem some text.
     /// </summary>
     private bool CanAddItem() => !string.IsNullOrWhiteSpace(NewItemContent);
     
     // -- Removing Items --
     
     /// <summary>
-    /// Removes the given Item from the list
+    /// This command removes the given Item from the <see cref="Items"/>-list
     /// </summary>
     /// <param name="item">the item to remove</param>
     [RelayCommand]
     private async Task RemoveItemAsync(TodoItemViewModel item)
     {
-        // Remove the given item from the list
-        Items.Remove(item);
-        
-        // Remove it also from the data base
+        // Remove the item from the database
         _ = context.TodoItems.Remove(item.GetToDoItem());
         _ = await context.SaveChangesAsync();
+        
+        // Remove the given item from the list
+        Items.Remove(item);
     }
     
 
+    /// <summary>
+    /// This command is used to refresh the entire <see cref="Items"/>-list.
+    /// </summary>
     [RelayCommand]
     public async Task RefreshItemsAsync(CancellationToken cancellationToken = default)
     {
@@ -97,6 +110,8 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase
             // Replace the items in the collection
             Items.Clear();
             _ = Items.AddRange(dbItems.Select(x => new TodoItemViewModel(x, this, context)));
+            
+            this.ShowSuccessAlert("All Items loaded");
         }
         catch (Exception ex)
         {

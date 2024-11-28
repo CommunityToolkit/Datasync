@@ -12,57 +12,76 @@ using TodoApp.Avalonia.Services;
 
 namespace TodoApp.Avalonia.ViewModels;
 
-public partial class TodoItemViewModel(TodoListViewModel parent, AppDbContext context) : ViewModelBase
+/// <summary>
+/// A ViewModel used to represent a <see cref="TodoItem"/>.
+/// </summary>
+/// <param name="dialogBus">the <see cref="IDialogBus"/> to send notifications to the user</param>
+/// <param name="context">the <see cref="AppDbContext"/> to use</param>
+public partial class TodoItemViewModel(IDialogBus dialogBus, AppDbContext context) : ViewModelBase
 {
+    // A reference to the provided TodoItem
     private TodoItem? _todoItem;
 
     /// <summary>
-    /// Creates a new ToDoItemViewModel for the given <see cref="Database.TodoItem"/>
+    /// Creates a new ToDoItemViewModel for the given <see cref="Database.TodoItem"/>.
     /// </summary>
     /// <param name="item">The item to load</param>
-    /// <param name="parent">The <see cref="TodoListViewModel"/> which is the parent</param>
+    /// <param name="dialogBus">The <see cref="TodoListViewModel"/> which is the parent</param>
     /// <param name="context">The <see cref="AppDbContext"/> to use</param>
-    public TodoItemViewModel(TodoItem item, TodoListViewModel parent, AppDbContext context) : this(parent, context)
+    public TodoItemViewModel(TodoItem item, IDialogBus dialogBus, AppDbContext context) : this(dialogBus, context)
     {
-        // Init the properties with the given values
+        // Init the properties with the given values.
         this._IsComplete = item.IsComplete;
         this._content = item.Content;
 
         this._todoItem = item;
     }
 
-    // NOTE: This property is made without source generator. Uncomment the line below to use the source generator
+    // NOTE: This property is made without source generator. Uncomment the line below to use the source generator.
     // [ObservableProperty] 
     private bool _IsComplete;
     
     /// <summary>
-    /// Gets or sets the checked status of each item
+    /// Gets or sets the checked status of the item.
     /// </summary>
     public bool IsComplete
     {
         get { return this._IsComplete; }
         set
         {
-            // Stpre the old value in order to undo the changes, if the save operation failed
+            // Store the old value in order to undo the changes, if the save operation failed.
             bool oldValue = this._IsComplete;
             
             if (SetProperty(ref this._IsComplete, value))
             {
-                // save the item in case the have an updated value
+                // save the item in case we have an updated value
                 SaveIsChecked(value, oldValue); 
             }
         }
     }
     
-    private async void SaveIsChecked(bool value, bool oldValue)
+    /// <summary>
+    /// Saves the new <see cref="IsComplete"/> value to the database
+    /// </summary>
+    /// <param name="newValue">the new value</param>
+    /// <param name="oldValue">the old value</param>
+    private async void SaveIsChecked(bool newValue, bool oldValue)
     {
-        await SaveIsCheckedAsync(value, oldValue);
+        await SaveIsCheckedAsync(newValue, oldValue);
     }
     
-    // a counter that can be used to track save requests. Only used to demonstrate an exception after every third 
-    // save operation. 
+    // a counter that can be used to track save requests.
+    // Only used to demonstrate an exception after every third save operation. 
     int updateCounter = 0; 
     
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="newValue">the new value</param>
+    /// <param name="oldValue">the old value</param>
+    /// <param name="cancellationToken">the <see cref="CancellationToken"/> to use</param>
+    /// <exception cref="IOException">If the item wasn't saved correctly</exception>
+    /// <exception cref="NullReferenceException">If the item to update wasn't found in the database.</exception>
     private async Task SaveIsCheckedAsync(bool newValue, bool oldValue, CancellationToken cancellationToken = default)
     {
         TodoItem? storedItem = null;
@@ -88,7 +107,7 @@ public partial class TodoItemViewModel(TodoListViewModel parent, AppDbContext co
                 _ = await context.SaveChangesAsync(cancellationToken);
 
                 // Show an info to the user
-                parent.ShowInfoAlert("Saved changes successfully");
+                dialogBus.ShowInfoAlert("Saved changes successfully");
             }
             else
             {
@@ -98,23 +117,21 @@ public partial class TodoItemViewModel(TodoListViewModel parent, AppDbContext co
         }
         catch (Exception ex)
         {
-            // Set the Property back to it's old value
+            // Set the Property back to it's old value in case of any exception.
             SetProperty(ref this._IsComplete, oldValue, nameof(IsComplete)); 
             if (storedItem is not null) storedItem.IsComplete = oldValue;
-            parent.ShowErrorAlert(ex.Message);
+            dialogBus.ShowErrorAlert(ex.Message);
         }
     }
     
-
     /// <summary>
     /// Gets or sets the content of the to-do item
     /// </summary>
     [ObservableProperty] private string? _content;
 
     /// <summary>
-    /// Gets a ToDoItem for this Item-ViewModel
+    /// Gets a <see cref="TodoItem"/> for this Item-ViewModel
     /// </summary>
-    /// <returns>The ToDoItem</returns>
     public TodoItem GetToDoItem()
     {
         if (this._todoItem is not null)

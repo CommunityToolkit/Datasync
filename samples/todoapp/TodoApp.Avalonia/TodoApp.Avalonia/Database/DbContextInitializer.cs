@@ -5,15 +5,16 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using TodoApp.Avalonia.ViewModels;
 
 namespace TodoApp.Avalonia.Database;
 
 /// <summary>
-/// Use this class to initialize the database.  In this sample, we just create
-/// the database using <see cref="DatabaseFacade.EnsureCreated"/>.  However, you
+/// Use this class to initialize the database. In this sample, we just create
+/// the database using <see cref="DatabaseFacade.EnsureCreated"/>. However, you
 /// may want to use migrations.
 /// </summary>
-/// <param name="context">The context for the database.</param>
+/// <param name="context">The <see cref="AppDbContext"/> for the database.</param>
 public class DbContextInitializer(AppDbContext context) : IDbInitializer
 {
     /// <inheritdoc />
@@ -28,8 +29,10 @@ public class DbContextInitializer(AppDbContext context) : IDbInitializer
     {
         await context.Database.EnsureCreatedAsync(cancellationToken);
         
-        #if DEBUG
-        await context.AddSampleDataAsync();
-        #endif
+        await context.AddSampleDataAsync(cancellationToken);
+        
+        // Make sure the ViewModel has fetched the latest changes and is up to date
+        TodoListViewModel todoListViewModel = App.GetRequiredService<TodoListViewModel>();
+        await todoListViewModel.RefreshItemsAsync(cancellationToken);
     }
 }

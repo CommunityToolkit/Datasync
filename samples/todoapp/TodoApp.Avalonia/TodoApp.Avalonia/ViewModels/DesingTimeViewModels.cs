@@ -5,13 +5,15 @@
 using System;
 using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
-using TodoApp.Avalonia.Database;
 
 namespace TodoApp.Avalonia.ViewModels;
 #if DEBUG
-public static class DesingTimeViewModels
+
+/// <summary>
+/// Holds some sample ViewModels to be shown in the Designer.
+/// </summary>
+public static class DesignTimeViewModels
 {
-    
     public static TodoListViewModel TodoListDesignerViewModel =>
         (Application.Current as App)?.Services.GetRequiredService<TodoListViewModel>() ?? throw new InvalidOperationException();
 }

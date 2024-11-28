@@ -8,7 +8,7 @@
         Width="450" Height="800"
         x:Class="TodoApp.Avalonia.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Design.DataContext="{x:Static vm:DesingTimeViewModels.TodoListDesignerViewModel}"
+        Design.DataContext="{x:Static vm:DesignTimeViewModels.TodoListDesignerViewModel}"
         Title="TodoApp.Avalonia">
         <views:MainView />
 </Window>

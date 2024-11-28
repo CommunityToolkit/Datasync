@@ -6,6 +6,13 @@ namespace TodoApp.Avalonia.Database;
 
 public class TodoItem : OfflineClientEntity
 {
+    /// <summary>
+    /// Gets or sets the content.
+    /// </summary>
     public string Content { get; set; } = string.Empty;
+    
+    /// <summary>
+    /// Gets or sets if the task was completed.
+    /// </summary>
     public bool IsComplete { get; set; } = false;
 }

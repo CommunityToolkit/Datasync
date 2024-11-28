@@ -5,10 +5,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using TodoApp.Avalonia.ViewModels;
 
 namespace TodoApp.Avalonia.Database;
 
@@ -41,7 +38,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         // }
     }
 
-#if DEBUG
+    /// <summary>
+    /// Adds some sample data to the database
+    /// </summary>
     internal async Task AddSampleDataAsync(CancellationToken cancellationToken = default)
     {
         await TodoItems.AddRangeAsync(
@@ -49,13 +48,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             new TodoItem() { Id = Guid.NewGuid().ToString("N"), Content = "Learn DataSync", IsComplete = false }, 
             new TodoItem() { Id = Guid.NewGuid().ToString("N"), Content = "Learn Avalonia", IsComplete = false });
         
-        await SaveChangesAsync();
-
-        // Make sure the ViewModel has fetched the latest changes
-        TodoListViewModel todoListViewModel =
-            (Application.Current as App)?.Services.GetRequiredService<TodoListViewModel>()!;
-
-        await todoListViewModel.RefreshItemsAsync();
+        await SaveChangesAsync(cancellationToken);
     }
-#endif
 }
