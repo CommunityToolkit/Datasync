@@ -4,7 +4,7 @@ title = "Avalonia"
 
 ## Run the application first
 
-The Avalonia sample uses an in-memory Sqlite store (debug mode) or a file Sqlite store (Release mode) for storing its data. The sample can run on Desktop, Mobile and Browser. To run the application locally:
+The Avalonia sample uses an in-memory Sqlite store for storing its data. The sample can run on Desktop, Mobile and Browser. To run the application locally:
 
 * [Configure Visual Studio for Avalonia development](https://docs.avaloniaui.net/docs/welcome).
 * Open `samples/todoapp/Samples.TodoApp.sln` in Visual Studio.
@@ -16,6 +16,10 @@ The Avalonia sample uses an in-memory Sqlite store (debug mode) or a file Sqlite
 
 > [!NOTE] 
 > If you bump into issues at this point, please visit [Avalonia.Docs](https://docs.avaloniaui.net) and [Avalonia.Samples](https://github.com/AvaloniaUI/Avalonia.Samples) for some basic getting-started tutorials.
+
+This is how the sample will look like:
+![Avalonia sample on Desktop](assets/TodoApp.Avalonia.Desktop.png)
+
 
 ## Deploy a datasync server to Azure
 
