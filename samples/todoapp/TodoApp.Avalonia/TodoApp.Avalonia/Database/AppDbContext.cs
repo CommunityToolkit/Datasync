@@ -1,15 +1,20 @@
-﻿// Licensed to the .NET Foundation under one or more agreements.
+// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Datasync.Client.Http;
+using CommunityToolkit.Datasync.Client.Offline;
 using Microsoft.EntityFrameworkCore;
+using TodoApp.Avalonia.Services;
 
 namespace TodoApp.Avalonia.Database;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+// public class AppDbContext(DbContextOptions<AppDbContext> options) : OfflineDbContext(options)
 {
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
@@ -43,10 +48,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     /// </summary>
     internal async Task AddSampleDataAsync(CancellationToken cancellationToken = default)
     {
+        // If there are already some items, don't add sample data
+        if (await TodoItems.AnyAsync(cancellationToken: cancellationToken))
+        {
+            return;
+        }
+        
         await TodoItems.AddRangeAsync(
-            new TodoItem() { Id = Guid.NewGuid().ToString("N"), Content = """Say "Hello" to DataSync and Avalonia""" , IsComplete = true }, 
-            new TodoItem() { Id = Guid.NewGuid().ToString("N"), Content = "Learn DataSync", IsComplete = false }, 
-            new TodoItem() { Id = Guid.NewGuid().ToString("N"), Content = "Learn Avalonia", IsComplete = false });
+            new TodoItem() { Id = Guid.NewGuid().ToString("N"), Title = """Say "Hello" to DataSync and Avalonia""" , IsComplete = true }, 
+            new TodoItem() { Id = Guid.NewGuid().ToString("N"), Title = "Learn DataSync", IsComplete = false }, 
+            new TodoItem() { Id = Guid.NewGuid().ToString("N"), Title = "Learn Avalonia", IsComplete = false });
         
         await SaveChangesAsync(cancellationToken);
     }

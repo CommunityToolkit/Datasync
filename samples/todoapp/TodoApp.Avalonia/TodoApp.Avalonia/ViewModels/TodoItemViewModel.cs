@@ -32,7 +32,7 @@ public partial class TodoItemViewModel(IDialogBus dialogBus, AppDbContext contex
     {
         // Init the properties with the given values.
         this._IsComplete = item.IsComplete;
-        this._content = item.Content;
+        this._title = item.Title;
 
         this._todoItem = item;
     }
@@ -125,9 +125,9 @@ public partial class TodoItemViewModel(IDialogBus dialogBus, AppDbContext contex
     }
     
     /// <summary>
-    /// Gets or sets the content of the to-do item
+    /// Gets or sets the Title of the to-do item
     /// </summary>
-    [ObservableProperty] private string? _content;
+    [ObservableProperty] private string? _title;
 
     /// <summary>
     /// Gets a <see cref="TodoItem"/> for this Item-ViewModel
@@ -136,7 +136,7 @@ public partial class TodoItemViewModel(IDialogBus dialogBus, AppDbContext contex
     {
         if (this._todoItem is not null)
         {
-            this._todoItem.Content = Content ?? string.Empty;
+            this._todoItem.Title = Title ?? string.Empty;
             this._todoItem.IsComplete = IsComplete;
             return this._todoItem;
         }
@@ -145,7 +145,7 @@ public partial class TodoItemViewModel(IDialogBus dialogBus, AppDbContext contex
         return new TodoItem()
         {
             IsComplete = this.IsComplete, 
-            Content = this.Content ?? string.Empty
+            Title = this.Title ?? string.Empty
         };
     }
 }

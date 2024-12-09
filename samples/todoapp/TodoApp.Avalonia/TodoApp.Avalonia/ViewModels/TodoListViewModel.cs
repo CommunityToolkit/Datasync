@@ -44,7 +44,7 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase, ID
             TodoItem addition = new()
             {
                 Id = Guid.NewGuid().ToString("N"),
-                Content = NewItemContent ?? throw new InvalidOperationException("New item content may not be null or empty")
+                Title = NewItemContent ?? throw new InvalidOperationException("New item content may not be null or empty")
             };
 
             // Add the item to the database

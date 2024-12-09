@@ -41,7 +41,7 @@
                         <!--  Our Item will be represented by a CheckBox and a Delete-Button  -->
                         <DataTemplate DataType="vm:TodoItemViewModel">
                             <Grid ColumnDefinitions="*, Auto">
-                                <CheckBox Content="{Binding Content}"
+                                <CheckBox Content="{Binding Title}"
                                           IsChecked="{Binding IsComplete}" />
 
                                 <!--  Note how we use the Root-Grid to get the MainViewModel here. As we use compiled bindings we have to cast the DataContext  -->
