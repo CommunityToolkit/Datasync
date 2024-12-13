@@ -3,11 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "library", "library", "{7183ECEC-9F44-48CE-BB97-AA2445170D5E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.WinUI3", "TodoApp.WinUI3\TodoApp.WinUI3.csproj", "{D783EDE7-D3A2-44D3-8C97-38AFFF9A4555}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Client", "..\..\src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj", "{2AC73FBE-9E76-4702-B551-B5884383CC68}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Datasync.Server", "..\datasync-server\src\Sample.Datasync.Server\Sample.Datasync.Server.csproj", "{E67734DD-B397-4A65-AA50-D62F37EF05DD}"
 EndProject
