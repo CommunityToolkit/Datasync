@@ -20,10 +20,6 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.0" />
+    <PackageReference Include="CommunityToolkit.Datasync.Client" Version="8.0.4" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj" />
-  </ItemGroup>
-
 </Project>

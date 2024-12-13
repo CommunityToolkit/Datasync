@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+      <PackageReference Include="CommunityToolkit.Datasync.Client" Version="8.0.4" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="CommunityToolkit.WinUI" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.0.240109" />
@@ -47,9 +48,6 @@
   -->
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\TodoListPage.xaml">

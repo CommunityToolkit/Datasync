@@ -19,9 +19,6 @@ If you bump into issues at this point, ensure you can properly develop and run A
 > [!TIP]
 > The TodoApp.Avalonia sample is known to work on Android and Desktop.  We have not tested on other platforms.
 
-This is how the sample will look like:
-![Avalonia sample on Desktop](assets/TodoApp.Avalonia.Desktop.png)
-
 ## Deploy a datasync server to Azure
 
 Before you begin adjusting the application for offline usage, you must [deploy a datasync service](../server.md).  Make a note of the URI of the service before continuing.
