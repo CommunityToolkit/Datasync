@@ -3,7 +3,7 @@
   <channel>
     <title>Samples :: Datasync Community Toolkit</title>
     <link>http://localhost:1313/Datasync/samples/index.html</link>
-    <description>Samples There are a variety of samples in the samples folder of our repository. You can find a walk-through of the code below.&#xA;Servers A typical server Clients The TodoApp&#xA;The Todo App is a typical data-driven application. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.&#xA;AvaloniaUI MAUI Uno Platform WinUI3 WPF</description>
+    <description>Samples There are a variety of samples in the samples folder of our repository. You can find a walk-through of the code below.&#xA;Servers A typical server Clients The TodoApp&#xA;The Todo App is a typical data-driven application. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.&#xA;AvaloniaUI MAUI WinUI3 WPF</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="http://localhost:1313/Datasync/samples/index.xml" rel="self" type="application/rss+xml" />
@@ -19,7 +19,7 @@
       <link>http://localhost:1313/Datasync/samples/todoapp/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/samples/todoapp/index.html</guid>
-      <description>The Todo App is a typical data-driven application that uses the sample server for cloud-based data storage. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.&#xA;AvaloniaUI MAUI Uno Platform WinUI3 WPF</description>
+      <description>The Todo App is a typical data-driven application that uses the sample server for cloud-based data storage. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.&#xA;AvaloniaUI MAUI WinUI3 WPF</description>
     </item>
   </channel>
 </rss>

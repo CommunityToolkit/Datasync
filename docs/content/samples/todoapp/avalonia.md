@@ -1,17 +1,23 @@
 +++
-title = "WinUI3"
+title = "Avalonia"
 +++
+
+> [!INFO]
+> The Avalonia sample has been kindly contributed to the community by <a href="https://github.com/timunie">@timunie</a>.
 
 ## Run the application first
 
-The WinUI3 sample uses an in-memory Sqlite store for storing its data.  To run the application locally:
+The Avalonia sample uses an in-memory Sqlite store for storing its data.  To run the application locally:
 
-* [Configure Visual Studio for WinUI3 development](https://learn.microsoft.com/windows/apps/get-started/start-here).
+* [Configure Visual Studio for Avalonia development](https://docs.avaloniaui.net/docs/get-started).
 * Open `samples/todoapp/Samples.TodoApp.sln` in Visual Studio.
-* In the Solution Explorer, right-click the `TodoApp.WinUI3` project, then select **Set as Startup Project**.
+* In the Solution Explorer, expand the `TodoApp.Avalonia` folder, then right-click the `TodoApp.Avalonia.Desktop` project, then select **Set as Startup Project**.
 * Select a target (in the top bar), then press F5 to run the application.
 
-If you bump into issues at this point, ensure you can properly develop and run WinUI3 applications outside of the datasync service.
+If you bump into issues at this point, ensure you can properly develop and run Avalonia applications for the desktop outside of the datasync service.
+
+> [!TIP]
+> The TodoApp.Avalonia sample is known to work on Android and Desktop.  We have not tested on other platforms.
 
 ## Deploy a datasync server to Azure
 
@@ -19,7 +25,7 @@ Before you begin adjusting the application for offline usage, you must [deploy a
 
 ## Update the application for datasync operations
 
-All the changes are isolated to the `Database/AppDbContext.cs` file.
+All the changes are isolated to the `Database/AppDbContext.cs` file in the `TodoApp.Avalonia` shared project.
 
 1. Change the definition of the class so that it inherits from `OfflineDbContext`:
 

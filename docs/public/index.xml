@@ -19,7 +19,7 @@
       <link>http://localhost:1313/Datasync/samples/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/samples/index.html</guid>
-      <description>Samples There are a variety of samples in the samples folder of our repository. You can find a walk-through of the code below.&#xA;Servers A typical server Clients The TodoApp&#xA;The Todo App is a typical data-driven application. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.&#xA;AvaloniaUI MAUI Uno Platform WinUI3 WPF</description>
+      <description>Samples There are a variety of samples in the samples folder of our repository. You can find a walk-through of the code below.&#xA;Servers A typical server Clients The TodoApp&#xA;The Todo App is a typical data-driven application. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.&#xA;AvaloniaUI MAUI WinUI3 WPF</description>
     </item>
     <item>
       <title>In-depth</title>

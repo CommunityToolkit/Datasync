@@ -3,16 +3,23 @@
   <channel>
     <title>Todo App :: Datasync Community Toolkit</title>
     <link>http://localhost:1313/Datasync/samples/todoapp/index.html</link>
-    <description>The Todo App is a typical data-driven application that uses the sample server for cloud-based data storage. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.&#xA;AvaloniaUI MAUI Uno Platform WinUI3 WPF</description>
+    <description>The Todo App is a typical data-driven application that uses the sample server for cloud-based data storage. We start with data stored in a normal Entity Framework Core DbContext, then modify it to synchronize the data to the remote cloud database.&#xA;AvaloniaUI MAUI WinUI3 WPF</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="http://localhost:1313/Datasync/samples/todoapp/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Avalonia</title>
+      <link>http://localhost:1313/Datasync/samples/todoapp/avalonia/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Datasync/samples/todoapp/avalonia/index.html</guid>
+      <description>Info&#xD;The Avalonia sample has been kindly contributed to the community by @timunie.&#xA;Run the application first The Avalonia sample uses an in-memory Sqlite store for storing its data. To run the application locally:&#xA;Configure Visual Studio for Avalonia development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, expand the TodoApp.Avalonia folder, then right-click the TodoApp.Avalonia.Desktop project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. If you bump into issues at this point, ensure you can properly develop and run Avalonia applications for the desktop outside of the datasync service.</description>
+    </item>
     <item>
       <title>MAUI</title>
       <link>http://localhost:1313/Datasync/samples/todoapp/maui/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/samples/todoapp/maui/index.html</guid>
-      <description>Run the application first The MAUI sample uses an in-memory Sqlite store for storing its data. To run the application locally:&#xA;Configure Visual Studio for MAUI development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, right-click the TodoApp.MAUI project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. The application runs on Android, iOS, and Windows. Each platform needs slightly different setup. Read the MAUI documentation for more information.</description>
+      <description>Run the application first The MAUI sample uses an in-memory Sqlite store for storing its data. To run the application locally:&#xA;Configure Visual Studio for MAUI development. Open samples/todoapp/Samples.TodoApp.sln in Visual Studio. In the Solution Explorer, right-click the TodoApp.MAUI project, then select Set as Startup Project. Select a target (in the top bar), then press F5 to run the application. The application should run on Android, iOS, and Windows. Each platform needs slightly different setup. Read the MAUI documentation for more information.</description>
     </item>
     <item>
       <title>WinUI3</title>
