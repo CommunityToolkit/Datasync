@@ -20,6 +20,7 @@ The Datasync Community Toolkit is a free [dotnet Foundation] [Community Toolkit]
 
 * [A sample server](samples/server.md)
 * [Sample clients](samples/todoapp)
+  * [AvaloniaUI](samples/todoapp/avalonia.md)
   * [MAUI](samples/todoapp/maui.md)
   * [WinUI3](samples/todoapp/winui3.md)
   * [WPF](samples/todoapp/wpf.md)
