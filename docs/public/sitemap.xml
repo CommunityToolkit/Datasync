@@ -31,6 +31,9 @@
     <loc>http://localhost:1313/Datasync/in-depth/index.html</loc>
   </url>
   <url>
+    <loc>http://localhost:1313/Datasync/samples/todoapp/avalonia/index.html</loc>
+  </url>
+  <url>
     <loc>http://localhost:1313/Datasync/in-depth/server/databases/cosmos/index.html</loc>
   </url>
   <url>

@@ -19,6 +19,5 @@ There are a variety of samples in the [samples folder](https://github.com/Commun
 
   * [AvaloniaUI](./todoapp/avalonia.md)
   * [MAUI](./todoapp/maui.md)
-  * [Uno Platform](./todoapp/uno.md)
   * [WinUI3](./todoapp/winui3.md)
   * [WPF](./todoapp/wpf.md)

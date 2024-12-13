@@ -6,7 +6,6 @@ title = "Todo App"
 
   * [AvaloniaUI](./avalonia.md)
   * [MAUI](./maui.md)
-  * [Uno Platform](./uno.md)
   * [WinUI3](./winui3.md)
   * [WPF](./wpf.md)
 

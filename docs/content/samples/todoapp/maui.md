@@ -11,7 +11,10 @@ The MAUI sample uses an in-memory Sqlite store for storing its data.  To run the
 * In the Solution Explorer, right-click the `TodoApp.MAUI` project, then select **Set as Startup Project**.
 * Select a target (in the top bar), then press F5 to run the application.
 
-The application runs on Android, iOS, and Windows.  Each platform needs slightly different setup.  Read the MAUI documentation for more information.
+The application should run on Android, iOS, and Windows.  Each platform needs slightly different setup.  Read the MAUI documentation for more information.
+
+> [!TIP]
+> The TodoApp.MAUI sample is known to work on Android and Desktop.  We have not tested on other platforms.
 
 ## Deploy a datasync server to Azure
 
@@ -68,5 +71,8 @@ All the changes are isolated to the `Database/AppDbContext.cs` file.
     ```
 
 You can now re-run your application. Watch the console logs to show the interactions with the datasync service.  Press the refresh button to synchronize data with the cloud.  When you restart the application, your changes will automatically populate the database again.
+
+> [!TIP]
+> The first synchronization can take a while because of the cold-start of the service.  Watch the debug output to see the synchronization happening.
 
 Obviously, you will want to do much more in a "real world" application, including proper error handling, authentication, and using a Sqlite file instead of an in-memory database.  This example shows off the minimum required to add datasync services to an application.

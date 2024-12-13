@@ -2,24 +2,25 @@
 title = "Avalonia"
 +++
 
+> [!INFO]
+> The Avalonia sample has been kindly contributed to the community by <a href="https://github.com/timunie">@timunie</a>.
+
 ## Run the application first
 
-The Avalonia sample uses an in-memory Sqlite store for storing its data. The sample can run on Desktop, Mobile and Browser. To run the application locally:
+The Avalonia sample uses an in-memory Sqlite store for storing its data.  To run the application locally:
 
-* [Configure Visual Studio for Avalonia development](https://docs.avaloniaui.net/docs/welcome).
+* [Configure Visual Studio for Avalonia development](https://docs.avaloniaui.net/docs/get-started).
 * Open `samples/todoapp/Samples.TodoApp.sln` in Visual Studio.
-* In the Solution Explorer, expand the folder `TodoApp.Avalonia` and right-click the `TodoApp.Avalonia.Desktop` project, then select **Set as Startup Project**.
+* In the Solution Explorer, expand the `TodoApp.Avalonia` folder, then right-click the `TodoApp.Avalonia.Desktop` project, then select **Set as Startup Project**.
 * Select a target (in the top bar), then press F5 to run the application.
 
-> [!TIP] 
-> We suggest to start testing and debugging using the Desktop App first. Once you feel confident, you can also try out Mobile or Browser version. 
+If you bump into issues at this point, ensure you can properly develop and run Avalonia applications for the desktop outside of the datasync service.
 
-> [!NOTE] 
-> If you bump into issues at this point, please visit [Avalonia.Docs](https://docs.avaloniaui.net) and [Avalonia.Samples](https://github.com/AvaloniaUI/Avalonia.Samples) for some basic getting-started tutorials.
+> [!TIP]
+> The TodoApp.Avalonia sample is known to work on Android and Desktop.  We have not tested on other platforms.
 
 This is how the sample will look like:
 ![Avalonia sample on Desktop](assets/TodoApp.Avalonia.Desktop.png)
-
 
 ## Deploy a datasync server to Azure
 
@@ -27,7 +28,7 @@ Before you begin adjusting the application for offline usage, you must [deploy a
 
 ## Update the application for datasync operations
 
-All the changes are isolated to the `Database/AppDbContext.cs` file.
+All the changes are isolated to the `Database/AppDbContext.cs` file in the `TodoApp.Avalonia` shared project.
 
 1. Change the definition of the class so that it inherits from `OfflineDbContext`:
 
@@ -76,5 +77,8 @@ All the changes are isolated to the `Database/AppDbContext.cs` file.
     ```
 
 You can now re-run your application. Watch the console logs to show the interactions with the datasync service.  Press the refresh button to synchronize data with the cloud.  When you restart the application, your changes will automatically populate the database again.
+
+> [!TIP]
+> The first synchronization can take a while because of the cold-start of the service.  Watch the debug output to see the synchronization happening.
 
 Obviously, you will want to do much more in a "real world" application, including proper error handling, authentication, and using a Sqlite file instead of an in-memory database.  This example shows off the minimum required to add datasync services to an application.
