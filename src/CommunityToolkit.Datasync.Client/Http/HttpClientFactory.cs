@@ -97,7 +97,11 @@ public class HttpClientFactory(HttpClientOptions options) : IHttpClientFactory
     internal static HttpMessageHandler GetDefaultHttpClientHandler()
     {
         HttpClientHandler handler = new();
-        handler.SetAutomaticDecompression(handler.SupportsAutomaticDecompression);
+        if (handler.SupportsAutomaticDecompression && !OperatingSystem.IsBrowser())
+        {
+            handler.SetAutomaticDecompression(handler.SupportsAutomaticDecompression);
+        }
+
         return handler;
     }
 
