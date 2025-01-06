@@ -5,6 +5,7 @@
 using CommunityToolkit.Datasync.Server.InMemory;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Models;
+using CommunityToolkit.Datasync.TestService.AccessControlProviders;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,7 @@ public class ServiceApplicationFactory : WebApplicationFactory<Program>
     internal string MovieEndpoint = "api/in-memory/movies";
     internal string PagedMovieEndpoint = "api/in-memory/pagedmovies";
     internal string SoftDeletedMovieEndpoint = "api/in-memory/softmovies";
+    internal string AuthorizedMovieEndpoint = "api/authorized/movies";
 
     internal void RunWithRepository<TEntity>(Action<InMemoryRepository<TEntity>> action) where TEntity : InMemoryTableData
     {
@@ -53,6 +55,20 @@ public class ServiceApplicationFactory : WebApplicationFactory<Program>
         using IServiceScope scope = Services.CreateScope();
         InMemoryRepository<TEntity> repository = scope.ServiceProvider.GetRequiredService<IRepository<TEntity>>() as InMemoryRepository<TEntity>;
         return repository.GetEntity(id);
+    }
+
+    internal void SetupAccessControlProvider(bool isAuthorized)
+    {
+        using IServiceScope scope = Services.CreateScope();
+        IAccessControlProvider<InMemoryMovie> provider = scope.ServiceProvider.GetRequiredService<IAccessControlProvider<InMemoryMovie>>();
+        (provider as MovieAccessControlProvider<InMemoryMovie>).CanBeAuthorized = isAuthorized;
+    }
+
+    internal InMemoryMovie GetAuthorizedEntity()
+    {
+        using IServiceScope scope = Services.CreateScope();
+        IAccessControlProvider<InMemoryMovie> provider = scope.ServiceProvider.GetRequiredService<IAccessControlProvider<InMemoryMovie>>();
+        return (provider as MovieAccessControlProvider<InMemoryMovie>).LastEntity as InMemoryMovie;
     }
 
     internal void SoftDelete<TEntity>(TEntity entity, bool deleted = true) where TEntity : InMemoryTableData
