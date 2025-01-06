@@ -41,8 +41,7 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
             throw new HttpException(StatusCodes.Status404NotFound);
         }
 
-        await AuthorizeRequestAsync(TableOperation.Update, entity, cancellationToken).ConfigureAwait(false);
-
+        await AuthorizeRequestAsync(TableOperation.Update, existing, cancellationToken).ConfigureAwait(false);
         if (Options.EnableSoftDelete && existing.Deleted && !Request.ShouldIncludeDeletedEntities())
         {
             Logger.LogWarning("ReplaceAsync: {id} statusCode=410 deleted", id);
@@ -50,11 +49,8 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         }
 
         Request.ParseConditionalRequest(existing, out byte[] version);
-
         await AccessControlProvider.PreCommitHookAsync(TableOperation.Update, entity, cancellationToken).ConfigureAwait(false);
-
         await Repository.ReplaceAsync(entity, version, cancellationToken).ConfigureAwait(false);
-
         await PostCommitHookAsync(TableOperation.Update, entity, cancellationToken).ConfigureAwait(false);
 
         Logger.LogInformation("ReplaceAsync: replaced {entity}", entity.ToJsonString());

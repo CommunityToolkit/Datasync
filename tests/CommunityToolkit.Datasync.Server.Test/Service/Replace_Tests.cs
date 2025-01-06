@@ -5,6 +5,8 @@
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Models;
+using CommunityToolkit.Datasync.TestService.AccessControlProviders;
+using Microsoft.AspNetCore.Localization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -132,5 +134,25 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
         const string content = "<html><body><h1>Not JSON</h1></body></html>";
         HttpResponseMessage response = await this.client.PutAsync($"{this.factory.MovieEndpoint}/1", new StringContent(content, Encoding.UTF8, "text/html"));
         response.Should().HaveStatusCode(HttpStatusCode.UnsupportedMediaType);
+    }
+
+    /// <summary>
+    /// Given an existing entity and an access provider, ensure that we can replace the entity
+    /// and that the access provider is called with the existing entity, not the new entity.
+    /// </summary>
+    [Fact]
+    public async Task Replace_Unauthorized_Returns401()
+    {
+        // Set up the movie access control provider so that is returns false for the update operation
+        this.factory.SetupAccessControlProvider(false);
+
+        InMemoryMovie inMemoryMovie = this.factory.GetRandomMovie();
+        ClientMovie existingMovie = new(inMemoryMovie) { Title = "New Title" };
+        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.AuthorizedMovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions);
+        response.Should().HaveStatusCode(HttpStatusCode.Unauthorized);
+
+        // Ensure that the access provider was called with the existing movie, not the new movie
+        InMemoryMovie lastEntity = this.factory.GetAuthorizedEntity();
+        lastEntity.Should().HaveEquivalentMetadataTo(inMemoryMovie).And.BeEquivalentTo<IMovie>(inMemoryMovie);
     }
 }

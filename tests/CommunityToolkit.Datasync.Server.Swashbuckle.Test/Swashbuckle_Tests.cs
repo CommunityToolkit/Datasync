@@ -102,6 +102,7 @@ public class Swashbuckle_Tests
     {
         // Adjust this as necessary to the list of controllers in the TestService.
         string[] expected = [
+            "AuthorizedMovieController",
             "InMemoryKitchenSinkController",
             "InMemoryMovieController",
             "InMemoryPagedMovieController",

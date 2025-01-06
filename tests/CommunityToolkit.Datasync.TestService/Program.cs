@@ -7,6 +7,7 @@ using CommunityToolkit.Datasync.Server.InMemory;
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.OData.ModelBuilder;
+using CommunityToolkit.Datasync.TestService.AccessControlProviders;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,8 @@ modelBuilder.EnableLowerCamelCase();
 modelBuilder.AddEntityType(typeof(InMemoryMovie));
 modelBuilder.AddEntityType(typeof(InMemoryKitchenSink));
 builder.Services.AddDatasyncServices(modelBuilder.GetEdmModel());
+
+builder.Services.AddSingleton<IAccessControlProvider<InMemoryMovie>>(new MovieAccessControlProvider<InMemoryMovie>());
 
 builder.Services.AddControllers();
 
