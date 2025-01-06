@@ -27,11 +27,8 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         Logger.LogInformation("CreateAsync: {entity}", entity.ToJsonString());
 
         await AuthorizeRequestAsync(TableOperation.Create, entity, cancellationToken).ConfigureAwait(false);
-
         await AccessControlProvider.PreCommitHookAsync(TableOperation.Create, entity, cancellationToken).ConfigureAwait(false);
-
         await Repository.CreateAsync(entity, cancellationToken).ConfigureAwait(false);
-
         await PostCommitHookAsync(TableOperation.Create, entity, cancellationToken).ConfigureAwait(false);
 
         Logger.LogInformation("CreateAsync: created {entity}", entity.ToJsonString());

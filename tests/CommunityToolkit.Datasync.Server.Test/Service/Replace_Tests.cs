@@ -2,11 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+#define CAPTURE_STRING_JSON
+
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Models;
-using CommunityToolkit.Datasync.TestService.AccessControlProviders;
-using Microsoft.AspNetCore.Localization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -24,9 +24,14 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
         HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.MovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions);
         response.Should().HaveStatusCode(HttpStatusCode.OK);
 
+#if CAPTURE_STRING_JSON
+        string jsonContent = await response.Content.ReadAsStringAsync();
+        ClientMovie clientMovie = JsonSerializer.Deserialize<ClientMovie>(jsonContent, this.serializerOptions);
+#else
         ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
+#endif
+        
         clientMovie.Should().NotBeNull().And.HaveChangedMetadata(existingMovie, this.StartTime).And.BeEquivalentTo<IMovie>(existingMovie);
-
         InMemoryMovie inMemoryMovie = this.factory.GetServerEntityById<InMemoryMovie>(clientMovie.Id);
         clientMovie.Should().HaveEquivalentMetadataTo(inMemoryMovie).And.BeEquivalentTo<IMovie>(inMemoryMovie);
         response.Headers.ETag.Should().BeETag($"\"{clientMovie.Version}\"");

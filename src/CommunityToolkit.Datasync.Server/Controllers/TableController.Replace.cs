@@ -53,7 +53,11 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         await Repository.ReplaceAsync(entity, version, cancellationToken).ConfigureAwait(false);
         await PostCommitHookAsync(TableOperation.Update, entity, cancellationToken).ConfigureAwait(false);
 
-        Logger.LogInformation("ReplaceAsync: replaced {entity}", entity.ToJsonString());
-        return Ok(entity);
+        // Under certain (repository specific) circumstances, the entity may not be modified by the ReplaceAsync
+        // operation, so we have to do an additional GET to ensure we are getting the right version of the entity
+        TEntity? updatedEntity = await Repository.ReadAsync(id, cancellationToken).ConfigureAwait(false);
+
+        Logger.LogInformation("ReplaceAsync: replaced {entity}", updatedEntity.ToJsonString());
+        return Ok(updatedEntity);
     }
 }

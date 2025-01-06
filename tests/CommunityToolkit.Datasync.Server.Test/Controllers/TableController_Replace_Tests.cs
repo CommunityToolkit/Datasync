@@ -181,7 +181,7 @@ public class TableController_Replace_Tests : BaseTest
         await accessProvider.Received(1).PostCommitHookAsync(TableOperation.Update, Arg.Any<TableData>(), Arg.Any<CancellationToken>());
         firedEvents.Should().ContainSingle();
 
-        await repository.Received(1).ReadAsync(entity.Id, Arg.Any<CancellationToken>());
+        await repository.Received(2).ReadAsync(entity.Id, Arg.Any<CancellationToken>());
         await repository.Received(1).ReplaceAsync(Arg.Any<TableData>(), Arg.Any<byte[]>(), Arg.Any<CancellationToken>());
     }
 }
