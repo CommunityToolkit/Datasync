@@ -2,7 +2,7 @@
 name: Bug report
 about: Create a report to help us improve the Datasync Toolkit
 title: ''
-labels: Bug, Requires Triage
+labels: Requires Triage
 assignees: ''
 
 ---
