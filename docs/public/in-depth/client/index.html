@@ -3,7 +3,7 @@
   <head><script src="/Datasync/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=Datasync/livereload" data-no-instant defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
-    <meta name="generator" content="Hugo 0.139.0">
+    <meta name="generator" content="Hugo 0.140.2">
     <meta name="generator" content="Relearn 6.2.0+tip">
     <meta name="description" content="This guide shows you how to perform common scenarios using the Datasync Community Toolkit. Use the client library in any .NET 8 application, including AvaloniaUI, MAUI, Uno Platform, WinUI, and WPF applications.
 This guide primary deals with offline operations. For online operations, see the Online operations guide.
@@ -36,17 +36,17 @@ public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : Offlin
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
 <link rel="manifest" href="/favicon/site.webmanifest">
-    <link href="/Datasync/css/fontawesome-all.min.css?1734123542" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fontawesome-all.min.css?1734123542" rel="stylesheet"></noscript>
-    <link href="/Datasync/css/nucleus.css?1734123542" rel="stylesheet">
-    <link href="/Datasync/css/auto-complete.css?1734123542" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/auto-complete.css?1734123542" rel="stylesheet"></noscript>
-    <link href="/Datasync/css/perfect-scrollbar.min.css?1734123542" rel="stylesheet">
-    <link href="/Datasync/css/fonts.css?1734123542" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fonts.css?1734123542" rel="stylesheet"></noscript>
-    <link href="/Datasync/css/theme.css?1734123542" rel="stylesheet">
-    <link href="/Datasync/css/theme-auto.css?1734123542" rel="stylesheet" id="R-variant-style">
-    <link href="/Datasync/css/chroma-auto.css?1734123542" rel="stylesheet" id="R-variant-chroma-style">
-    <link href="/Datasync/css/variant.css?1734123542" rel="stylesheet">
-    <link href="/Datasync/css/print.css?1734123542" rel="stylesheet" media="print">
-    <script src="/Datasync/js/variant.js?1734123542"></script>
+    <link href="/Datasync/css/fontawesome-all.min.css?1736358756" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fontawesome-all.min.css?1736358756" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/nucleus.css?1736358756" rel="stylesheet">
+    <link href="/Datasync/css/auto-complete.css?1736358756" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/auto-complete.css?1736358756" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/perfect-scrollbar.min.css?1736358756" rel="stylesheet">
+    <link href="/Datasync/css/fonts.css?1736358756" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/Datasync/css/fonts.css?1736358756" rel="stylesheet"></noscript>
+    <link href="/Datasync/css/theme.css?1736358756" rel="stylesheet">
+    <link href="/Datasync/css/theme-auto.css?1736358756" rel="stylesheet" id="R-variant-style">
+    <link href="/Datasync/css/chroma-auto.css?1736358756" rel="stylesheet" id="R-variant-chroma-style">
+    <link href="/Datasync/css/variant.css?1736358756" rel="stylesheet">
+    <link href="/Datasync/css/print.css?1736358756" rel="stylesheet" media="print">
+    <script src="/Datasync/js/variant.js?1736358756"></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.relBasePath='..\/..';
@@ -148,8 +148,7 @@ public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : Offlin
   <div class="box-label"><i class="fa-fw fas fa-exclamation-circle"></i> Note</div>
   <div class="box-content">
 
-<p>Sqlite stores DateTimeOffset using a second accuracy by default. The Datasync Community Toolkit does not rely on the storage of the <code>UpdatedAt</code> field, but it is transmitted with millisecond accuracy.  Consider using <a href="https://learn.microsoft.com/ef/core/modeling/value-conversions?tabs=data-annotations" rel="external" target="_blank">a ValueConverter</a> to store the value as a <code>long</code> value instead.</p>
-</div>
+<p>Sqlite stores DateTimeOffset using a second accuracy by default. The Datasync Community Toolkit does not rely on the storage of the <code>UpdatedAt</code> field, but it is transmitted with millisecond accuracy.  Consider using <a href="https://learn.microsoft.com/ef/core/modeling/value-conversions?tabs=data-annotations" rel="external" target="_blank">a ValueConverter</a> to store the value as a <code>long</code> value instead.</p></div>
 </div><p>Each synchronizable entity in an offline context <strong>MUST</strong> have the following properties:</p>
 <ul>
 <li><code>Id</code> - string, primary key - the globally unique ID for the entity.</li>
@@ -168,8 +167,7 @@ public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : Offlin
 <li>The service side entity types have automatic updates configured on UpdatedAt and Version which are not appropriate for the client.</li>
 <li>There are normally properties on the type that should not be transmitted to the client.</li>
 </ul>
-<p>While it is possible to use the same entity type for both service and client, ensure you are using repository updating instead of database updating of the metadata properties before considering this.</p>
-</div>
+<p>While it is possible to use the same entity type for both service and client, ensure you are using repository updating instead of database updating of the metadata properties before considering this.</p></div>
 </div><p>The <code>OnDatasyncInitialization()</code> method is used to set options for data synchronization.  These include setting up the HTTP client and setting up information about each entity.</p>
 <h3 id="configuring-the-httpclient">Configuring the HttpClient</h3>
 <p>There are four ways to configure a HttpClient for communication with the datasync service:</p>
@@ -216,8 +214,7 @@ public class AppDbContext(DbContextOptions&lt;AppDbContext&gt; options) : Offlin
   <div class="box-content">
 
 <p>You can easily set up basic and bearer authentication when using <code>HttpClientOptions</code> using the <code>GenericAuthenticationProvider</code>.
-See the <a href="/Datasync/in-depth/client/auth/index.html">authentication guide</a> for more details.</p>
-</div>
+See the <a href="/Datasync/in-depth/client/auth/index.html">authentication guide</a> for more details.</p></div>
 </div><p>You must configure one of these options so that the data synchronization services know which datasync service to communicate with.</p>
 <h3 id="configuring-entities-to-synchronize">Configuring entities to synchronize</h3>
 <p>In addition to configuring the HTTP communication, you can configure each entity to be synchronized:</p>
@@ -256,8 +253,7 @@ See the <a href="/Datasync/in-depth/client/auth/index.html">authentication guide
   <div class="box-label"><i class="fa-fw fas fa-lightbulb"></i> Tip</div>
   <div class="box-content">
 
-<p>You can see what is in the operations queue by accessing the <code>DatasyncOperationsQueue</code> dataset on your context.  However, you should treat this data as read-only.</p>
-</div>
+<p>You can see what is in the operations queue by accessing the <code>DatasyncOperationsQueue</code> dataset on your context.  However, you should treat this data as read-only.</p></div>
 </div><p>You can push entities to the remote service using the <code>.PushAsync()</code> method:</p>
 <div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#75715e">// Push pending operations for all synchronizable entities</span>
 </span></span><span style="display:flex;"><span>PushResult pushResult = <span style="color:#66d9ef">await</span> context.PushAsync();
@@ -297,8 +293,7 @@ See the <a href="/Datasync/in-depth/client/auth/index.html">authentication guide
   <div class="box-label"><i class="fa-fw fas fa-exclamation-circle"></i> Note</div>
   <div class="box-content">
 
-<p>The context is not thread-safe.  For that reason, service requests are done in parallel, but database updates are done sequentially.  This is normally not a problem because the service requests take much longer than the local database updates.</p>
-</div>
+<p>The context is not thread-safe.  For that reason, service requests are done in parallel, but database updates are done sequentially.  This is normally not a problem because the service requests take much longer than the local database updates.</p></div>
 </div><p>Service requests are paged and each page contains a link to the next page of results. This means that consecutive service requests for a single entity are serialized, but service requests for different entities can be parallelized.  After each service request, the delta-token for the request is updated.  The delta-token is stored in the <code>DatasyncDeltaTokens</code> DbSet on the database context.  For normal requests, the Id is the full name of the entity type.  If a query ID is used (see below), then the Id is <code>q-&lt;entityType&gt;-&lt;queryId&gt;</code>.  The <code>Value</code> property of the delta-token is the maximum value of the <code>UpdatedAt</code> property for the entity data set, expressed as the number of milliseconds since the UNIX epoch.</p>
 <p>If you need to pull data from the same entity using different searches, you need to use a pull configurator.</p>
 <div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>PullResult result = <span style="color:#66d9ef">await</span> context.PullAsync(cfg =&gt; {
@@ -412,12 +407,12 @@ See the <a href="/Datasync/in-depth/client/auth/index.html">authentication guide
         <script>
           var contentLangs=['en'];
         </script>
-        <script src="/Datasync/js/auto-complete.js?1734123542" defer></script>
-        <script src="/Datasync/js/lunr/lunr.min.js?1734123542" defer></script>
-        <script src="/Datasync/js/lunr/lunr.stemmer.support.min.js?1734123542" defer></script>
-        <script src="/Datasync/js/lunr/lunr.multi.min.js?1734123542" defer></script>
-        <script src="/Datasync/js/lunr/lunr.en.min.js?1734123542" defer></script>
-        <script src="/Datasync/js/search.js?1734123542" defer></script>
+        <script src="/Datasync/js/auto-complete.js?1736358756" defer></script>
+        <script src="/Datasync/js/lunr/lunr.min.js?1736358756" defer></script>
+        <script src="/Datasync/js/lunr/lunr.stemmer.support.min.js?1736358756" defer></script>
+        <script src="/Datasync/js/lunr/lunr.multi.min.js?1736358756" defer></script>
+        <script src="/Datasync/js/lunr/lunr.en.min.js?1736358756" defer></script>
+        <script src="/Datasync/js/search.js?1736358756" defer></script>
       </div>
       <div id="R-homelinks" class="default-animation homelinks">
         <ul>
@@ -449,7 +444,8 @@ See the <a href="/Datasync/in-depth/client/auth/index.html">authentication guide
           <li data-nav-id="/Datasync/in-depth/server/databases/sqlite/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/sqlite/index.html">Sqlite</a></li></ul></li></ul></li>
           <li data-nav-id="/Datasync/in-depth/client/index.html" class="active parent alwaysopen"><a class="padding" href="/Datasync/in-depth/client/index.html">Client application</a><ul id="R-subsections-60c8d76d913730d5c907aa0f8134456a" class="morespace collapsible-menu">
           <li data-nav-id="/Datasync/in-depth/client/online-operations/index.html" class=""><a class="padding" href="/Datasync/in-depth/client/online-operations/index.html">Online operations</a></li>
-          <li data-nav-id="/Datasync/in-depth/client/auth/index.html" class=""><a class="padding" href="/Datasync/in-depth/client/auth/index.html">Authentication</a></li></ul></li></ul></li>
+          <li data-nav-id="/Datasync/in-depth/client/auth/index.html" class=""><a class="padding" href="/Datasync/in-depth/client/auth/index.html">Authentication</a></li>
+          <li data-nav-id="/Datasync/in-depth/client/maui-aot-support/index.html" class=""><a class="padding" href="/Datasync/in-depth/client/maui-aot-support/index.html">Native AOT Support for MAUI</a></li></ul></li></ul></li>
           </ul>
         </div>
         <div class="padding footermargin footerLangSwitch footerVariantSwitch footerVisitedLinks footerFooter showFooter"></div>
@@ -502,8 +498,8 @@ See the <a href="/Datasync/in-depth/client/auth/index.html">authentication guide
         </div>
       </div>
     </aside>
-    <script src="/Datasync/js/clipboard.min.js?1734123542" defer></script>
-    <script src="/Datasync/js/perfect-scrollbar.min.js?1734123542" defer></script>
-    <script src="/Datasync/js/theme.js?1734123542" defer></script>
+    <script src="/Datasync/js/clipboard.min.js?1736358756" defer></script>
+    <script src="/Datasync/js/perfect-scrollbar.min.js?1736358756" defer></script>
+    <script src="/Datasync/js/theme.js?1736358756" defer></script>
   </body>
 </html>
