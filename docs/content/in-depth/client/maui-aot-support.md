@@ -20,7 +20,7 @@ To enable compiled models in your MAUI project:
 
 1. Move your `DbContext` and models to a separate library that targets `net8.0`.
 2. Create a dummy project with a project reference to the library.  This will act as a startup project for the EF Core Tools we will run later.  This can be as simple as a console application.
-3. Implement an `IDesginTimeDbContextFactory` for your context.  This can be placed in your dummy project.  For example:
+3. Implement an `IDesignTimeDbContextFactory` for your context.  This can be placed in your dummy project.  For example:
 
    ```csharp
    internal class MyContextFactory : IDesignTimeDbContextFactory<MyContext>
