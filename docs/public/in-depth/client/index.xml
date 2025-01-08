@@ -21,5 +21,12 @@
       <guid>http://localhost:1313/Datasync/in-depth/client/auth/index.html</guid>
       <description>Most of the time, you will want to use bearer authentication so that you can use a JWT (Json Web Token) obtained from an OIDC server. This is so prevalent that we provide an easy mechanism to add this to your application via a GenericAuthenticationProvider. The authentication provider only requests tokens from your token retrieval method when required (when the provided token is close to expiring or has expired).&#xA;The GenericAuthenticationProvider and associated classes are in the CommunityToolkit.Datasync.Client.Authentication namespace.</description>
     </item>
+    <item>
+      <title>Native AOT Support for MAUI</title>
+      <link>http://localhost:1313/Datasync/in-depth/client/maui-aot-support/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Datasync/in-depth/client/maui-aot-support/index.html</guid>
+      <description>When using Native AOT with .NET MAUI, several requirements will need to be met to ensure the application works in release mode, explicitly on iOS and Mac Catalyst.&#xA;Implement compiled models for Entity Framework Core. Implement source generation in System.Text.Json. Enable the MTouchInterpreter. The following are basic instructions on how to fulfill these requirements. However, you should consult the official documentation for each requirement.&#xA;Note&#xD;Thanks to @richard-einfinity for providing the detailed instructions for enabling Native AOT support.</description>
+    </item>
   </channel>
 </rss>

@@ -25,6 +25,9 @@
     <loc>http://localhost:1313/Datasync/in-depth/client/auth/index.html</loc>
   </url>
   <url>
+    <loc>http://localhost:1313/Datasync/in-depth/client/maui-aot-support/index.html</loc>
+  </url>
+  <url>
     <loc>http://localhost:1313/Datasync/samples/index.html</loc>
   </url>
   <url>
