@@ -10,16 +10,19 @@ using Xunit.Abstractions;
 namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
 [ExcludeFromCodeCoverage]
+[Collection("LiveTestsCollection")]
 public class AzureSqlEntityTableRepository_Tests : RepositoryTests<AzureSqlEntityMovie>
 {
     #region Setup
+    private readonly DatabaseFixture _fixture;
     private readonly Random random = new();
     private readonly string connectionString;
     private readonly List<AzureSqlEntityMovie> movies;
     private readonly Lazy<AzureSqlDbContext> _context;
 
-    public AzureSqlEntityTableRepository_Tests(ITestOutputHelper output) : base()
+    public AzureSqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
     {
+        this._fixture = fixture;
         this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_AZSQL_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {

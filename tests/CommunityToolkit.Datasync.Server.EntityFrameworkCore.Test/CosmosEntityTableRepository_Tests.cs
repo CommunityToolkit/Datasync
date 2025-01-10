@@ -10,16 +10,19 @@ using Xunit.Abstractions;
 namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
 [ExcludeFromCodeCoverage]
+[Collection("LiveTestsCollection")]
 public class CosmosEntityTableRepository_Tests : RepositoryTests<CosmosEntityMovie>
 {
     #region Setup
+    private readonly DatabaseFixture _fixture;
     private readonly Random random = new();
     private readonly string connectionString;
     private readonly List<CosmosEntityMovie> movies;
     private readonly Lazy<CosmosDbContext> _context;
 
-    public CosmosEntityTableRepository_Tests(ITestOutputHelper output) : base()
+    public CosmosEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
     {
+        this._fixture = fixture;
         this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_COSMOS_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
