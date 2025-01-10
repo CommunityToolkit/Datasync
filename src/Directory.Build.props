@@ -23,10 +23,10 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <ImplicitUsings>true</ImplicitUsings>
-    <LangVersion>12.0</LangVersion>
+    <LangVersion>13.0</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Nullable>enable</Nullable>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
