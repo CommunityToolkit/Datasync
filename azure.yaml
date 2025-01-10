@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+##
+## This AZD template will create all the resources necessary to
+## test the Community Toolkit/Datasync libraries, plus deploy an
+## app service (on free tier) that talks to the AzSQL service
+## for the TODO Sample Service
+##
+
+name: communitytoolkit-datasync-test-services
+
+hooks:
+    postprovision:
+        posix:
+            interactive: true
+            shell: sh
+            run: ./infra/scripts/write-runsettings.sh
+        windows:
+            interactive: true
+            shell: pwsh
+            run: ./infra/scripts/write-runsettings.ps1
+
+    predown:
+        posix:
+            interactive: true
+            shell: sh
+            run: ./infra/scripts/remove-runsettings.sh
+        windows:
+            interactive: true
+            shell: pwsh
+            run: ./infra/scripts/remove-runsettings.ps1
+
+services:
+    todoservice:
+        language: csharp
+        project: ./samples/datasync-server/src/Sample.Datasync.Server
+        host: appservice
