@@ -41,167 +41,173 @@ public class TableController_Query_Tests : BaseTest
 
     #region CatchClientSideEvaluationException
     [Fact]
-    public void CatchClientSideEvaluationException_NotCCEE_ThrowsOriginalException()
+    public async Task CatchClientSideEvaluationException_NotCCEE_ThrowsOriginalException()
     {
         TableController<InMemoryMovie> controller = new() { Repository = new InMemoryRepository<InMemoryMovie>() };
         ApplicationException exception = new("Original exception");
 
-        static void evaluator() { throw new ApplicationException("In evaluator"); }
+        static Task evaluator() { throw new ApplicationException("In evaluator"); }
 
-        Action act = () => controller.CatchClientSideEvaluationException(exception, "foo", evaluator);
-        act.Should().Throw<ApplicationException>().WithMessage("Original exception");
+        Func<Task> act = async () => await controller.CatchClientSideEvaluationExceptionAsync(exception, "foo", evaluator);
+        (await act.Should().ThrowAsync<ApplicationException>()).WithMessage("Original exception");
     }
 
     [Fact]
-    public void CatchClientSideEvaluationException_NotCCEE_WithInner_ThrowsOriginalException()
+    public async Task CatchClientSideEvaluationException_NotCCEE_WithInner_ThrowsOriginalException()
     {
         TableController<InMemoryMovie> controller = new() { Repository = new InMemoryRepository<InMemoryMovie>() };
         ApplicationException exception = new("Original exception", new ApplicationException());
 
-        static void evaluator() { throw new ApplicationException("In evaluator"); }
+        static Task evaluator() { throw new ApplicationException("In evaluator"); }
 
-        Action act = () => controller.CatchClientSideEvaluationException(exception, "foo", evaluator);
-        act.Should().Throw<ApplicationException>().WithMessage("Original exception");
+        Func<Task> act = async () => await controller.CatchClientSideEvaluationExceptionAsync(exception, "foo", evaluator);
+        (await act.Should().ThrowAsync<ApplicationException>()).WithMessage("Original exception");
     }
 
     [Fact]
-    public void CatchClientSideEvaluationException_CCEE_ThrowsEvaluatorException()
+    public async Task CatchClientSideEvaluationException_CCEE_ThrowsEvaluatorException()
     {
         TableController<InMemoryMovie> controller = new() { Repository = new InMemoryRepository<InMemoryMovie>() };
         NotSupportedException exception = new("Original exception", new ApplicationException("foo"));
 
-        static void evaluator() { throw new ApplicationException("In evaluator"); }
+        static Task evaluator() { throw new ApplicationException("In evaluator"); }
 
-        Action act = () => controller.CatchClientSideEvaluationException(exception, "foo", evaluator);
-        act.Should().Throw<ApplicationException>().WithMessage("In evaluator");
+        Func<Task> act = async () => await controller.CatchClientSideEvaluationExceptionAsync(exception, "foo", evaluator);
+        (await act.Should().ThrowAsync<ApplicationException>()).WithMessage("In evaluator");
     }
 
     [Fact]
-    public void CatchClientSideEvaluationException_CCEEInner_ThrowsEvaluatorException()
+    public async Task CatchClientSideEvaluationException_CCEEInner_ThrowsEvaluatorException()
     {
         TableController<InMemoryMovie> controller = new() { Repository = new InMemoryRepository<InMemoryMovie>() };
         ApplicationException exception = new("Original exception", new NotSupportedException("foo"));
 
-        static void evaluator() { throw new ApplicationException("In evaluator"); }
+        static Task evaluator() { throw new ApplicationException("In evaluator"); }
 
-        Action act = () => controller.CatchClientSideEvaluationException(exception, "foo", evaluator);
-        act.Should().Throw<ApplicationException>().WithMessage("In evaluator");
+        Func<Task> act = async () => await controller.CatchClientSideEvaluationExceptionAsync(exception, "foo", evaluator);
+        (await act.Should().ThrowAsync<ApplicationException>()).WithMessage("In evaluator");
     }
 
     [Fact]
-    public void CatchClientSideEvaluationException_CCEE_ExecutesEvaluator()
+    public async Task CatchClientSideEvaluationException_CCEE_ExecutesEvaluator()
     {
         bool isExecuted = false;
         TableController<InMemoryMovie> controller = new() { Repository = new InMemoryRepository<InMemoryMovie>() };
         NotSupportedException exception = new("Original exception", new ApplicationException("foo"));
-        Action act = () => controller.CatchClientSideEvaluationException(exception, "foo", () => isExecuted = true);
-        act.Should().NotThrow();
+
+        Func<Task> act = async () => await controller.CatchClientSideEvaluationExceptionAsync(exception, "foo", () => { isExecuted = true; return Task.CompletedTask; });
+        await act.Should().NotThrowAsync();
         isExecuted.Should().BeTrue();
     }
 
     [Fact]
-    public void CatchClientSideEvaluationException_CCEEInner_ExecutesEvaluator()
+    public async Task CatchClientSideEvaluationException_CCEEInner_ExecutesEvaluator()
     {
         bool isExecuted = false;
         TableController<InMemoryMovie> controller = new() { Repository = new InMemoryRepository<InMemoryMovie>() };
         ApplicationException exception = new("Original exception", new NotSupportedException("foo"));
-        Action act = () => controller.CatchClientSideEvaluationException(exception, "foo", () => isExecuted = true);
-        act.Should().NotThrow();
+
+        Func<Task> act = async () => await controller.CatchClientSideEvaluationExceptionAsync(exception, "foo", () => { isExecuted = true; return Task.CompletedTask; });
+        await act.Should().NotThrowAsync();
         isExecuted.Should().BeTrue();
     }
     #endregion
 
     #region ExecuteQueryWithClientEvaluation
     [Fact]
-    public void ExecuteQueryWithClientEvaluation_ExecutesServiceSide()
+    public async Task ExecuteQueryWithClientEvaluation_ExecutesServiceSide()
     {
         TableController<InMemoryMovie> controller = new() { Repository = new InMemoryRepository<InMemoryMovie>() };
         controller.Options.DisableClientSideEvaluation = true;
 
         int evaluations = 0;
-        void evaluator(IQueryable<InMemoryMovie> dataset)
+        Task evaluator(IQueryable<InMemoryMovie> dataset)
         {
             evaluations++;
             // if (evaluations == 1) throw new NotSupportedException("Server side");
             // if (evaluations == 2) throw new NotSupportedException("Client side");
+            return Task.CompletedTask;
         }
 
         List<InMemoryMovie> dataset = [];
 
-        Action act = () => controller.ExecuteQueryWithClientEvaluation(dataset.AsQueryable(), evaluator);
+        Func<Task> act = async () => await controller.ExecuteQueryWithClientEvaluationAsync(dataset.AsQueryable(), evaluator);
 
-        act.Should().NotThrow();
+        await act.Should().NotThrowAsync();
         evaluations.Should().Be(1);
     }
 
     [Fact]
-    public void ExecuteQueryWithClientEvaluation_ThrowsServiceSide_WhenClientEvaluationDisabled()
+    public async Task ExecuteQueryWithClientEvaluation_ThrowsServiceSide_WhenClientEvaluationDisabled()
     {
         TableController<InMemoryMovie> controller = new() { Repository = new InMemoryRepository<InMemoryMovie>() };
         controller.Options.DisableClientSideEvaluation = true;
 
         int evaluations = 0;
 #pragma warning disable IDE0011 // Add braces
-        void evaluator(IQueryable<InMemoryMovie> dataset)
+        Task evaluator(IQueryable<InMemoryMovie> dataset)
         {
             evaluations++;
             if (evaluations == 1) throw new NotSupportedException("Server side");
             if (evaluations == 2) throw new NotSupportedException("Client side");
+            return Task.CompletedTask;
         }
 #pragma warning restore IDE0011 // Add braces
 
         List<InMemoryMovie> dataset = [];
 
-        Action act = () => controller.ExecuteQueryWithClientEvaluation(dataset.AsQueryable(), evaluator);
+        Func<Task> act = async () => await controller.ExecuteQueryWithClientEvaluationAsync(dataset.AsQueryable(), evaluator);
 
-        act.Should().Throw<NotSupportedException>().WithMessage("Server side");
+        (await act.Should().ThrowAsync<NotSupportedException>()).WithMessage("Server side");
     }
 
     [Fact]
-    public void ExecuteQueryWithClientEvaluation_ExecutesClientSide_WhenClientEvaluationEnabled()
+    public async Task ExecuteQueryWithClientEvaluation_ExecutesClientSide_WhenClientEvaluationEnabled()
     {
         TableController<InMemoryMovie> controller = new() { Repository = new InMemoryRepository<InMemoryMovie>() };
         controller.Options.DisableClientSideEvaluation = false;
 
         int evaluations = 0;
 #pragma warning disable IDE0011 // Add braces
-        void evaluator(IQueryable<InMemoryMovie> dataset)
+        Task evaluator(IQueryable<InMemoryMovie> dataset)
         {
             evaluations++;
             if (evaluations == 1) throw new NotSupportedException("Server side");
             //if (evaluations == 2) throw new NotSupportedException("Client side");
+            return Task.CompletedTask;
         }
 #pragma warning restore IDE0011 // Add braces
 
         List<InMemoryMovie> dataset = [];
 
-        Action act = () => controller.ExecuteQueryWithClientEvaluation(dataset.AsQueryable(), evaluator);
+        Func<Task> act = async () => await controller.ExecuteQueryWithClientEvaluationAsync(dataset.AsQueryable(), evaluator);
 
-        act.Should().NotThrow();
+        await act.Should().NotThrowAsync();
         evaluations.Should().Be(2);
     }
 
     [Fact]
-    public void ExecuteQueryWithClientEvaluation_ThrowsClientSide_WhenClientEvaluationEnabled()
+    public async Task ExecuteQueryWithClientEvaluation_ThrowsClientSide_WhenClientEvaluationEnabled()
     {
         TableController<InMemoryMovie> controller = new() { Repository = new InMemoryRepository<InMemoryMovie>() };
         controller.Options.DisableClientSideEvaluation = false;
 
         int evaluations = 0;
 #pragma warning disable IDE0011 // Add braces
-        void evaluator(IQueryable<InMemoryMovie> dataset)
+        Task evaluator(IQueryable<InMemoryMovie> dataset)
         {
             evaluations++;
             if (evaluations == 1) throw new NotSupportedException("Server side", new ApplicationException("Inner exception"));
             if (evaluations == 2) throw new NotSupportedException("Client side");
+            return Task.CompletedTask;
         }
 #pragma warning restore IDE0011 // Add braces
 
         List<InMemoryMovie> dataset = [];
 
-        Action act = () => controller.ExecuteQueryWithClientEvaluation(dataset.AsQueryable(), evaluator);
+        Func<Task> act = async () => await controller.ExecuteQueryWithClientEvaluationAsync(dataset.AsQueryable(), evaluator);
 
-        act.Should().Throw<NotSupportedException>().WithMessage("Client side");
+        (await act.Should().ThrowAsync<NotSupportedException>()).WithMessage("Client side");
         evaluations.Should().Be(2);
     }
     #endregion
