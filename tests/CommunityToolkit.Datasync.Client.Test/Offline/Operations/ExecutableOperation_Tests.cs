@@ -50,7 +50,6 @@ public class ExecutableOperation_Tests
         actual.ToString().Should().Be(expected);
     }
 
-
     [Theory]
     [InlineData(null, "https://test.zumo.com/tables/movies", "123", "https://test.zumo.com/tables/movies/123")]
     [InlineData(null, "https://test.zumo.com/tables/movies/", "123", "https://test.zumo.com/tables/movies/123")]
