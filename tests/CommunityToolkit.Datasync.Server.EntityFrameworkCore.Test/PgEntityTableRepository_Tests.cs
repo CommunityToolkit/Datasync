@@ -10,16 +10,19 @@ using Xunit.Abstractions;
 namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
 [ExcludeFromCodeCoverage]
+[Collection("LiveTestsCollection")]
 public class PgEntityTableRepository_Tests : RepositoryTests<PgEntityMovie>
 {
     #region Setup
+    private readonly DatabaseFixture _fixture;
     private readonly Random random = new();
     private readonly string connectionString;
     private readonly List<PgEntityMovie> movies;
     private readonly Lazy<PgDbContext> _context;
 
-    public PgEntityTableRepository_Tests(ITestOutputHelper output) : base()
+    public PgEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
     {
+        this._fixture = fixture;
         this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_PGSQL_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
