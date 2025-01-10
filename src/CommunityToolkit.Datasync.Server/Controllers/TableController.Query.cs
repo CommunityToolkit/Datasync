@@ -73,11 +73,19 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         // to switch to in-memory processing for those queries.  This is done by calling ToListAsync() on the
         // IQueryable.  This is not ideal, but it is the only way to support all of the OData query options.
         IEnumerable<object>? results = null;
-        ExecuteQueryWithClientEvaluation(dataset, ds => results = (IEnumerable<object>)queryOptions.ApplyTo(ds, querySettings));
+        await ExecuteQueryWithClientEvaluationAsync(dataset, ds =>
+        {
+            results = (IEnumerable<object>)queryOptions.ApplyTo(ds, querySettings);
+            return Task.CompletedTask;
+        });
 
         int count = 0;
         FilterQueryOption? filter = queryOptions.Filter;
-        ExecuteQueryWithClientEvaluation(dataset, ds => { IQueryable<TEntity> q = (IQueryable<TEntity>)(filter?.ApplyTo(ds, new ODataQuerySettings()) ?? ds); count = q.Count(); });
+        await ExecuteQueryWithClientEvaluationAsync(dataset, async ds => 
+        { 
+            IQueryable<TEntity> q = (IQueryable<TEntity>)(filter?.ApplyTo(ds, new ODataQuerySettings()) ?? ds);
+            count = await CountAsync(q, cancellationToken);
+        });
 
         PagedResult result = BuildPagedResult(queryOptions, results, count);
         Logger.LogInformation("Query: {Count} items being returned", result.Items.Count());
@@ -194,13 +202,13 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
     /// <param name="reason">The reason if the client-side evaluator throws.</param>
     /// <param name="clientSideEvaluator">The client-side evaluator</param>
     [NonAction]
-    internal void CatchClientSideEvaluationException(Exception ex, string reason, Action clientSideEvaluator)
+    internal async Task CatchClientSideEvaluationExceptionAsync(Exception ex, string reason, Func<Task> clientSideEvaluator)
     {
         if (IsClientSideEvaluationException(ex) || IsClientSideEvaluationException(ex.InnerException))
         {
             try
             {
-                clientSideEvaluator.Invoke();
+                await clientSideEvaluator.Invoke();
             }
             catch (Exception err)
             {
@@ -220,18 +228,18 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
     /// <param name="dataset">The dataset to be evaluated.</param>
     /// <param name="evaluator">The base evaluation to be performed.</param>
     [NonAction]
-    internal void ExecuteQueryWithClientEvaluation(IQueryable<TEntity> dataset, Action<IQueryable<TEntity>> evaluator)
+    internal async Task ExecuteQueryWithClientEvaluationAsync(IQueryable<TEntity> dataset, Func<IQueryable<TEntity>, Task> evaluator)
     {
         try
         {
-            evaluator.Invoke(dataset);
+            await evaluator.Invoke(dataset);
         }
         catch (Exception ex) when (!Options.DisableClientSideEvaluation)
         {
-            CatchClientSideEvaluationException(ex, "executing query", () =>
+            await CatchClientSideEvaluationExceptionAsync(ex, "executing query", async () =>
             {
                 Logger.LogWarning("Error while executing query: possible client-side evaluation ({Message})", ex.InnerException?.Message ?? ex.Message);
-                evaluator.Invoke(dataset.ToList().AsQueryable());
+                await evaluator.Invoke(dataset.ToList().AsQueryable());
             });
         }
     }
@@ -245,4 +253,18 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
     [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter.")]
     internal static bool IsClientSideEvaluationException(Exception? ex)
         => ex is not null and (InvalidOperationException or NotSupportedException);
+
+    /// <summary>
+    /// This is an overridable method that calls Count() on the provided queryable.  You can override
+    /// this to calls a provider-specific count mechanism (e.g. CountAsync().
+    /// </summary>
+    /// <param name="query"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [NonAction]
+    public virtual Task<int> CountAsync(IQueryable<TEntity> query, CancellationToken cancellationToken)
+    {
+        int result = query.Count();
+        return Task.FromResult(result);
+    }
 }
