@@ -11,7 +11,7 @@ namespace CommunityToolkit.Datasync.TestCommon.Databases;
 [ExcludeFromCodeCoverage]
 public class CosmosDbContext(DbContextOptions<CosmosDbContext> options) : BaseDbContext<CosmosDbContext, CosmosEntityMovie>(options)
 {
-    public static CosmosDbContext CreateContext(string connectionString, ITestOutputHelper output = null)
+    public static async Task<CosmosDbContext> CreateContextAsync(string connectionString, ITestOutputHelper output = null)
     {
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -23,15 +23,16 @@ public class CosmosDbContext(DbContextOptions<CosmosDbContext> options) : BaseDb
             .EnableLogging(output);
         CosmosDbContext context = new(optionsBuilder.Options);
 
-        context.InitializeDatabase();
-        context.PopulateDatabase();
+        await context.InitializeDatabaseAsync();
+        await context.PopulateDatabaseAsync();
         return context;
     }
 
-    internal void InitializeDatabase()
+    internal async Task InitializeDatabaseAsync()
     {
-        RemoveRange(Movies.ToList());
-        SaveChanges();
+        List<CosmosEntityMovie> toDelete = await Movies.ToListAsync();
+        RemoveRange(toDelete);
+        await SaveChangesAsync();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -10,7 +10,6 @@ namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore;
 /// <summary>
 /// The base class for all the Entity Framework Core based table data classes.
 /// </summary>
-[Index(nameof(UpdatedAt), nameof(Deleted))]
 public abstract class BaseEntityTableData : ITableData
 {
     /// <inheritdoc />

@@ -50,6 +50,18 @@ public abstract class BaseDbContext<TContext, TEntity>(DbContextOptions<TContext
     /// </summary>
     protected void PopulateDatabase()
     {
+        AddMoviesToTable();
+        SaveChanges();
+    }
+
+    protected async Task PopulateDatabaseAsync()
+    {
+        AddMoviesToTable();
+        await SaveChangesAsync();
+    }
+
+    private void AddMoviesToTable()
+    {
         List<TEntity> movies = [.. TestData.Movies.OfType<TEntity>()];
         MovieIds = movies.ConvertAll(m => m.Id);
 
@@ -70,7 +82,5 @@ public abstract class BaseDbContext<TContext, TEntity>(DbContextOptions<TContext
 
             Movies.Add(movie);
         }
-
-        SaveChanges();
     }
 }
