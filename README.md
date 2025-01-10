@@ -56,6 +56,26 @@ The following NuGet packages have been published:
 | [CommunityToolkit.Datasync.Server.NSwag] | ![NSwag Library Version][vs-nswag] | ![NSwag Library Downloads][ds-nswag] |
 | [CommunityToolkit.Datasync.Server.Swashbuckle] | ![Swashbuckle Library Version][vs-swashbuckle] | ![Swashbuckle Library Downloads][ds-swashbuckle] |
 
+## Running Live Tests
+
+The test suite for the library includes "live tests" against real servers that are not normally run.  To run those tests, you will need access to an
+Azure account (you can sign up for one for free):
+
+1. Install the [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)
+2. Run `azd up` in a command line.
+
+This script will create several resources.  The cost of running those resources is approximately $40/month (US dollars).  However, you will only have 
+to run the services for less than an hour, so the cost of testing the library should be minimal.  The process will create a `.runsettings` file in the
+tests directory which you can use to enable the live testing. 
+
+Live testing can be run using the Visual Studio Test Explorer or via `dotnet test`.
+
+Once you have completed running the tests, you can remove the created services using `azd down`.  This will also remove the `.runsettings` file so that
+live tests are not attempted any more.
+
+> **NOTE**: The `.runsettings` file contains secrets.  It should not be checked in.  We have added this file to the `.gitignore` to ensure that it is
+> not checked into public GitHub repositories.
+
 ## 🌍 Roadmap
 
 Read what we [plan for next iterations](https://github.com/CommunityToolkit/Datasync/milestones), and feel free to ask questions.
