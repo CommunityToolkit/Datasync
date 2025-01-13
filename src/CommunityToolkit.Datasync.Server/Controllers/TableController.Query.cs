@@ -73,7 +73,6 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         await ExecuteQueryWithClientEvaluationAsync(dataset, async ds =>
         {
             IQueryable query = queryOptions.ApplyTo(ds, querySettings);
-            // results = query.Cast<object>().ToList();
             results = await Repository.ToListAsync(queryOptions.ApplyTo(ds, querySettings), cancellationToken).ConfigureAwait(false);
 
             // If the request results in an ISelectExpandWrapper, then $select was used and
@@ -95,7 +94,6 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         await ExecuteQueryWithClientEvaluationAsync(dataset, async ds => 
         { 
             IQueryable<TEntity> q = (IQueryable<TEntity>)(queryOptions.Filter?.ApplyTo(ds, new ODataQuerySettings()) ?? ds);
-            // count = q.Cast<object>().Count();
             count = await CountAsync(q, cancellationToken).ConfigureAwait(false);
         });
 
