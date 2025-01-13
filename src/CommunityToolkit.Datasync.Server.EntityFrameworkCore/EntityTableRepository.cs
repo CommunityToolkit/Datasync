@@ -209,5 +209,23 @@ public class EntityTableRepository<TEntity> : IRepository<TEntity> where TEntity
             _ = await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }, cancellationToken).ConfigureAwait(false);
     }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// The entity framework core edition of this method uses the async method.
+    /// </remarks>
+    public virtual async ValueTask<int> CountAsync(IQueryable query, CancellationToken cancellationToken = default)
+    {
+        return await EntityFrameworkQueryableExtensions.CountAsync(query.Cast<object>(), cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// The entity framework core edition of this method uses the async method.
+    /// </remarks>
+    public virtual async ValueTask<List<object>> ToListAsync(IQueryable query, CancellationToken cancellationToken = default)
+    {
+        return await EntityFrameworkQueryableExtensions.ToListAsync(query.Cast<object>(), cancellationToken).ConfigureAwait(false);
+    }
     #endregion
 }

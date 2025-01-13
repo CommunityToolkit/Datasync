@@ -35,8 +35,8 @@ public class AzureSqlEntityTableRepository_Tests : RepositoryTests<AzureSqlEntit
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 
-    protected override Task<AzureSqlEntityMovie> GetEntityAsync(string id)
-        => Task.FromResult(Context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == id));
+    protected override async Task<AzureSqlEntityMovie> GetEntityAsync(string id)
+        => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
 
     protected override Task<int> GetEntityCountAsync()
         => Task.FromResult(Context.Movies.Count());

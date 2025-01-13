@@ -66,4 +66,24 @@ public interface IRepository<TEntity> where TEntity : ITableData
     /// <exception cref="HttpException">Thrown if the entity creation would produce a normal HTTP error.</exception>
     /// <exception cref="RepositoryException">Thrown is there is an error in the repository.</exception>
     ValueTask ReplaceAsync(TEntity entity, byte[]? version = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Executes a count against the query provided, which came from this data store.  This allows you
+    /// to override the count operation to provide a more efficient count operation.
+    /// </summary>
+    /// <param name="query">The queryable being counted.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The count of entities matching the query.</returns>
+    ValueTask<int> CountAsync(IQueryable query, CancellationToken cancellationToken = default)
+        => ValueTask.FromResult(query.Cast<object>().Count());
+
+    /// <summary>
+    /// Executes a query retrieval against the query provided, which came from this data store.  This allows you
+    /// to override the ToList operation to provide a more efficient operation.
+    /// </summary>
+    /// <param name="query">The queryable being executed.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The entities matching the query.</returns>
+    ValueTask<List<object>> ToListAsync(IQueryable query, CancellationToken cancellationToken = default)
+        => ValueTask.FromResult(query.Cast<object>().ToList());
 }

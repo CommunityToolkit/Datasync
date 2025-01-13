@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Server.Abstractions.Json;
+using CommunityToolkit.Datasync.Server.OData;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 

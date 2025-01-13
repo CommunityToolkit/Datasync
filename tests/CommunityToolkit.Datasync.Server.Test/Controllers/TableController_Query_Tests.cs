@@ -255,30 +255,28 @@ public class TableController_Query_Tests : BaseTest
     [Fact]
     public async Task QueryAsync_NoExtras_Works()
     {
-        TableData entity = new() { Id = "0da7fb24-3606-442f-9f68-c47c6e7d09d4" };
+        int takeCount = 5; // Should be less than pagesize.
 
-        IAccessControlProvider<TableData> accessProvider = FakeAccessControlProvider<TableData>(TableOperation.Query, true);
-        IRepository<TableData> repository = FakeRepository(entity, true);
-        TableController<TableData> controller = new(repository, accessProvider);
+        IAccessControlProvider<InMemoryMovie> accessProvider = FakeAccessControlProvider<InMemoryMovie>(TableOperation.Query, true);
+        InMemoryRepository<InMemoryMovie> repository = new(TestCommon.TestData.Movies.OfType<InMemoryMovie>().Take(takeCount).ToList());
+        TableController<InMemoryMovie> controller = new(repository, accessProvider);
         controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Get, "https://localhost/table");
 
         OkObjectResult result = await controller.QueryAsync() as OkObjectResult;
         result.Should().NotBeNull();
         PagedResult pagedResult = result.Value as PagedResult;
         pagedResult.Should().NotBeNull();
-        pagedResult.Items.Should().HaveCount(1);
+        pagedResult.Items.Should().HaveCount(takeCount);
     }
 
     [Theory]
-    [InlineData("0da7fb24-3606-442f-9f68-c47c6e7d09d4", 1)]
+    [InlineData("id-010", 1)]
     [InlineData("1", 0)]
     public async Task QueryAsync_DataView_Works(string filter, int count)
     {
-        TableData entity = new() { Id = "0da7fb24-3606-442f-9f68-c47c6e7d09d4" };
-
-        IAccessControlProvider<TableData> accessProvider = FakeAccessControlProvider<TableData>(TableOperation.Query, true, m => m.Id == filter);
-        IRepository<TableData> repository = FakeRepository(entity, true);
-        TableController<TableData> controller = new(repository, accessProvider);
+        IAccessControlProvider<InMemoryMovie> accessProvider = FakeAccessControlProvider<InMemoryMovie>(TableOperation.Query, true, m => m.Id == filter);
+        InMemoryRepository<InMemoryMovie> repository = new(TestCommon.TestData.Movies.OfType<InMemoryMovie>());
+        TableController<InMemoryMovie> controller = new(repository, accessProvider);
         controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Get, "https://localhost/table");
 
         OkObjectResult result = await controller.QueryAsync() as OkObjectResult;
@@ -289,43 +287,61 @@ public class TableController_Query_Tests : BaseTest
     }
 
     [Theory]
-    [InlineData(true, 0)]
-    [InlineData(false, 1)]
-    public async Task QueryAsync_DeletedSkipped_Works(bool isDeleted, int count)
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task QueryAsync_DeletedSkipped_Works(bool isDeleted)
     {
-        TableData entity = new() { Id = "0da7fb24-3606-442f-9f68-c47c6e7d09d4", Deleted = isDeleted };
+        IAccessControlProvider<InMemoryMovie> accessProvider = FakeAccessControlProvider<InMemoryMovie>(TableOperation.Query, true);
+        InMemoryRepository<InMemoryMovie> repository = new(TestCommon.TestData.Movies.OfType<InMemoryMovie>());
 
-        IAccessControlProvider<TableData> accessProvider = FakeAccessControlProvider<TableData>(TableOperation.Query, true);
-        IRepository<TableData> repository = FakeRepository(entity, true);
+        // Set the deleted flag on the first item in the repository, but only if isDeleted == true
+        int expectedCount = TestCommon.TestData.Movies.MovieList.Length;
+        if (isDeleted)
+        {
+            InMemoryMovie entity = repository.GetEntity("id-010");
+            entity.Deleted = isDeleted;
+            repository.StoreEntity(entity);
+            expectedCount--;
+        }
+
         TableControllerOptions options = new() { EnableSoftDelete = true };
-        TableController<TableData> controller = new(repository, accessProvider) { Options = options };
-        controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Get, "https://localhost/table");
+        TableController<InMemoryMovie> controller = new(repository, accessProvider) { Options = options };
+        controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Get, "https://localhost/table?$count=true");
 
         OkObjectResult result = await controller.QueryAsync() as OkObjectResult;
         result.Should().NotBeNull();
         PagedResult pagedResult = result.Value as PagedResult;
         pagedResult.Should().NotBeNull();
-        pagedResult.Items.Should().HaveCount(count);
+        pagedResult.Items.Should().HaveCount(100);
+        pagedResult.Count.Should().Be(expectedCount);     // Total count
     }
 
     [Theory]
-    [InlineData(true, 1)]
-    [InlineData(false, 1)]
-    public async Task QueryAsync_DeletedIncluded_Works(bool isDeleted, int count)
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task QueryAsync_DeletedIncluded_Works(bool isDeleted)
     {
-        TableData entity = new() { Id = "0da7fb24-3606-442f-9f68-c47c6e7d09d4", Deleted = isDeleted };
+        IAccessControlProvider<InMemoryMovie> accessProvider = FakeAccessControlProvider<InMemoryMovie>(TableOperation.Query, true);
+        InMemoryRepository<InMemoryMovie> repository = new(TestCommon.TestData.Movies.OfType<InMemoryMovie>());
 
-        IAccessControlProvider<TableData> accessProvider = FakeAccessControlProvider<TableData>(TableOperation.Query, true);
-        IRepository<TableData> repository = FakeRepository(entity, true);
+        // Set the deleted flag on the first item in the repository, but only if isDeleted == true
+        if (isDeleted)
+        {
+            InMemoryMovie entity = repository.GetEntity("id-010");
+            entity.Deleted = isDeleted;
+            repository.StoreEntity(entity);
+        }
+
         TableControllerOptions options = new() { EnableSoftDelete = true };
-        TableController<TableData> controller = new(repository, accessProvider) { Options = options };
-        controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Get, "https://localhost/table?__includedeleted=true");
+        TableController<InMemoryMovie> controller = new(repository, accessProvider) { Options = options };
+        controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Get, "https://localhost/table?$count=true&__includedeleted=true");
 
         OkObjectResult result = await controller.QueryAsync() as OkObjectResult;
         result.Should().NotBeNull();
         PagedResult pagedResult = result.Value as PagedResult;
         pagedResult.Should().NotBeNull();
-        pagedResult.Items.Should().HaveCount(count);
+        pagedResult.Items.Should().HaveCount(100);                                        // Page length
+        pagedResult.Count.Should().Be(TestCommon.TestData.Movies.MovieList.Length);       // Total count
     }
     #endregion
 }
