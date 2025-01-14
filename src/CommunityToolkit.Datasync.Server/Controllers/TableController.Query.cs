@@ -94,7 +94,7 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         await ExecuteQueryWithClientEvaluationAsync(dataset, async ds => 
         { 
             IQueryable<TEntity> q = (IQueryable<TEntity>)(queryOptions.Filter?.ApplyTo(ds, new ODataQuerySettings()) ?? ds);
-            count = await CountAsync(q, cancellationToken).ConfigureAwait(false);
+            count = await Repository.CountAsync(q, cancellationToken).ConfigureAwait(false);
         });
 
         PagedResult result = BuildPagedResult(queryOptions, results, count);
@@ -263,18 +263,4 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
     [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter.")]
     internal static bool IsClientSideEvaluationException(Exception? ex)
         => ex is not null and (InvalidOperationException or NotSupportedException);
-
-    /// <summary>
-    /// This is an overridable method that calls Count() on the provided queryable.  You can override
-    /// this to calls a provider-specific count mechanism (e.g. CountAsync().
-    /// </summary>
-    /// <param name="query"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [NonAction]
-    public virtual Task<int> CountAsync(IQueryable<TEntity> query, CancellationToken cancellationToken)
-    {
-        int result = query.Count();
-        return Task.FromResult(result);
-    }
 }
