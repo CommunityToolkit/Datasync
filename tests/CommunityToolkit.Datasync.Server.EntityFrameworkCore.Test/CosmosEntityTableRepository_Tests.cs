@@ -7,39 +7,50 @@ using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
+#pragma warning disable CS9113 // Parameter is unread.
+
 namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
+/// <summary>
+/// Note that this is a completely different set of tests than the RepositoryTests because CosmosDB 
+/// EF Core driver is async only - there is no sync version of the driver in EFCore 9.0.  They basically
+/// broke the driver to enforce async behavior.
+/// </summary>
+/// <param name="fixture"></param>
+/// <param name="output"></param>
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class CosmosEntityTableRepository_Tests : RepositoryTests<CosmosEntityMovie>
+public class CosmosEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : RepositoryTests<CosmosEntityMovie>, IAsyncLifetime
 {
     #region Setup
-    private readonly DatabaseFixture _fixture;
     private readonly Random random = new();
-    private readonly string connectionString;
-    private readonly List<CosmosEntityMovie> movies;
-    private readonly Lazy<CosmosDbContext> _context;
+    private string connectionString = string.Empty;
+    private List<CosmosEntityMovie> movies;
 
-    public CosmosEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
+    public async Task InitializeAsync()
     {
-        this._fixture = fixture;
         this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_COSMOS_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
-            this._context = new Lazy<CosmosDbContext>(() => CosmosDbContext.CreateContext(this.connectionString, output));
-            this.movies = Context.Movies.AsNoTracking().ToList();
+            Context = await CosmosDbContext.CreateContextAsync(this.connectionString, output);
+            this.movies = await Context.Movies.AsNoTracking().ToListAsync();
         }
     }
 
-    private CosmosDbContext Context { get => this._context.Value; }
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    private CosmosDbContext Context { get; set; }
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 
-    protected override Task<CosmosEntityMovie> GetEntityAsync(string id)
-        => Task.FromResult(Context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == id));
+    protected override Task<CosmosEntityMovie> GetEntityAsync(string id) 
+        => Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
 
     protected override Task<int> GetEntityCountAsync()
-        => Task.FromResult(Context.Movies.Count());
+        => Context.Movies.CountAsync();
 
     protected override Task<IRepository<CosmosEntityMovie>> GetPopulatedRepositoryAsync()
         => Task.FromResult<IRepository<CosmosEntityMovie>>(new EntityTableRepository<CosmosEntityMovie>(Context));

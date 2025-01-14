@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Server;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit.Abstractions;
 
@@ -37,7 +39,7 @@ public class AzureSqlDbContext(DbContextOptions<AzureSqlDbContext> options) : Ba
                 UPDATE
                     [dbo].[{0}]
                 SET
-                    [UpdatedAt] = GETUTCDATE()
+                    [UpdatedAt] = SYSDATETIMEOFFSET()
                 WHERE
                     [Id] IN (SELECT [Id] FROM INSERTED);
             END
@@ -56,6 +58,10 @@ public class AzureSqlDbContext(DbContextOptions<AzureSqlDbContext> options) : Ba
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AzureSqlEntityMovie>(entity =>
+        {
+            entity.Property(e => e.UpdatedAt).HasColumnType("datetimeoffset(7)").IsRequired(false);
+        });
         modelBuilder.Entity<AzureSqlEntityMovie>().ToTable(tb => tb.HasTrigger("datasync_trigger"));
         base.OnModelCreating(modelBuilder);
     }

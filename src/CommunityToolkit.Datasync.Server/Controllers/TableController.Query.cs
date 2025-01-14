@@ -69,22 +69,32 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
             return BadRequest(validationException.Message);
         }
 
-        // Note that some IQueryable providers cannot execute all queries against the data source, so we have
-        // to switch to in-memory processing for those queries.  This is done by calling ToListAsync() on the
-        // IQueryable.  This is not ideal, but it is the only way to support all of the OData query options.
-        IEnumerable<object>? results = null;
-        await ExecuteQueryWithClientEvaluationAsync(dataset, ds =>
+        List<object>? results = null;
+        await ExecuteQueryWithClientEvaluationAsync(dataset, async ds =>
         {
-            results = (IEnumerable<object>)queryOptions.ApplyTo(ds, querySettings);
-            return Task.CompletedTask;
+            IQueryable query = queryOptions.ApplyTo(ds, querySettings);
+            results = await Repository.ToListAsync(queryOptions.ApplyTo(ds, querySettings), cancellationToken).ConfigureAwait(false);
+
+            // If the request results in an ISelectExpandWrapper, then $select was used and
+            // the model will be incomplete.  JSON rendering just turns this into a dictionary,
+            // so we'll do the same here.
+            if (results.Count > 0)
+            {
+                for (int i = 0; i < results.Count; i++)
+                {
+                    if (results[i] is ISelectExpandWrapper wrapper)
+                    {
+                        results[i] = wrapper.ToDictionary();
+                    }
+                }
+            }
         });
 
         int count = 0;
-        FilterQueryOption? filter = queryOptions.Filter;
         await ExecuteQueryWithClientEvaluationAsync(dataset, async ds => 
         { 
-            IQueryable<TEntity> q = (IQueryable<TEntity>)(filter?.ApplyTo(ds, new ODataQuerySettings()) ?? ds);
-            count = await CountAsync(q, cancellationToken);
+            IQueryable<TEntity> q = (IQueryable<TEntity>)(queryOptions.Filter?.ApplyTo(ds, new ODataQuerySettings()) ?? ds);
+            count = await Repository.CountAsync(q, cancellationToken).ConfigureAwait(false);
         });
 
         PagedResult result = BuildPagedResult(queryOptions, results, count);
@@ -253,18 +263,4 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
     [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter.")]
     internal static bool IsClientSideEvaluationException(Exception? ex)
         => ex is not null and (InvalidOperationException or NotSupportedException);
-
-    /// <summary>
-    /// This is an overridable method that calls Count() on the provided queryable.  You can override
-    /// this to calls a provider-specific count mechanism (e.g. CountAsync().
-    /// </summary>
-    /// <param name="query"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [NonAction]
-    public virtual Task<int> CountAsync(IQueryable<TEntity> query, CancellationToken cancellationToken)
-    {
-        int result = query.Count();
-        return Task.FromResult(result);
-    }
 }

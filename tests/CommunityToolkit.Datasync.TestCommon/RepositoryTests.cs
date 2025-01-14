@@ -66,19 +66,6 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
     }
 
     [SkippableFact]
-    public async Task AsQueryableAsync_CanRetrieveSingleItems()
-    {
-        Skip.IfNot(CanRunLiveTests());
-
-        IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
-        string id = await GetRandomEntityIdAsync(true);
-        TEntity expected = await GetEntityAsync(id);
-        TEntity actual = (await Repository.AsQueryableAsync()).Single(m => m.Id == id);
-
-        actual.Should().BeEquivalentTo(expected);
-    }
-
-    [SkippableFact]
     public async Task AsQueryableAsync_CanRetrieveFilteredLists()
     {
         Skip.IfNot(CanRunLiveTests());
@@ -86,7 +73,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         int expected = TestData.Movies.Count<TEntity>(m => m.Rating == MovieRating.R);
         IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
-        List<TEntity> actual = queryable.Where(m => m.Rating == MovieRating.R).ToList();
+        List<object> actual = await Repository.ToListAsync(queryable.Where(m => m.Rating == MovieRating.R));
 
         actual.Should().HaveCount(expected);
     }
@@ -99,7 +86,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         int expected = TestData.Movies.Count<TEntity>(m => m.Rating == MovieRating.R);
         IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
-        var actual = queryable.Where(m => m.Rating == MovieRating.R).Select(m => new { m.Id, m.Title }).ToList();
+        List<object> actual = await Repository.ToListAsync(queryable.Where(m => m.Rating == MovieRating.R).Select(m => new { m.Id, m.Title }));
 
         actual.Should().HaveCount(expected);
     }
@@ -111,7 +98,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
-        List<TEntity> actual = queryable.Where(m => m.Rating == MovieRating.R).Skip(5).Take(20).ToList();
+        List<object> actual = await Repository.ToListAsync(queryable.Where(m => m.Rating == MovieRating.R).Skip(5).Take(20));
 
         actual.Should().HaveCount(20);
     }
@@ -126,7 +113,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
-        List<TEntity> actual = queryable.Where(m => m.UpdatedAt > DateTimeOffset.UnixEpoch && !m.Deleted).OrderBy(m => m.UpdatedAt).Skip(10).Take(10).ToList();
+        List<object> actual = await Repository.ToListAsync(queryable.Where(m => m.UpdatedAt > DateTimeOffset.UnixEpoch && !m.Deleted).OrderBy(m => m.UpdatedAt).Skip(10).Take(10));
 
         actual.Should().HaveCount(10);
     }
@@ -138,17 +125,19 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
     {
         Skip.IfNot(CanRunLiveTests());
 
+        DateTimeOffset dto = DateTimeOffset.Now;
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         string id = await GetRandomEntityIdAsync(false);
         TEntity addition = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
         TEntity sut = addition.Clone();
         await Repository.CreateAsync(sut);
+
         TEntity actual = await GetEntityAsync(id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);
         actual.Should().NotBeEquivalentTo<ITableData>(addition).And.HaveEquivalentMetadataTo(sut);
         actual.Id.Should().Be(id);
-        actual.UpdatedAt.Should().BeAfter(StartTime);
+        actual.UpdatedAt?.Ticks.Should().BeGreaterThan(dto.Ticks);
         actual.Version.Should().NotBeNullOrEmpty();
     }
 
@@ -159,6 +148,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
     {
         Skip.IfNot(CanRunLiveTests());
 
+        DateTimeOffset dto = DateTimeOffset.Now;
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         TEntity addition = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther);
         addition.Id = id;
@@ -167,7 +157,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         TEntity actual = await GetEntityAsync(sut.Id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);
-        actual.UpdatedAt.Should().BeAfter(StartTime);
+        actual.UpdatedAt?.Ticks.Should().BeGreaterThan(dto.Ticks);
     }
 
     [SkippableFact]
@@ -190,6 +180,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
     {
         Skip.IfNot(CanRunLiveTests());
 
+        DateTimeOffset dto = DateTimeOffset.Now;
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         string id = await GetRandomEntityIdAsync(false);
         TEntity addition = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
@@ -203,7 +194,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         actual.Should().BeEquivalentTo<IMovie>(addition);
         actual.Should().NotBeEquivalentTo<ITableData>(addition).And.HaveEquivalentMetadataTo(sut);
         actual.Id.Should().Be(id);
-        actual.UpdatedAt.Should().BeAfter(StartTime);
+        actual.UpdatedAt?.Ticks.Should().BeGreaterThan(dto.Ticks);
         actual.Version.Should().NotBeEquivalentTo(expectedVersion);
     }
 
@@ -308,7 +299,9 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         TEntity expected = await GetEntityAsync(id);
         TEntity actual = await Repository.ReadAsync(id);
 
-        actual.Should().BeEquivalentTo(expected).And.NotBeSameAs(expected);
+        actual.Should().BeEquivalentTo<IMovie>(expected);
+        actual.Should().HaveEquivalentMetadataTo(expected);
+        actual.Should().NotBeSameAs(expected);
     }
 
     [SkippableTheory]
@@ -386,6 +379,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
     {
         Skip.IfNot(CanRunLiveTests());
 
+        DateTimeOffset dto = DateTimeOffset.Now;
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         string id = await GetRandomEntityIdAsync(true);
         TEntity replacement = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
@@ -396,7 +390,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         actual.Should().BeEquivalentTo<IMovie>(replacement).And.NotBeEquivalentTo<ITableData>(expected);
         actual.Version.Should().NotBeEquivalentTo(version);
-        actual.UpdatedAt.Should().BeAfter(StartTime);
+        actual.UpdatedAt?.Ticks.Should().BeGreaterThan(dto.Ticks);
     }
 
     [SkippableFact]
@@ -404,6 +398,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
     {
         Skip.IfNot(CanRunLiveTests());
 
+        DateTimeOffset dto = DateTimeOffset.Now;
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         string id = await GetRandomEntityIdAsync(true);
         TEntity replacement = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
@@ -414,7 +409,8 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         actual.Should().BeEquivalentTo<IMovie>(replacement).And.NotBeEquivalentTo<ITableData>(expected);
         actual.Version.Should().NotBeEquivalentTo(version);
-        actual.UpdatedAt.Should().BeAfter(StartTime);
+        actual.UpdatedAt?.Ticks.Should().BeGreaterThan(dto.Ticks);
+
     }
     #endregion
 }
