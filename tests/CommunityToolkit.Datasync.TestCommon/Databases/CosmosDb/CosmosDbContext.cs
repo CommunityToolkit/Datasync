@@ -5,6 +5,7 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CommunityToolkit.Datasync.TestCommon.Databases;
 
@@ -32,6 +33,11 @@ public class CosmosDbContext(DbContextOptions<CosmosDbContext> options) : BaseDb
     {
         RemoveRange(Movies.ToList());
         SaveChanges();
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.ConfigureWarnings(w => w.Ignore(CosmosEventId.SyncNotSupported));
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
