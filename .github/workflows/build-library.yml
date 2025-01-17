@@ -23,6 +23,7 @@ env:
 permissions:
   pull-requests: write
   contents: read
+  checks: write
 
 jobs:
   build:
