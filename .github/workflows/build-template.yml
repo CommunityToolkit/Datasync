@@ -52,7 +52,8 @@ jobs:
       - name: Generate csproj
         working-directory: templates/Template.DatasyncServer
         run: |
-          (Get-Content -path "Template.DatasyncServer.csproj.template") -replace "${NUGET_VERSION}", $BUILD_VERSION | Set-Content -Path "./Template.DatasyncServer.csproj"
+          Write-Host "BUILD_VERSION (env)=$($env:BUILD_VERSION)"
+          (Get-Content -path "Template.DatasyncServer.csproj.template") -replace "{NUGET_VERSION}", $env:BUILD_VERSION | Set-Content -Path "./Template.DatasyncServer.csproj"
         shell: pwsh
 
       - name: Build template
