@@ -53,8 +53,7 @@ jobs:
         working-directory: templates/Template.DatasyncServer
         run: |
           Write-Host "BUILD_VERSION (env)=$($env:BUILD_VERSION)"
-          Write-Host "BUILD_VERSION (var)=$BUILD_VERSION"
-          (Get-Content -path "Template.DatasyncServer.csproj.template") -replace "{NUGET_VERSION}", $BUILD_VERSION | Set-Content -Path "./Template.DatasyncServer.csproj"
+          (Get-Content -path "Template.DatasyncServer.csproj.template") -replace "{NUGET_VERSION}", $env:BUILD_VERSION | Set-Content -Path "./Template.DatasyncServer.csproj"
         shell: pwsh
 
       - name: Build template
