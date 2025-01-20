@@ -8,42 +8,42 @@ using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
-namespace CommunityToolkit.Datasync.Server.Test.Live.AzureSQL;
+namespace CommunityToolkit.Datasync.Server.Test.Live;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class AzureSql_Controller_Query_Tests : LiveControllerTests<AzureSqlEntityMovie>
+public class PgSQL_Controller_Tests : LiveControllerTests<PgEntityMovie>
 {
     #region Setup
     private readonly DatabaseFixture _fixture;
     private readonly Random random = new();
     private readonly string connectionString;
-    private readonly List<AzureSqlEntityMovie> movies;
-    private readonly Lazy<AzureSqlDbContext> _context;
+    private readonly List<PgEntityMovie> movies;
+    private readonly Lazy<PgDbContext> _context;
 
-    public AzureSql_Controller_Query_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
+    public PgSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
     {
         this._fixture = fixture;
-        this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_AZSQL_CONNECTIONSTRING");
+        this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_PGSQL_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
-            this._context = new Lazy<AzureSqlDbContext>(() => AzureSqlDbContext.CreateContext(this.connectionString, output));
-            this.movies = [.. Context.Movies.AsNoTracking()];
+            this._context = new Lazy<PgDbContext>(() => PgDbContext.CreateContext(this.connectionString, output));
+            this.movies = Context.Movies.AsNoTracking().ToList();
         }
     }
 
-    private AzureSqlDbContext Context { get => this._context.Value; }
+    private PgDbContext Context { get => this._context.Value; }
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 
-    protected override Task<AzureSqlEntityMovie> GetEntityAsync(string id)
+    protected override Task<PgEntityMovie> GetEntityAsync(string id)
         => Task.FromResult(Context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == id));
 
     protected override Task<int> GetEntityCountAsync()
         => Task.FromResult(Context.Movies.Count());
 
-    protected override Task<IRepository<AzureSqlEntityMovie>> GetPopulatedRepositoryAsync()
-        => Task.FromResult<IRepository<AzureSqlEntityMovie>>(new EntityTableRepository<AzureSqlEntityMovie>(Context));
+    protected override Task<IRepository<PgEntityMovie>> GetPopulatedRepositoryAsync()
+        => Task.FromResult<IRepository<PgEntityMovie>>(new EntityTableRepository<PgEntityMovie>(Context));
 
     protected override Task<string> GetRandomEntityIdAsync(bool exists)
         => Task.FromResult(exists ? this.movies[this.random.Next(this.movies.Count)].Id : Guid.NewGuid().ToString());
