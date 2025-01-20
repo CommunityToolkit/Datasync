@@ -119,12 +119,6 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         items.Should().HaveCount(itemCount);
         result.Count.Should().Be(totalCount);
         List<string> actualItems = items.Select(m => m.Id).Take(firstItems.Length).ToList();
-
-        // Get the list of items in firstItems and actualItems
-        List<TEntity> expA1 = await GetListOfEntitiesAsync(firstItems);
-        List<TEntity> expA2 = await GetListOfEntitiesAsync(actualItems);
-        expA2.Count.Should().Be(actualItems.Count);
-
         actualItems.Should().BeEquivalentTo(firstItems);
 
         if (nextLinkQuery is not null)
@@ -3381,19 +3375,19 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     }
 
     // PROBLEM - THIS TEST RESULTS IN DIFFERENT ORDERING ON PGSQL vs. AZURESQL
-    //[SkippableFact]
-    //public async Task Query_Test_235()
-    //{
-    //    Skip.IfNot(CanRunLiveTests());
+    [SkippableFact]
+    public async Task Query_Test_235()
+    {
+        Skip.IfNot(CanRunLiveTests());
 
-    //    await MovieQueryTest(
-    //        $"{MovieEndpoint}?$orderby=title asc&$skip=5",
-    //        DefaultPageSize,
-    //        "$orderby=title asc&$skip=105",
-    //        null,
-    //        ["id-214", "id-102", "id-215", "id-039", "id-057"]
-    //    );
-    //}
+        await MovieQueryTest(
+            $"{MovieEndpoint}?$orderby=title asc&$skip=5",
+            DefaultPageSize,
+            "$orderby=title asc&$skip=105",
+            null,
+            ["id-214", "id-102", "id-215", "id-039", "id-057"]
+        );
+    }
 
     [SkippableFact]
     public async Task Query_Test_236()

@@ -53,8 +53,13 @@ public class PgDbContext(DbContextOptions<PgDbContext> options) : BaseDbContext<
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<PgEntityMovie>()
-            .Property(m => m.UpdatedAt).HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
+        modelBuilder.Entity<PgEntityMovie>().Property(m => m.UpdatedAt)
+            .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
+
+        // Ensures stable ordering across all database types.
+        modelBuilder.Entity<PgEntityMovie>().Property(m => m.Title)
+            .UseCollation("POSIX");
+
         base.OnModelCreating(modelBuilder);
     }
 }
