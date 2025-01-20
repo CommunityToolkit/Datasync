@@ -3374,7 +3374,6 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    // PROBLEM - THIS TEST RESULTS IN DIFFERENT ORDERING ON PGSQL vs. AZURESQL
     [SkippableFact]
     public async Task Query_Test_235()
     {
