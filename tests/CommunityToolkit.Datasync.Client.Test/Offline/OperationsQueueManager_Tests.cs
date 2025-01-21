@@ -487,25 +487,28 @@ public class OperationsQueueManager_Tests : BaseTest
     [Fact]
     public async Task LLP_ModifyAfterInsertInNewContext_NoPush_ShouldUpdateOperationsQueue()
     {
-        // Arrange
         await using SqliteConnection connection = CreateAndOpenConnection();
         string id = Guid.NewGuid().ToString("N");
         await using (TestDbContext llpContext = CreateContext(connection, x => x.UseLazyLoadingProxies()))
         {
-            ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = id };
+            ClientMovie clientMovie = new(TestData.Movies.MovieList[0].Title) { Id = id };
             llpContext.Movies.Add(clientMovie);
             llpContext.SaveChanges();
         }
 
-        // Act
         await using TestDbContext newLlpContext = CreateContext(connection, x => x.UseLazyLoadingProxies());
 
         ClientMovie storedClientMovie = newLlpContext.Movies.First(m => m.Id == id);
-        storedClientMovie.Title = TestData.Movies.MovieList[0].Title;
+
+        // ensure that it is a lazy loading proxy and not exactly a ClientMovie
+        storedClientMovie.GetType().Should().NotBe(typeof(ClientMovie))
+            .And.Subject.Namespace.Should().Be("Castle.Proxies");
+
+        storedClientMovie.Title = TestData.Movies.MovieList[1].Title;
         newLlpContext.SaveChanges();
 
-        // Assert
-        newLlpContext.DatasyncOperationsQueue.Should().ContainSingle(op => op.ItemId == id);
+        newLlpContext.DatasyncOperationsQueue.Should().ContainSingle(op => op.ItemId == id)
+            .Which.EntityType.Should().NotContain("Castle.Proxies");
     }
     #endregion
 }
