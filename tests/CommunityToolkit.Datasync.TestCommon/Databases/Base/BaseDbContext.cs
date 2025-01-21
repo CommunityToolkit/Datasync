@@ -48,8 +48,15 @@ public abstract class BaseDbContext<TContext, TEntity>(DbContextOptions<TContext
     /// <summary>
     /// Populates the database with the core set of movies.  Ensures that we have the same data for all tests.
     /// </summary>
+    [SuppressMessage("Performance", "CA1827:Do not use Count() or LongCount() when Any() can be used", Justification = "CosmosDB does not support .Any()")]
     protected void PopulateDatabase()
     {
+        bool hasEntities = Movies.Count() > 0;
+        if (hasEntities)
+        {
+            return;
+        }
+
         List<TEntity> movies = [.. TestData.Movies.OfType<TEntity>()];
         MovieIds = movies.ConvertAll(m => m.Id);
 

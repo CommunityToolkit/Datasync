@@ -10,7 +10,7 @@ namespace CommunityToolkit.Datasync.TestCommon.Databases;
 [ExcludeFromCodeCoverage]
 public class PgDbContext(DbContextOptions<PgDbContext> options) : BaseDbContext<PgDbContext, PgEntityMovie>(options)
 {
-    public static PgDbContext CreateContext(string connectionString, ITestOutputHelper output = null)
+    public static PgDbContext CreateContext(string connectionString, ITestOutputHelper output = null, bool clearEntities = true)
     {
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -22,12 +22,12 @@ public class PgDbContext(DbContextOptions<PgDbContext> options) : BaseDbContext<
             .EnableLogging(output);
         PgDbContext context = new(optionsBuilder.Options);
 
-        context.InitializeDatabase();
+        context.InitializeDatabase(clearEntities);
         context.PopulateDatabase();
         return context;
     }
 
-    internal void InitializeDatabase()
+    internal void InitializeDatabase(bool clearEntities)
     {
         const string datasyncTrigger = @"
             CREATE OR REPLACE FUNCTION {0}_datasync() RETURNS trigger AS $$
@@ -47,8 +47,12 @@ public class PgDbContext(DbContextOptions<PgDbContext> options) : BaseDbContext<
         ";
 
         Database.EnsureCreated();
-        ExecuteRawSqlOnEachEntity(@"DELETE FROM ""{0}""");
         ExecuteRawSqlOnEachEntity(datasyncTrigger);
+
+        if (clearEntities)
+        {
+            ExecuteRawSqlOnEachEntity(@"DELETE FROM ""{0}""");
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

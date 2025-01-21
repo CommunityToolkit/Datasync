@@ -19,10 +19,9 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     protected virtual bool CanRunLiveTests() => true;
 
     /// <summary>
-    /// Some tests require the ability to run math queries. This method returns true if the
-    /// service can run those tests.  Notably, Cosmos can't run those tests.
+    /// The driver name - used for skipping tests when the driver doesn't support a feature.
     /// </summary>
-    protected virtual bool CanRunMathQueryTests() => true;
+    protected virtual string DriverName { get; } = "Default";
 
     /// <summary>
     /// The actual test class must provide an implementation that retrieves the entity through
