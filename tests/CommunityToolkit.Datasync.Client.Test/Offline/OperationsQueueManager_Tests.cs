@@ -9,6 +9,7 @@ using CommunityToolkit.Datasync.Client.Test.Offline.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using Microsoft.Data.Sqlite;
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Client.Test.Offline;
@@ -39,7 +40,7 @@ public class OperationsQueueManager_Tests : BaseTest
     public async Task GetExistingOperationAsync_InvalidId_Throws()
     {
         ClientMovie movie = new() { Id = "###" };
-        Func<Task> act = async () => _ = await queueManager.GetExistingOperationAsync(movie);
+        Func<Task> act = async () => _ = await queueManager.GetExistingOperationAsync(context.Entry(movie));
         await act.Should().ThrowAsync<DatasyncException>();
     }
     #endregion
@@ -481,6 +482,30 @@ public class OperationsQueueManager_Tests : BaseTest
         results.FailedRequests.Should().BeEmpty();
 
         llpContext.DatasyncOperationsQueue.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task LLP_ModifyAfterInsertInNewContext_NoPush_ShouldUpdateOperationsQueue()
+    {
+        // Arrange
+        await using SqliteConnection connection = CreateAndOpenConnection();
+        string id = Guid.NewGuid().ToString("N");
+        await using (TestDbContext llpContext = CreateContext(connection, x => x.UseLazyLoadingProxies()))
+        {
+            ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = id };
+            llpContext.Movies.Add(clientMovie);
+            llpContext.SaveChanges();
+        }
+
+        // Act
+        await using TestDbContext newLlpContext = CreateContext(connection, x => x.UseLazyLoadingProxies());
+
+        ClientMovie storedClientMovie = newLlpContext.Movies.First(m => m.Id == id);
+        storedClientMovie.Title = TestData.Movies.MovieList[0].Title;
+        newLlpContext.SaveChanges();
+
+        // Assert
+        newLlpContext.DatasyncOperationsQueue.Should().ContainSingle(op => op.ItemId == id);
     }
     #endregion
 }
