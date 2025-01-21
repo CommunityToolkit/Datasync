@@ -20,6 +20,88 @@ param tags object = {}
 
 /*********************************************************************************/
 
+var compositeIndices = [
+  [
+    { path: '/BestPictureWinner', order: 'ascending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/BestPictureWinner', order: 'descending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/Duration', order: 'ascending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/Duration', order: 'descending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/Rating', order: 'ascending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/Rating', order: 'descending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/ReleaseDate', order: 'ascending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/ReleaseDate', order: 'descending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/Title', order: 'ascending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/Title', order: 'descending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/UpdatedAt', order: 'ascending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/UpdatedAt', order: 'descending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/Year', order: 'ascending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/Year', order: 'descending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/Year', order: 'ascending' }
+    { path: '/Title', order: 'ascending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/Year', order: 'descending' }
+    { path: '/Title', order: 'ascending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/Year', order: 'ascending' }
+    { path: '/Title', order: 'descending' }
+    { path: '/id', order: 'ascending' }
+  ]
+  [
+    { path: '/Year', order: 'descending' }
+    { path: '/Title', order: 'descending' }
+    { path: '/id', order: 'ascending' }
+  ]
+]
+
+/*********************************************************************************/
+
+
 resource cosmos_account 'Microsoft.DocumentDB/databaseAccounts@2024-02-15-preview' = {
   name: serverName
   location: location
@@ -70,20 +152,7 @@ resource cosmos_container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/co
         excludedPaths: [
           { path: '/_etag/?' }
         ]
-        compositeIndexes: [
-          [
-            { path: '/UpdatedAt', order: 'ascending' }
-            { path: '/id', order: 'ascending' }
-          ]
-          [
-            { path: '/Title', order: 'ascending' }
-            { path: '/id', order: 'ascending' }
-          ]
-          [
-            { path: '/Title', order: 'descending' }
-            { path: '/id', order: 'ascending' }
-          ]
-        ]
+        compositeIndexes: compositeIndices
       }
       defaultTtl: 86400
     }
