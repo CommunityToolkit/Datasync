@@ -60,6 +60,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Client.Test", "tests\CommunityToolkit.Datasync.Client.Test\CommunityToolkit.Datasync.Client.Test.csproj", "{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{75F709FD-8CC2-4558-A802-FE57086167C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Datasync.Server", "samples\datasync-server\src\Sample.Datasync.Server\Sample.Datasync.Server.csproj", "{A9967817-2A2C-4C6D-A133-967A6062E9B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -146,6 +150,10 @@ Global
 		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9967817-2A2C-4C6D-A133-967A6062E9B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9967817-2A2C-4C6D-A133-967A6062E9B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9967817-2A2C-4C6D-A133-967A6062E9B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9967817-2A2C-4C6D-A133-967A6062E9B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -171,6 +179,7 @@ Global
 		{45D47A4E-AD58-40C8-B4CC-95BC888C47A7} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{D3B72031-D4BD-44D3-973C-2752AB1570F6} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
+		{A9967817-2A2C-4C6D-A133-967A6062E9B3} = {75F709FD-8CC2-4558-A802-FE57086167C2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {78A935E9-8F14-448A-BEDF-360FB742F14E}
