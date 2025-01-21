@@ -110,7 +110,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
     /// <summary>
     /// Retrieves the existing operation that matches an operation for the provided entity.
     /// </summary>
-    /// <param name="entity">The entity being processed.</param>
+    /// <param name="entityEntry">The entity entry being processed.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The operation entity or null if one does not exist.</returns>
     /// <exception cref="DatasyncException">Thrown if the entity ID of the provided entity is invalid.</exception>

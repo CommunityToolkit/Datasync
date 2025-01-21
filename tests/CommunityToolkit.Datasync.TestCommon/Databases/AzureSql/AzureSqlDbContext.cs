@@ -37,7 +37,7 @@ public class AzureSqlDbContext(DbContextOptions<AzureSqlDbContext> options) : Ba
                 UPDATE
                     [dbo].[{0}]
                 SET
-                    [UpdatedAt] = GETUTCDATE()
+                    [UpdatedAt] = SYSUTCDATETIME()
                 WHERE
                     [Id] IN (SELECT [Id] FROM INSERTED);
             END
