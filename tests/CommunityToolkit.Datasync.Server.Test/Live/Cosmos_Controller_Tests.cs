@@ -12,41 +12,44 @@ namespace CommunityToolkit.Datasync.Server.Test.Live;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class AzureSQL_Controller_Tests : LiveControllerTests<AzureSqlEntityMovie>
+public class Cosmos_Controller_Tests : LiveControllerTests<CosmosEntityMovie>
 {
     #region Setup
     private readonly DatabaseFixture _fixture;
     private readonly Random random = new();
     private readonly string connectionString;
-    private readonly List<AzureSqlEntityMovie> movies;
+    private readonly List<CosmosEntityMovie> movies;
 
-    public AzureSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
+    public Cosmos_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
     {
         this._fixture = fixture;
-        this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_AZSQL_CONNECTIONSTRING");
+        this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_COSMOS_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
-            output.WriteLine($"AzureSqlIsInitialized = {this._fixture.AzureSqlIsInitialized}");
-            Context = AzureSqlDbContext.CreateContext(this.connectionString, output, clearEntities: !this._fixture.AzureSqlIsInitialized);
+            // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
+            // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
+            // to the database then change clearEntities to true.
+            output.WriteLine($"CosmosIsInitialized = {this._fixture.CosmosIsInitialized}");
+            Context = CosmosDbContext.CreateContext(this.connectionString, output, clearEntities: !this._fixture.CosmosIsInitialized);
             this.movies = [.. Context.Movies.AsNoTracking()];
-            this._fixture.AzureSqlIsInitialized = true;
+            this._fixture.CosmosIsInitialized = true;
         }
     }
 
-    private AzureSqlDbContext Context { get; set; }
+    private CosmosDbContext Context { get; set; }
 
-    protected override string DriverName { get; } = "AzureSQL";
+    protected override string DriverName { get; } = "Cosmos";
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 
-    protected override Task<AzureSqlEntityMovie> GetEntityAsync(string id)
+    protected override Task<CosmosEntityMovie> GetEntityAsync(string id)
         => Task.FromResult(Context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == id));
 
     protected override Task<int> GetEntityCountAsync()
         => Task.FromResult(Context.Movies.Count());
 
-    protected override Task<IRepository<AzureSqlEntityMovie>> GetPopulatedRepositoryAsync()
-        => Task.FromResult<IRepository<AzureSqlEntityMovie>>(new EntityTableRepository<AzureSqlEntityMovie>(Context));
+    protected override Task<IRepository<CosmosEntityMovie>> GetPopulatedRepositoryAsync()
+        => Task.FromResult<IRepository<CosmosEntityMovie>>(new EntityTableRepository<CosmosEntityMovie>(Context));
 
     protected override Task<string> GetRandomEntityIdAsync(bool exists)
         => Task.FromResult(exists ? this.movies[this.random.Next(this.movies.Count)].Id : Guid.NewGuid().ToString());

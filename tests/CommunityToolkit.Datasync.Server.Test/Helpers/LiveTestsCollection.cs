@@ -9,7 +9,9 @@ namespace CommunityToolkit.Datasync.Server.Test.Helpers;
 /// </summary>
 public class DatabaseFixture
 {
-
+    public bool AzureSqlIsInitialized { get; set; } = false;
+    public bool CosmosIsInitialized { get; set; } = false;
+    public bool PgIsInitialized { get; set; } = false;
 }
 
 [CollectionDefinition("LiveTestsCollection", DisableParallelization = true)]
