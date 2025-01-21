@@ -12,7 +12,7 @@ namespace CommunityToolkit.Datasync.TestCommon.Databases;
 [ExcludeFromCodeCoverage]
 public class CosmosDbContext(DbContextOptions<CosmosDbContext> options) : BaseDbContext<CosmosDbContext, CosmosEntityMovie>(options)
 {
-    public static CosmosDbContext CreateContext(string connectionString, ITestOutputHelper output = null)
+    public static CosmosDbContext CreateContext(string connectionString, ITestOutputHelper output = null, bool clearEntities = true)
     {
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -24,15 +24,18 @@ public class CosmosDbContext(DbContextOptions<CosmosDbContext> options) : BaseDb
             .EnableLogging(output);
         CosmosDbContext context = new(optionsBuilder.Options);
 
-        context.InitializeDatabase();
+        context.InitializeDatabase(clearEntities);
         context.PopulateDatabase();
         return context;
     }
 
-    internal void InitializeDatabase()
+    internal void InitializeDatabase(bool clearEntities)
     {
-        RemoveRange(Movies.ToList());
-        SaveChanges();
+        if (clearEntities)
+        {
+            RemoveRange(Movies.ToList());
+            SaveChanges();
+        }
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -48,6 +51,10 @@ public class CosmosDbContext(DbContextOptions<CosmosDbContext> options) : BaseDb
             builder.HasNoDiscriminator();
             builder.HasPartitionKey(model => model.Id);
             builder.Property(model => model.EntityTag).IsETagConcurrency();
+
+            // Note that the composite indices needed for Cosmos are defined in the bicep
+            // See infra/modules/cosmos.bicep
+
         });
         base.OnModelCreating(modelBuilder);
     }

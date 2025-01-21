@@ -19,7 +19,6 @@ public class PgSQL_Controller_Tests : LiveControllerTests<PgEntityMovie>
     private readonly Random random = new();
     private readonly string connectionString;
     private readonly List<PgEntityMovie> movies;
-    private readonly Lazy<PgDbContext> _context;
 
     public PgSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
     {
@@ -27,12 +26,13 @@ public class PgSQL_Controller_Tests : LiveControllerTests<PgEntityMovie>
         this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_PGSQL_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
-            this._context = new Lazy<PgDbContext>(() => PgDbContext.CreateContext(this.connectionString, output));
+            Context = PgDbContext.CreateContext(this.connectionString, output, clearEntities: this._fixture.PgIsInitialized);
             this.movies = Context.Movies.AsNoTracking().ToList();
+            this._fixture.PgIsInitialized = true;
         }
     }
 
-    private PgDbContext Context { get => this._context.Value; }
+    private PgDbContext Context { get; set; }
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 

@@ -11,7 +11,7 @@ namespace CommunityToolkit.Datasync.TestCommon.Databases;
 [ExcludeFromCodeCoverage]
 public class AzureSqlDbContext(DbContextOptions<AzureSqlDbContext> options) : BaseDbContext<AzureSqlDbContext, AzureSqlEntityMovie>(options)
 {
-    public static AzureSqlDbContext CreateContext(string connectionString, ITestOutputHelper output = null)
+    public static AzureSqlDbContext CreateContext(string connectionString, ITestOutputHelper output = null, bool clearEntities = true)
     {
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -23,12 +23,12 @@ public class AzureSqlDbContext(DbContextOptions<AzureSqlDbContext> options) : Ba
             .EnableLogging(output);
         AzureSqlDbContext context = new(optionsBuilder.Options);
 
-        context.InitializeDatabase();
+        context.InitializeDatabase(clearEntities);
         context.PopulateDatabase();
         return context;
     }
 
-    internal void InitializeDatabase()
+    internal void InitializeDatabase(bool clearEntities)
     {
         const string datasyncTrigger = @"
             CREATE OR ALTER TRIGGER [dbo].[{0}_datasync] ON [dbo].[{0}] AFTER INSERT, UPDATE AS
@@ -44,8 +44,12 @@ public class AzureSqlDbContext(DbContextOptions<AzureSqlDbContext> options) : Ba
         ";
 
         Database.EnsureCreated();
-        ExecuteRawSqlOnEachEntity("DELETE FROM [dbo].[{0}]");
         ExecuteRawSqlOnEachEntity(datasyncTrigger);
+
+        if (clearEntities)
+        {
+            ExecuteRawSqlOnEachEntity("DELETE FROM [dbo].[{0}]");
+        }
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
