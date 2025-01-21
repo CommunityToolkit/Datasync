@@ -29,7 +29,8 @@ public class Cosmos_Controller_Tests : LiveControllerTests<CosmosEntityMovie>
             // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
             // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
             // to the database then change clearEntities to true.
-            Context = CosmosDbContext.CreateContext(this.connectionString, output, clearEntities: this._fixture.CosmosIsInitialized);
+            output.WriteLine($"CosmosIsInitialized = {this._fixture.CosmosIsInitialized}");
+            Context = CosmosDbContext.CreateContext(this.connectionString, output, clearEntities: !this._fixture.CosmosIsInitialized);
             this.movies = [.. Context.Movies.AsNoTracking()];
             this._fixture.CosmosIsInitialized = true;
         }
@@ -37,12 +38,9 @@ public class Cosmos_Controller_Tests : LiveControllerTests<CosmosEntityMovie>
 
     private CosmosDbContext Context { get; set; }
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
+    protected override string DriverName { get; } = "Cosmos";
 
-    /// <summary>
-    /// There are a set of tests that are not supported by CosmosDB, so we disable them
-    /// </summary>
-    protected override bool CanRunMathQueryTests() => false;
+    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 
     protected override Task<CosmosEntityMovie> GetEntityAsync(string id)
         => Task.FromResult(Context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == id));

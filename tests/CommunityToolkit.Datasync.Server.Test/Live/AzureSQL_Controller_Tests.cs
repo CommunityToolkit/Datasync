@@ -26,13 +26,16 @@ public class AzureSQL_Controller_Tests : LiveControllerTests<AzureSqlEntityMovie
         this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_AZSQL_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
-            Context = AzureSqlDbContext.CreateContext(this.connectionString, output, clearEntities: this._fixture.AzureSqlIsInitialized);
+            output.WriteLine($"AzureSqlIsInitialized = {this._fixture.AzureSqlIsInitialized}");
+            Context = AzureSqlDbContext.CreateContext(this.connectionString, output, clearEntities: !this._fixture.AzureSqlIsInitialized);
             this.movies = [.. Context.Movies.AsNoTracking()];
             this._fixture.AzureSqlIsInitialized = true;
         }
     }
 
     private AzureSqlDbContext Context { get; set; }
+
+    protected override string DriverName { get; } = "AzureSQL";
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 

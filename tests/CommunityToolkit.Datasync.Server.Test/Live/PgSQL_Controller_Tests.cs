@@ -26,13 +26,16 @@ public class PgSQL_Controller_Tests : LiveControllerTests<PgEntityMovie>
         this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_PGSQL_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
-            Context = PgDbContext.CreateContext(this.connectionString, output, clearEntities: this._fixture.PgIsInitialized);
+            output.WriteLine($"PgIsInitialized = {this._fixture.PgIsInitialized}");
+            Context = PgDbContext.CreateContext(this.connectionString, output, clearEntities: !this._fixture.PgIsInitialized);
             this.movies = Context.Movies.AsNoTracking().ToList();
             this._fixture.PgIsInitialized = true;
         }
     }
 
     private PgDbContext Context { get; set; }
+
+    protected override string DriverName { get; } = "PgSQL";
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 
