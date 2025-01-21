@@ -48,7 +48,7 @@ public class LiteDb_Controller_Tests : LiveControllerTests<LiteDbMovie>, IDispos
     }
 
     protected override Task<string> GetRandomEntityIdAsync(bool exists)
-        => Task.FromResult(exists ? this.movies[random.Next(this.movies.Count)].Id : Guid.NewGuid().ToString());
+        => Task.FromResult(exists ? this.movies[this.random.Next(this.movies.Count)].Id : Guid.NewGuid().ToString());
 
     public void Dispose()
     {
