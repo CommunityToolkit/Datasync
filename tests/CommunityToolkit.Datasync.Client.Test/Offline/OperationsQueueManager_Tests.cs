@@ -9,6 +9,7 @@ using CommunityToolkit.Datasync.Client.Test.Offline.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using Microsoft.Data.Sqlite;
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 namespace CommunityToolkit.Datasync.Client.Test.Offline;
@@ -39,7 +40,7 @@ public class OperationsQueueManager_Tests : BaseTest
     public async Task GetExistingOperationAsync_InvalidId_Throws()
     {
         ClientMovie movie = new() { Id = "###" };
-        Func<Task> act = async () => _ = await queueManager.GetExistingOperationAsync(movie);
+        Func<Task> act = async () => _ = await queueManager.GetExistingOperationAsync(context.Entry(movie));
         await act.Should().ThrowAsync<DatasyncException>();
     }
     #endregion
@@ -481,6 +482,33 @@ public class OperationsQueueManager_Tests : BaseTest
         results.FailedRequests.Should().BeEmpty();
 
         llpContext.DatasyncOperationsQueue.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task LLP_ModifyAfterInsertInNewContext_NoPush_ShouldUpdateOperationsQueue()
+    {
+        await using SqliteConnection connection = CreateAndOpenConnection();
+        string id = Guid.NewGuid().ToString("N");
+        await using (TestDbContext llpContext = CreateContext(connection, x => x.UseLazyLoadingProxies()))
+        {
+            ClientMovie clientMovie = new(TestData.Movies.MovieList[0].Title) { Id = id };
+            llpContext.Movies.Add(clientMovie);
+            llpContext.SaveChanges();
+        }
+
+        await using TestDbContext newLlpContext = CreateContext(connection, x => x.UseLazyLoadingProxies());
+
+        ClientMovie storedClientMovie = newLlpContext.Movies.First(m => m.Id == id);
+
+        // ensure that it is a lazy loading proxy and not exactly a ClientMovie
+        storedClientMovie.GetType().Should().NotBe(typeof(ClientMovie))
+            .And.Subject.Namespace.Should().Be("Castle.Proxies");
+
+        storedClientMovie.Title = TestData.Movies.MovieList[1].Title;
+        newLlpContext.SaveChanges();
+
+        newLlpContext.DatasyncOperationsQueue.Should().ContainSingle(op => op.ItemId == id)
+            .Which.EntityType.Should().NotContain("Castle.Proxies");
     }
     #endregion
 }

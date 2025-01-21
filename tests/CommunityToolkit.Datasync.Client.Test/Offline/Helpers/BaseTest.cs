@@ -25,8 +25,7 @@ public abstract class BaseTest
     /// </summary>
     protected static TestDbContext CreateContext(Action<DbContextOptionsBuilder<TestDbContext>> configureOptions = null)
     {
-        SqliteConnection connection = new("Data Source=:memory:");
-        connection.Open();
+        SqliteConnection connection = CreateAndOpenConnection();
         DbContextOptionsBuilder<TestDbContext> optionsBuilder = new DbContextOptionsBuilder<TestDbContext>()
             .UseSqlite(connection);
         configureOptions?.Invoke(optionsBuilder);
@@ -35,6 +34,31 @@ public abstract class BaseTest
         // Ensure the database is created.
         context.Database.EnsureCreated();
         return context;
+    }
+
+    /// <summary>
+    /// Creates a version of the TestDbContext backed by the specified SQLite connection.
+    /// </summary>
+    protected static TestDbContext CreateContext(SqliteConnection connection, Action<DbContextOptionsBuilder<TestDbContext>> configureOptions = null)
+    {
+        DbContextOptionsBuilder<TestDbContext> optionsBuilder = new DbContextOptionsBuilder<TestDbContext>()
+            .UseSqlite(connection);
+        configureOptions?.Invoke(optionsBuilder);
+        TestDbContext context = new(optionsBuilder.Options) { Connection = connection };
+
+        // Ensure the database is created.
+        context.Database.EnsureCreated();
+        return context;
+    }
+
+    /// <summary>
+    /// Creates and opens an in-memory SQLite database connection.
+    /// </summary>
+    protected static SqliteConnection CreateAndOpenConnection()
+    {
+        SqliteConnection connection = new("Data Source=:memory:");
+        connection.Open();
+        return connection;
     }
 
     /// <summary>

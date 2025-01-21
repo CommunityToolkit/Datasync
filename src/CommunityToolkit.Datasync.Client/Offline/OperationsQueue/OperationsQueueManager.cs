@@ -114,10 +114,10 @@ internal class OperationsQueueManager : IOperationsQueueManager
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The operation entity or null if one does not exist.</returns>
     /// <exception cref="DatasyncException">Thrown if the entity ID of the provided entity is invalid.</exception>
-    internal async ValueTask<DatasyncOperation?> GetExistingOperationAsync(object entity, CancellationToken cancellationToken = default)
+    internal async ValueTask<DatasyncOperation?> GetExistingOperationAsync(EntityEntry entityEntry, CancellationToken cancellationToken = default)
     {
-        Type entityType = entity.GetType();
-        EntityMetadata metadata = EntityResolver.GetEntityMetadata(entity, entityType);
+        Type entityType = entityEntry.Metadata.ClrType;
+        EntityMetadata metadata = EntityResolver.GetEntityMetadata(entityEntry.Entity, entityType);
         if (!EntityResolver.EntityIdIsValid(metadata.Id))
         {
             throw new DatasyncException($"Entity ID for type {entityType.FullName} is invalid.");
@@ -143,7 +143,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
     /// <returns>The operation definition.</returns>
     internal DatasyncOperation GetOperationForChangedEntity(EntityEntry entry)
     {
-        Type entityType = entry.Entity.GetType();
+        Type entityType = entry.Metadata.ClrType;
         EntityMetadata metadata = EntityResolver.GetEntityMetadata(entry.Entity, entityType);
         if (!EntityResolver.EntityIdIsValid(metadata.Id))
         {
@@ -432,7 +432,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
         foreach (EntityEntry entry in entitiesInScope)
         {
             DatasyncOperation newOperation = GetOperationForChangedEntity(entry);
-            DatasyncOperation? existingOperation = await GetExistingOperationAsync(entry.Entity, cancellationToken).ConfigureAwait(false);
+            DatasyncOperation? existingOperation = await GetExistingOperationAsync(entry, cancellationToken).ConfigureAwait(false);
             if (existingOperation is null)
             {
                 newOperation.Sequence = Interlocked.Increment(ref sequenceId);
