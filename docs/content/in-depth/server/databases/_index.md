@@ -15,5 +15,6 @@ For specific database support, see the following:
 * [Azure SQL and SQL Server](./azuresql.md)
 * [In Memory Datastore](./in-memory.md)
 * [LiteDb](./litedb.md)
+* [MySQL](./mysql.md)
 * [PostgreSQL](./postgresql.md)
 * [Sqlite](./sqlite.md)
