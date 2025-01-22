@@ -34,6 +34,7 @@ var appServiceName = 'web-${resourceToken}'
 var azsqlServerName = 'sql-${resourceToken}'
 var cosmosServerName = 'cosmos-${resourceToken}'
 var pgsqlServerName = 'pgsql-${resourceToken}'
+var mysqlServerName = 'mysql-${resourceToken}'
 
 var testDatabaseName = 'unittests'
 var cosmosContainerName = 'Movies'
@@ -78,6 +79,19 @@ module pgsql './modules/postgresql.bicep' = {
     }
 }
 
+module mysql './modules/mysql.bicep' = {
+    name: 'mysql-deployment-${resourceToken}'
+    params: {
+        location: location
+        tags: tags
+        databaseName: testDatabaseName
+        firewallRules: clientIpFirewallRules
+        sqlServerName: mysqlServerName
+        sqlAdminUsername: sqlAdminUsername
+        sqlAdminPassword: sqlAdminPassword
+    }
+}
+
 module cosmos './modules/cosmos.bicep' = {
     name: 'cosmos-deployment-${resourceToken}'
     params: {
@@ -109,6 +123,7 @@ module app_service './modules/appservice.bicep' = {
 /*********************************************************************************/
 
 output AZSQL_CONNECTIONSTRING string = azuresql.outputs.AZSQL_CONNECTIONSTRING
-output PGSQL_CONNECTIONSTRING string = pgsql.outputs.PGSQL_CONNECTIONSTRING
 output COSMOS_CONNECTIONSTRING string = cosmos.outputs.COSMOS_CONNECTIONSTRING
+output MYSQL_CONNECTIONSTRING string = mysql.outputs.MYSQL_CONNECTIONSTRING
+output PGSQL_CONNECTIONSTRING string = pgsql.outputs.PGSQL_CONNECTIONSTRING
 output SERVICE_ENDPOINT string = app_service.outputs.SERVICE_ENDPOINT
