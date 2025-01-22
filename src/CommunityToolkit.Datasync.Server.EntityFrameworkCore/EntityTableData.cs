@@ -21,5 +21,5 @@ public class EntityTableData : BaseEntityTableData
 
     /// <inheritdoc />
     [Timestamp]
-    public override byte[] Version { get; set; } = Array.Empty<byte>();
+    public override byte[] Version { get; set; } = [];
 }

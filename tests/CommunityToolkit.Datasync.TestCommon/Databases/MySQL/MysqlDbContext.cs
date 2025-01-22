@@ -33,7 +33,7 @@ public class MysqlDbContext(DbContextOptions<MysqlDbContext> options) : BaseDbCo
 
         if (clearEntities)
         {
-            ExecuteRawSqlOnEachEntity(@"DELETE FROM ""{0}""");
+            ExecuteRawSqlOnEachEntity(@"DELETE FROM {0}");
         }
     }
 
@@ -41,6 +41,9 @@ public class MysqlDbContext(DbContextOptions<MysqlDbContext> options) : BaseDbCo
     {
         modelBuilder.Entity<MysqlEntityMovie>().Property(m => m.UpdatedAt)
             .ValueGeneratedOnAddOrUpdate();
+
+        modelBuilder.Entity<MysqlEntityMovie>().Property(m => m.Version)
+            .IsRowVersion();
 
         base.OnModelCreating(modelBuilder);
     }
