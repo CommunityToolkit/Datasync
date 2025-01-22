@@ -23,6 +23,7 @@ Default repository implementations are provided for Entity Framework Core, LiteD
 * [Azure SQL and SQL Server](./databases/azuresql.md)
 * [In Memory Datastore](./databases/in-memory.md)
 * [LiteDb](./databases/litedb.md)
+* [MySQL](./databases/mysql.md)
 * [PostgreSQL](./databases/postgresql.md)
 * [Sqlite](./databases/sqlite.md)
 
