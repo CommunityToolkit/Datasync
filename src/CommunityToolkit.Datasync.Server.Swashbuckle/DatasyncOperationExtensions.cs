@@ -95,6 +95,24 @@ internal static class DatasyncOperationExtensions
         });
         operation.Responses[statusCode] = response;
     }
+    /// <summary>
+    /// Adds the content type and schema to the request body.
+    /// </summary>
+    /// <param name="operation">The <see cref="OpenApiOperation"/> to modify.</param>
+    /// <param name="schema">The schema of the entity in the request.</param>
+    internal static void AddRequestWithContent(this OpenApiOperation operation, OpenApiSchema schema)
+    {
+        operation.RequestBody = new OpenApiRequestBody
+        {
+            Content = new Dictionary<string, OpenApiMediaType>
+            {
+                [JsonMediaType] = new OpenApiMediaType()
+                {
+                    Schema = schema
+                }
+            }
+        };
+    }
 
     /// <summary>
     /// Adds or replaces the 409/412 Conflict/Precondition Failed response.
