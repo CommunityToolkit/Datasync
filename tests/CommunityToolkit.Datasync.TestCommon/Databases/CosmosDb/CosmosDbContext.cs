@@ -38,10 +38,11 @@ public class CosmosDbContext(DbContextOptions<CosmosDbContext> options) : BaseDb
         }
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.ConfigureWarnings(w => w.Ignore(CosmosEventId.SyncNotSupported));
-    }
+    // (Issue #199) - remove the sync over async capabilities introduced in .NET 9
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //{
+    //    optionsBuilder.ConfigureWarnings(w => w.Ignore(CosmosEventId.SyncNotSupported));
+    //}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

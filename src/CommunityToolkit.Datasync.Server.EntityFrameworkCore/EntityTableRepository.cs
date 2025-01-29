@@ -209,5 +209,17 @@ public class EntityTableRepository<TEntity> : IRepository<TEntity> where TEntity
             _ = await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }, cancellationToken).ConfigureAwait(false);
     }
+
+    /// <inheritdoc />
+    public virtual async ValueTask<int> CountAsync(IQueryable<TEntity> query, CancellationToken cancellationToken = default)
+    {
+        return await query.CountAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public virtual async ValueTask<IList<TEntity>> ToListAsync(IQueryable<TEntity> query, CancellationToken cancellationToken = default)
+    {
+        return await query.ToListAsync(cancellationToken);
+    }
     #endregion
 }
