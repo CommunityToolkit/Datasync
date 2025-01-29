@@ -16,7 +16,6 @@ using Microsoft.OData.UriParser;
 using Microsoft.OData;
 using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Datasync.Server.OData;
-using Microsoft.AspNetCore.Http.Extensions;
 
 namespace CommunityToolkit.Datasync.Server;
 
@@ -38,6 +37,9 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
     /// - <c>$skip</c> is used to skip some entities
     /// - <c>$top</c> is used to limit the number of entities returned.
     /// </para>
+    /// <para>
+    /// In addition, the <c>__includeDeleted</c> parameter is used to decide whether to include soft-deleted items in the result.
+    /// </para>
     /// </summary>
     /// <param name="cancellationToken">A cancellation token</param>
     /// <returns>An <see cref="OkObjectResult"/> response object with the items.</returns>
@@ -49,10 +51,6 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         Logger.LogInformation("QueryAsync: {querystring}", HttpContext.Request.QueryString);
         await AuthorizeRequestAsync(TableOperation.Query, null, cancellationToken).ConfigureAwait(false);
         _ = BuildServiceProvider(Request);
-
-        IQueryable<TEntity> dataset = (await Repository.AsQueryableAsync(cancellationToken).ConfigureAwait(false))
-            .ApplyDataView(AccessControlProvider.GetDataView())
-            .ApplyDeletedView(Request, Options.EnableSoftDelete);
 
         ODataValidationSettings validationSettings = new() { MaxTop = Options.MaxTop };
         ODataQuerySettings querySettings = new() { PageSize = Options.PageSize, EnsureStableOrdering = true };
@@ -69,26 +67,28 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
             return BadRequest(validationException.Message);
         }
 
-        // Note that some IQueryable providers cannot execute all queries against the data source, so we have
-        // to switch to in-memory processing for those queries.  This is done by calling ToListAsync() on the
-        // IQueryable.  This is not ideal, but it is the only way to support all of the OData query options.
-        IEnumerable<object>? results = null;
-        await ExecuteQueryWithClientEvaluationAsync(dataset, ds =>
-        {
-            results = (IEnumerable<object>)queryOptions.ApplyTo(ds, querySettings);
-            return Task.CompletedTask;
-        });
+        // Determine the dataset to be queried for this user.
+        IQueryable<TEntity> dataset = (await Repository.AsQueryableAsync(cancellationToken).ConfigureAwait(false))
+            .ApplyDataView(AccessControlProvider.GetDataView())
+            .ApplyDeletedView(Request, Options.EnableSoftDelete);
 
-        int count = 0;
-        FilterQueryOption? filter = queryOptions.Filter;
-        await ExecuteQueryWithClientEvaluationAsync(dataset, async ds => 
-        { 
-            IQueryable<TEntity> q = (IQueryable<TEntity>)(filter?.ApplyTo(ds, new ODataQuerySettings()) ?? ds);
-            count = await CountAsync(q, cancellationToken);
-        });
+        // Apply the requested filter from the OData transaction.
+        IQueryable<TEntity> filteredDataset = dataset.ApplyODataFilter(queryOptions.Filter, querySettings);
 
-        PagedResult result = BuildPagedResult(queryOptions, results, count);
-        Logger.LogInformation("Query: {Count} items being returned", result.Items.Count());
+        // Count the number of items within the filtered dataset - this is used when $count is requested.
+        int filteredCount = await Repository.CountAsync(filteredDataset, cancellationToken).ConfigureAwait(false);
+
+        // Now apply the OrderBy, Skip, and Top options to the dataset.
+        IQueryable<TEntity> orderedDataset = filteredDataset
+            .ApplyODataOrderBy(queryOptions.OrderBy, querySettings)
+            .ApplyODataPaging(queryOptions, querySettings);
+
+        // Get the list of items within the dataset that need to be returned.
+        IList<TEntity> entitiesInResultSet = await Repository.ToListAsync(orderedDataset, cancellationToken).ConfigureAwait(false);
+
+        // Produce the paged result.
+        PagedResult result = BuildPagedResult(queryOptions, entitiesInResultSet.ApplyODataSelect(queryOptions.SelectExpand, querySettings), filteredCount);
+        Logger.LogInformation("Query: {Count} items being returned", entitiesInResultSet.Count);
         return Ok(result);
     }
 
@@ -135,13 +135,31 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         int resultCount = results?.Count() ?? 0;
         int skip = (queryOptions.Skip?.Value ?? 0) + resultCount;
         int top = (queryOptions.Top?.Value ?? 0) - resultCount;
-        if (results is IEnumerable<ISelectExpandWrapper> wrapper)
+
+        // Internal function to create the nextLink property for the paged result.
+        static string CreateNextLink(HttpRequest request, int skip = 0, int top = 0)
         {
-            results = wrapper.Select(x => x.ToDictionary());
+            string? queryString = request.QueryString.Value;
+            List<string> query = (queryString ?? "").TrimStart('?')
+                .Split('&')
+                .Where(q => !q.StartsWith($"{SkipParameterName}=") && !q.StartsWith($"{TopParameterName}="))
+                .ToList();
+
+            if (skip > 0)
+            {
+                query.Add($"{SkipParameterName}={skip}");
+            }
+
+            if (top > 0)
+            {
+                query.Add($"{TopParameterName}={top}");
+            }
+
+            return string.Join('&', query).TrimStart('&');
         }
 
         PagedResult result = new(results ?? []) { Count = queryOptions.Count != null ? count : null };
-        if (queryOptions.Top != null)
+        if (queryOptions.Top is not null)
         {
             result.NextLink = skip >= count || top <= 0 ? null : CreateNextLink(Request, skip, top);
         }
@@ -151,120 +169,5 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         }
 
         return result;
-    }
-
-    /// <summary>
-    /// Given a very specific URI, creates a new query string with the same query, but with a different value for the <c>$skip</c> parameter.
-    /// </summary>
-    /// <param name="request">The original request.</param>
-    /// <param name="skip">The new skip value.</param>
-    /// <param name="top">The new top value.</param>
-    /// <returns>The new URI for the next page of items.</returns>
-    [NonAction]
-    [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "Static method in generic non-static class")]
-    internal static string CreateNextLink(HttpRequest request, int skip = 0, int top = 0)
-        => CreateNextLink(new UriBuilder(request.GetDisplayUrl()).Query, skip, top);
-
-    /// <summary>
-    /// Given a very specific query string,  creates a new query string with the same query, but with a different value for the <c>$skip</c> parameter.
-    /// </summary>
-    /// <param name="queryString">The original query string.</param>
-    /// <param name="skip">The new skip value.</param>
-    /// <param name="top">The new top value.</param>
-    /// <returns>The new URI for the next page of items.</returns>
-    [NonAction]
-    [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter", Justification = "Static method in generic non-static class")]
-    internal static string CreateNextLink(string queryString, int skip = 0, int top = 0)
-    {
-        List<string> query = (queryString ?? "").TrimStart('?')
-            .Split('&')
-            .Where(q => !q.StartsWith($"{SkipParameterName}=") && !q.StartsWith($"{TopParameterName}="))
-            .ToList();
-
-        if (skip > 0)
-        {
-            query.Add($"{SkipParameterName}={skip}");
-        }
-
-        if (top > 0)
-        {
-            query.Add($"{TopParameterName}={top}");
-        }
-
-        return string.Join('&', query).TrimStart('&');
-    }
-
-    /// <summary>
-    /// When doing a query evaluation, certain providers (e.g. Entity Framework) require some things
-    /// to be done client side.  We use a client side evaluator to handle this case when it happens.
-    /// </summary>
-    /// <param name="ex">The exception thrown by the service-side evaluator</param>
-    /// <param name="reason">The reason if the client-side evaluator throws.</param>
-    /// <param name="clientSideEvaluator">The client-side evaluator</param>
-    [NonAction]
-    internal async Task CatchClientSideEvaluationExceptionAsync(Exception ex, string reason, Func<Task> clientSideEvaluator)
-    {
-        if (IsClientSideEvaluationException(ex) || IsClientSideEvaluationException(ex.InnerException))
-        {
-            try
-            {
-                await clientSideEvaluator.Invoke();
-            }
-            catch (Exception err)
-            {
-                Logger.LogError("Error while {reason}: {Message}", reason, err.Message);
-                throw;
-            }
-        }
-        else
-        {
-            throw ex;
-        }
-    }
-
-    /// <summary>
-    /// Executes an evaluation of a query, using a client-side evaluation if necessary.
-    /// </summary>
-    /// <param name="dataset">The dataset to be evaluated.</param>
-    /// <param name="evaluator">The base evaluation to be performed.</param>
-    [NonAction]
-    internal async Task ExecuteQueryWithClientEvaluationAsync(IQueryable<TEntity> dataset, Func<IQueryable<TEntity>, Task> evaluator)
-    {
-        try
-        {
-            await evaluator.Invoke(dataset);
-        }
-        catch (Exception ex) when (!Options.DisableClientSideEvaluation)
-        {
-            await CatchClientSideEvaluationExceptionAsync(ex, "executing query", async () =>
-            {
-                Logger.LogWarning("Error while executing query: possible client-side evaluation ({Message})", ex.InnerException?.Message ?? ex.Message);
-                await evaluator.Invoke(dataset.ToList().AsQueryable());
-            });
-        }
-    }
-
-    /// <summary>
-    /// Determines if a particular exception indicates a client-side evaluation is required.
-    /// </summary>
-    /// <param name="ex">The exception that was thrown by the service-side evaluator</param>
-    /// <returns>true if a client-side evaluation is required.</returns>
-    [NonAction]
-    [SuppressMessage("Roslynator", "RCS1158:Static member in generic type should use a type parameter.")]
-    internal static bool IsClientSideEvaluationException(Exception? ex)
-        => ex is not null and (InvalidOperationException or NotSupportedException);
-
-    /// <summary>
-    /// This is an overridable method that calls Count() on the provided queryable.  You can override
-    /// this to calls a provider-specific count mechanism (e.g. CountAsync().
-    /// </summary>
-    /// <param name="query"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    [NonAction]
-    public virtual Task<int> CountAsync(IQueryable<TEntity> query, CancellationToken cancellationToken)
-    {
-        int result = query.Count();
-        return Task.FromResult(result);
     }
 }

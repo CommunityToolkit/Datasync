@@ -188,6 +188,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_003()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=((year div 1000.5) eq 2) and (rating eq 'R')",
@@ -216,6 +217,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_005()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=(year div 1000.5) eq 2",
@@ -272,6 +274,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_009()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2",
@@ -286,6 +289,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_010()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2",
@@ -300,6 +304,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_011()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2",
@@ -356,6 +361,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_015()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=ceiling(duration div 60.0) eq 2",
@@ -370,6 +376,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_016()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=day(releaseDate) eq 1",
@@ -440,6 +447,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_021()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=floor(duration div 60.0) eq 2",
@@ -454,6 +462,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_022()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=month(releaseDate) eq 11",
@@ -566,6 +575,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_030()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate eq cast(1994-10-14,Edm.Date)",
@@ -580,6 +590,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_031()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate ge cast(1999-12-31,Edm.Date)",
@@ -594,6 +605,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_032()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate gt cast(1999-12-31,Edm.Date)",
@@ -608,6 +620,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_033()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate le cast(2000-01-01,Edm.Date)",
@@ -622,6 +635,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_034()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate lt cast(2000-01-01,Edm.Date)",
@@ -636,6 +650,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_035()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=round(duration div 60.0) eq 2",
@@ -776,6 +791,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_046()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=year(releaseDate) eq 1994",
@@ -1014,6 +1030,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_063()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=((year div 1000.5) eq 2) and (rating eq 'R')",
@@ -1042,6 +1059,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_065()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=(year div 1000.5) eq 2",
@@ -1098,6 +1116,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_069()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2",
@@ -1112,6 +1131,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_070()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2",
@@ -1126,6 +1146,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_071()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2",
@@ -1182,6 +1203,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_075()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=ceiling(duration div 60.0) eq 2",
@@ -1196,6 +1218,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_076()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=day(releaseDate) eq 1",
@@ -1266,6 +1289,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_081()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=floor(duration div 60.0) eq 2",
@@ -1280,6 +1304,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_082()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=month(releaseDate) eq 11",
@@ -1392,6 +1417,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_090()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate eq cast(1994-10-14,Edm.Date)",
@@ -1406,6 +1432,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_091()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate ge cast(1999-12-31,Edm.Date)",
@@ -1420,6 +1447,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_092()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate gt cast(1999-12-31,Edm.Date)",
@@ -1434,6 +1462,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_093()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate le cast(2000-01-01,Edm.Date)",
@@ -1448,6 +1477,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_094()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate lt cast(2000-01-01,Edm.Date)",
@@ -1462,6 +1492,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_095()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=round(duration div 60.0) eq 2",
@@ -1602,6 +1633,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_106()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=year(releaseDate) eq 1994",
@@ -1840,6 +1872,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_123()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=((year div 1000.5) eq 2) and (rating eq 'R')",
@@ -1868,6 +1901,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_125()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=(year div 1000.5) eq 2",
@@ -1924,6 +1958,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_129()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2",
@@ -1938,6 +1973,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_130()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2",
@@ -1952,6 +1988,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_131()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2",
@@ -2008,6 +2045,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_135()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=ceiling(duration div 60.0) eq 2",
@@ -2022,6 +2060,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_136()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=day(releaseDate) eq 1",
@@ -2092,6 +2131,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_141()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=floor(duration div 60.0) eq 2",
@@ -2106,6 +2146,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_142()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=month(releaseDate) eq 11",
@@ -2218,6 +2259,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_150()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate eq cast(1994-10-14,Edm.Date)",
@@ -2232,6 +2274,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_151()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate ge cast(1999-12-31,Edm.Date)",
@@ -2246,6 +2289,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_152()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate gt cast(1999-12-31,Edm.Date)",
@@ -2260,6 +2304,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_153()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate le cast(2000-01-01,Edm.Date)",
@@ -2274,6 +2319,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_154()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate lt cast(2000-01-01,Edm.Date)",
@@ -2288,6 +2334,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_155()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=round(duration div 60.0) eq 2",
@@ -2428,6 +2475,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_166()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year(releaseDate) eq 1994",
@@ -2666,6 +2714,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_183()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=((year div 1000.5) eq 2) and (rating eq 'R')&$skip=5",
@@ -2693,6 +2742,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_185()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=(year div 1000.5) eq 2&$skip=5",
@@ -2749,6 +2799,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_189()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2&$skip=5",
@@ -2763,6 +2814,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_190()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2&$skip=5",
@@ -2777,6 +2829,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_191()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2&$skip=5",
@@ -2833,6 +2886,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_195()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=ceiling(duration div 60.0) eq 2&$skip=5",
@@ -2847,6 +2901,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_196()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=day(releaseDate) eq 1&$skip=5",
@@ -2917,6 +2972,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_201()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=floor(duration div 60.0) eq 2&$skip=5",
@@ -2931,6 +2987,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_202()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=month(releaseDate) eq 11&$skip=5",
@@ -3043,6 +3100,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_210()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate eq cast(1994-10-14,Edm.Date)&$skip=5",
@@ -3056,6 +3114,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_211()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate ge cast(1999-12-31,Edm.Date)&$skip=5",
@@ -3070,6 +3129,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_212()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate gt cast(1999-12-31,Edm.Date)&$skip=5",
@@ -3084,6 +3144,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_213()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate le cast(2000-01-01,Edm.Date)&$skip=5",
@@ -3098,6 +3159,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_214()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate lt cast(2000-01-01,Edm.Date)&$skip=5",
@@ -3112,6 +3174,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_215()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=round(duration div 60.0) eq 2&$skip=5",
@@ -3251,6 +3314,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_226()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year(releaseDate) eq 1994&$skip=5",
@@ -3544,6 +3608,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_247()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=((year div 1000.5) eq 2) and (rating eq 'R')",
@@ -3572,6 +3637,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_249()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=(year div 1000.5) eq 2",
@@ -3628,6 +3694,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_253()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2",
@@ -3642,6 +3709,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_254()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2",
@@ -3656,6 +3724,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_255()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2",
@@ -3712,6 +3781,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_259()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=ceiling(duration div 60.0) eq 2",
@@ -3726,6 +3796,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_260()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=day(releaseDate) eq 1",
@@ -3796,6 +3867,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_265()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Complex math is not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=floor(duration div 60.0) eq 2",
@@ -3810,6 +3882,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_266()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=month(releaseDate) eq 11",
@@ -3922,6 +3995,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_274()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate eq cast(1994-10-14,Edm.Date)",
@@ -3936,6 +4010,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_275()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate ge cast(1999-12-31,Edm.Date)",
@@ -3950,6 +4025,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_276()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate gt cast(1999-12-31,Edm.Date)",
@@ -3964,6 +4040,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_277()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate le cast(2000-01-01,Edm.Date)",
@@ -3978,6 +4055,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_278()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate lt cast(2000-01-01,Edm.Date)",
@@ -3992,6 +4070,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_279()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=round(duration div 60.0) eq 2",
@@ -4132,6 +4211,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     public async Task Query_Test_290()
     {
         Skip.IfNot(CanRunLiveTests());
+        Skip.If(DriverName == "Cosmos", "Date components are not supported");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=year(releaseDate) eq 1994",

@@ -5,9 +5,12 @@
 using CommunityToolkit.Datasync.Server.Abstractions.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Headers;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Query.Wrapper;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -35,13 +38,89 @@ internal static class InternalExtensions
     /// <summary>
     /// Filters out the deleted entities unless the request includes an optional parameter to include them.
     /// </summary>
-    /// <typeparam name="T">The type of entity being queries.</typeparam>
+    /// <typeparam name="T">The type of entity being queried.</typeparam>
     /// <param name="query">The current <see cref="IQueryable{T}"/> representing the query.</param>
     /// <param name="request">The current <see cref="HttpRequest"/> being processed.</param>
     /// <param name="enableSoftDelete">A flag to indicate if soft-delete is enabled on the table being queried.</param>
     /// <returns>An updated <see cref="IQueryable{T}"/> representing the new query.</returns>
     internal static IQueryable<T> ApplyDeletedView<T>(this IQueryable<T> query, HttpRequest request, bool enableSoftDelete) where T : ITableData
         => !enableSoftDelete || request.ShouldIncludeDeletedEntities() ? query : query.Where(e => !e.Deleted);
+
+    /// <summary>
+    /// Applies the <c>$filter</c> OData query option to the provided query.
+    /// </summary>
+    /// <typeparam name="T">The type of entity being queried.</typeparam>
+    /// <param name="query">The current <see cref="IQueryable{T}"/> representing the query.</param>
+    /// <param name="filterQueryOption">The filter query option to apply.</param>
+    /// <param name="settings">The query settings being used.</param>
+    /// <returns>A modified <see cref="IQueryable{T}"/> representing the filtered data.</returns>
+    internal static IQueryable<T> ApplyODataFilter<T>(this IQueryable<T> query, FilterQueryOption? filterQueryOption, ODataQuerySettings settings)
+    {
+        if (filterQueryOption is null)
+        {
+            return query;
+        }
+
+        return ((IQueryable<T>?)filterQueryOption.ApplyTo(query, settings)) ?? query;
+    }
+
+    /// <summary>
+    /// Applies the <c>$orderBy</c> OData query option to the provided query.
+    /// </summary>
+    /// <typeparam name="T">The type of entity being queried.</typeparam>
+    /// <param name="query">The current <see cref="IQueryable{T}"/> representing the query.</param>
+    /// <param name="orderingQueryOption">The ordering query option to apply.</param>
+    /// <param name="settings">The query settings being used.</param>
+    /// <returns>A modified <see cref="IQueryable{T}"/> representing the ordered data.</returns>
+    internal static IQueryable<T> ApplyODataOrderBy<T>(this IQueryable<T> query, OrderByQueryOption? orderingQueryOption, ODataQuerySettings settings) where T : ITableData
+    {
+        // Note that we ALWAYS do a sort so that the ordering is consistent across all queries.
+        if (orderingQueryOption is null)
+        {
+            return query.OrderBy(e => e.Id);
+        }
+
+        IOrderedQueryable<T>? orderedQuery = orderingQueryOption.ApplyTo(query, settings);
+        if (orderedQuery is null)
+        {
+            return query.OrderBy(e => e.Id);
+        }
+
+        return orderedQuery.ThenBy(x => x.Id);
+    }
+
+    /// <summary>
+    /// Applies the <c>$skip</c> and <c>$top</c> OData query options to the provided query.
+    /// </summary>
+    /// <typeparam name="T">The type of entity being queried.</typeparam>
+    /// <param name="query">The current <see cref="IQueryable{T}"/> representing the query.</param>
+    /// <param name="options">The query options to apply.</param>
+    /// <param name="settings">The query settings being used.</param>
+    /// <returns>A modified <see cref="IQueryable{T}"/> representing the paged data.</returns>
+    internal static IQueryable<T> ApplyODataPaging<T>(this IQueryable<T> query, ODataQueryOptions<T> options, ODataQuerySettings settings)
+    {
+        int takeValue = Math.Min(options.Top?.Value ?? int.MaxValue, settings.PageSize ?? 100);
+        int skipValue = Math.Max(options.Skip?.Value ?? 0, 0);
+        return query.Skip(skipValue).Take(takeValue);
+    }
+
+    /// <summary>
+    /// Applies the <c>$select</c> OData query option to the provided query.
+    /// </summary>
+    /// <typeparam name="T">The type of entity being queried.</typeparam>
+    /// <param name="dataset">The datset to apply the <c>$select</c> option to.</param>
+    /// <param name="queryOption">The <see cref="SelectExpandQueryOption"/> to apply.</param>
+    /// <param name="settings">The query settings being used.</param>
+    /// <returns>The resulting dataset after property selection.</returns>
+    internal static IEnumerable<object> ApplyODataSelect<T>(this IList<T> dataset, SelectExpandQueryOption? queryOption, ODataQuerySettings settings)
+    {
+        if (dataset.Count == 0 || queryOption is null)
+        {
+            return dataset.Cast<object>().AsEnumerable();
+        }
+
+        return queryOption.ApplyTo(dataset.AsQueryable(), settings).Cast<object>().ToList().Select(x => ((ISelectExpandWrapper)x).ToDictionary());
+    }
 
     /// <summary>
     /// Determines if the provided entity is in the view of the current user.
