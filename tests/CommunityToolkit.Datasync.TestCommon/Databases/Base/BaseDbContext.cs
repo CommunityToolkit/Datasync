@@ -80,4 +80,36 @@ public abstract class BaseDbContext<TContext, TEntity>(DbContextOptions<TContext
 
         SaveChanges();
     }
+
+    protected async Task<int> PopulateDatabaseAsync()
+    {
+        int entityCount = await Movies.CountAsync();
+        if (entityCount > 0)
+        {
+            return 0;
+        }
+
+        List<TEntity> movies = [.. TestData.Movies.OfType<TEntity>()];
+        MovieIds = movies.ConvertAll(m => m.Id);
+
+        // Make sure we are populating with the right data
+        bool setUpdatedAt = Attribute.IsDefined(typeof(TEntity).GetProperty("UpdatedAt")!, typeof(UpdatedByRepositoryAttribute));
+        bool setVersion = Attribute.IsDefined(typeof(TEntity).GetProperty("Version")!, typeof(UpdatedByRepositoryAttribute));
+        foreach (TEntity movie in movies)
+        {
+            if (setUpdatedAt)
+            {
+                movie.UpdatedAt = DateTimeOffset.UtcNow;
+            }
+
+            if (setVersion)
+            {
+                movie.Version = Guid.NewGuid().ToByteArray();
+            }
+
+            Movies.Add(movie);
+        }
+
+        return await SaveChangesAsync();
+    }
 }

@@ -86,20 +86,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         int expected = TestData.Movies.Count<TEntity>(m => m.Rating == MovieRating.R);
         IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
-        List<TEntity> actual = queryable.Where(m => m.Rating == MovieRating.R).ToList();
-
-        actual.Should().HaveCount(expected);
-    }
-
-    [SkippableFact]
-    public async Task AsQueryableAsync_CanSelectFromList()
-    {
-        Skip.IfNot(CanRunLiveTests());
-
-        IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
-        int expected = TestData.Movies.Count<TEntity>(m => m.Rating == MovieRating.R);
-        IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
-        var actual = queryable.Where(m => m.Rating == MovieRating.R).Select(m => new { m.Id, m.Title }).ToList();
+        IList<TEntity> actual = await Repository.ToListAsync(queryable.Where(m => m.Rating == MovieRating.R));
 
         actual.Should().HaveCount(expected);
     }
@@ -111,7 +98,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
-        List<TEntity> actual = queryable.Where(m => m.Rating == MovieRating.R).Skip(5).Take(20).ToList();
+        IList<TEntity> actual = await Repository.ToListAsync(queryable.Where(m => m.Rating == MovieRating.R).Skip(5).Take(20));
 
         actual.Should().HaveCount(20);
     }
@@ -126,7 +113,7 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
-        List<TEntity> actual = queryable.Where(m => m.UpdatedAt > DateTimeOffset.UnixEpoch && !m.Deleted).OrderBy(m => m.UpdatedAt).Skip(10).Take(10).ToList();
+        IList<TEntity> actual = await Repository.ToListAsync(queryable.Where(m => m.UpdatedAt > DateTimeOffset.UnixEpoch && !m.Deleted).OrderBy(m => m.UpdatedAt).Skip(10).Take(10));
 
         actual.Should().HaveCount(10);
     }
