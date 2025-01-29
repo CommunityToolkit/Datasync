@@ -2,10 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit.Abstractions;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CommunityToolkit.Datasync.TestCommon.Databases;
 
@@ -33,7 +32,10 @@ public class CosmosDbContext(DbContextOptions<CosmosDbContext> options) : BaseDb
     {
         if (clearEntities)
         {
-            RemoveRange(Movies.ToList());
+            // NOTE: sync-over-async is used here.  This is bad, but it is only used in the test suite.
+            // The test suite is not performance sensitive, so this is acceptable.
+            List<CosmosEntityMovie> movies = Movies.ToListAsync().Result;
+            RemoveRange(movies);
             SaveChanges();
         }
     }
