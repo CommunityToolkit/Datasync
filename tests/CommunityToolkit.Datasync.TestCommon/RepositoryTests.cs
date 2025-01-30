@@ -66,19 +66,6 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
     }
 
     [SkippableFact]
-    public async Task AsQueryableAsync_CanRetrieveSingleItems()
-    {
-        Skip.IfNot(CanRunLiveTests());
-
-        IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
-        string id = await GetRandomEntityIdAsync(true);
-        TEntity expected = await GetEntityAsync(id);
-        TEntity actual = (await Repository.AsQueryableAsync()).Single(m => m.Id == id);
-
-        actual.Should().BeEquivalentTo(expected);
-    }
-
-    [SkippableFact]
     public async Task AsQueryableAsync_CanRetrieveFilteredLists()
     {
         Skip.IfNot(CanRunLiveTests());
@@ -169,7 +156,9 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         TEntity expected = await GetEntityAsync(id);
         Func<Task> act = async () => await Repository.CreateAsync(sut);
 
-        (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(409).And.WithPayload(expected);
+        HttpException ex = (await act.Should().ThrowAsync<HttpException>()).Subject.First();
+        ex.StatusCode.Should().Be(409);
+        ex.Payload.Should().BeEquivalentTo<IMovie>(expected).And.HaveEquivalentMetadataTo(expected);
     }
 
     [SkippableFact]

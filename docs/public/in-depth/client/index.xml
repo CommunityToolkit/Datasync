@@ -26,7 +26,7 @@
       <link>http://localhost:1313/Datasync/in-depth/client/maui-aot-support/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>http://localhost:1313/Datasync/in-depth/client/maui-aot-support/index.html</guid>
-      <description>When using Native AOT with .NET MAUI, several requirements will need to be met to ensure the application works in release mode, explicitly on iOS and Mac Catalyst.&#xA;Implement compiled models for Entity Framework Core. Implement source generation in System.Text.Json. Enable the MTouchInterpreter. The following are basic instructions on how to fulfill these requirements. However, you should consult the official documentation for each requirement.&#xA;Note&#xD;Thanks to @richard-einfinity for providing the detailed instructions for enabling Native AOT support.</description>
+      <description>When using Native AOT with .NET MAUI, several requirements will need to be met to ensure the application works in release mode, explicitly on iOS and Mac Catalyst.&#xA;Implement compiled models for Entity Framework Core. Implement source generation in System.Text.Json. Enable the Interpreter for iOS and Mac Catalyst. The following are basic instructions on how to fulfill these requirements. However, you should consult the official documentation (linked above) for each requirement.</description>
     </item>
   </channel>
 </rss>

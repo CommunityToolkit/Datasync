@@ -137,10 +137,10 @@ public class EntityTableRepository<TEntity> : IRepository<TEntity> where TEntity
 
         await WrapExceptionAsync(entity.Id, async () =>
         {
-            // We do not use Any() here because it is not supported by all providers (e.g. Cosmos)
-            if (DataSet.Count(x => x.Id == entity.Id) > 0)
+            TEntity? existingEntity = await DataSet.FindAsync([entity.Id], cancellationToken).ConfigureAwait(false);
+            if (existingEntity is not null)
             {
-                throw new HttpException((int)HttpStatusCode.Conflict) { Payload = await GetEntityAsync(entity.Id, cancellationToken).ConfigureAwait(false) };
+                throw new HttpException((int)HttpStatusCode.Conflict) { Payload = existingEntity };
             }
 
             UpdateManagedProperties(entity);

@@ -36,6 +36,13 @@
       <description>LiteDB LiteDB is a serverless database delivered in a single small DLL written in .NET C# managed code. It’s a simple and fast NoSQL database solution for stand-alone applications. To use LiteDb with on-disk persistent storage:&#xA;Install the Microsoft.AspNetCore.Datasync.LiteDb package from NuGet.&#xA;Add a singleton for the LiteDatabase to the Program.cs:&#xA;const connectionString = builder.Configuration.GetValue&lt;string&gt;(&#34;LiteDb:ConnectionString&#34;); builder.Services.AddSingleton&lt;LiteDatabase&gt;(new LiteDatabase(connectionString)); Derive models from the LiteDbTableData:&#xA;public class TodoItem : LiteDbTableData { public string Title { get; set; } public bool Completed { get; set; } }You can use any of the BsonMapper attributes that are supplied with the LiteDb NuGet package.</description>
     </item>
     <item>
+      <title>MySQL</title>
+      <link>http://localhost:1313/Datasync/in-depth/server/databases/mysql/index.html</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/Datasync/in-depth/server/databases/mysql/index.html</guid>
+      <description>MySQL Add the Pomelo.EntityFrameworkCore.Mysql driver to your project.&#xA;Info&#xD;You can probably use the MySql.EntityFrameworkCore library as well. However, we only test with the Pomelo driver.&#xA;In the OnModelCreating() method of your context, add the following for each entity:&#xA;protected override void OnModelCreating(ModelBuilder modelBuilder) { modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.UpdatedAt) .ValueGeneratedOnAddOrUpdate(); modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.Version) .IsRowVersion(); base.OnModelCreating(modelBuilder); } Test MySQL Context</description>
+    </item>
+    <item>
       <title>PostgreSQL</title>
       <link>http://localhost:1313/Datasync/in-depth/server/databases/postgresql/index.html</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
