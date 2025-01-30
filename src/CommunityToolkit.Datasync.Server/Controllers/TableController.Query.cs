@@ -76,7 +76,15 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         IQueryable<TEntity> filteredDataset = dataset.ApplyODataFilter(queryOptions.Filter, querySettings);
 
         // Count the number of items within the filtered dataset - this is used when $count is requested.
-        int filteredCount = await Repository.CountAsync(filteredDataset, cancellationToken).ConfigureAwait(false);
+        int filteredCount;
+        try
+        {
+            filteredCount = await Repository.CountAsync(filteredDataset, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or NotSupportedException)
+        {
+            throw new HttpException(400, "Client-side evaluation is not supported. Please ensure that the query can be translated to a server-side query.");
+        }
 
         // Now apply the OrderBy, Skip, and Top options to the dataset.
         IQueryable<TEntity> orderedDataset = filteredDataset
@@ -84,7 +92,15 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
             .ApplyODataPaging(queryOptions, querySettings);
 
         // Get the list of items within the dataset that need to be returned.
-        IList<TEntity> entitiesInResultSet = await Repository.ToListAsync(orderedDataset, cancellationToken).ConfigureAwait(false);
+        IList<TEntity> entitiesInResultSet;
+        try
+        {
+            entitiesInResultSet = await Repository.ToListAsync(orderedDataset, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or NotSupportedException)
+        {
+            throw new HttpException(400, "Client-side evaluation is not supported. Please ensure that the query can be translated to a server-side query.");
+        }
 
         // Produce the paged result.
         PagedResult result = BuildPagedResult(queryOptions, entitiesInResultSet.ApplyODataSelect(queryOptions.SelectExpand, querySettings), filteredCount);

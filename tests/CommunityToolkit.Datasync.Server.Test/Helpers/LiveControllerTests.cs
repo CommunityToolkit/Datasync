@@ -51,7 +51,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     /// <summary>
     /// The Movie Endpoint to put into the controller context.
     /// </summary>
-    private const string MovieEndpoint = "http://localhost/tables/movies";
+    protected const string MovieEndpoint = "http://localhost/tables/movies";
 
     /// <summary>
     /// The number of movies in the dataset.
@@ -78,21 +78,6 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         this.repository = await GetPopulatedRepositoryAsync();
         this.tableController = new(this.repository);
         this.tableController.ControllerContext.HttpContext = CreateHttpContext(method ?? HttpMethod.Get, uri);
-    }
-
-    private async Task<List<TEntity>> GetListOfEntitiesAsync(IEnumerable<string> ids)
-    {
-        List<TEntity> entities = [];
-        foreach (string id in ids)
-        {
-            TEntity entity = await GetEntityAsync(id);
-            if (entity != null)
-            {
-                entities.Add(entity);
-            }
-        }
-
-        return entities;
     }
 
     /// <summary>

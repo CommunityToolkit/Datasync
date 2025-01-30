@@ -4,8 +4,10 @@
 
 using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
 using CommunityToolkit.Datasync.Server.Test.Helpers;
+using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
+using System;
 using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.Server.Test.Live;
@@ -59,4 +61,22 @@ public class Cosmos_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper 
     protected override Task<string> GetRandomEntityIdAsync(bool exists)
         => Task.FromResult(exists ? this.movies[this.random.Next(this.movies.Count)].Id : Guid.NewGuid().ToString());
     #endregion
+
+    /// <summary>
+    /// We test the 400 Bad Request client-side evaluation error here because Cosmos has more restrictions than most,
+    /// so it's easier to test the code path.
+    /// </summary>
+    [Fact]
+    public async Task ClientSideEvaluation_Produces_400BadRequest()
+    {
+        Skip.IfNot(CanRunLiveTests());
+
+        IRepository<CosmosEntityMovie> repository = await GetPopulatedRepositoryAsync();
+        TableController<CosmosEntityMovie> tableController = new(repository);
+        tableController.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Get, $"{MovieEndpoint}?$filter=((year div 1000.5) eq 2)");
+
+        Func<Task> act = async () => _ = await tableController.QueryAsync();
+
+        (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(400);
+    }
 }
