@@ -25,6 +25,7 @@
     <IsTestProject>true</IsTestProject>
     <LangVersion>13.0</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
+    <NoWarn>$(NoWarn);7022</NoWarn>
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
