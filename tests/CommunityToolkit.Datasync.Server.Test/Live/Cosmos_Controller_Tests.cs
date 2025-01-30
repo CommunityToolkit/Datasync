@@ -66,7 +66,7 @@ public class Cosmos_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper 
     /// We test the 400 Bad Request client-side evaluation error here because Cosmos has more restrictions than most,
     /// so it's easier to test the code path.
     /// </summary>
-    [Fact]
+    [SkippableFact]
     public async Task ClientSideEvaluation_Produces_400BadRequest()
     {
         Skip.IfNot(CanRunLiveTests());

@@ -31,7 +31,10 @@ public class CosmosEntityTableRepository_Tests(DatabaseFixture fixture, ITestOut
 
     public async Task DisposeAsync()
     {
-        await Context.DisposeAsync();
+        if (Context is not null)
+        {
+            await Context.DisposeAsync();
+        }
     }
 
     private CosmosDbContext Context { get; set; }
