@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.TestCommon;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -107,8 +108,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
 
         if (nextLinkQuery is not null)
         {
-            result.NextLink.Should().NotBeNull();
-            Uri.UnescapeDataString(result.NextLink).Should().Be(nextLinkQuery);
+            result.NextLink.Should().NotBeNull().And.MatchQueryString(nextLinkQuery);
         }
         else
         {
