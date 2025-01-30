@@ -55,14 +55,7 @@ internal static class InternalExtensions
     /// <param name="settings">The query settings being used.</param>
     /// <returns>A modified <see cref="IQueryable{T}"/> representing the filtered data.</returns>
     internal static IQueryable<T> ApplyODataFilter<T>(this IQueryable<T> query, FilterQueryOption? filterQueryOption, ODataQuerySettings settings)
-    {
-        if (filterQueryOption is null)
-        {
-            return query;
-        }
-
-        return ((IQueryable<T>?)filterQueryOption.ApplyTo(query, settings)) ?? query;
-    }
+        => (IQueryable<T>)(filterQueryOption?.ApplyTo(query, settings) ?? query);
 
     /// <summary>
     /// Applies the <c>$orderBy</c> OData query option to the provided query.
@@ -73,21 +66,7 @@ internal static class InternalExtensions
     /// <param name="settings">The query settings being used.</param>
     /// <returns>A modified <see cref="IQueryable{T}"/> representing the ordered data.</returns>
     internal static IQueryable<T> ApplyODataOrderBy<T>(this IQueryable<T> query, OrderByQueryOption? orderingQueryOption, ODataQuerySettings settings) where T : ITableData
-    {
-        // Note that we ALWAYS do a sort so that the ordering is consistent across all queries.
-        if (orderingQueryOption is null)
-        {
-            return query.OrderBy(e => e.Id);
-        }
-
-        IOrderedQueryable<T>? orderedQuery = orderingQueryOption.ApplyTo(query, settings);
-        if (orderedQuery is null)
-        {
-            return query.OrderBy(e => e.Id);
-        }
-
-        return orderedQuery.ThenBy(x => x.Id);
-    }
+        => orderingQueryOption?.ApplyTo(query, settings).ThenBy(e => e.Id) ?? query.OrderBy(e => e.Id);
 
     /// <summary>
     /// Applies the <c>$skip</c> and <c>$top</c> OData query options to the provided query.

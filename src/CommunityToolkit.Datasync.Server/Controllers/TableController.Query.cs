@@ -16,6 +16,10 @@ using Microsoft.OData.UriParser;
 using Microsoft.OData;
 using System.Diagnostics.CodeAnalysis;
 using CommunityToolkit.Datasync.Server.OData;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Primitives;
+using System.Globalization;
 
 namespace CommunityToolkit.Datasync.Server;
 
@@ -155,23 +159,18 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         // Internal function to create the nextLink property for the paged result.
         static string CreateNextLink(HttpRequest request, int skip = 0, int top = 0)
         {
-            string? queryString = request.QueryString.Value;
-            List<string> query = (queryString ?? "").TrimStart('?')
-                .Split('&')
-                .Where(q => !q.StartsWith($"{SkipParameterName}=") && !q.StartsWith($"{TopParameterName}="))
-                .ToList();
-
+            Dictionary<string, StringValues> query = QueryHelpers.ParseNullableQuery(request.QueryString.Value) ?? [];
             if (skip > 0)
             {
-                query.Add($"{SkipParameterName}={skip}");
+                query[SkipParameterName] = skip.ToString(CultureInfo.InvariantCulture);
             }
 
             if (top > 0)
             {
-                query.Add($"{TopParameterName}={top}");
+                query[TopParameterName] = top.ToString(CultureInfo.InvariantCulture);
             }
 
-            return string.Join('&', query).TrimStart('&');
+            return QueryHelpers.AddQueryString(string.Empty, query).TrimStart('?');
         }
 
         PagedResult result = new(results ?? []) { Count = queryOptions.Count != null ? count : null };

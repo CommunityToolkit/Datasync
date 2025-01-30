@@ -10,7 +10,7 @@ namespace CommunityToolkit.Datasync.Server.Test.Helpers;
 /// <summary>
 /// The base set of tests for the controller tests going against a live server.
 /// </summary>
-/// <typeparam name="TEntity"></typeparam>
+[ExcludeFromCodeCoverage]
 public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : class, ITableData
 {
     /// <summary>
