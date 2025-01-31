@@ -22,7 +22,13 @@ Before you begin adjusting the application for offline usage, you must [deploy a
 
 ## Update the application for datasync operations
 
-All the changes are isolated to the `Database/AppDbContext.cs` file.
+All the changes are isolated to the `Models/AppDbContext.cs` file.  You can change the definition of `OFFLINE_SYNC_ENABLED` at the top of the file to make all the changes.  
+
+```csharp
+#define OFFLINE_SYNC_ENABLED
+```
+
+The following changes are made to the database context:
 
 1. Change the definition of the class so that it inherits from `OfflineDbContext`:
 

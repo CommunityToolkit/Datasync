@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:models="clr-namespace:TodoApp.MAUI.Models"
-             xmlns:viewmodels="clr-namespace:TodoApp.MAUI.ViewModels"
-             x:DataType="viewmodels:MainViewModel"
-             x:Class="TodoApp.MAUI.MainPage"
-             Title="TodoApp">
+<ContentPage
+    x:Class="TodoApp.MAUI.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:TodoApp.MAUI.Models"
+    xmlns:viewmodels="clr-namespace:TodoApp.MAUI.ViewModels"
+    Title="TodoApp"
+    x:DataType="viewmodels:MainViewModel">
     <NavigationPage.TitleView>
         <StackLayout Style="{StaticResource titleViewContainer}">
             <Label Style="{StaticResource titleViewLabel}">TodoApp</Label>
-            <ImageButton Style="{StaticResource titleViewRefreshIcon}" Command="{Binding RefreshItemsCommand}" />
+            <ImageButton Command="{Binding RefreshItemsCommand}" Style="{StaticResource titleViewRefreshIcon}" />
         </StackLayout>
     </NavigationPage.TitleView>
 
-    <Grid AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All" BackgroundColor="Azure">
+    <Grid
+        AbsoluteLayout.LayoutBounds="0,0,1,1"
+        AbsoluteLayout.LayoutFlags="All"
+        BackgroundColor="Azure">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -22,8 +26,8 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- List of items -->
-        <ListView ItemsSource="{Binding Items}" ItemTapped="OnListItemTapped">
+        <!--  List of items  -->
+        <ListView ItemTapped="OnListItemTapped" ItemsSource="{Binding Items}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:TodoItem">
                     <ViewCell>
@@ -37,23 +41,26 @@
                             </Grid.ColumnDefinitions>
 
                             <Label Style="{StaticResource listItemTitle}" Text="{Binding Title}" />
-                            <Image Grid.Column="1" IsVisible="{Binding IsComplete}" Style="{StaticResource listItemIcon}" />
+                            <Image
+                                Grid.Column="1"
+                                IsVisible="{Binding IsComplete}"
+                                Style="{StaticResource listItemIcon}" />
                         </Grid>
                     </ViewCell>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
-        <!-- Entry box -->
+        <!--  Entry box  -->
         <Frame Grid.Row="1" Style="{StaticResource roundedCornerFrame}">
             <HorizontalStackLayout>
                 <Image Style="{StaticResource addItemIcon}" />
-                <Entry 
-                    x:Name="addItemEntry" 
-                    Style="{StaticResource addItemEntry}"
+                <Entry
+                    x:Name="addItemEntry"
                     Placeholder="Enter Todo Item Text"
                     ReturnCommand="{Binding AddItemCommand}"
-                    ReturnCommandParameter="{Binding Source={x:Reference addItemEntry}}" />
+                    ReturnCommandParameter="{Binding Text, Source={x:Reference addItemEntry}}"
+                    Style="{StaticResource addItemEntry}" />
             </HorizontalStackLayout>
         </Frame>
     </Grid>

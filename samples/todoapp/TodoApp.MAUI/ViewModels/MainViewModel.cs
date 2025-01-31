@@ -4,13 +4,14 @@
 
 using CommunityToolkit.Datasync.Client;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using TodoApp.MAUI.Models;
 using TodoApp.MAUI.Services;
 
 namespace TodoApp.MAUI.ViewModels;
 
-public class MainViewModel(AppDbContext context, IAlertService alertService) : ObservableRecipient
+public partial class MainViewModel(AppDbContext context, IAlertService alertService) : ObservableRecipient
 {
     [ObservableProperty]
     private bool _isRefreshing = false;
@@ -18,6 +19,7 @@ public class MainViewModel(AppDbContext context, IAlertService alertService) : O
     [ObservableProperty]
     private ConcurrentObservableCollection<TodoItem> items = [];
 
+    [RelayCommand]
     public async Task RefreshItemsAsync(CancellationToken cancellationToken = default)
     {
         if (IsRefreshing)
@@ -41,6 +43,7 @@ public class MainViewModel(AppDbContext context, IAlertService alertService) : O
         }
     }
 
+    [RelayCommand]
     public async Task UpdateItemAsync(string itemId, CancellationToken cancellationToken = default)
     {
         try
@@ -60,6 +63,7 @@ public class MainViewModel(AppDbContext context, IAlertService alertService) : O
         }
     }
 
+    [RelayCommand]
     public async Task AddItemAsync(string text, CancellationToken cancellationToken = default)
     {
         try
