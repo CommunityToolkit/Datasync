@@ -11,7 +11,7 @@ namespace CommunityToolkit.Datasync.TestCommon.Databases;
 [ExcludeFromCodeCoverage]
 public class AzureSqlDbContext(DbContextOptions<AzureSqlDbContext> options) : BaseDbContext<AzureSqlDbContext, AzureSqlEntityMovie>(options)
 {
-    public static AzureSqlDbContext CreateContext(string connectionString, ITestOutputHelper output = null, bool clearEntities = true)
+    public static async Task<AzureSqlDbContext> CreateContextAsync(string connectionString, ITestOutputHelper output = null, bool clearEntities = true)
     {
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -23,12 +23,12 @@ public class AzureSqlDbContext(DbContextOptions<AzureSqlDbContext> options) : Ba
             .EnableLogging(output);
         AzureSqlDbContext context = new(optionsBuilder.Options);
 
-        context.InitializeDatabase(clearEntities);
-        context.PopulateDatabase();
+        await context.InitializeDatabaseAsync(clearEntities);
+        await context.PopulateDatabaseAsync();
         return context;
     }
 
-    internal void InitializeDatabase(bool clearEntities)
+    internal async Task InitializeDatabaseAsync(bool clearEntities)
     {
         const string datasyncTrigger = @"
             CREATE OR ALTER TRIGGER [dbo].[{0}_datasync] ON [dbo].[{0}] AFTER INSERT, UPDATE AS
@@ -43,12 +43,12 @@ public class AzureSqlDbContext(DbContextOptions<AzureSqlDbContext> options) : Ba
             END
         ";
 
-        Database.EnsureCreated();
-        ExecuteRawSqlOnEachEntity(datasyncTrigger);
+        await Database.EnsureCreatedAsync();
+        await ExecuteRawSqlOnEachEntityAsync(datasyncTrigger);
 
         if (clearEntities)
         {
-            ExecuteRawSqlOnEachEntity("DELETE FROM [dbo].[{0}]");
+            await ExecuteRawSqlOnEachEntityAsync("DELETE FROM [dbo].[{0}]");
         }
     }
 

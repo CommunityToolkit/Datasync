@@ -7,39 +7,45 @@ using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
+#pragma warning disable CS9113 // Parameter is unread.
+
 namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class AzureSqlEntityTableRepository_Tests : RepositoryTests<AzureSqlEntityMovie>
+public class AzureSqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : RepositoryTests<AzureSqlEntityMovie>, IAsyncLifetime
 {
     #region Setup
-    private readonly DatabaseFixture _fixture;
     private readonly Random random = new();
-    private readonly string connectionString;
-    private readonly List<AzureSqlEntityMovie> movies;
-    private readonly Lazy<AzureSqlDbContext> _context;
+    private readonly string connectionString = Environment.GetEnvironmentVariable("DATASYNC_AZSQL_CONNECTIONSTRING");
+    private List<AzureSqlEntityMovie> movies = [];
 
-    public AzureSqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
+    public async Task InitializeAsync()
     {
-        this._fixture = fixture;
-        this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_AZSQL_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
-            this._context = new Lazy<AzureSqlDbContext>(() => AzureSqlDbContext.CreateContext(this.connectionString, output));
-            this.movies = [.. Context.Movies.AsNoTracking()];
+            Context = await AzureSqlDbContext.CreateContextAsync(this.connectionString, output);
+            this.movies = await Context.Movies.AsNoTracking().ToListAsync();
         }
     }
 
-    private AzureSqlDbContext Context { get => this._context.Value; }
+    public async Task DisposeAsync()
+    {
+        if (Context is not null)
+        {
+            await Context.DisposeAsync();
+        }
+    }
+
+    private AzureSqlDbContext Context { get; set; }
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 
-    protected override Task<AzureSqlEntityMovie> GetEntityAsync(string id)
-        => Task.FromResult(Context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == id));
+    protected override async Task<AzureSqlEntityMovie> GetEntityAsync(string id)
+        => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
 
-    protected override Task<int> GetEntityCountAsync()
-        => Task.FromResult(Context.Movies.Count());
+    protected override async Task<int> GetEntityCountAsync()
+        => await Context.Movies.CountAsync();
 
     protected override Task<IRepository<AzureSqlEntityMovie>> GetPopulatedRepositoryAsync()
         => Task.FromResult<IRepository<AzureSqlEntityMovie>>(new EntityTableRepository<AzureSqlEntityMovie>(Context));

@@ -12,24 +12,32 @@ namespace CommunityToolkit.Datasync.Server.Test.Live;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class AzureSQL_Controller_Tests : LiveControllerTests<AzureSqlEntityMovie>
+public class AzureSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : LiveControllerTests<AzureSqlEntityMovie>, IAsyncLifetime
 {
     #region Setup
-    private readonly DatabaseFixture _fixture;
     private readonly Random random = new();
-    private readonly string connectionString;
-    private readonly List<AzureSqlEntityMovie> movies;
+    private readonly string connectionString = Environment.GetEnvironmentVariable("DATASYNC_AZSQL_CONNECTIONSTRING");
+    private List<AzureSqlEntityMovie> movies = [];
 
-    public AzureSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
+    public async Task InitializeAsync()
     {
-        this._fixture = fixture;
-        this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_AZSQL_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
-            output.WriteLine($"AzureSqlIsInitialized = {this._fixture.AzureSqlIsInitialized}");
-            Context = AzureSqlDbContext.CreateContext(this.connectionString, output, clearEntities: !this._fixture.AzureSqlIsInitialized);
-            this.movies = [.. Context.Movies.AsNoTracking()];
-            this._fixture.AzureSqlIsInitialized = true;
+            // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
+            // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
+            // to the database then change clearEntities to true.
+            output.WriteLine($"CosmosIsInitialized = {fixture.AzureSqlIsInitialized}");
+            Context = await AzureSqlDbContext.CreateContextAsync(this.connectionString, output, clearEntities: !fixture.AzureSqlIsInitialized);
+            this.movies = await Context.Movies.AsNoTracking().ToListAsync();
+            fixture.AzureSqlIsInitialized = true;
+        }
+    }
+
+    public async Task DisposeAsync()
+    {
+        if (Context is not null)
+        {
+            await Context.DisposeAsync();
         }
     }
 
