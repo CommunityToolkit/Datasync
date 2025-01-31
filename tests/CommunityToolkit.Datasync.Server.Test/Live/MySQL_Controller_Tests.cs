@@ -27,7 +27,7 @@ public class MySQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper o
             // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
             // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
             // to the database then change clearEntities to true.
-            output.WriteLine($"CosmosIsInitialized = {fixture.MysqlIsInitialized}");
+            output.WriteLine($"MysqlIsInitialized = {fixture.MysqlIsInitialized}");
             Context = await MysqlDbContext.CreateContextAsync(this.connectionString, output, clearEntities: !fixture.MysqlIsInitialized);
             this.movies = await Context.Movies.AsNoTracking().ToListAsync();
             fixture.MysqlIsInitialized = true;
