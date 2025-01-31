@@ -40,7 +40,7 @@ public class OperationsQueueManager_Tests : BaseTest
     public async Task GetExistingOperationAsync_InvalidId_Throws()
     {
         ClientMovie movie = new() { Id = "###" };
-        Func<Task> act = async () => _ = await queueManager.GetExistingOperationAsync(context.Entry(movie));
+        Func<Task> act = async () => _ = await queueManager.GetExistingOperationAsync(this.context.Entry(movie));
         await act.Should().ThrowAsync<DatasyncException>();
     }
     #endregion
@@ -134,8 +134,8 @@ public class OperationsQueueManager_Tests : BaseTest
         ClientMovie responseMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, UpdatedAt = DateTimeOffset.UtcNow, Version = Guid.NewGuid().ToString() };
         string expectedJson = DatasyncSerializer.Serialize(responseMovie);
         this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.Created);
-        
-        PushResult results = await queueManager.PushAsync([ typeof(ClientMovie) ], new PushOptions());
+
+        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
         results.FailedRequests.Should().BeEmpty();
@@ -365,7 +365,7 @@ public class OperationsQueueManager_Tests : BaseTest
             EntityType = typeof(Entity1).FullName,
             ItemId = "123",
             EntityVersion = string.Empty,
-            Item = """{}""",
+            Item = "{}",
             Sequence = 0,
             Version = 0
         };
@@ -407,7 +407,7 @@ public class OperationsQueueManager_Tests : BaseTest
     [Fact]
     public void ToOperationKind_Invalid_Throws()
     {
-        EntityState sut = EntityState.Detached;
+        const EntityState sut = EntityState.Detached;
         Action act = () => _ = sut.ToOperationKind();
         act.Should().Throw<InvalidOperationException>();
     }
@@ -501,8 +501,10 @@ public class OperationsQueueManager_Tests : BaseTest
         ClientMovie storedClientMovie = newLlpContext.Movies.First(m => m.Id == id);
 
         // ensure that it is a lazy loading proxy and not exactly a ClientMovie
+#pragma warning disable CA2263 // Prefer generic overload when type is known
         storedClientMovie.GetType().Should().NotBe(typeof(ClientMovie))
             .And.Subject.Namespace.Should().Be("Castle.Proxies");
+#pragma warning restore CA2263 // Prefer generic overload when type is known
 
         storedClientMovie.Title = TestData.Movies.MovieList[1].Title;
         newLlpContext.SaveChanges();

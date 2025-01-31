@@ -86,6 +86,21 @@ Azure Cosmos DB is a fully managed NoSQL database for high-performance applicati
     }
     ```
 
+## Avoid Client-side evaluations
+
+When constructing a query within a client, avoid the following:
+
+* Math operations such as division, multiplication, floor, ceiling, and round.
+* Accessing date/time components such as year, day, or month.
+* The use of DateOnly and TimeOnly types.
+
+These are not supported by the LINQ provider for Cosmos EF Core.  Using them will result in a client-side evaluation.  Client-side evaluations have the following effects:
+
+* In v8.x and earlier, client-side evaluations read the entire dataset into memory to construct the appropriate filter.  This causes performance problems.
+* In v9.x and later, client-side evaluations are not supported and will result in a `400 Bad Request` or `500 Internal Server Error`.
+
+## Support and further information
+
 Azure Cosmos DB is supported in the `Microsoft.AspNetCore.Datasync.EFCore` NuGet package since v5.0.11. For more information, review the following links:
 
 * [EF Core Azure Cosmos DB Provider](https://learn.microsoft.com/ef/core/providers/cosmos) documentation.

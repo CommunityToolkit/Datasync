@@ -112,6 +112,7 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
                 case OpType.Create:
                     // Request Edits
                     operation.Value.AddConditionalHeader(true);
+                    operation.Value.AddRequestWithContent(context.SchemaRepository.Schemas[entityType.Name]);
 
                     // Response Edits
                     operation.Value.AddResponseWithContent("201", "Created", context.SchemaRepository.Schemas[entityType.Name]);
@@ -152,6 +153,7 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
                 case OpType.Replace:
                     // Request Edits
                     operation.Value.AddConditionalHeader();
+                    operation.Value.AddRequestWithContent(context.SchemaRepository.Schemas[entityType.Name]);
 
                     // Response Edits
                     operation.Value.AddResponseWithContent("200", "OK", context.SchemaRepository.Schemas[entityType.Name]);

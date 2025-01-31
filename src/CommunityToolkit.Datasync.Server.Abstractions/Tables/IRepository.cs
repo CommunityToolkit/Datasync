@@ -66,4 +66,24 @@ public interface IRepository<TEntity> where TEntity : ITableData
     /// <exception cref="HttpException">Thrown if the entity creation would produce a normal HTTP error.</exception>
     /// <exception cref="RepositoryException">Thrown is there is an error in the repository.</exception>
     ValueTask ReplaceAsync(TEntity entity, byte[]? version = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// A method that is used to count the number of entities in an <see cref="IQueryable{T}"/> query using the
+    /// preferred mechanism for the repository.
+    /// </summary>
+    /// <param name="query">The query to be executed.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The number of items matching the query.</returns>
+    ValueTask<int> CountAsync(IQueryable<TEntity> query, CancellationToken cancellationToken = default)
+        => ValueTask.FromResult(query.Count());
+
+    /// <summary>
+    /// A method that is used to execute the query and return the elements matches the query as a list using the
+    /// preferred mechanism for the repository.
+    /// </summary>
+    /// <param name="query">The query to be executed.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The items matching the query.</returns>
+    ValueTask<IList<TEntity>> ToListAsync(IQueryable<TEntity> query, CancellationToken cancellationToken = default)
+        => ValueTask.FromResult<IList<TEntity>>(query.ToList());
 }

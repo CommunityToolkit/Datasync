@@ -5,6 +5,8 @@
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using FluentAssertions;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Primitives;
 
 namespace CommunityToolkit.Datasync.TestCommon;
 
@@ -21,5 +23,19 @@ public static class FluentStringAssertions
             .ForCondition(Guid.TryParse(current.Subject, out _))
             .FailWith("Expected object to be a Guid, but found {0}", current.Subject);
         return new AndConstraint<StringAssertions>(current);
+    }
+
+    public static AndConstraint<StringAssertions> MatchQueryString(this StringAssertions current, string queryString, string because = "", params object[] becauseArgs)
+    {
+        Dictionary<string, StringValues> q1 = QueryHelpers.ParseNullableQuery(queryString) ?? [];
+        Dictionary<string, StringValues> q2 = QueryHelpers.ParseNullableQuery(current.Subject) ?? [];
+        bool isEquivalent = q1.Count == q2.Count && !q1.Except(q2).Any();
+
+        Execute.Assertion
+            .BecauseOf(because, becauseArgs)
+            .ForCondition(isEquivalent)
+            .FailWith("Expected query string to match '{0}', but found '{1}'", queryString, current.Subject);
+        return new AndConstraint<StringAssertions>(current);
+
     }
 }

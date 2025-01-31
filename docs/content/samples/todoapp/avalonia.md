@@ -3,7 +3,7 @@ title = "Avalonia"
 +++
 
 > [!INFO]
-> The Avalonia sample has been kindly contributed to the community by <a href="https://github.com/timunie">@timunie</a>.
+> The Avalonia sample has been kindly contributed to the community by [@timunie](https://github.com/timunie).
 
 ## Run the application first
 

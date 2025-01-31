@@ -3935,13 +3935,12 @@ public class Query_Tests(ServiceApplicationFactory factory) : ServiceTest(factor
         PageOfItems<ClientMovie> result = JsonSerializer.Deserialize<PageOfItems<ClientMovie>>(content, this.serializerOptions);
 
         // Payload has the right content
-        Assert.Equal(itemCount, result!.Items!.Length);
-        Assert.Equal(nextLinkQuery, result.NextLink == null ? null : Uri.UnescapeDataString(result.NextLink));
-        Assert.Equal(totalCount, result.Count);
+        result?.Items?.Length.Should().Be(itemCount);
+        result.NextLink.Should().MatchQueryString(nextLinkQuery);
+        result.Count.Should().Be(totalCount);
 
         // The first n items must match what is expected
-        Assert.True(result.Items.Length >= firstItems.Length);
-        Assert.Equal(firstItems, result.Items.Take(firstItems.Length).Select(m => m.Id).ToArray());
+        result.Items.Take(firstItems.Length).Select(m => m.Id).ToList().Should().ContainInConsecutiveOrder(firstItems);
         for (int idx = 0; idx < firstItems.Length; idx++)
         {
             InMemoryMovie expected = this.factory.GetServerEntityById<InMemoryMovie>(firstItems[idx])!;

@@ -2,17 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit.Abstractions;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CommunityToolkit.Datasync.TestCommon.Databases;
 
 [ExcludeFromCodeCoverage]
 public class CosmosDbContext(DbContextOptions<CosmosDbContext> options) : BaseDbContext<CosmosDbContext, CosmosEntityMovie>(options)
 {
-    public static CosmosDbContext CreateContext(string connectionString, ITestOutputHelper output = null, bool clearEntities = true)
+    public static async Task<CosmosDbContext> CreateContextAsync(string connectionString, ITestOutputHelper output = null, bool clearEntities = true)
     {
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -24,24 +23,29 @@ public class CosmosDbContext(DbContextOptions<CosmosDbContext> options) : BaseDb
             .EnableLogging(output);
         CosmosDbContext context = new(optionsBuilder.Options);
 
-        context.InitializeDatabase(clearEntities);
-        context.PopulateDatabase();
+        await context.InitializeDatabaseAsync(clearEntities);
+        await context.PopulateDatabaseAsync();
         return context;
     }
 
-    internal void InitializeDatabase(bool clearEntities)
+    internal async Task InitializeDatabaseAsync(bool clearEntities)
     {
         if (clearEntities)
         {
-            RemoveRange(Movies.ToList());
-            SaveChanges();
+            List<CosmosEntityMovie> movies = await Movies.ToListAsync();
+            if (movies.Count > 0)
+            {
+                RemoveRange(movies);
+                await SaveChangesAsync();
+            }
         }
     }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.ConfigureWarnings(w => w.Ignore(CosmosEventId.SyncNotSupported));
-    }
+    // (Issue #199) - remove the sync over async capabilities introduced in .NET 9
+    //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //{
+    //    optionsBuilder.ConfigureWarnings(w => w.Ignore(CosmosEventId.SyncNotSupported));
+    //}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
