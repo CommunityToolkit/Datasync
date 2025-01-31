@@ -10,7 +10,7 @@ namespace CommunityToolkit.Datasync.TestCommon.Databases;
 [ExcludeFromCodeCoverage]
 public class MysqlDbContext(DbContextOptions<MysqlDbContext> options) : BaseDbContext<MysqlDbContext, MysqlEntityMovie>(options)
 {
-    public static MysqlDbContext CreateContext(string connectionString, ITestOutputHelper output = null, bool clearEntities = true)
+    public static async Task<MysqlDbContext> CreateContextAsync(string connectionString, ITestOutputHelper output = null, bool clearEntities = true)
     {
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -22,18 +22,18 @@ public class MysqlDbContext(DbContextOptions<MysqlDbContext> options) : BaseDbCo
             .EnableLogging(output);
         MysqlDbContext context = new(optionsBuilder.Options);
 
-        context.InitializeDatabase(clearEntities);
-        context.PopulateDatabase();
+        await context.InitializeDatabaseAsync(clearEntities);
+        await context.PopulateDatabaseAsync();
         return context;
     }
 
-    internal void InitializeDatabase(bool clearEntities)
+    internal async Task InitializeDatabaseAsync(bool clearEntities)
     {
-        Database.EnsureCreated();
+        await Database.EnsureCreatedAsync();
 
         if (clearEntities)
         {
-            ExecuteRawSqlOnEachEntity(@"DELETE FROM {0}");
+            await ExecuteRawSqlOnEachEntityAsync("DELETE FROM {0}");
         }
     }
 
