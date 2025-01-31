@@ -10,7 +10,7 @@ namespace CommunityToolkit.Datasync.TestCommon.Databases;
 [ExcludeFromCodeCoverage]
 public class PgDbContext(DbContextOptions<PgDbContext> options) : BaseDbContext<PgDbContext, PgEntityMovie>(options)
 {
-    public static PgDbContext CreateContext(string connectionString, ITestOutputHelper output = null, bool clearEntities = true)
+    public static async Task<PgDbContext> CreateContextAsync(string connectionString, ITestOutputHelper output = null, bool clearEntities = true)
     {
         if (string.IsNullOrEmpty(connectionString))
         {
@@ -22,18 +22,19 @@ public class PgDbContext(DbContextOptions<PgDbContext> options) : BaseDbContext<
             .EnableLogging(output);
         PgDbContext context = new(optionsBuilder.Options);
 
-        context.InitializeDatabase(clearEntities);
-        context.PopulateDatabase();
+        await context.InitializeDatabaseAsync(clearEntities);
+        await context.PopulateDatabaseAsync();
         return context;
     }
 
-    internal void InitializeDatabase(bool clearEntities)
+    internal async Task InitializeDatabaseAsync(bool clearEntities)
     {
-        const string datasyncTrigger = @"
+        const string datasyncTrigger = """
+
             CREATE OR REPLACE FUNCTION {0}_datasync() RETURNS trigger AS $$
             BEGIN
-                NEW.""UpdatedAt"" = NOW() AT TIME ZONE 'UTC';
-                NEW.""Version"" = convert_to(gen_random_uuid()::text, 'UTF8');
+                NEW."UpdatedAt" = NOW() AT TIME ZONE 'UTC';
+                NEW."Version" = convert_to(gen_random_uuid()::text, 'UTF8');
                 RETURN NEW;
             END;
             $$ LANGUAGE plpgsql;
@@ -41,17 +42,17 @@ public class PgDbContext(DbContextOptions<PgDbContext> options) : BaseDbContext<
             CREATE OR REPLACE TRIGGER
                 {0}_datasync
             BEFORE INSERT OR UPDATE ON
-                ""{0}""
+                "{0}"
             FOR EACH ROW EXECUTE PROCEDURE
                 {0}_datasync();
-        ";
+        """;
 
-        Database.EnsureCreated();
-        ExecuteRawSqlOnEachEntity(datasyncTrigger);
+        await Database.EnsureCreatedAsync();
+        await ExecuteRawSqlOnEachEntityAsync(datasyncTrigger);
 
         if (clearEntities)
         {
-            ExecuteRawSqlOnEachEntity(@"DELETE FROM ""{0}""");
+            await ExecuteRawSqlOnEachEntityAsync(@"DELETE FROM ""{0}""");
         }
     }
 

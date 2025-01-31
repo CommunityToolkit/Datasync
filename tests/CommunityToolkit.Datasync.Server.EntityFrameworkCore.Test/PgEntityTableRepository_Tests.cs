@@ -7,39 +7,45 @@ using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
+#pragma warning disable CS9113 // Parameter is unread.
+
 namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class PgEntityTableRepository_Tests : RepositoryTests<PgEntityMovie>
+public class PgEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : RepositoryTests<PgEntityMovie>, IAsyncLifetime
 {
     #region Setup
-    private readonly DatabaseFixture _fixture;
     private readonly Random random = new();
-    private readonly string connectionString;
-    private readonly List<PgEntityMovie> movies;
-    private readonly Lazy<PgDbContext> _context;
+    private readonly string connectionString = Environment.GetEnvironmentVariable("DATASYNC_PGSQL_CONNECTIONSTRING");
+    private List<PgEntityMovie> movies = [];
 
-    public PgEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
+    public async Task InitializeAsync()
     {
-        this._fixture = fixture;
-        this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_PGSQL_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
-            this._context = new Lazy<PgDbContext>(() => PgDbContext.CreateContext(this.connectionString, output));
-            this.movies = Context.Movies.AsNoTracking().ToList();
+            Context = await PgDbContext.CreateContextAsync(this.connectionString, output);
+            this.movies = await Context.Movies.AsNoTracking().ToListAsync();
         }
     }
 
-    private PgDbContext Context { get => this._context.Value; }
+    public async Task DisposeAsync()
+    {
+        if (Context is not null)
+        {
+            await Context.DisposeAsync();
+        }
+    }
+
+    private PgDbContext Context { get; set; }
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 
-    protected override Task<PgEntityMovie> GetEntityAsync(string id)
-        => Task.FromResult(Context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == id));
+    protected override async Task<PgEntityMovie> GetEntityAsync(string id)
+        => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
 
-    protected override Task<int> GetEntityCountAsync()
-        => Task.FromResult(Context.Movies.Count());
+    protected override async Task<int> GetEntityCountAsync()
+        => await Context.Movies.CountAsync();
 
     protected override Task<IRepository<PgEntityMovie>> GetPopulatedRepositoryAsync()
         => Task.FromResult<IRepository<PgEntityMovie>>(new EntityTableRepository<PgEntityMovie>(Context));

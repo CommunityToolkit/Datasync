@@ -12,24 +12,32 @@ namespace CommunityToolkit.Datasync.Server.Test.Live;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class PgSQL_Controller_Tests : LiveControllerTests<PgEntityMovie>
+public class PgSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : LiveControllerTests<PgEntityMovie>, IAsyncLifetime
 {
     #region Setup
-    private readonly DatabaseFixture _fixture;
     private readonly Random random = new();
-    private readonly string connectionString;
-    private readonly List<PgEntityMovie> movies;
+    private readonly string connectionString = Environment.GetEnvironmentVariable("DATASYNC_PGSQL_CONNECTIONSTRING");
+    private List<PgEntityMovie> movies = [];
 
-    public PgSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
+    public async Task InitializeAsync()
     {
-        this._fixture = fixture;
-        this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_PGSQL_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
-            output.WriteLine($"PgIsInitialized = {this._fixture.PgIsInitialized}");
-            Context = PgDbContext.CreateContext(this.connectionString, output, clearEntities: !this._fixture.PgIsInitialized);
+            // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
+            // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
+            // to the database then change clearEntities to true.
+            output.WriteLine($"PgIsInitialized = {fixture.PgIsInitialized}");
+            Context = await PgDbContext.CreateContextAsync(this.connectionString, output, clearEntities: !fixture.PgIsInitialized);
             this.movies = Context.Movies.AsNoTracking().ToList();
-            this._fixture.PgIsInitialized = true;
+            fixture.PgIsInitialized = true;
+        }
+    }
+
+    public async Task DisposeAsync()
+    {
+        if (Context is not null)
+        {
+            await Context.DisposeAsync();
         }
     }
 
@@ -39,11 +47,11 @@ public class PgSQL_Controller_Tests : LiveControllerTests<PgEntityMovie>
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 
-    protected override Task<PgEntityMovie> GetEntityAsync(string id)
-        => Task.FromResult(Context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == id));
+    protected override async Task<PgEntityMovie> GetEntityAsync(string id)
+        => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
 
-    protected override Task<int> GetEntityCountAsync()
-        => Task.FromResult(Context.Movies.Count());
+    protected override async Task<int> GetEntityCountAsync()
+        => await Context.Movies.CountAsync();
 
     protected override Task<IRepository<PgEntityMovie>> GetPopulatedRepositoryAsync()
         => Task.FromResult<IRepository<PgEntityMovie>>(new EntityTableRepository<PgEntityMovie>(Context));

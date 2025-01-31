@@ -26,7 +26,7 @@ public class AzureSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelpe
             // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
             // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
             // to the database then change clearEntities to true.
-            output.WriteLine($"CosmosIsInitialized = {fixture.AzureSqlIsInitialized}");
+            output.WriteLine($"AzureSqlIsInitialized = {fixture.AzureSqlIsInitialized}");
             Context = await AzureSqlDbContext.CreateContextAsync(this.connectionString, output, clearEntities: !fixture.AzureSqlIsInitialized);
             this.movies = await Context.Movies.AsNoTracking().ToListAsync();
             fixture.AzureSqlIsInitialized = true;
