@@ -7,6 +7,7 @@ using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
 using CommunityToolkit.Datasync.TestCommon.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using System.Runtime.CompilerServices;
 using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.TestCommon.Databases;
@@ -42,6 +43,19 @@ public abstract class BaseDbContext<TContext, TEntity>(DbContextOptions<TContext
         {
             string sql = string.Format(format, table.GetTableName());
             Database.ExecuteSqlRaw(sql);
+        }
+    }
+
+    /// <summary>
+    /// Executes the provided SQL statement for each entity in our set of entities.
+    /// </summary>
+    /// <param name="format"></param>
+    protected async Task ExecuteRawSqlOnEachEntityAsync(string format)
+    {
+        foreach (IEntityType table in Model.GetEntityTypes())
+        {
+            string sql = string.Format(format, table.GetTableName());
+            await Database.ExecuteSqlRawAsync(sql);
         }
     }
 
