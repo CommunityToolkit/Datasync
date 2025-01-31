@@ -21,14 +21,14 @@ public partial class MainPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        this._viewModel.RefreshItemsCommand.Execute();
+        this._viewModel.RefreshItemsCommand.Execute(null);
     }
 
     public void OnListItemTapped(object sender, ItemTappedEventArgs e)
     {
         if (e.Item is TodoItem item)
         {
-            this._viewModel.UpdateItemCommand.Execute(item);
+            this._viewModel.UpdateItemCommand.Execute(item.Id);
         }
 
         if (sender is ListView itemList)
