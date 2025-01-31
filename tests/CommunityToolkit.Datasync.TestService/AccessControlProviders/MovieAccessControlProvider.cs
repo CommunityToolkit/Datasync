@@ -7,6 +7,7 @@ using CommunityToolkit.Datasync.TestCommon.Models;
 
 namespace CommunityToolkit.Datasync.TestService.AccessControlProviders;
 
+[ExcludeFromCodeCoverage]
 public class MovieAccessControlProvider<T> : AccessControlProvider<T> where T : class, IMovie, ITableData
 {
     /// <summary>

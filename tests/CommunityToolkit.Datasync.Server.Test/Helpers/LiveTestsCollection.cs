@@ -7,6 +7,7 @@ namespace CommunityToolkit.Datasync.Server.Test.Helpers;
 /// <summary>
 ///  This can be used to share state between the various live tests.  It isn't used right now.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class DatabaseFixture
 {
     public bool AzureSqlIsInitialized { get; set; } = false;
@@ -15,6 +16,7 @@ public class DatabaseFixture
     public bool PgIsInitialized { get; set; } = false;
 }
 
+[ExcludeFromCodeCoverage]
 [CollectionDefinition("LiveTestsCollection", DisableParallelization = true)]
 public class LiveTestsCollection : ICollectionFixture<DatabaseFixture>
 {

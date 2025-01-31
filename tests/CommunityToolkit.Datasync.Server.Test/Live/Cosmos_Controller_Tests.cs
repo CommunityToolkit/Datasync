@@ -4,35 +4,42 @@
 
 using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
 using CommunityToolkit.Datasync.Server.Test.Helpers;
+using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
+using System;
 using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.Server.Test.Live;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class Cosmos_Controller_Tests : LiveControllerTests<CosmosEntityMovie>
+public class Cosmos_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : LiveControllerTests<CosmosEntityMovie>(), IAsyncLifetime
 {
     #region Setup
-    private readonly DatabaseFixture _fixture;
     private readonly Random random = new();
-    private readonly string connectionString;
-    private readonly List<CosmosEntityMovie> movies;
+    private readonly string connectionString = Environment.GetEnvironmentVariable("DATASYNC_COSMOS_CONNECTIONSTRING");
+    private List<CosmosEntityMovie> movies = [];
 
-    public Cosmos_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : base()
+    public async Task InitializeAsync()
     {
-        this._fixture = fixture;
-        this.connectionString = Environment.GetEnvironmentVariable("DATASYNC_COSMOS_CONNECTIONSTRING");
         if (!string.IsNullOrEmpty(this.connectionString))
         {
             // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
             // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
             // to the database then change clearEntities to true.
-            output.WriteLine($"CosmosIsInitialized = {this._fixture.CosmosIsInitialized}");
-            Context = CosmosDbContext.CreateContext(this.connectionString, output, clearEntities: !this._fixture.CosmosIsInitialized);
-            this.movies = [.. Context.Movies.AsNoTracking()];
-            this._fixture.CosmosIsInitialized = true;
+            output.WriteLine($"CosmosIsInitialized = {fixture.CosmosIsInitialized}");
+            Context = await CosmosDbContext.CreateContextAsync(this.connectionString, output, clearEntities: !fixture.CosmosIsInitialized);
+            this.movies = await Context.Movies.AsNoTracking().ToListAsync();
+            fixture.CosmosIsInitialized = true;
+        }
+    }
+
+    public async Task DisposeAsync()
+    {
+        if (Context is not null)
+        {
+            await Context.DisposeAsync();
         }
     }
 
@@ -42,11 +49,11 @@ public class Cosmos_Controller_Tests : LiveControllerTests<CosmosEntityMovie>
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 
-    protected override Task<CosmosEntityMovie> GetEntityAsync(string id)
-        => Task.FromResult(Context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == id));
+    protected override async Task<CosmosEntityMovie> GetEntityAsync(string id)
+        => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
 
-    protected override Task<int> GetEntityCountAsync()
-        => Task.FromResult(Context.Movies.Count());
+    protected override async Task<int> GetEntityCountAsync()
+        => await Context.Movies.CountAsync();
 
     protected override Task<IRepository<CosmosEntityMovie>> GetPopulatedRepositoryAsync()
         => Task.FromResult<IRepository<CosmosEntityMovie>>(new EntityTableRepository<CosmosEntityMovie>(Context));
@@ -54,4 +61,22 @@ public class Cosmos_Controller_Tests : LiveControllerTests<CosmosEntityMovie>
     protected override Task<string> GetRandomEntityIdAsync(bool exists)
         => Task.FromResult(exists ? this.movies[this.random.Next(this.movies.Count)].Id : Guid.NewGuid().ToString());
     #endregion
+
+    /// <summary>
+    /// We test the 400 Bad Request client-side evaluation error here because Cosmos has more restrictions than most,
+    /// so it's easier to test the code path.
+    /// </summary>
+    [SkippableFact]
+    public async Task ClientSideEvaluation_Produces_400BadRequest()
+    {
+        Skip.IfNot(CanRunLiveTests());
+
+        IRepository<CosmosEntityMovie> repository = await GetPopulatedRepositoryAsync();
+        TableController<CosmosEntityMovie> tableController = new(repository);
+        tableController.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Get, $"{MovieEndpoint}?$filter=((year div 1000.5) eq 2)");
+
+        Func<Task> act = async () => _ = await tableController.QueryAsync();
+
+        (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(400);
+    }
 }

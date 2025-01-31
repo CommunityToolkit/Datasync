@@ -29,6 +29,10 @@ public class TableControllerOptions
     /// will get a 500 Internal Server Error if they attempt to use a query that cannot
     /// be evaluated by the database.
     /// </summary>
+    /// <remarks>
+    /// This option is no longer used (since v9.0.0)
+    /// </remarks>
+    [Obsolete("Client-side evaluation is no longer supported.  This option will be removed in a future release.")]
     public bool DisableClientSideEvaluation { get; set; }
 
     /// <summary>
@@ -44,7 +48,7 @@ public class TableControllerOptions
     public int MaxTop
     {
         get => this._maxTop;
-        set 
+        set
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(value, 1, nameof(MaxTop));
             ArgumentOutOfRangeException.ThrowIfGreaterThan(value, MAX_TOP, nameof(MaxTop));
@@ -58,11 +62,11 @@ public class TableControllerOptions
     public int PageSize
     {
         get => this._pageSize;
-        set 
+        set
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(value, 1, nameof(PageSize));
             ArgumentOutOfRangeException.ThrowIfGreaterThan(value, MAX_PAGESIZE, nameof(PageSize));
-            this._pageSize = value; 
+            this._pageSize = value;
         }
     }
 

@@ -34,7 +34,8 @@ public abstract class BaseTest
 
     protected static IRepository<TEntity> FakeRepository<TEntity>(TEntity entity = null, bool throwConflict = false) where TEntity : class, ITableData
     {
-        IRepository<TEntity> mock = Substitute.For<IRepository<TEntity>>();
+        AbstractRepository<TEntity> mock = Substitute.ForPartsOf<AbstractRepository<TEntity>>();
+
         if (throwConflict)
         {
             mock.CreateAsync(Arg.Any<TEntity>(), Arg.Any<CancellationToken>()).Returns(ValueTask.FromException(new HttpException(409)));
@@ -60,6 +61,37 @@ public abstract class BaseTest
         }
 
         return mock;
+    }
+
+    /// <summary>
+    /// An implementation of <see cref="IRepository{TEntity}"/> that is used in substitution tests.
+    /// </summary>
+    public abstract class AbstractRepository<TEntity> : IRepository<TEntity> where TEntity : class, ITableData
+    {
+        public virtual ValueTask<IQueryable<TEntity>> AsQueryableAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual ValueTask CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual ValueTask DeleteAsync(string id, byte[] version = null, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual ValueTask<TEntity> ReadAsync(string id, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual ValueTask ReplaceAsync(TEntity entity, byte[] version = null, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     protected static HttpContext CreateHttpContext(HttpMethod method, string uri, Dictionary<string, string> headers = null)

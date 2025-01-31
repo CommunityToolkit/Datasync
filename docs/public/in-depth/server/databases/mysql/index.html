@@ -5,26 +5,34 @@
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.142.0">
     <meta name="generator" content="Relearn 6.2.0+tip">
-    <meta name="description" content="SqLite WarningDo not use SqLite for production services. SqLite is only suitable for client-side usage in production.
-SqLite doesn’t have a date/time field that supports millisecond accuracy. As such, it isn’t suitable for anything except for testing. If you wish to use SqLite, ensure you implement a value converter and value comparer on each model for date/time properties. The easiest method to implement value converters and comparers is in the OnModelCreating(ModelBuilder) method of your DbContext:">
+    <meta name="description" content="MySQL Add the Pomelo.EntityFrameworkCore.Mysql driver to your project.
+InfoYou can probably use the MySql.EntityFrameworkCore library as well. However, we only test with the Pomelo driver.
+In the OnModelCreating() method of your context, add the following for each entity:
+protected override void OnModelCreating(ModelBuilder modelBuilder) { modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.UpdatedAt) .ValueGeneratedOnAddOrUpdate(); modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.Version) .IsRowVersion(); base.OnModelCreating(modelBuilder); } Test MySQL Context">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Sqlite :: Datasync Community Toolkit">
-    <meta name="twitter:description" content="SqLite WarningDo not use SqLite for production services. SqLite is only suitable for client-side usage in production.
-SqLite doesn’t have a date/time field that supports millisecond accuracy. As such, it isn’t suitable for anything except for testing. If you wish to use SqLite, ensure you implement a value converter and value comparer on each model for date/time properties. The easiest method to implement value converters and comparers is in the OnModelCreating(ModelBuilder) method of your DbContext:">
-    <meta property="og:url" content="http://localhost:1313/Datasync/in-depth/server/databases/sqlite/index.html">
+    <meta name="twitter:title" content="MySQL :: Datasync Community Toolkit">
+    <meta name="twitter:description" content="MySQL Add the Pomelo.EntityFrameworkCore.Mysql driver to your project.
+InfoYou can probably use the MySql.EntityFrameworkCore library as well. However, we only test with the Pomelo driver.
+In the OnModelCreating() method of your context, add the following for each entity:
+protected override void OnModelCreating(ModelBuilder modelBuilder) { modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.UpdatedAt) .ValueGeneratedOnAddOrUpdate(); modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.Version) .IsRowVersion(); base.OnModelCreating(modelBuilder); } Test MySQL Context">
+    <meta property="og:url" content="http://localhost:1313/Datasync/in-depth/server/databases/mysql/index.html">
     <meta property="og:site_name" content="Datasync Community Toolkit">
-    <meta property="og:title" content="Sqlite :: Datasync Community Toolkit">
-    <meta property="og:description" content="SqLite WarningDo not use SqLite for production services. SqLite is only suitable for client-side usage in production.
-SqLite doesn’t have a date/time field that supports millisecond accuracy. As such, it isn’t suitable for anything except for testing. If you wish to use SqLite, ensure you implement a value converter and value comparer on each model for date/time properties. The easiest method to implement value converters and comparers is in the OnModelCreating(ModelBuilder) method of your DbContext:">
+    <meta property="og:title" content="MySQL :: Datasync Community Toolkit">
+    <meta property="og:description" content="MySQL Add the Pomelo.EntityFrameworkCore.Mysql driver to your project.
+InfoYou can probably use the MySql.EntityFrameworkCore library as well. However, we only test with the Pomelo driver.
+In the OnModelCreating() method of your context, add the following for each entity:
+protected override void OnModelCreating(ModelBuilder modelBuilder) { modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.UpdatedAt) .ValueGeneratedOnAddOrUpdate(); modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.Version) .IsRowVersion(); base.OnModelCreating(modelBuilder); } Test MySQL Context">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="article">
     <meta property="article:section" content="In-depth">
-    <meta itemprop="name" content="Sqlite :: Datasync Community Toolkit">
-    <meta itemprop="description" content="SqLite WarningDo not use SqLite for production services. SqLite is only suitable for client-side usage in production.
-SqLite doesn’t have a date/time field that supports millisecond accuracy. As such, it isn’t suitable for anything except for testing. If you wish to use SqLite, ensure you implement a value converter and value comparer on each model for date/time properties. The easiest method to implement value converters and comparers is in the OnModelCreating(ModelBuilder) method of your DbContext:">
-    <meta itemprop="wordCount" content="220">
-    <title>Sqlite :: Datasync Community Toolkit</title><link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <meta itemprop="name" content="MySQL :: Datasync Community Toolkit">
+    <meta itemprop="description" content="MySQL Add the Pomelo.EntityFrameworkCore.Mysql driver to your project.
+InfoYou can probably use the MySql.EntityFrameworkCore library as well. However, we only test with the Pomelo driver.
+In the OnModelCreating() method of your context, add the following for each entity:
+protected override void OnModelCreating(ModelBuilder modelBuilder) { modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.UpdatedAt) .ValueGeneratedOnAddOrUpdate(); modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.Version) .IsRowVersion(); base.OnModelCreating(modelBuilder); } Test MySQL Context">
+    <meta itemprop="wordCount" content="58">
+    <title>MySQL :: Datasync Community Toolkit</title><link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
 <link rel="manifest" href="/favicon/site.webmanifest">
@@ -59,7 +67,7 @@ SqLite doesn’t have a date/time field that supports millisecond accuracy. As s
       window.T_N_results_found = `{1} results found for "{0}"`;
     </script>
   </head>
-  <body class="mobile-support html" data-url="/Datasync/in-depth/server/databases/sqlite/index.html">
+  <body class="mobile-support html" data-url="/Datasync/in-depth/server/databases/mysql/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
       <nav id="R-topbar">
@@ -72,7 +80,7 @@ SqLite doesn’t have a date/time field that supports millisecond accuracy. As s
               <div class="topbar-content">
                 <div class="topbar-content-wrapper"><nav class="TableOfContents">
   <ul>
-    <li><a href="#sqlite">SqLite</a></li>
+    <li><a href="#mysql">MySQL</a></li>
   </ul>
 </nav>
                 </div>
@@ -84,12 +92,12 @@ SqLite doesn’t have a date/time field that supports millisecond accuracy. As s
             itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/in-depth/index.html"><span itemprop="name">In-depth</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li
             itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/in-depth/server/index.html"><span itemprop="name">Datasync Server</span></a><meta itemprop="position" content="3">&nbsp;>&nbsp;</li><li
             itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><a itemprop="item" href="/Datasync/in-depth/server/databases/index.html"><span itemprop="name">Database support</span></a><meta itemprop="position" content="4">&nbsp;>&nbsp;</li><li
-            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">Sqlite</span><meta itemprop="position" content="5"></li>
+            itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement"><span itemprop="name">MySQL</span><meta itemprop="position" content="5"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
-            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/in-depth/server/databases/postgresql/index.html" title="PostgreSQL (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
+            <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/in-depth/server/databases/litedb/index.html" title="LiteDb (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a>
             </div>
-            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/in-depth/client/index.html" title="Client application (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
+            <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show"><a class="topbar-control" href="/Datasync/in-depth/server/databases/postgresql/index.html" title="PostgreSQL (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a>
             </div>
             <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show"><button class="topbar-control" onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button>
               <div class="topbar-content">
@@ -109,59 +117,30 @@ SqLite doesn’t have a date/time field that supports millisecond accuracy. As s
             <header class="headline">
             </header>
 
-<h1 id="sqlite">Sqlite</h1>
+<h1 id="mysql">MySQL</h1>
 
-<h2 id="sqlite">SqLite</h2>
+<h2 id="mysql">MySQL</h2>
+<p>Add the <a href="https://www.nuget.org/packages/Pomelo.EntityFrameworkCore.MySql" rel="external" target="_blank"><code>Pomelo.EntityFrameworkCore.Mysql</code></a> driver to your project.</p>
 
-<div class="box notices cstyle warning">
-  <div class="box-label"><i class="fa-fw fas fa-exclamation-triangle"></i> Warning</div>
+<div class="box notices cstyle info">
+  <div class="box-label"><i class="fa-fw fas fa-info-circle"></i> Info</div>
   <div class="box-content">
 
-<p>Do not use SqLite for production services.  SqLite is only suitable for client-side usage in production.</p></div>
-</div><p>SqLite doesn&rsquo;t have a date/time field that supports millisecond accuracy.  As such, it isn&rsquo;t suitable for anything except for testing.  If you wish to use SqLite, ensure you implement a value converter and value comparer on each model for date/time properties.  The easiest method to implement value converters and comparers is in the <code>OnModelCreating(ModelBuilder)</code> method of your <code>DbContext</code>:</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">void</span> OnModelCreating(ModelBuilder builder)
+<p>You can probably use the <code>MySql.EntityFrameworkCore</code> library as well.  However, we only test with the Pomelo driver.</p></div>
+</div><p>In the <code>OnModelCreating()</code> method of your context, add the following for each entity:</p>
+<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">protected</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">void</span> OnModelCreating(ModelBuilder modelBuilder)
 </span></span><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> timestampProps = builder.Model.GetEntityTypes().SelectMany(t =&gt; t.GetProperties())
-</span></span><span style="display:flex;"><span>        .Where(p =&gt; p.ClrType == <span style="color:#66d9ef">typeof</span>(<span style="color:#66d9ef">byte</span>[]) &amp;&amp; p.ValueGenerated == ValueGenerated.OnAddOrUpdate);
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">var</span> converter = <span style="color:#66d9ef">new</span> ValueConverter&lt;<span style="color:#66d9ef">byte</span>[], <span style="color:#66d9ef">string</span>&gt;(
-</span></span><span style="display:flex;"><span>        v =&gt; Encoding.UTF8.GetString(v),
-</span></span><span style="display:flex;"><span>        v =&gt; Encoding.UTF8.GetBytes(v)
-</span></span><span style="display:flex;"><span>    );
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> property <span style="color:#66d9ef">in</span> timestampProps)
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>        property.SetValueConverter(converter);
-</span></span><span style="display:flex;"><span>        property.SetDefaultValueSql(<span style="color:#e6db74">&#34;STRFTIME(&#39;%Y-%m-%d %H:%M:%f&#39;, &#39;NOW&#39;)&#34;</span>);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">base</span>.OnModelCreating(builder);
-</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>Install an update trigger when you initialize the database:</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">internal</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> InstallUpdateTriggers(DbContext context)
-</span></span><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> table <span style="color:#66d9ef">in</span> context.Model.GetEntityTypes())
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> props = table.GetProperties().Where(prop =&gt; prop.ClrType == <span style="color:#66d9ef">typeof</span>(<span style="color:#66d9ef">byte</span>[]) &amp;&amp; prop.ValueGenerated == ValueGenerated.OnAddOrUpdate);
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> property <span style="color:#66d9ef">in</span> props)
-</span></span><span style="display:flex;"><span>        {
-</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">var</span> sql = <span style="color:#e6db74">$@&#34;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                CREATE TRIGGER s_{table.GetTableName()}_{prop.Name}_UPDATE AFTER UPDATE ON {table.GetTableName()}
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                BEGIN
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                    UPDATE {table.GetTableName()}
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                    SET {prop.Name} = STRFTIME(&#39;%Y-%m-%d %H:%M:%f&#39;, &#39;NOW&#39;)
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                    WHERE rowid = NEW.rowid;
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">                END
-</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">            &#34;</span>;
-</span></span><span style="display:flex;"><span>            context.Database.ExecuteSqlRaw(sql);
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><p>Ensure that the <code>InstallUpdateTriggers</code> method is only called once during database initialization:</p>
-<div class="highlight wrap-code"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> InitializeDatabase(DbContext context)
-</span></span><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">bool</span> created = context.Database.EnsureCreated();
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> (created &amp;&amp; context.Database.IsSqlite())
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>        InstallUpdateTriggers(context);
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    context.Database.SaveChanges();
-</span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
+</span></span><span style="display:flex;"><span>  modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.UpdatedAt)
+</span></span><span style="display:flex;"><span>    .ValueGeneratedOnAddOrUpdate();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  modelBuilder.Entity&lt;Model&gt;().Property(m =&gt; m.Version)
+</span></span><span style="display:flex;"><span>    .IsRowVersion();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">base</span>.OnModelCreating(modelBuilder);
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div><ul>
+<li><a href="https://github.com/CommunityToolkit/Datasync/blob/main/tests/CommunityToolkit.Datasync.TestCommon/Databases/MySQL/MysqlDbContext.cs" rel="external" target="_blank">Test MySQL Context</a></li>
+</ul>
+
             <footer class="footline">
             </footer>
           </article>
@@ -264,9 +243,9 @@ SqLite doesn’t have a date/time field that supports millisecond accuracy. As s
           <li data-nav-id="/Datasync/in-depth/server/databases/azuresql/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/azuresql/index.html">Azure SQL &amp; SQL Server</a></li>
           <li data-nav-id="/Datasync/in-depth/server/databases/in-memory/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/in-memory/index.html">In-memory datastore</a></li>
           <li data-nav-id="/Datasync/in-depth/server/databases/litedb/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/litedb/index.html">LiteDb</a></li>
-          <li data-nav-id="/Datasync/in-depth/server/databases/mysql/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/mysql/index.html">MySQL</a></li>
+          <li data-nav-id="/Datasync/in-depth/server/databases/mysql/index.html" class="active"><a class="padding" href="/Datasync/in-depth/server/databases/mysql/index.html">MySQL</a></li>
           <li data-nav-id="/Datasync/in-depth/server/databases/postgresql/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/postgresql/index.html">PostgreSQL</a></li>
-          <li data-nav-id="/Datasync/in-depth/server/databases/sqlite/index.html" class="active"><a class="padding" href="/Datasync/in-depth/server/databases/sqlite/index.html">Sqlite</a></li></ul></li></ul></li>
+          <li data-nav-id="/Datasync/in-depth/server/databases/sqlite/index.html" class=""><a class="padding" href="/Datasync/in-depth/server/databases/sqlite/index.html">Sqlite</a></li></ul></li></ul></li>
           <li data-nav-id="/Datasync/in-depth/client/index.html" class="alwaysopen"><a class="padding" href="/Datasync/in-depth/client/index.html">Client application</a><ul id="R-subsections-60c8d76d913730d5c907aa0f8134456a" class="morespace collapsible-menu">
           <li data-nav-id="/Datasync/in-depth/client/online-operations/index.html" class=""><a class="padding" href="/Datasync/in-depth/client/online-operations/index.html">Online operations</a></li>
           <li data-nav-id="/Datasync/in-depth/client/auth/index.html" class=""><a class="padding" href="/Datasync/in-depth/client/auth/index.html">Authentication</a></li>
@@ -285,7 +264,7 @@ SqLite doesn’t have a date/time field that supports millisecond accuracy. As s
                   <div class="control-style">
                     <label class="a11y-only" for="R-select-language">Language</label>
                     <select id="R-select-language" onchange="location = this.querySelector( this.value ).dataset.url;">
-                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/Datasync/in-depth/server/databases/sqlite/index.html" lang="en-us" selected></option>
+                      <option id="R-select-language-en" value="#R-select-language-en" data-url="/Datasync/in-depth/server/databases/mysql/index.html" lang="en-us" selected></option>
                     </select>
                   </div>
                   <div class="clear"></div>
