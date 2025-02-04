@@ -17,18 +17,17 @@ public class MySQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper o
 {
     #region Setup
     private readonly Random random = new();
-    private readonly string connectionString = Environment.GetEnvironmentVariable("DATASYNC_MYSQL_CONNECTIONSTRING");
     private List<MysqlEntityMovie> movies = [];
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(this.connectionString))
+        if (!string.IsNullOrEmpty(ConnectionStrings.MySql))
         {
             // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
             // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
             // to the database then change clearEntities to true.
             output.WriteLine($"MysqlIsInitialized = {fixture.MysqlIsInitialized}");
-            Context = await MysqlDbContext.CreateContextAsync(this.connectionString, output, clearEntities: !fixture.MysqlIsInitialized);
+            Context = await MysqlDbContext.CreateContextAsync(ConnectionStrings.MySql, output, clearEntities: !fixture.MysqlIsInitialized);
             this.movies = await Context.Movies.AsNoTracking().ToListAsync();
             fixture.MysqlIsInitialized = true;
         }
@@ -46,7 +45,7 @@ public class MySQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper o
 
     protected override string DriverName { get; } = "MySQL";
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
+    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.MySql);
 
     protected override async Task<MysqlEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);

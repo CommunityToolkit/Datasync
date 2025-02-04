@@ -6,20 +6,26 @@
 $outputs = (azd env get-values --output json | ConvertFrom-Json)
 $outputFile = "tests\.runsettings"
 
-$fileContents = @"
+$prefix = @"
 <?xml version="1.0" encoding="utf-8"?>
 <RunSettings>
   <RunConfiguration>
     <EnvironmentVariables>
-      <DATASYNC_AZSQL_CONNECTIONSTRING>$($outputs.AZSQL_CONNECTION_STRING)</DATASYNC_AZSQL_CONNECTIONSTRING>
-      <DATASYNC_COSMOS_CONNECTIONSTRING>$($outputs.COSMOS_CONNECTION_STRING)</DATASYNC_COSMOS_CONNECTIONSTRING>
-      <DATASYNC_MYSQL_CONNECTIONSTRING>$($outputs.MYSQL_CONNECTION_STRING)</DATASYNC_MYSQL_CONNECTIONSTRING>
-      <DATASYNC_PGSQL_CONNECTIONSTRING>$($outputs.PGSQL_CONNECTION_STRING)</DATASYNC_PGSQL_CONNECTIONSTRING>
-      <DATASYNC_SERVICE_ENDPOINT>$($outputs.SERVICE_ENDPOINT)</DATASYNC_SERVICE_ENDPOINT>
+
+"@
+
+$postfix = @"
       <ENABLE_SQL_LOGGING>true</ENABLE_SQL_LOGGING>
     </EnvironmentVariables>
   </RunConfiguration>
 </RunSettings>
 "@
 
-$fileContents | Out-File -FilePath $outputFile
+$sb = New-Object System.Text.StringBuilder
+$outputs | Get-Member -MemberType Properties | Foreach-Object {
+    $propertyName = $_.Name
+    $propertyValue = [System.Security.SecurityElement]::Escape($outputs.$propertyName)
+    $sb.AppendLine("      <$($propertyName)>$($propertyValue)</$($propertyName)>") | Out-Null
+}
+
+$prefix + $sb.ToString() + $postfix | Out-File -FilePath $outputFile

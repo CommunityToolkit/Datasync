@@ -17,14 +17,13 @@ public class CosmosEntityTableRepository_Tests(DatabaseFixture fixture, ITestOut
 {
     #region Setup
     private readonly Random random = new();
-    private readonly string connectionString = Environment.GetEnvironmentVariable("DATASYNC_COSMOS_CONNECTIONSTRING");
     private List<CosmosEntityMovie> movies = [];
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(this.connectionString))
+        if (!string.IsNullOrEmpty(ConnectionStrings.CosmosDb))
         {
-            Context = await CosmosDbContext.CreateContextAsync(this.connectionString, output);
+            Context = await CosmosDbContext.CreateContextAsync(ConnectionStrings.CosmosDb, output);
             this.movies = await Context.Movies.AsNoTracking().ToListAsync();
         }
     }
@@ -39,7 +38,7 @@ public class CosmosEntityTableRepository_Tests(DatabaseFixture fixture, ITestOut
 
     private CosmosDbContext Context { get; set; }
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
+    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.CosmosDb);
 
     protected override async Task<CosmosEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);

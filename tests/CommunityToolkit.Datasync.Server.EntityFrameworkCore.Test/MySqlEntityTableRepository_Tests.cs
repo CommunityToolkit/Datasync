@@ -17,14 +17,13 @@ public class MysqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutp
 {
     #region Setup
     private readonly Random random = new();
-    private readonly string connectionString = Environment.GetEnvironmentVariable("DATASYNC_MYSQL_CONNECTIONSTRING");
     private List<MysqlEntityMovie> movies = [];
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(this.connectionString))
+        if (!string.IsNullOrEmpty(ConnectionStrings.MySql))
         {
-            Context = await MysqlDbContext.CreateContextAsync(this.connectionString, output);
+            Context = await MysqlDbContext.CreateContextAsync(ConnectionStrings.MySql, output);
             this.movies = await Context.Movies.AsNoTracking().ToListAsync();
         }
     }
@@ -39,7 +38,7 @@ public class MysqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutp
 
     private MysqlDbContext Context { get; set; }
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
+    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.MySql);
 
     protected override async Task<MysqlEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);

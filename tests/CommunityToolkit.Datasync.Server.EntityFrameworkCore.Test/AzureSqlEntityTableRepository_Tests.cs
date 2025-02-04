@@ -17,14 +17,13 @@ public class AzureSqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestO
 {
     #region Setup
     private readonly Random random = new();
-    private readonly string connectionString = Environment.GetEnvironmentVariable("DATASYNC_AZSQL_CONNECTIONSTRING");
     private List<AzureSqlEntityMovie> movies = [];
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(this.connectionString))
+        if (!string.IsNullOrEmpty(ConnectionStrings.AzureSql))
         {
-            Context = await AzureSqlDbContext.CreateContextAsync(this.connectionString, output);
+            Context = await AzureSqlDbContext.CreateContextAsync(ConnectionStrings.AzureSql, output);
             this.movies = await Context.Movies.AsNoTracking().ToListAsync();
         }
     }
@@ -39,7 +38,7 @@ public class AzureSqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestO
 
     private AzureSqlDbContext Context { get; set; }
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
+    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.AzureSql);
 
     protected override async Task<AzureSqlEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);

@@ -22,8 +22,7 @@ public static class LoggingExtensions
     /// <returns>The database context (for chaining).</returns>
     public static DbContextOptionsBuilder<TContext> EnableLogging<TContext>(this DbContextOptionsBuilder<TContext> current, ITestOutputHelper output) where TContext : DbContext
     {
-        bool enableLogging = (Environment.GetEnvironmentVariable("ENABLE_SQL_LOGGING") ?? "false") == "true";
-        if (output != null && enableLogging)
+        if (output != null && ConnectionStrings.EnableLogging)
         {
             current
                 .UseLoggerFactory(new TestLoggerFactory(output, categories))
