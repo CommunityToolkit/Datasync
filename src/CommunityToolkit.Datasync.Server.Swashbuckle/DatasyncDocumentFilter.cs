@@ -218,7 +218,7 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
     /// <param name="controllerType">The type of the controller being used.</param>
     /// <returns><c>true</c> if the Api description represents the controller.</returns>
     internal static bool IsApiDescriptionForController(ApiDescription description, Type controllerType)
-        => description.TryGetMethodInfo(out MethodInfo methodInfo) 
+        => description.TryGetMethodInfo(out MethodInfo methodInfo)
         && methodInfo.ReflectedType == controllerType
         && (methodInfo.Name.Equals(queryMethod) || methodInfo.Name.Equals(createMethod));
 
@@ -237,7 +237,7 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
     /// <returns><c>true</c> if the type is a datasync table controller.</returns>
     internal static bool IsTableController(Type type)
     {
-        if (!type.IsAbstract && type.BaseType != null && type.BaseType.IsGenericType == true)
+        if (!type.IsAbstract && type.BaseType?.IsGenericType == true)
         {
             if (type.GetCustomAttribute<DatasyncControllerAttribute>() != null)
             {

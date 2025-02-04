@@ -48,7 +48,7 @@ internal class ServiceStartup
     {
         services.AddDbContext<ServiceDbContext>(
             options => options.UseSqlite(DbConnection).EnableDetailedErrors().EnableSensitiveDataLogging(),
-            contextLifetime: ServiceLifetime.Transient, 
+            contextLifetime: ServiceLifetime.Transient,
             optionsLifetime: ServiceLifetime.Singleton);
         services.AddDatasyncServices();
         services.AddControllers();

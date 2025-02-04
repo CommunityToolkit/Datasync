@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -31,5 +32,5 @@ public class DateTimeConverter : JsonConverter<DateTime>
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
-        => writer.WriteStringValue(value.ToUniversalTime().ToString(format));
+        => writer.WriteStringValue(value.ToUniversalTime().ToString(format, CultureInfo.InvariantCulture));
 }
