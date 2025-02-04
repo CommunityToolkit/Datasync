@@ -16,18 +16,17 @@ public class PgSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper o
 {
     #region Setup
     private readonly Random random = new();
-    private readonly string connectionString = Environment.GetEnvironmentVariable("DATASYNC_PGSQL_CONNECTIONSTRING");
     private List<PgEntityMovie> movies = [];
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(this.connectionString))
+        if (!string.IsNullOrEmpty(ConnectionStrings.PgSql))
         {
             // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
             // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
             // to the database then change clearEntities to true.
             output.WriteLine($"PgIsInitialized = {fixture.PgIsInitialized}");
-            Context = await PgDbContext.CreateContextAsync(this.connectionString, output, clearEntities: !fixture.PgIsInitialized);
+            Context = await PgDbContext.CreateContextAsync(ConnectionStrings.PgSql, output, clearEntities: !fixture.PgIsInitialized);
             this.movies = Context.Movies.AsNoTracking().ToList();
             fixture.PgIsInitialized = true;
         }
@@ -45,7 +44,7 @@ public class PgSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper o
 
     protected override string DriverName { get; } = "PgSQL";
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
+    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.PgSql);
 
     protected override async Task<PgEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);

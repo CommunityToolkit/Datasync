@@ -7,7 +7,6 @@ using CommunityToolkit.Datasync.Server.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
-using System;
 using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.Server.Test.Live;
@@ -18,18 +17,17 @@ public class Cosmos_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper 
 {
     #region Setup
     private readonly Random random = new();
-    private readonly string connectionString = Environment.GetEnvironmentVariable("DATASYNC_COSMOS_CONNECTIONSTRING");
     private List<CosmosEntityMovie> movies = [];
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(this.connectionString))
+        if (!string.IsNullOrEmpty(ConnectionStrings.CosmosDb))
         {
             // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
             // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
             // to the database then change clearEntities to true.
             output.WriteLine($"CosmosIsInitialized = {fixture.CosmosIsInitialized}");
-            Context = await CosmosDbContext.CreateContextAsync(this.connectionString, output, clearEntities: !fixture.CosmosIsInitialized);
+            Context = await CosmosDbContext.CreateContextAsync(ConnectionStrings.CosmosDb, output, clearEntities: !fixture.CosmosIsInitialized);
             this.movies = await Context.Movies.AsNoTracking().ToListAsync();
             fixture.CosmosIsInitialized = true;
         }
@@ -47,7 +45,7 @@ public class Cosmos_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper 
 
     protected override string DriverName { get; } = "Cosmos";
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
+    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.CosmosDb);
 
     protected override async Task<CosmosEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);

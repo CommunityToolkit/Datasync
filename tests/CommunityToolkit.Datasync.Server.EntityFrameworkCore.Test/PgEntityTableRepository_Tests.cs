@@ -17,14 +17,13 @@ public class PgEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputH
 {
     #region Setup
     private readonly Random random = new();
-    private readonly string connectionString = Environment.GetEnvironmentVariable("DATASYNC_PGSQL_CONNECTIONSTRING");
     private List<PgEntityMovie> movies = [];
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(this.connectionString))
+        if (!string.IsNullOrEmpty(ConnectionStrings.PgSql))
         {
-            Context = await PgDbContext.CreateContextAsync(this.connectionString, output);
+            Context = await PgDbContext.CreateContextAsync(ConnectionStrings.PgSql, output);
             this.movies = await Context.Movies.AsNoTracking().ToListAsync();
         }
     }
@@ -39,7 +38,7 @@ public class PgEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputH
 
     private PgDbContext Context { get; set; }
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
+    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.PgSql);
 
     protected override async Task<PgEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);

@@ -179,4 +179,4 @@ resource collection 'Microsoft.DocumentDb/databaseAccounts/mongodbDatabases/coll
 /*********************************************************************************/
 
 #disable-next-line outputs-should-not-contain-secrets
-output MONGODB_CONNECTIONSTRING string = 'mongodb://${account.properties.documentEndpoint}/${containerName}'
+output MONGODB_CONNECTIONSTRING string = account.listConnectionStrings().connectionStrings[1].connectionString

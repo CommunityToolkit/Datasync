@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.TestCommon.Databases;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -10,8 +11,8 @@ namespace CommunityToolkit.Datasync.Client.Test.Live;
 [ExcludeFromCodeCoverage]
 public class SampleServerTests
 {
-    private readonly bool liveTestsAreEnabled = Environment.GetEnvironmentVariable("DATASYNC_SERVICE_ENDPOINT") is not null;
-    private readonly string serviceEndpoint = Environment.GetEnvironmentVariable("DATASYNC_SERVICE_ENDPOINT");
+    private readonly bool liveTestsAreEnabled = ConnectionStrings.Service is not null;
+    private readonly string serviceEndpoint = ConnectionStrings.Service;
 
     [SkippableFact]
     public async Task Metadata_GetsSetByServer()
