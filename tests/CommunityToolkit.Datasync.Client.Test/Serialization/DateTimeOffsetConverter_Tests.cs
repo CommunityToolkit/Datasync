@@ -8,34 +8,78 @@ using System.Text.Json;
 namespace CommunityToolkit.Datasync.Client.Test.Serialization;
 
 [ExcludeFromCodeCoverage]
-public class DateTimeOffsetConverter_Tests
+public class DateTimeOffsetConverter_Tests : SerializerTests
 {
-    private readonly JsonSerializerOptions serializerOptions;
-
-    public DateTimeOffsetConverter_Tests()
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_ReadsJson(string culture)
     {
-        this.serializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
-        this.serializerOptions.Converters.Add(new DateTimeOffsetConverter());
+        const string json = "{\"updatedAt\":\"2021-08-21T12:30:15.123+00:00\"}";
+        DateTimeOffset value = new(2021, 8, 21, 12, 30, 15, 123, TimeSpan.Zero);
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
+            entity.UpdatedAt.ToFileTime().Should().Be(value.ToFileTime());
+        });
+    }
+
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_WritesJson(string culture)
+    {
+        const string json = "{\"updatedAt\":\"2021-08-21T12:30:15.123Z\"}";
+        DateTimeOffset value = new(2021, 8, 21, 12, 30, 15, 123, 456, TimeSpan.Zero);
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = new() { UpdatedAt = value };
+            string actual = JsonSerializer.Serialize(entity, SerializerOptions);
+            Assert.Equal(json, actual);
+        });
+    }
+
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_WritesJson_WithTimeZone(string culture)
+    {
+        const string json = "{\"updatedAt\":\"2021-08-21T12:30:15.123Z\"}";
+        DateTimeOffset value = new(2021, 8, 21, 20, 30, 15, 123, 456, TimeSpan.FromHours(8));
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = new() { UpdatedAt = value };
+            string actual = JsonSerializer.Serialize(entity, SerializerOptions);
+            Assert.Equal(json, actual);
+        });
     }
 
     [Fact]
-    public void Read_Null_Works()
+    public void Converter_ThrowsOnBadDateInInput()
     {
-        string json = """{"dt":null}""";
-        SUT actual = JsonSerializer.Deserialize<SUT>(json, this.serializerOptions);
-        actual.dt.Should().Be(DateTimeOffset.MinValue);
+        const string json = "{\"updatedAt\":\"foo\"}";
+        Action act = () => _ = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
+        act.Should().Throw<Exception>();
     }
 
-    [Fact]
-    public void Read_Int_Throws()
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_HandlesNullDateInInput(string culture)
     {
-        string json = """{"dt":42}""";
-        Action act = () => _ = JsonSerializer.Deserialize<SUT>(json, this.serializerOptions);
-        act.Should().Throw<JsonException>();
+        const string json = """{"updatedAt":null}""";
+        DateTimeOffset value = DateTimeOffset.MinValue;
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
+            entity.UpdatedAt.Should().Be(value);
+        });
     }
 
-    class SUT
+    #region Models
+    public class Entity
     {
-        public DateTimeOffset dt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
     }
+    #endregion
 }
