@@ -2,40 +2,69 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.Client.Serialization;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace CommunityToolkit.Datasync.Client.Test.Serialization;
 
 [ExcludeFromCodeCoverage]
-public class TimeOnlyConverter_Tests
+public class TimeOnlyConverter_Tests : SerializerTests
 {
-    private readonly JsonSerializerOptions serializerOptions;
-
-    public TimeOnlyConverter_Tests()
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_ReadsJson(string culture)
     {
-        this.serializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
-        this.serializerOptions.Converters.Add(new TimeOnlyConverter());
+        const string json = """{"updatedAt":"12:30:15.123"}""";
+        TimeOnly value = new(12, 30, 15, 123);
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
+            entity.UpdatedAt.Ticks.Should().Be(value.Ticks);
+        });
+    }
+
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_WritesJson(string culture)
+    {
+        const string json = """{"updatedAt":"12:30:15.123"}""";
+        TimeOnly value = new(12, 30, 15, 123, 456);
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = new() { UpdatedAt = value };
+            string actual = JsonSerializer.Serialize(entity, SerializerOptions);
+            Assert.Equal(json, actual);
+        });
     }
 
     [Fact]
-    public void Read_Null_Works()
+    public void Converter_ThrowsOnBadDateInInput()
     {
-        string json = """{"dt":null}""";
-        SUT actual = JsonSerializer.Deserialize<SUT>(json, this.serializerOptions);
-        actual.dt.Should().Be(TimeOnly.MinValue);
+        const string json = """{"updatedAt":"foo"}""";
+        Action act = () => _ = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
+        act.Should().Throw<FormatException>();
     }
 
-    [Fact]
-    public void Read_Int_Throws()
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_HandlesNullDateInInput(string culture)
     {
-        string json = """{"dt":42}""";
-        Action act = () => _ = JsonSerializer.Deserialize<SUT>(json, this.serializerOptions);
-        act.Should().Throw<JsonException>();
+        const string json = """{"updatedAt":null}""";
+        TimeOnly value = TimeOnly.MinValue;
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
+            entity.UpdatedAt.Ticks.Should().Be(value.Ticks);
+        });
     }
 
-    class SUT
+    #region Models
+    public class Entity
     {
-        public TimeOnly dt { get; set; }
+        public TimeOnly UpdatedAt { get; set; }
     }
+    #endregion
 }

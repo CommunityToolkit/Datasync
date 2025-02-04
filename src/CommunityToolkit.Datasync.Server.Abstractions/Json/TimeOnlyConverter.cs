@@ -15,7 +15,6 @@ namespace CommunityToolkit.Datasync.Server.Abstractions.Json;
 public class TimeOnlyConverter : JsonConverter<TimeOnly>
 {
     private const string format = "HH:mm:ss.fff";
-    private static readonly CultureInfo culture = new("en-US");
 
     /// <inheritdoc />
     public override TimeOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -23,5 +22,5 @@ public class TimeOnlyConverter : JsonConverter<TimeOnly>
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, TimeOnly value, JsonSerializerOptions options)
-        => writer.WriteStringValue(value.ToString(format, culture));
+        => writer.WriteStringValue(value.ToString(format, CultureInfo.InvariantCulture));
 }

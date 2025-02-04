@@ -15,7 +15,6 @@ namespace CommunityToolkit.Datasync.Server.Abstractions.Json;
 public class DateTimeConverter : JsonConverter<DateTime>
 {
     private const string format = "yyyy-MM-dd'T'HH:mm:ss.fffK";
-    private static readonly CultureInfo culture = new("en-US");
 
     /// <inheritdoc />
     public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -23,5 +22,5 @@ public class DateTimeConverter : JsonConverter<DateTime>
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
-        => writer.WriteStringValue(value.ToUniversalTime().ToString(format, culture));
+        => writer.WriteStringValue(value.ToUniversalTime().ToString(format, CultureInfo.InvariantCulture));
 }
