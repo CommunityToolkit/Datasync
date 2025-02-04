@@ -13,7 +13,7 @@ public class DateTimeConverter_Tests : SerializerTests
     [MemberData(nameof(Locales))]
     public void Converter_ReadsJson(string culture)
     {
-        string json = """{"updatedAt":"2021-08-21T12:30:15.123+00:00"}""";
+        const string json = """{"updatedAt":"2021-08-21T12:30:15.123+00:00"}""";
         DateTime value = new(2021, 8, 21, 12, 30, 15, 123, DateTimeKind.Utc);
 
         TestWithCulture(culture, () =>
@@ -27,7 +27,7 @@ public class DateTimeConverter_Tests : SerializerTests
     [MemberData(nameof(Locales))]
     public void Converter_WritesJson(string culture)
     {
-        string json = """{"updatedAt":"2021-08-21T12:30:15.123Z"}""";
+        const string json = """{"updatedAt":"2021-08-21T12:30:15.123Z"}""";
         DateTime value = new(2021, 8, 21, 12, 30, 15, 123, 456, DateTimeKind.Utc);
 
         TestWithCulture(culture, () =>
@@ -42,7 +42,7 @@ public class DateTimeConverter_Tests : SerializerTests
     [MemberData(nameof(Locales))]
     public void Converter_WritesJson_WithTimeZone(string culture)
     {
-        string json = """{"updatedAt":"2021-08-21T12:30:15.123Z"}""";
+        const string json = """{"updatedAt":"2021-08-21T12:30:15.123Z"}""";
         DateTime value = DateTime.Parse("2021-08-21T20:30:15.1234567+08:00");
 
         TestWithCulture(culture, () =>
@@ -56,7 +56,7 @@ public class DateTimeConverter_Tests : SerializerTests
     [Fact]
     public void Converter_ThrowsOnBadDateInInput()
     {
-        string json = """{"updatedAt":"foo"}""";
+        const string json = """{"updatedAt":"foo"}""";
         Action act = () => _ = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
         act.Should().Throw<FormatException>();
     }
@@ -64,7 +64,7 @@ public class DateTimeConverter_Tests : SerializerTests
     [Fact]
     public void Converter_ThrowsOnNullDateInInput()
     {
-        string json = """{"updatedAt":null}""";
+        const string json = """{"updatedAt":null}""";
         Action act = () => _ = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
         act.Should().Throw<FormatException>();
     }

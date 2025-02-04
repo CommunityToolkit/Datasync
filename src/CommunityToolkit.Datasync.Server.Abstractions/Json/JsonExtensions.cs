@@ -17,7 +17,7 @@ internal static class JsonExtensions
     /// <param name="reader">The <see cref="Utf8JsonReader"/> to assert.</param>
     /// <param name="expectedTokenType">The expected <see cref="JsonTokenType"/> of the current token.</param>
     /// <exception cref="JsonException">The current token did not match the <paramref name="expectedTokenType"/>.</exception>
-    public static void Expect(in this Utf8JsonReader reader, JsonTokenType expectedTokenType)
+    public static void Expect(this Utf8JsonReader reader, JsonTokenType expectedTokenType)
     {
         if (reader.TokenType != expectedTokenType)
         {
