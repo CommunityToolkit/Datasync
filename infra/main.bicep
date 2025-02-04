@@ -50,6 +50,7 @@ module resources './resources.bicep' = {
 
 output AZSQL_CONNECTION_STRING string = resources.outputs.AZSQL_CONNECTIONSTRING
 output COSMOS_CONNECTION_STRING string = resources.outputs.COSMOS_CONNECTIONSTRING
+output MONGO_CONNECTION_STRING string = resources.outputs.MONGO_CONNECTIONSTRING
 output MYSQL_CONNECTION_STRING string = resources.outputs.MYSQL_CONNECTIONSTRING
 output PGSQL_CONNECTION_STRING string = resources.outputs.PGSQL_CONNECTIONSTRING
 output SERVICE_ENDPOINT string = resources.outputs.SERVICE_ENDPOINT

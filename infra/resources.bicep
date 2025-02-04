@@ -35,6 +35,7 @@ var azsqlServerName = 'sql-${resourceToken}'
 var cosmosServerName = 'cosmos-${resourceToken}'
 var pgsqlServerName = 'pgsql-${resourceToken}'
 var mysqlServerName = 'mysql-${resourceToken}'
+var mongoServerName = 'mongo-${resourceToken}'
 
 var testDatabaseName = 'unittests'
 var cosmosContainerName = 'Movies'
@@ -103,6 +104,17 @@ module cosmos './modules/cosmos.bicep' = {
     }
 }
 
+module mongodb './modules/cosmos-mongodb.bicep' = {
+    name: 'mongo-deployment-${resourceToken}'
+    params: {
+        location: location
+        tags: tags
+        databaseName: testDatabaseName
+        containerName: cosmosContainerName
+        serverName: mongoServerName
+    }
+}
+
 module app_service './modules/appservice.bicep' = {
     name: 'appsvc-deployment-${resourceToken}'
     params: {
@@ -124,6 +136,7 @@ module app_service './modules/appservice.bicep' = {
 
 output AZSQL_CONNECTIONSTRING string = azuresql.outputs.AZSQL_CONNECTIONSTRING
 output COSMOS_CONNECTIONSTRING string = cosmos.outputs.COSMOS_CONNECTIONSTRING
+output MONGO_CONNECTIONSTRING string = mongodb.outputs.MONGODB_CONNECTIONSTRING
 output MYSQL_CONNECTIONSTRING string = mysql.outputs.MYSQL_CONNECTIONSTRING
 output PGSQL_CONNECTIONSTRING string = pgsql.outputs.PGSQL_CONNECTIONSTRING
 output SERVICE_ENDPOINT string = app_service.outputs.SERVICE_ENDPOINT
