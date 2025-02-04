@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -31,5 +32,5 @@ public class TimeOnlyConverter : JsonConverter<TimeOnly>
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, TimeOnly value, JsonSerializerOptions options)
-        => writer.WriteStringValue(value.ToString(format));
+        => writer.WriteStringValue(value.ToString(format, CultureInfo.InvariantCulture));
 }

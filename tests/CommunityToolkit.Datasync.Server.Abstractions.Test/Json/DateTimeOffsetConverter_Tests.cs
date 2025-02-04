@@ -13,7 +13,7 @@ public class DateTimeOffsetConverter_Tests : SerializerTests
     [MemberData(nameof(Locales))]
     public void Converter_ReadsJson(string culture)
     {
-        string json = "{\"updatedAt\":\"2021-08-21T12:30:15.123+00:00\"}";
+        const string json = "{\"updatedAt\":\"2021-08-21T12:30:15.123+00:00\"}";
         DateTimeOffset value = new(2021, 8, 21, 12, 30, 15, 123, TimeSpan.Zero);
 
         TestWithCulture(culture, () =>
@@ -27,7 +27,7 @@ public class DateTimeOffsetConverter_Tests : SerializerTests
     [MemberData(nameof(Locales))]
     public void Converter_WritesJson(string culture)
     {
-        string json = "{\"updatedAt\":\"2021-08-21T12:30:15.123Z\"}";
+        const string json = "{\"updatedAt\":\"2021-08-21T12:30:15.123Z\"}";
         DateTimeOffset value = new(2021, 8, 21, 12, 30, 15, 123, 456, TimeSpan.Zero);
 
         TestWithCulture(culture, () =>
@@ -42,7 +42,7 @@ public class DateTimeOffsetConverter_Tests : SerializerTests
     [MemberData(nameof(Locales))]
     public void Converter_WritesJson_WithTimeZone(string culture)
     {
-        string json = "{\"updatedAt\":\"2021-08-21T12:30:15.123Z\"}";
+        const string json = "{\"updatedAt\":\"2021-08-21T12:30:15.123Z\"}";
         DateTimeOffset value = new(2021, 8, 21, 20, 30, 15, 123, 456, TimeSpan.FromHours(8));
 
         TestWithCulture(culture, () =>
@@ -56,7 +56,7 @@ public class DateTimeOffsetConverter_Tests : SerializerTests
     [Fact]
     public void Converter_ThrowsOnBadDateInInput()
     {
-        string json = "{\"updatedAt\":\"foo\"}";
+        const string json = "{\"updatedAt\":\"foo\"}";
         Action act = () => _ = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
         act.Should().Throw<Exception>();
     }
@@ -64,7 +64,7 @@ public class DateTimeOffsetConverter_Tests : SerializerTests
     [Fact]
     public void Converter_ThrowsOnNullDateInInput()
     {
-        string json = """{"updatedAt":null}""";
+        const string json = """{"updatedAt":null}""";
         Action act = () => _ = JsonSerializer.Deserialize<Entity>(json, SerializerOptions);
         act.Should().Throw<FormatException>();
     }
