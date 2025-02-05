@@ -2,7 +2,7 @@ targetScope = 'resourceGroup'
 
 @minLength(1)
 @description('The name of the test container to create')
-param containerName string = 'Movies'
+param collectionName string = 'movies'
 
 @minLength(1)
 @description('The name of the test database to create')
@@ -149,11 +149,11 @@ resource database 'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases@2022-0
 
 resource collection 'Microsoft.DocumentDb/databaseAccounts/mongodbDatabases/collections@2022-05-15' = {
   parent: database
-  name: containerName
+  name: collectionName
   tags: tags
   properties: {
     resource: {
-      id: containerName
+      id: collectionName
       shardKey: {
         _id: 'Hash'
       }

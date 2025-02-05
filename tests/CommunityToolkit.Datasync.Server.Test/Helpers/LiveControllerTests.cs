@@ -174,6 +174,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=((year div 1000.5) eq 2) and (rating eq 'R')",
@@ -203,6 +204,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=(year div 1000.5) eq 2",
@@ -260,6 +262,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2",
@@ -275,6 +278,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2",
@@ -290,6 +294,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2",
@@ -347,6 +352,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=ceiling(duration div 60.0) eq 2",
@@ -362,6 +368,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=day(releaseDate) eq 1",
@@ -433,6 +440,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=floor(duration div 60.0) eq 2",
@@ -448,6 +456,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=month(releaseDate) eq 11",
@@ -561,6 +570,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate eq cast(1994-10-14,Edm.Date)",
@@ -576,6 +586,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate ge cast(1999-12-31,Edm.Date)",
@@ -591,6 +602,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate gt cast(1999-12-31,Edm.Date)",
@@ -606,6 +618,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate le cast(2000-01-01,Edm.Date)",
@@ -621,6 +634,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate lt cast(2000-01-01,Edm.Date)",
@@ -636,6 +650,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=round(duration div 60.0) eq 2",
@@ -777,6 +792,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=year(releaseDate) eq 1994",
@@ -1016,6 +1032,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=((year div 1000.5) eq 2) and (rating eq 'R')",
@@ -1045,6 +1062,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=(year div 1000.5) eq 2",
@@ -1102,6 +1120,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2",
@@ -1117,6 +1136,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2",
@@ -1132,6 +1152,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2",
@@ -1189,6 +1210,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=ceiling(duration div 60.0) eq 2",
@@ -1204,6 +1226,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=day(releaseDate) eq 1",
@@ -1275,6 +1298,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=floor(duration div 60.0) eq 2",
@@ -1290,6 +1314,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=month(releaseDate) eq 11",
@@ -1403,6 +1428,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate eq cast(1994-10-14,Edm.Date)",
@@ -1418,6 +1444,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate ge cast(1999-12-31,Edm.Date)",
@@ -1433,6 +1460,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate gt cast(1999-12-31,Edm.Date)",
@@ -1448,6 +1476,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate le cast(2000-01-01,Edm.Date)",
@@ -1463,6 +1492,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate lt cast(2000-01-01,Edm.Date)",
@@ -1478,6 +1508,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=round(duration div 60.0) eq 2",
@@ -1619,6 +1650,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=year(releaseDate) eq 1994",
@@ -1858,6 +1890,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=((year div 1000.5) eq 2) and (rating eq 'R')",
@@ -1887,6 +1920,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=(year div 1000.5) eq 2",
@@ -1944,6 +1978,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2",
@@ -1959,6 +1994,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2",
@@ -1974,6 +2010,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2",
@@ -2031,6 +2068,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=ceiling(duration div 60.0) eq 2",
@@ -2046,6 +2084,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=day(releaseDate) eq 1",
@@ -2117,6 +2156,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=floor(duration div 60.0) eq 2",
@@ -2132,6 +2172,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=month(releaseDate) eq 11",
@@ -2245,6 +2286,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate eq cast(1994-10-14,Edm.Date)",
@@ -2260,6 +2302,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate ge cast(1999-12-31,Edm.Date)",
@@ -2275,6 +2318,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate gt cast(1999-12-31,Edm.Date)",
@@ -2290,6 +2334,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate le cast(2000-01-01,Edm.Date)",
@@ -2305,6 +2350,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate lt cast(2000-01-01,Edm.Date)",
@@ -2320,6 +2366,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=round(duration div 60.0) eq 2",
@@ -2461,6 +2508,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year(releaseDate) eq 1994",
@@ -2700,6 +2748,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=((year div 1000.5) eq 2) and (rating eq 'R')&$skip=5",
@@ -2728,6 +2777,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=(year div 1000.5) eq 2&$skip=5",
@@ -2785,6 +2835,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2&$skip=5",
@@ -2800,6 +2851,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2&$skip=5",
@@ -2815,6 +2867,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2&$skip=5",
@@ -2872,6 +2925,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=ceiling(duration div 60.0) eq 2&$skip=5",
@@ -2887,6 +2941,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=day(releaseDate) eq 1&$skip=5",
@@ -2958,6 +3013,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=floor(duration div 60.0) eq 2&$skip=5",
@@ -2973,6 +3029,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=month(releaseDate) eq 11&$skip=5",
@@ -3086,6 +3143,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate eq cast(1994-10-14,Edm.Date)&$skip=5",
@@ -3100,6 +3158,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate ge cast(1999-12-31,Edm.Date)&$skip=5",
@@ -3115,6 +3174,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate gt cast(1999-12-31,Edm.Date)&$skip=5",
@@ -3130,6 +3190,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate le cast(2000-01-01,Edm.Date)&$skip=5",
@@ -3145,6 +3206,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate lt cast(2000-01-01,Edm.Date)&$skip=5",
@@ -3160,6 +3222,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=round(duration div 60.0) eq 2&$skip=5",
@@ -3300,6 +3363,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year(releaseDate) eq 1994&$skip=5",
@@ -3594,6 +3658,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=((year div 1000.5) eq 2) and (rating eq 'R')",
@@ -3623,6 +3688,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=(year div 1000.5) eq 2",
@@ -3680,6 +3746,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2",
@@ -3695,6 +3762,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2",
@@ -3710,6 +3778,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2",
@@ -3767,6 +3836,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=ceiling(duration div 60.0) eq 2",
@@ -3782,6 +3852,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=day(releaseDate) eq 1",
@@ -3853,6 +3924,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Complex math is not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=floor(duration div 60.0) eq 2",
@@ -3868,6 +3940,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=month(releaseDate) eq 11",
@@ -3981,6 +4054,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate eq cast(1994-10-14,Edm.Date)",
@@ -3996,6 +4070,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate ge cast(1999-12-31,Edm.Date)",
@@ -4011,6 +4086,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate gt cast(1999-12-31,Edm.Date)",
@@ -4026,6 +4102,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate le cast(2000-01-01,Edm.Date)",
@@ -4041,6 +4118,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate lt cast(2000-01-01,Edm.Date)",
@@ -4056,6 +4134,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=round(duration div 60.0) eq 2",
@@ -4197,6 +4276,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     {
         Skip.IfNot(CanRunLiveTests());
         Skip.If(DriverName == "Cosmos", "Date components are not supported");
+        Skip.If(DriverName == "MongoDB", "Not supported by MongoDB");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=year(releaseDate) eq 1994",
