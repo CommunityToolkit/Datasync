@@ -3,14 +3,14 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
-using CommunityToolkit.Datasync.TestCommon.Models;
 
-namespace CommunityToolkit.Datasync.Server.NSwag.Test.Service;
+namespace CommunityToolkit.Datasync.OpenApiService.Models;
 
-[ExcludeFromCodeCoverage]
-public class TodoItem : EntityTableData
+public enum KitchenSinkState
 {
-    public string Title { get; set; }
+    None,
+    Completed,
+    Failed
 }
 
 [ExcludeFromCodeCoverage]
