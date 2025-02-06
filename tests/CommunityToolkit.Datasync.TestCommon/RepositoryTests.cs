@@ -73,7 +73,28 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         int expected = TestData.Movies.Count<TEntity>(m => m.Rating == MovieRating.R);
         IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
-        IList<TEntity> actual = await Repository.ToListAsync(queryable.Where(m => m.Rating == MovieRating.R));
+        IQueryable<TEntity> sut = queryable
+            .Where(m => m.Rating == MovieRating.R);
+        IList<TEntity> actual = await Repository.ToListAsync(sut);
+
+        actual.Should().HaveCount(expected);
+    }
+
+    [SkippableFact]
+    public async Task AsQueryableAsync_CanRetrieveOrderedLists()
+    {
+        Skip.IfNot(CanRunLiveTests());
+
+        IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
+        int expected = TestData.Movies.Count<TEntity>();
+        IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
+
+        // We pick this set of orderings because we create a CosmosDB composite index for these already.
+        IQueryable<TEntity> sut = queryable
+            .OrderBy(m => m.ReleaseDate)
+            .ThenBy(m => m.Id);
+
+        IList<TEntity> actual = await Repository.ToListAsync(sut);
 
         actual.Should().HaveCount(expected);
     }
@@ -85,7 +106,11 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
-        IList<TEntity> actual = await Repository.ToListAsync(queryable.Where(m => m.Rating == MovieRating.R).Skip(5).Take(20));
+        IQueryable<TEntity> sut = queryable
+            .Where(m => m.Rating == MovieRating.R)
+            .Skip(5)
+            .Take(20);
+        IList<TEntity> actual = await Repository.ToListAsync(sut);
 
         actual.Should().HaveCount(20);
     }
@@ -100,7 +125,12 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
 
         IRepository<TEntity> Repository = await GetPopulatedRepositoryAsync();
         IQueryable<TEntity> queryable = await Repository.AsQueryableAsync();
-        IList<TEntity> actual = await Repository.ToListAsync(queryable.Where(m => m.UpdatedAt > DateTimeOffset.UnixEpoch && !m.Deleted).OrderBy(m => m.UpdatedAt).Skip(10).Take(10));
+        IQueryable<TEntity> sut = queryable
+            .Where(m => m.UpdatedAt > DateTimeOffset.UnixEpoch && !m.Deleted)
+            .OrderBy(m => m.UpdatedAt)
+            .Skip(10)
+            .Take(10);
+        IList<TEntity> actual = await Repository.ToListAsync(sut);
 
         actual.Should().HaveCount(10);
     }

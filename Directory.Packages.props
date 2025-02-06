@@ -24,6 +24,7 @@
     <PackageVersion Include="Microsoft.OData.Core" Version="8.2.3" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Spatial" Version="8.2.3" />
+    <PackageVersion Include="MongoDB.Driver" Version="3.1.0" />
     <PackageVersion Include="NSubstitute" Version="5.3.0" />
     <PackageVersion Include="NSwag.AspNetCore" Version="14.2.0" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
