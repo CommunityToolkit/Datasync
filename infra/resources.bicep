@@ -105,7 +105,7 @@ module cosmos './modules/cosmos.bicep' = {
     }
 }
 
-module mongodb './modules/cosmos-mongodb-vcore.bicep' = {
+module mongodb './modules/cosmos-mongodb.bicep' = {
     name: 'mongo-deployment-${resourceToken}'
     params: {
         location: location
