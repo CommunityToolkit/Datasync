@@ -105,14 +105,14 @@ module cosmos './modules/cosmos.bicep' = {
     }
 }
 
-module mongodb './modules/cosmos-mongodb.bicep' = {
+module mongodb './modules/cosmos-mongodb-vcore.bicep' = {
     name: 'mongo-deployment-${resourceToken}'
     params: {
         location: location
         tags: tags
-        databaseName: testDatabaseName
-        containerName: cosmosContainerName
         serverName: mongoServerName
+        administratorPassword: sqlAdminPassword
+        administratorUsername: sqlAdminUsername
     }
 }
 
@@ -148,7 +148,7 @@ module app_service './modules/appservice.bicep' = {
 
 output AZSQL_CONNECTIONSTRING string = azuresql.outputs.AZSQL_CONNECTIONSTRING
 output COSMOS_CONNECTIONSTRING string = cosmos.outputs.COSMOS_CONNECTIONSTRING
-output MONGO_CONNECTIONSTRING string = mongodb.outputs.MONGODB_CONNECTIONSTRING
+output MONGO_CONNECTIONSTRING string = mongodb.outputs.MONGO_CONNECTIONSTRING
 output MONGOACI_CONNECTIONSTRING string = mongoaci.outputs.MONGO_CONNECTIONSTRING
 output MYSQL_CONNECTIONSTRING string = mysql.outputs.MYSQL_CONNECTIONSTRING
 output PGSQL_CONNECTIONSTRING string = pgsql.outputs.PGSQL_CONNECTIONSTRING

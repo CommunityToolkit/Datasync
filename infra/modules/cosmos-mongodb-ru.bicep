@@ -24,86 +24,13 @@ param tags object = {}
 
 /*********************************************************************************/
 
-var compositeIndices = [
-  [
-    { path: '/BestPictureWinner', order: 'ascending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/BestPictureWinner', order: 'descending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/Duration', order: 'ascending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/Duration', order: 'descending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/Rating', order: 'ascending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/Rating', order: 'descending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/ReleaseDate', order: 'ascending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/ReleaseDate', order: 'descending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/Title', order: 'ascending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/Title', order: 'descending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/UpdatedAt', order: 'ascending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/UpdatedAt', order: 'descending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/Year', order: 'ascending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/Year', order: 'descending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/Year', order: 'ascending' }
-    { path: '/Title', order: 'ascending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/Year', order: 'descending' }
-    { path: '/Title', order: 'ascending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/Year', order: 'ascending' }
-    { path: '/Title', order: 'descending' }
-    { path: '/id', order: 'ascending' }
-  ]
-  [
-    { path: '/Year', order: 'descending' }
-    { path: '/Title', order: 'descending' }
-    { path: '/id', order: 'ascending' }
-  ]
-]
-
-/*********************************************************************************/
+/*
+** Note that this implements the serverless (RU) model.  If you use the dedicated (vCore)
+** deployment model, it acts much more like MongoDB Community Edition.
+**
+** The use of the serverless model means you have to manually add composite keys for just
+** about everything.  See TestCommon MongoDBContext for how to do this.
+*/
 
 resource account 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' = {
   name: toLower(serverName)
@@ -155,7 +82,7 @@ resource collection 'Microsoft.DocumentDb/databaseAccounts/mongodbDatabases/coll
     resource: {
       id: collectionName
       shardKey: {
-        _id: 'Hash'
+        rating: 'Hash'
       }
       indexes: [
         {
@@ -176,6 +103,7 @@ resource collection 'Microsoft.DocumentDb/databaseAccounts/mongodbDatabases/coll
     }
   }
 }
+
 /*********************************************************************************/
 
 #disable-next-line outputs-should-not-contain-secrets
