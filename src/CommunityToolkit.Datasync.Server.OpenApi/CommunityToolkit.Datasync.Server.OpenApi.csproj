@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Provides necessary capabilities for supporting the Datasync server library when using the official OpenApi generator.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CommunityToolkit.Datasync.Server.OpenApi.Test" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj" />
+  </ItemGroup>
+</Project>

@@ -2,10 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using CommunityToolkit.Datasync.OpenApiService.Extensions;
+using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
 
-namespace CommunityToolkit.Datasync.OpenApiService.Models;
+namespace CommunityToolkit.Datasync.Server.OpenApi.Test.Service;
 
 [ExcludeFromCodeCoverage]
 public class ServiceDbContext(DbContextOptions<ServiceDbContext> options) : DbContext(options)
