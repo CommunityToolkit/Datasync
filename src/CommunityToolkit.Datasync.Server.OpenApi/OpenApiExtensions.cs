@@ -19,9 +19,7 @@ public static class OpenApiExtensions
     public static OpenApiOptions AddDatasyncTransformers(this OpenApiOptions options)
     {
         _ = options
-            .AddDocumentTransformer<DatasyncDocumentTransformer>()
-            .AddOperationTransformer<DatasyncOperationTransformer>()
-            .AddSchemaTransformer<DatasyncSchemaTransformer>();
+            .AddOperationTransformer<DatasyncOperationTransformer>();
 
         return options;
     }
