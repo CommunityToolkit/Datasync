@@ -16,6 +16,7 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
 string? swaggerDriver = builder.Configuration["Swagger:Driver"];
 bool nswagEnabled = swaggerDriver?.Equals("NSwag", StringComparison.InvariantCultureIgnoreCase) == true;
 bool swashbuckleEnabled = swaggerDriver?.Equals("Swashbuckle", StringComparison.InvariantCultureIgnoreCase) == true;
+bool openApiEnabled = swaggerDriver?.Equals("NET9", StringComparison.InvariantCultureIgnoreCase) == true;
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddDatasyncServices();
@@ -23,15 +24,18 @@ builder.Services.AddControllers();
 
 if (nswagEnabled)
 {
-    _ = builder.Services
-        .AddOpenApiDocument(options => options.AddDatasyncProcessor());
+    _ = builder.Services.AddOpenApiDocument(options => options.AddDatasyncProcessor());
 }
 
 if (swashbuckleEnabled)
 {
-    _ = builder.Services
-        .AddEndpointsApiExplorer()
-        .AddSwaggerGen(options => options.AddDatasyncControllers());
+    _ = builder.Services.AddEndpointsApiExplorer();
+    _ = builder.Services.AddSwaggerGen(options => options.AddDatasyncControllers());
+}
+
+if (openApiEnabled)
+{
+    _ = builder.Services.AddOpenApi();
 }
 
 WebApplication app = builder.Build();
@@ -57,5 +61,10 @@ if (swashbuckleEnabled)
 
 app.UseAuthorization();
 app.MapControllers();
+
+if (openApiEnabled)
+{
+    _ = app.MapOpenApi(pattern: "swagger/{documentName}/swagger.json");
+}
 
 app.Run();

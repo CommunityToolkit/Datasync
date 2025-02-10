@@ -68,6 +68,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.MongoDB.Test", "tests\CommunityToolkit.Datasync.Server.MongoDB.Test\CommunityToolkit.Datasync.Server.MongoDB.Test.csproj", "{4FC45D20-0BA9-484B-9040-641687659AF6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.OpenApi.Test", "tests\CommunityToolkit.Datasync.Server.OpenApi.Test\CommunityToolkit.Datasync.Server.OpenApi.Test.csproj", "{99E727A3-8EB3-437E-AAC8-3596E8B9B2AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.OpenApi", "src\CommunityToolkit.Datasync.Server.OpenApi\CommunityToolkit.Datasync.Server.OpenApi.csproj", "{505421EC-2598-4114-B2EC-997959B89E74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -166,6 +170,14 @@ Global
 		{4FC45D20-0BA9-484B-9040-641687659AF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FC45D20-0BA9-484B-9040-641687659AF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4FC45D20-0BA9-484B-9040-641687659AF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99E727A3-8EB3-437E-AAC8-3596E8B9B2AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99E727A3-8EB3-437E-AAC8-3596E8B9B2AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99E727A3-8EB3-437E-AAC8-3596E8B9B2AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99E727A3-8EB3-437E-AAC8-3596E8B9B2AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{505421EC-2598-4114-B2EC-997959B89E74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{505421EC-2598-4114-B2EC-997959B89E74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{505421EC-2598-4114-B2EC-997959B89E74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{505421EC-2598-4114-B2EC-997959B89E74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -194,6 +206,8 @@ Global
 		{A9967817-2A2C-4C6D-A133-967A6062E9B3} = {75F709FD-8CC2-4558-A802-FE57086167C2}
 		{DC20ACF9-12E9-41D9-B672-CB5FD85548E9} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{4FC45D20-0BA9-484B-9040-641687659AF6} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
+		{99E727A3-8EB3-437E-AAC8-3596E8B9B2AE} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
+		{505421EC-2598-4114-B2EC-997959B89E74} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {78A935E9-8F14-448A-BEDF-360FB742F14E}

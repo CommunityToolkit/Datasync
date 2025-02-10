@@ -10,8 +10,9 @@
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server\CommunityToolkit.Datasync.Server.csproj" />
     <ProjectReference Include="..\CommunityToolkit.Datasync.TestCommon\CommunityToolkit.Datasync.TestCommon.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />

@@ -5,7 +5,7 @@
 using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
 using CommunityToolkit.Datasync.TestCommon.Models;
 
-namespace CommunityToolkit.Datasync.Server.NSwag.Test.Service;
+namespace CommunityToolkit.Datasync.Server.OpenApi.Test.Service;
 
 [ExcludeFromCodeCoverage]
 public class TodoItem : EntityTableData

@@ -4,10 +4,11 @@
 
 using CommunityToolkit.Datasync.Server;
 using CommunityToolkit.Datasync.Server.InMemory;
-using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 using CommunityToolkit.Datasync.TestCommon.Databases;
-using Microsoft.OData.ModelBuilder;
 using CommunityToolkit.Datasync.TestService.AccessControlProviders;
+using Microsoft.OData.ModelBuilder;
+
+using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -25,12 +26,15 @@ builder.Services.AddDatasyncServices(modelBuilder.GetEdmModel());
 
 builder.Services.AddSingleton<IAccessControlProvider<InMemoryMovie>>(new MovieAccessControlProvider<InMemoryMovie>());
 
+builder.Services.AddOpenApi();
+
 builder.Services.AddControllers();
 
 WebApplication app = builder.Build();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+app.MapOpenApi();
 
 app.Run();
 
