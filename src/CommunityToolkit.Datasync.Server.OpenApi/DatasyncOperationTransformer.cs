@@ -52,6 +52,12 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
             return;
         }
 
+        if (actionName?.StartsWith("Replace", StringComparison.InvariantCultureIgnoreCase) == true)
+        {
+            await TransformReplaceAsync(operation, context, cancellationToken).ConfigureAwait(false);
+            return;
+        }
+
         return;
     }
 
@@ -101,10 +107,15 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
     {
         Type entityType = GetEntityType(context);
 
-        operation.Responses.AddEntityResponse(201, context.GetSchemaForType(entityType), includeConditionalHeaders: true);
+        operation.AddRequestBody(context.GetSchemaForType(entityType));
+
+        operation.Responses.AddEntityResponse(StatusCodes.Status201Created,
+            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
         operation.Responses.AddStatusCode(StatusCodes.Status400BadRequest);
-        operation.Responses.AddEntityResponse(409, context.GetSchemaForType(entityType), includeConditionalHeaders: true);
-        operation.Responses.AddEntityResponse(412, context.GetSchemaForType(entityType), includeConditionalHeaders: true);
+        operation.Responses.AddEntityResponse(StatusCodes.Status409Conflict,
+            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
+        operation.Responses.AddEntityResponse(StatusCodes.Status412PreconditionFailed,
+            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
 
         return Task.CompletedTask;
     }
@@ -126,9 +137,10 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
         operation.Responses.AddStatusCode(StatusCodes.Status400BadRequest);
         operation.Responses.AddStatusCode(StatusCodes.Status404NotFound);
         operation.Responses.AddStatusCode(StatusCodes.Status410Gone);
-
-        operation.Responses.AddEntityResponse(409, context.GetSchemaForType(entityType), includeConditionalHeaders: true);
-        operation.Responses.AddEntityResponse(412, context.GetSchemaForType(entityType), includeConditionalHeaders: true);
+        operation.Responses.AddEntityResponse(StatusCodes.Status409Conflict,
+            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
+        operation.Responses.AddEntityResponse(StatusCodes.Status412PreconditionFailed,
+            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
 
         return Task.CompletedTask;
     }
@@ -153,7 +165,8 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
         operation.Parameters.AddIntQueryParameter("$top", "The number of items to return", 1);
         operation.Parameters.AddIncludeDeletedQuery();
 
-        operation.Responses.AddEntityResponse(200, context.GetSchemaForType(pagedEntityType), includeConditionalHeaders: false);
+        operation.Responses.AddEntityResponse(StatusCodes.Status200OK,
+            context.GetSchemaForType(pagedEntityType), includeConditionalHeaders: false);
         operation.Responses.AddStatusCode(StatusCodes.Status400BadRequest);
 
         return Task.CompletedTask;
@@ -174,10 +187,40 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
         operation.Parameters.AddIfNoneMatchHeader();
         operation.Parameters.AddIfModifiedSinceHeader();
 
-        operation.Responses.AddEntityResponse(200, context.GetSchemaForType(entityType), includeConditionalHeaders: true);
+        operation.Responses.AddEntityResponse(StatusCodes.Status200OK,
+            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
         operation.Responses.AddStatusCode(StatusCodes.Status304NotModified);
         operation.Responses.AddStatusCode(StatusCodes.Status404NotFound);
         operation.Responses.AddStatusCode(StatusCodes.Status410Gone);
+
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Transforms a replace operation.
+    /// </summary>
+    /// <param name="operation">The operation to transform.</param>
+    /// <param name="context">The operation transformer context.</param>
+    /// <param name="cancellationToken">A cancellation token to observe.</param>
+    /// <returns>A task that resolves when the operation is complete.</returns>
+    internal Task TransformReplaceAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
+    {
+        Type entityType = GetEntityType(context);
+
+        operation.AddRequestBody(context.GetSchemaForType(entityType));
+        operation.Parameters.AddIncludeDeletedQuery();
+        operation.Parameters.AddIfMatchHeader();
+        operation.Parameters.AddIfUnmodifiedSinceHeader();
+
+        operation.Responses.AddEntityResponse(StatusCodes.Status200OK,
+            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
+        operation.Responses.AddStatusCode(StatusCodes.Status400BadRequest);
+        operation.Responses.AddStatusCode(StatusCodes.Status404NotFound);
+        operation.Responses.AddStatusCode(StatusCodes.Status410Gone);
+        operation.Responses.AddEntityResponse(StatusCodes.Status409Conflict,
+            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
+        operation.Responses.AddEntityResponse(StatusCodes.Status412PreconditionFailed,
+            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
 
         return Task.CompletedTask;
     }

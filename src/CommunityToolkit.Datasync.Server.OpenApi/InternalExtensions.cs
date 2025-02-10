@@ -2,15 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Extensions;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
-using System.Transactions;
+using System.Net.Mime;
 
 namespace CommunityToolkit.Datasync.Server.OpenApi;
 
@@ -19,25 +15,21 @@ namespace CommunityToolkit.Datasync.Server.OpenApi;
 /// </summary>
 internal static class InternalExtensions
 {
-    private static readonly List<Type> openapiPrimitiveTypes = [
-        typeof(bool),
-        typeof(byte),
-        typeof(int),
-        typeof(uint),
-        typeof(long),
-        typeof(ulong),
-        typeof(short),
-        typeof(ushort),
-        typeof(float),
-        typeof(double),
-        typeof(decimal),
-        typeof(char),
-        typeof(string),
-        typeof(DateTime),
-        typeof(DateTimeOffset),
-        typeof(Guid),
-        typeof(Uri)
-    ];
+    /// <summary>
+    /// Adds a request body to the operation.
+    /// </summary>
+    /// <param name="operation">The operation to modify.</param>
+    /// <param name="bodySchema">The schema for the entity in the body.</param>
+    internal static void AddRequestBody(this OpenApiOperation operation, OpenApiSchema bodySchema)
+    {
+        operation.RequestBody ??= new OpenApiRequestBody();
+        operation.RequestBody.Content.Add(MediaTypeNames.Application.Json, new OpenApiMediaType
+        {
+            Schema = bodySchema
+        });
+        operation.RequestBody.Description = "The entity to process.";
+        operation.RequestBody.Required = true;
+    }
 
     /// <summary>
     /// Adds a boolean query parameter to the operation parameters.
