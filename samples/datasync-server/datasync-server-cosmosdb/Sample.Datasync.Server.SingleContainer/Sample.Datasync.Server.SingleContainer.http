@@ -1,0 +1,33 @@
+@Sample.Datasync.Server.SingleContainer_HostAddress = https://localhost:7284
+
+POST {{Sample.Datasync.Server.SingleContainer_HostAddress}}/tables/TodoItem
+Content-Type: application/json
+
+{
+  "id": "2",
+  "title": "Second item",
+  "isComplete": false
+}
+
+###
+
+GET {{Sample.Datasync.Server.SingleContainer_HostAddress}}/tables/TodoItem
+Accept: application/json
+
+###
+
+POST {{Sample.Datasync.Server.SingleContainer_HostAddress}}/tables/TodoList
+Content-Type: application/json
+
+{
+  "id": "1",
+  "title": "First List",
+  "listId": "My List"
+}
+
+###
+
+GET {{Sample.Datasync.Server.SingleContainer_HostAddress}}/tables/TodoList
+Accept: application/json
+
+###
