@@ -5,5 +5,7 @@
 **/CommunityToolkit.Datasync.Server.EntityFrameworkCore
 **/CommunityToolkit.Datasync.Server.InMemory
 **/CommunityToolkit.Datasync.Server.LiteDb
+**/CommunityToolkit.Datasync.Server.MongoDb
 **/CommunityToolkit.Datasync.Server.NSwag
+**/CommunityToolkit.Datasync.Server.OpenApi
 **/CommunityToolkit.Datasync.Server.Swashbuckle
