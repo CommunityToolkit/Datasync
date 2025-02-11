@@ -33,10 +33,10 @@ if (swashbuckleEnabled)
     _ = builder.Services.AddSwaggerGen(options => options.AddDatasyncControllers());
 }
 
-if (openApiEnabled)
-{
-    _ = builder.Services.AddOpenApi();
-}
+//if (openApiEnabled)
+//{
+//    _ = builder.Services.AddOpenApi(options => options.AddDatasyncTransformers());
+//}
 
 WebApplication app = builder.Build();
 
@@ -62,9 +62,9 @@ if (swashbuckleEnabled)
 app.UseAuthorization();
 app.MapControllers();
 
-if (openApiEnabled)
-{
-    _ = app.MapOpenApi(pattern: "swagger/{documentName}/swagger.json");
-}
+//if (openApiEnabled)
+//{
+//    _ = app.MapOpenApi(pattern: "swagger/{documentName}/swagger.json");
+//}
 
 app.Run();
