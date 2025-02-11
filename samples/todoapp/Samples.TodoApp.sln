@@ -21,8 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Avalonia.Desktop", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Avalonia.iOS", "TodoApp.Avalonia\TodoApp.Avalonia.iOS\TodoApp.Avalonia.iOS.csproj", "{DFCE2057-9F7B-4E1A-9C83-B524D9A82FF1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Avalonia.Browser", "TodoApp.Avalonia\TodoApp.Avalonia.Browser\TodoApp.Avalonia.Browser.csproj", "{E8BB1310-477D-44B0-B13E-77F09433D0A3}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{E0CB420D-EEFC-415C-B10A-A01233115A3C}"
 	ProjectSection(SolutionItems) = preProject
 		..\Directory.Packages.props = ..\Directory.Packages.props
@@ -188,22 +186,6 @@ Global
 		{DFCE2057-9F7B-4E1A-9C83-B524D9A82FF1}.Release|x64.Build.0 = Release|Any CPU
 		{DFCE2057-9F7B-4E1A-9C83-B524D9A82FF1}.Release|x86.ActiveCfg = Release|Any CPU
 		{DFCE2057-9F7B-4E1A-9C83-B524D9A82FF1}.Release|x86.Build.0 = Release|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Debug|ARM64.Build.0 = Debug|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Debug|x64.Build.0 = Debug|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Debug|x86.Build.0 = Debug|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Release|ARM64.Build.0 = Release|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Release|x64.ActiveCfg = Release|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Release|x64.Build.0 = Release|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Release|x86.ActiveCfg = Release|Any CPU
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -218,7 +200,6 @@ Global
 		{9C2BA2A4-4AD6-4B67-BB6B-29A9024C33C4} = {9A8B7D7F-1AF1-4C1C-A74A-E422BB680C6E}
 		{3D741850-6FAA-4F36-BD58-F6ECE0CE55D7} = {9A8B7D7F-1AF1-4C1C-A74A-E422BB680C6E}
 		{DFCE2057-9F7B-4E1A-9C83-B524D9A82FF1} = {9A8B7D7F-1AF1-4C1C-A74A-E422BB680C6E}
-		{E8BB1310-477D-44B0-B13E-77F09433D0A3} = {9A8B7D7F-1AF1-4C1C-A74A-E422BB680C6E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {91B9DE2A-8B79-4DC4-8235-216CD07F1CB2}
