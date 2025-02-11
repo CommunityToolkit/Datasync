@@ -1,2 +1,0 @@
-{{- $assetBusting := partialCached "assetbusting.hugo" . -}}
-@import "{{ printf "format-print.css%s" $assetBusting }}";
