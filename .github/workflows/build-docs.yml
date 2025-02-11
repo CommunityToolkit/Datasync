@@ -1,9 +1,9 @@
-name: Deploy Hugo site to Pages
+name: Deploy documentation site to Pages
 
 on:
   push:
     branches: [ main ]
-    paths: [ 'docs/**' ]
+    paths: [ 'docs/**', 'mkdocs.yml' ]
   workflow_dispatch:
 
 permissions:
