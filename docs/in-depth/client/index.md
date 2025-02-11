@@ -116,9 +116,9 @@ In addition to configuring the HTTP communication, you can configure each entity
 ```csharp
   protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder optionsBuilder)
   {
-    options.UseEndpoint(new Uri("https://MYENDPOINT.azurewebsites.net"));
+    optionsBuilder.UseEndpoint(new Uri("https://MYENDPOINT.azurewebsites.net"));
 
-    options.Entity<Movie>(cfg => {
+    optionsBuilder.Entity<Movie>(cfg => {
       cfg.ClientName = "movies";
       cfg.Endpoint = new Uri("/api/movies", UriKind.Relative),
       cfg.Query.Where(x => x.Rating != MovieRating.R)
