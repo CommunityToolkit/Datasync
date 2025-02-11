@@ -1,10 +1,18 @@
 site_name: Datasync Community Toolkit
-dev_addr: localhost:7000
+site_url: https://CommunityToolkit.github.io/Datasync/
+repo_url: https://github.com/CommunityToolkit/Datasync/
+repo_name: GitHub
 
 theme:
   name: readthedocs
   highlightjs: true
   locale: en
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
 
 nav:
   - Getting started: index.md

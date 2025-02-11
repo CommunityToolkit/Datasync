@@ -1,6 +1,9 @@
 ### Azure Developer CLI ###
 .azure/
 
+### Mkdocs Site ###
+site/
+
 # Ignore codespaces / C# Dev Kit files
 .mono
 
