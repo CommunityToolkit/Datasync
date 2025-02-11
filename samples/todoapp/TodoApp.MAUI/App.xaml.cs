@@ -8,11 +8,10 @@ using Microsoft.UI.Windowing;
 using Windows.Graphics;
 #endif
 
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using TodoApp.MAUI.Models;
-using TodoApp.MAUI.ViewModels;
 using TodoApp.MAUI.Services;
+using TodoApp.MAUI.ViewModels;
 
 namespace TodoApp.MAUI;
 
@@ -23,25 +22,22 @@ public partial class App : Application, IDisposable
     const int WindowHeight = 800;
 #endif
 
-    private readonly SqliteConnection dbConnection;
-
-    public IServiceProvider Services { get; }
-
     public App()
     {
         InitializeComponent();
-
-        this.dbConnection = new SqliteConnection("Data Source=:memory:");
-        this.dbConnection.Open();
 
         Services = new ServiceCollection()
             .AddTransient<MainViewModel>()
             .AddTransient<IAlertService, AlertService>()
             .AddScoped<IDbInitializer, DbContextInitializer>()
-            .AddDbContext<AppDbContext>(options => options.UseSqlite(this.dbConnection))
+            .AddDbContext<AppDbContext>(options => options.UseSqlite(SqliteHelper.Connection))
             .BuildServiceProvider();
 
-        InitializeDatabase();
+        using (IServiceScope scope = Services.CreateScope())
+        {
+            IDbInitializer initializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+            initializer.Initialize();
+        }
 
         Microsoft.Maui.Handlers.WindowHandler.Mapper.AppendToMapping(nameof(IWindow), (handler, view) =>
         {
@@ -53,23 +49,14 @@ public partial class App : Application, IDisposable
             appWindow.Resize(new SizeInt32(WindowWidth, WindowHeight));
 #endif
         });
-        MainPage = new NavigationPage(new MainPage());
     }
 
-    private void InitializeDatabase()
+    public IServiceProvider Services { get; }
+
+    protected override Window CreateWindow(IActivationState? activationState)
     {
-        using IServiceScope scope = Services.CreateScope();
-        IDbInitializer initializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-        initializer.Initialize();
+        return new Window(new AppShell());
     }
-
-    /// <summary>
-    /// A helper method for getting a service from the services collection.
-    /// </summary>
-    /// <typeparam name="TService">The type of the service.</typeparam>
-    /// <returns>An instance of the service</returns>
-    public static TService GetRequiredService<TService>() where TService : notnull
-        => ((App)App.Current!).Services.GetRequiredService<TService>();
 
     #region IDisposable
     private bool hasDisposed;
@@ -80,7 +67,7 @@ public partial class App : Application, IDisposable
         {
             if (disposing)
             {
-                this.dbConnection.Close();
+                SqliteHelper.Connection.Dispose();
             }
 
             this.hasDisposed = true;

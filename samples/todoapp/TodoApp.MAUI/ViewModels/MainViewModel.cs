@@ -10,14 +10,13 @@ using TodoApp.MAUI.Models;
 using TodoApp.MAUI.Services;
 
 namespace TodoApp.MAUI.ViewModels;
-
 public partial class MainViewModel(AppDbContext context, IAlertService alertService) : ObservableRecipient
 {
     [ObservableProperty]
-    private bool _isRefreshing = false;
+    public partial bool IsRefreshing { get; set; }
 
     [ObservableProperty]
-    private ConcurrentObservableCollection<TodoItem> items = [];
+    public partial ConcurrentObservableCollection<TodoItem> Items { get; set; } = [];
 
     [RelayCommand]
     public async Task RefreshItemsAsync(CancellationToken cancellationToken = default)
@@ -48,7 +47,7 @@ public partial class MainViewModel(AppDbContext context, IAlertService alertServ
     {
         try
         {
-            TodoItem? item = await context.TodoItems.FindAsync([itemId]);
+            TodoItem? item = await context.TodoItems.FindAsync([itemId], cancellationToken);
             if (item is not null)
             {
                 item.IsComplete = !item.IsComplete;

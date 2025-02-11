@@ -14,7 +14,7 @@ public partial class MainPage : ContentPage
     public MainPage()
     {
         InitializeComponent();
-        this._viewModel = App.GetRequiredService<MainViewModel>();
+        this._viewModel = ((App)App.Current!).Services.GetRequiredService<MainViewModel>();
         BindingContext = this._viewModel;
     }
 
@@ -34,6 +34,15 @@ public partial class MainPage : ContentPage
         if (sender is ListView itemList)
         {
             itemList.SelectedItem = null;
+        }
+    }
+
+    public void OnAddItemEntryCompleted(object sender, EventArgs e)
+    {
+        if (sender is not null and Entry entry)
+        {
+            this._viewModel.AddItemCommand.Execute(entry.Text);
+            entry.Text = string.Empty;
         }
     }
 }
