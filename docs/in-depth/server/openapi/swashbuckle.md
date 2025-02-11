@@ -14,8 +14,8 @@ Follow the [basic instructions for Swashbuckle integration](https://learn.micros
             options.AddDatasyncControllers();
         });
 
-    > [!NOTE]
-    > The `AddDatasyncControllers()` method takes an optional `Assembly` that corresponds to the assembly that contains your table controllers.  The `Assembly` parameter is only required if your table controllers are in a different project to the service.
+    !!! tip
+        The `AddDatasyncControllers()` method takes an optional `Assembly` that corresponds to the assembly that contains your table controllers.  The `Assembly` parameter is only required if your table controllers are in a different project to the service.
 
 3. Enable the middleware for serving the generated JSON document and the Swagger UI, also in `Program.cs`:
 

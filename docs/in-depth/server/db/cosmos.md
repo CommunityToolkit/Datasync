@@ -4,6 +4,8 @@ Cosmos is configured via Entity Framework Core.  Use the [CommunityToolkit.Datas
 
 Azure Cosmos DB is a fully managed NoSQL database for high-performance applications of any size or scale.  See [Azure Cosmos DB Provider](https://learn.microsoft.com/ef/core/providers/cosmos/) for information on using Azure Cosmos DB with Entity Framework Core.  When using Azure Cosmos DB with the Datasync Community Toolkit:
 
+## Set up
+
 1.  Set up the Cosmos Container with a composite index that specifies the `UpdatedAt` and `Id` fields.  Composite indices can be added to a container through the Azure portal, ARM, Bicep, Terraform, or within code. Here's an example [bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep/overview) resource definition:
 
         resource cosmosContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2023-04-15' = {

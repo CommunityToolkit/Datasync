@@ -1,5 +1,9 @@
 # In-memory data store
 
+The in-memory store uses an internal dictionary to store the entities.  This is useful for testing and for static data that is only refreshed when the server is updated.
+
+## Set up
+
 You can create an in-memory repository with no persistent storage by adding a singleton service for the repository in your `Program.cs`:
 
     IEnumerable<Model> seedData = GenerateSeedData();
@@ -14,5 +18,3 @@ Set up your table controller as follows:
         {
         }
     }
-
-This is useful for testing and for static data that is only refreshed when the server is updated.

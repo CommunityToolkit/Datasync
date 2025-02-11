@@ -13,8 +13,8 @@ The MAUI sample uses an in-memory Sqlite store for storing its data.  To run the
 
 The application should run on Android, iOS, and Windows.  Each platform needs slightly different setup.  Read the MAUI documentation for more information.
 
-> [!TIP]
-> The TodoApp.MAUI sample is known to work on Android and Desktop.  We have not tested on other platforms.
+!!! info Tested platforms
+    The TodoApp.MAUI sample is known to work on Android and Desktop.  We have not tested on other platforms.
 
 ## Deploy a datasync server to Azure
 
@@ -47,11 +47,11 @@ The following changes are made to the database context:
             _ = optionsBuilder.UseHttpClientOptions(clientOptions);
         }
 
-   Replace the Endpoint with the URI of your datasync service.
+    Replace the Endpoint with the URI of your datasync service.
 
 3. Update the `SynchronizeAsync()` method.
 
-   The `SynchronizeAsync()` method is used by the application to synchronize data to and from the datasync service.  It is called primarily from the `MainViewModel` which drives the UI interactions for the main list.
+    The `SynchronizeAsync()` method is used by the application to synchronize data to and from the datasync service.  It is called primarily from the `MainViewModel` which drives the UI interactions for the main list.
 
         public async Task SynchronizeAsync(CancellationToken cancellationToken = default)
         {
@@ -70,7 +70,7 @@ The following changes are made to the database context:
 
 You can now re-run your application. Watch the console logs to show the interactions with the datasync service.  Press the refresh button to synchronize data with the cloud.  When you restart the application, your changes will automatically populate the database again.
 
-> [!TIP]
-> The first synchronization can take a while because of the cold-start of the service.  Watch the debug output to see the synchronization happening.
+!!! tip
+    The first synchronization can take a while because of the cold-start of the service.  Watch the debug output to see the synchronization happening.
 
 Obviously, you will want to do much more in a "real world" application, including proper error handling, authentication, and using a Sqlite file instead of an in-memory database.  This example shows off the minimum required to add datasync services to an application.

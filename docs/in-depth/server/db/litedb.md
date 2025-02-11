@@ -1,6 +1,10 @@
 # LiteDB
 
-[LiteDB](https://www.litedb.org/) is a serverless database delivered in a single small DLL written in .NET C# managed code.  It's a simple and fast NoSQL database solution for stand-alone applications.  To use LiteDb with on-disk persistent storage:
+[LiteDB](https://www.litedb.org/) is a serverless database delivered in a single small DLL written in .NET C# managed code.  It's a simple and fast NoSQL database solution for stand-alone applications.  
+
+## Set up
+
+To use LiteDb with on-disk persistent storage:
 
 1. Install the `Microsoft.AspNetCore.Datasync.LiteDb` package from NuGet.
 
@@ -29,3 +33,7 @@
                 Repository = new LiteDbRepository<TodoItem>(db, "todoitems");
             }
         }
+
+## Support and further information
+
+For more information, review the [LiteDb documentation](https://www.litedb.org/docs/).

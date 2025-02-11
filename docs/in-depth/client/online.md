@@ -52,8 +52,8 @@ public IHttpClientFactory GetClientFactory()
 
 The first element in the list becomes the root handler, then each successive handler is chained to the `InnerHandler` of the previous handler.
 
-> [!TIP]
-> You can easily set up basic and bearer authentication using the `GenericAuthenticationProvider`.  See the [authentication guide](./auth.md) for more details.
+!!! tip
+    You can easily set up basic and bearer authentication using the `GenericAuthenticationProvider`.  See the [authentication guide](./auth.md) for more details.
 
 ## Create a Datasync Service Client
 
@@ -196,7 +196,9 @@ public async Task SearchCommandAsync(CancellationToken cancellationToken = defau
 Filtering is done on the service when the `.Where()` method is before the terminating method, and on the client when the `.Where()` method is after the terminating method.  For example:
 
 ```csharp
-var items = (await client.Where(x => !x.IsComplete)).ToListAsync()).Where(x => x.Title.StartsWith("The"));
+var items = (await client.Where(x => !x.IsComplete))
+  .ToListAsync())
+  .Where(x => x.Title.StartsWith("The"));
 ```
 
 The first `Where()` clause (return only incomplete items) is executed by the service, whereas the second `Where()` clause (starting with "The") is executed on the client.
@@ -210,6 +212,9 @@ The where clause supports operations that can be translated into an OData subset
 * Date properties (`Year`, `Month`, `Day`, `Hour`, `Minute`, `Second`),
 * Access properties of an object, and
 * Expressions combining any of these operations.
+
+!!! warning NoSQL data stores
+    NoSQL data stores (such as MongoDb and Cosmos DB) generally limit the filtering operations that are available.  Most arithmatic, math, string, and property access filters are not available.
 
 ### Sorting data
 

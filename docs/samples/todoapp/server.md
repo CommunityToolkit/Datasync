@@ -98,8 +98,10 @@ Our `DbContext` is simple:
         }
     }
 
-> [!TIP]
-> You can (and should) use migrations or a SQL project instead of `EnsureCreatedAsync()` to create your database.
+!!! tip
+    You can (and should) use migrations or a SQL project instead of `EnsureCreatedAsync()` to create your database.
+
+Here is a typical table controller for the `TodoItem` entity:
 
     [Route("tables/[controller]")]
     public class TodoItemController : TableController<TodoItem>

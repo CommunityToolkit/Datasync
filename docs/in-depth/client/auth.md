@@ -2,11 +2,12 @@
 
 Most of the time, you will want to use bearer authentication so that you can use a JWT (Json Web Token) obtained from an OIDC server.  This is so prevalent that we provide an easy mechanism to add this to your application via a `GenericAuthenticationProvider`.  The authentication provider only requests tokens from your token retrieval method when required (when the provided token is close to expiring or has expired).
 
-The `GenericAuthenticationProvider` and associated classes are in the `CommunityToolkit.Datasync.Client.Authentication` namespace.
-
-## Set up authentication and authorization on the datasync service
+## Set up authorization on the datasync service
 
 You must set up authentication and authorization on the datasync service first.  The authentication and authorization configuration is the same as any other ASP.NET Core application, so [follow the instructions](https://learn.microsoft.com/aspnet/core/security/) for your particular provider.
+
+!!! tip
+    The most common mechanism used is JWT Bearer Token authentication with an OAuth 2.0 or OIDC authorization server.
 
 ## Create a method to retrieve the token
 
@@ -22,6 +23,8 @@ Whatever mechanism you use, this must be set up first. If your application is un
 The `GenericAuthenticationProvider` takes a function that retrieves the token.  For example:
 
 ```csharp
+using CommunityToolkit.Datasync.Client.Authentication;
+
 public async Task<AuthenticationToken> GetTokenAsync(CancellationToken cancellationToken = default)
 {
   // Put the logic to retrieve the JWT here.
@@ -55,10 +58,10 @@ HttpClientOptions options = new()
 };
 ```
 
-You can then use this options structure when constructing a client (either in the `OnDatasyncInitialization()` method or when constructing the `DatasyncServiceClient`).
+You can then use this options structure when constructing a datasync client.
 
-> [!TIP]
-> It's normal to inject the authentication provider as a singleton in an MVVM scenario with dependency injection.
+!!! tip
+    It's normal to inject the authentication provider as a singleton in an MVVM scenario with dependency injection.
 
 ## Forcing a login request
 

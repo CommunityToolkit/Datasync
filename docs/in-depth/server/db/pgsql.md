@@ -32,4 +32,7 @@ In the `OnModelCreating()` method of your context, add the following for each en
       base.OnModelCreating(modelBuilder);
     }
 
+## Support and further information
+
+* [Official documentation](https://www.npgsql.org/efcore/?tabs=onconfiguring)
 * [Test PostgreSQL Context](https://github.com/CommunityToolkit/Datasync/blob/main/tests/CommunityToolkit.Datasync.TestCommon/Databases/Postgresql/PgDbContext.cs)

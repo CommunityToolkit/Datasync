@@ -1,7 +1,9 @@
 # SqLite
 
-> [!WARNING]
-> Do not use SqLite for production services.  SqLite is only suitable for client-side usage in production.
+!!! warning
+    Do not use SqLite for production services.  SqLite is only suitable for client-side usage in production.
+
+## Set up
 
 SqLite doesn't have a date/time field that supports millisecond accuracy.  As such, it isn't suitable for anything except for testing.  If you wish to use SqLite, ensure you implement a value converter and value comparer on each model for date/time properties.  The easiest method to implement value converters and comparers is in the `OnModelCreating(ModelBuilder)` method of your `DbContext`:
 

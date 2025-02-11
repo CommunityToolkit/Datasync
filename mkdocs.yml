@@ -37,6 +37,11 @@ nav:
         - WinUI3: samples/todoapp/winui3.md
         - WPF: samples/todoapp/wpf.md
 
-markdown_extensions: 
+markdown_extensions:
+  - smarty: {}
   - toc:
       permalink: "#"
+  - sane_lists: {}
+  - fenced_code: {}
+  - tables: {}
+  - admonition: {}

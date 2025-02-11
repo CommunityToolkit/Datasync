@@ -40,11 +40,11 @@ All the changes are isolated to the `Database/AppDbContext.cs` file.
             _ = optionsBuilder.UseHttpClientOptions(clientOptions);
         }
 
-   Replace the Endpoint with the URI of your datasync service.
+    Replace the Endpoint with the URI of your datasync service.
 
 3. Update the `SynchronizeAsync()` method.
 
-   The `SynchronizeAsync()` method is used by the application to synchronize data to and from the datasync service.  It is called primarily from the `MainViewModel` which drives the UI interactions for the main list.
+    The `SynchronizeAsync()` method is used by the application to synchronize data to and from the datasync service.  It is called primarily from the `MainViewModel` which drives the UI interactions for the main list.
 
         public async Task SynchronizeAsync(CancellationToken cancellationToken = default)
         {
@@ -63,7 +63,7 @@ All the changes are isolated to the `Database/AppDbContext.cs` file.
 
 You can now re-run your application. Watch the console logs to show the interactions with the datasync service.  Press the refresh button to synchronize data with the cloud.  When you restart the application, your changes will automatically populate the database again.
 
-> [!TIP]
-> The first synchronization can take a while because of the cold-start of the service.  Watch the debug output to see the synchronization happening.
-
+!!! tip
+    The first synchronization can take a while because of the cold-start of the service.  Watch the debug output to see the synchronization happening.
+    
 Obviously, you will want to do much more in a "real world" application, including proper error handling, authentication, and using a Sqlite file instead of an in-memory database.  This example shows off the minimum required to add datasync services to an application.
