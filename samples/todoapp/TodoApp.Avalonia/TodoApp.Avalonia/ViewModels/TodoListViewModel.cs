@@ -22,13 +22,13 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase, ID
     /// Gets or sets if the data is currently being refreshed.
     /// </summary>
     [ObservableProperty]
-    private bool isRefreshing;
+    public partial bool IsRefreshing { get; set; }
 
     /// <summary>
     /// Gets or sets a collection of <see cref="TodoItemViewModel"/>s
     /// </summary>
     [ObservableProperty]
-    private ConcurrentObservableCollection<TodoItemViewModel> items = [];
+    public partial ConcurrentObservableCollection<TodoItemViewModel> Items { get; set; } = [];
     
     // -- Adding new Items --
     
@@ -68,7 +68,7 @@ public partial class TodoListViewModel(AppDbContext context) : ViewModelBase, ID
     /// </summary>
     [ObservableProperty] 
     [NotifyCanExecuteChangedFor(nameof(AddItemCommand))] // This attribute will invalidate the command each time this property changes
-    private string? _newItemContent;
+    public partial string? NewItemContent { get; set; }
 
     /// <summary>
     /// Returns <c>true</c> if a new Item can be added. We require to have the NewItem some text.
