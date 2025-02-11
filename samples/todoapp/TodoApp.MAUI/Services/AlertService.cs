@@ -11,5 +11,5 @@ public interface IAlertService
 public class AlertService : IAlertService
 {
     public Task ShowErrorAlertAsync(string title, string message, string cancel = "OK")
-        => Application.Current!.MainPage!.DisplayAlert(title, message, cancel);
+        => Application.Current!.Windows[0].Page!.DisplayAlert(title, message, cancel);
 }

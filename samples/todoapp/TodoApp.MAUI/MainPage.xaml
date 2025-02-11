@@ -7,12 +7,6 @@
     xmlns:viewmodels="clr-namespace:TodoApp.MAUI.ViewModels"
     Title="TodoApp"
     x:DataType="viewmodels:MainViewModel">
-    <NavigationPage.TitleView>
-        <StackLayout Style="{StaticResource titleViewContainer}">
-            <Label Style="{StaticResource titleViewLabel}">TodoApp</Label>
-            <ImageButton Command="{Binding RefreshItemsCommand}" Style="{StaticResource titleViewRefreshIcon}" />
-        </StackLayout>
-    </NavigationPage.TitleView>
 
     <Grid
         AbsoluteLayout.LayoutBounds="0,0,1,1"
@@ -51,17 +45,26 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <!--  Entry box  -->
-        <Frame Grid.Row="1" Style="{StaticResource roundedCornerFrame}">
-            <HorizontalStackLayout>
-                <Image Style="{StaticResource addItemIcon}" />
-                <Entry
-                    x:Name="addItemEntry"
-                    Placeholder="Enter Todo Item Text"
-                    ReturnCommand="{Binding AddItemCommand}"
-                    ReturnCommandParameter="{Binding Text, Source={x:Reference addItemEntry}}"
-                    Style="{StaticResource addItemEntry}" />
-            </HorizontalStackLayout>
-        </Frame>
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+            <Border Grid.Column="0" Style="{StaticResource roundedCornerFrame}">
+                <Grid ColumnDefinitions="Auto,*">
+                    <Image Grid.Column="0" Style="{StaticResource addItemIcon}" />
+                    <Entry
+                        x:Name="addItemEntry"
+                        Grid.Column="1"
+                        Completed="OnAddItemEntryCompleted"
+                        Placeholder="Enter Todo Item Text"
+                        ReturnCommand="{Binding AddItemCommand}"
+                        ReturnCommandParameter="{Binding Text, Source={x:Reference addItemEntry}}"
+                        Style="{StaticResource addItemEntry}" />
+                </Grid>
+            </Border>
+            <ImageButton
+                Grid.Column="1"
+                Command="{Binding RefreshItemsCommand}"
+                Style="{StaticResource refreshItemIcon}" />
+        </Grid>
+
     </Grid>
 </ContentPage>
+
