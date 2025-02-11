@@ -23,13 +23,13 @@ public partial class TodoListViewModel(AppDbContext service) : ObservableRecipie
     internal event EventHandler<NotificationEventArgs> NotificationHandler;
 
     [ObservableProperty]
-    private bool isRefreshing;
+    public partial bool IsRefreshing { get; set; }
 
     [ObservableProperty]
-    private ConcurrentObservableCollection<TodoItemViewModel> items = [];
+    public partial ConcurrentObservableCollection<TodoItemViewModel> Items { get; set; } = [];
 
     [ObservableProperty]
-    private string title = string.Empty;
+    public partial string Title { get; set; } = string.Empty;
 
     [RelayCommand]
     public async Task AddItemAsync(CancellationToken cancellationToken = default)

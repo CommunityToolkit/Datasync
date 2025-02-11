@@ -3,7 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.WinUI.Behaviors;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using System;
 using TodoApp.WinUI3.ViewModels;
 
@@ -16,6 +18,9 @@ public sealed partial class TodoListPage : Page
         InitializeComponent();
         DataContext = App.GetRequiredService<TodoListViewModel>();
         ViewModel.NotificationHandler += PublishNotification;
+
+        // Event handler responses
+        Loaded += InvokeLoadPage;
     }
 
     public TodoListViewModel ViewModel => (TodoListViewModel)DataContext!;
@@ -30,5 +35,24 @@ public sealed partial class TodoListPage : Page
             Duration = args.IsError ? null : TimeSpan.FromSeconds(2)
         };
         _ = this.NotificationQueue.Show(notification);
+    }
+
+    private async void InvokeLoadPage(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.LoadPageCommand.CanExecute(null))
+        {
+            await ViewModel.LoadPageCommand.ExecuteAsync(null);
+        }
+    }
+
+    private async void TitleTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (e.Key == Windows.System.VirtualKey.Enter)
+        {
+            if (ViewModel.AddItemCommand.CanExecute(null))
+            {
+                await ViewModel.AddItemCommand.ExecuteAsync(null);
+            }
+        }
     }
 }

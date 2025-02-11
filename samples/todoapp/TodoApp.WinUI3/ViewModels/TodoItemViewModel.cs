@@ -30,7 +30,7 @@ public partial class TodoItemViewModel(TodoItem todoItem) : ObservableObject
         set => SetProperty(this._todoItem.Version, value, this._todoItem, (item, value) => item.Version = value);
     }
 
-    public string Id => _todoItem.Id;
+    public string Id => this._todoItem.Id;
 
     public DateTimeOffset? UpdatedAt
     {
