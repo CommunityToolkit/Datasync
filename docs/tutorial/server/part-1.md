@@ -176,7 +176,7 @@ Add a `DefaultConnection` to the ConnectionStrings section in `appsettings.Devel
 }
 ```
 
-## Add a table controller
+### Add a table controller
 
 Datasync services are provided through [REST API controllers][39].  Because OData requires a controller infrastructure, you cannot use minimal APIs, FastEndpoints, or other libraries to implement the endpoints.  Each entity that you expose for datasync operations requires a table controller within the project. Here is the most basic table controller:
 
