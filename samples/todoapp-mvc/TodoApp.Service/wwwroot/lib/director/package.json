@@ -25,8 +25,8 @@
     "codesurgeon": "https://github.com/hij1nx/codesurgeon/tarball/master",
     "colors": "1.0.x",
     "qunitjs": "1.9.x",
-    "request": "2.49.x",
-    "uglify-js": "2.4.x",
+    "request": "2.88.x",
+    "uglify-js": "3.19.x",
     "vows": "0.8.0"
   },
   "ender": "./build/ender.js",
