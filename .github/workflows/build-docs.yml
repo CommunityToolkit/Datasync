@@ -34,7 +34,7 @@ jobs:
           python-version: 3.x
 
       - name: Install mkdocs
-        run: pip install mkdocs
+        run: pip install mkdocs mkdocs-mermaid2-plugin
 
       - name: Setup Pages
         id: pages
