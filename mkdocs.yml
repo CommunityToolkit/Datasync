@@ -6,8 +6,35 @@ theme:
   highlightjs: true
   locale: en
 
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+markdown_extensions:
+  - smarty: {}
+  - toc:
+      permalink: "#"
+  - sane_lists: {}
+  - fenced_code: {}
+  - tables: {}
+  - admonition: {}
+  - pymdownx.superfences: {}
+
+plugins:
+  - search
+  - mermaid2
+
 nav:
   - Getting started: index.md
+  - Tutorial:
+    - Server:
+      - "The basics": tutorial/server/part-1.md
+      - "Standard repositories": tutorial/server/part-2.md
+      - "Custom repositories": tutorial/server/part-3.md
+      - "Access control": tutorial/server/part-4.md
+      - "Real-time updates": tutorial/server/part-5.md  
   - In depth:
     - Server:
       - The basics: in-depth/server/index.md
@@ -37,12 +64,3 @@ nav:
         - MAUI: samples/todoapp/maui.md
         - WinUI3: samples/todoapp/winui3.md
         - WPF: samples/todoapp/wpf.md
-
-markdown_extensions:
-  - smarty: {}
-  - toc:
-      permalink: "#"
-  - sane_lists: {}
-  - fenced_code: {}
-  - tables: {}
-  - admonition: {}

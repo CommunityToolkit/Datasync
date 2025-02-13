@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "defaultProvider": "jsdelivr",
+  "libraries": [
+    {
+      "provider": "jsdelivr",
+      "library": "todomvc-app-css@2.4.3",
+      "destination": "wwwroot/lib/todomvc-app-css/"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "todomvc-common@1.0.5",
+      "destination": "wwwroot/lib/todomvc-common/"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "jquery@3.7.1",
+      "destination": "wwwroot/lib/jquery/"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "handlebars@4.7.8",
+      "destination": "wwwroot/lib/handlebars/"
+    }
+  ,
+{
+  "provider": "jsdelivr",
+  "library": "director@1.2.8",
+  "destination": "wwwroot/lib/director/"
+}
+]
+}
