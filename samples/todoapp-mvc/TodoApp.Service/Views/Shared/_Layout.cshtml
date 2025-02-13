@@ -1,0 +1,20 @@
+﻿@{
+    string title = ViewBag.Title ?? ViewData["Title"] as string ?? "TodoMVC with Datasync API";
+}
+<!doctype html>
+<html lang="en" data-framework="jquery">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>@title</title>
+    @RenderSection("Stylesheets", required: false)
+</head>
+<body>
+    @RenderBody()
+
+    <div id="scripts">
+        @RenderSection("Scripts", required: false)
+    </div>
+</body>
+</html>
