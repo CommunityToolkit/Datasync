@@ -37,9 +37,9 @@
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
-    <ProgressBar IsEnabled="{x:Bind ViewModel.IsRefreshing}"
+    <ProgressBar IsEnabled="{x:Bind ViewModel.IsRefreshing, Mode=OneWay}"
                  IsIndeterminate="True"
-                 Visibility="{x:Bind ViewModel.IsRefreshing, Converter={StaticResource BoolToVisibilityConverter}}" />
+                 Visibility="{x:Bind ViewModel.IsRefreshing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
 
     <ListView Grid.Row="1"
               Margin="10"
@@ -51,7 +51,7 @@
         <DataTemplate>
           <CheckBox Margin="5"
                     VerticalContentAlignment="Center"
-                    Command="{Binding EditItemCommand, ElementName=ThisPage}"
+                    Command="{Binding ViewModel.EditItemCommand, ElementName=ThisPage}"
                     CommandParameter="{Binding Id}"
                     Content="{Binding Title}"
                     IsChecked="{Binding IsComplete, Mode=TwoWay, UpdateSourceTrigger=Explicit}" />
