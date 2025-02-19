@@ -22,6 +22,15 @@ param appServicePlanName string = ''
 @description('Optional - the name of the Resource Group to create. If not provided, a unique name will be generated.')
 param resourceGroupName string = ''
 
+@description('Optional - the name for the CosmosDB account. If not provided, a unique name will be generated.')
+param accountName string = ''
+
+@description('Optional - the name for the database. default is TodoDb')
+param databaseName string = 'TodoDb'
+
+@description('Optional - the name for the container. default is TodoContainer.')
+param containerName string = 'TodoContainer'
+
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
 var tags = { 'azd-env-name': environmentName }
 
@@ -39,9 +48,9 @@ module resources './resources.bicep' = {
     tags: tags
     appServiceName: !empty(appServiceName) ? appServiceName : 'app-${resourceToken}'
     appServicePlanName: !empty(appServicePlanName) ? appServicePlanName : 'asp-${resourceToken}'
-    accountName: 'cosmosdb-${resourceToken}'
-    databaseName: 'TodoDb'
-    containerName: 'TodoContainer'
+    accountName: !empty(accountName) ? accountName : 'cdb-${resourceToken}'
+    databaseName: databaseName
+    containerName: containerName
   }
 }
 

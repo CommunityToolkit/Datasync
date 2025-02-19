@@ -78,12 +78,12 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
         compositeIndexes: [
           [
             {
-              path: '/name'
+              path: '/updatedAt'
               order: 'ascending'
             }
             {
-              path: '/age'
-              order: 'descending'
+              path: '/id'
+              order: 'ascending'
             }
           ]
         ]
