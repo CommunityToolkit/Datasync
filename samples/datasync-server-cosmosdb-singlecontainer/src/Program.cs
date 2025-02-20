@@ -12,7 +12,7 @@ using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new ApplicationException("DefaultConnection is not set");
@@ -51,7 +51,7 @@ _ = builder.Services
     .AddEndpointsApiExplorer()
     .AddSwaggerGen(options => options.AddDatasyncControllers());
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
