@@ -129,12 +129,9 @@ resource appService 'Microsoft.Web/sites@2022-09-01' = {
   }
 
   resource connectionStrings 'config' = {
-    name: 'connectionstrings'
+    name: 'appsettings'
     properties: {
-      DefaultConnection: {
-        value: account.listConnectionStrings().connectionStrings[0].connectionString
-        type: 'DocDb'
-      }
+      ConnectionStrings__DefaultConnection: account.listConnectionStrings().connectionStrings[0].connectionString      
     }
   }
 }
