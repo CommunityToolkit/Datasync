@@ -64,6 +64,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{75F7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Datasync.Server", "samples\datasync-server\src\Sample.Datasync.Server\Sample.Datasync.Server.csproj", "{A9967817-2A2C-4C6D-A133-967A6062E9B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.CosmosDb", "src\CommunityToolkit.Datasync.Server.CosmosDb\CommunityToolkit.Datasync.Server.CosmosDb.csproj", "{D9356867-0A30-4B17-BD4C-0F7EF70984C6}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.MongoDB", "src\CommunityToolkit.Datasync.Server.MongoDB\CommunityToolkit.Datasync.Server.MongoDB.csproj", "{DC20ACF9-12E9-41D9-B672-CB5FD85548E9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.MongoDB.Test", "tests\CommunityToolkit.Datasync.Server.MongoDB.Test\CommunityToolkit.Datasync.Server.MongoDB.Test.csproj", "{4FC45D20-0BA9-484B-9040-641687659AF6}"
@@ -71,6 +73,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.OpenApi.Test", "tests\CommunityToolkit.Datasync.Server.OpenApi.Test\CommunityToolkit.Datasync.Server.OpenApi.Test.csproj", "{99E727A3-8EB3-437E-AAC8-3596E8B9B2AE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.OpenApi", "src\CommunityToolkit.Datasync.Server.OpenApi\CommunityToolkit.Datasync.Server.OpenApi.csproj", "{505421EC-2598-4114-B2EC-997959B89E74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.CosmosDb.Test", "tests\CommunityToolkit.Datasync.Server.CosmosDb.Test\CommunityToolkit.Datasync.Server.CosmosDb.Test.csproj", "{FC15CF34-2C1A-4B15-85CC-A99EA25C47D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -162,6 +166,10 @@ Global
 		{A9967817-2A2C-4C6D-A133-967A6062E9B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9967817-2A2C-4C6D-A133-967A6062E9B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9967817-2A2C-4C6D-A133-967A6062E9B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9356867-0A30-4B17-BD4C-0F7EF70984C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9356867-0A30-4B17-BD4C-0F7EF70984C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9356867-0A30-4B17-BD4C-0F7EF70984C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9356867-0A30-4B17-BD4C-0F7EF70984C6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DC20ACF9-12E9-41D9-B672-CB5FD85548E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DC20ACF9-12E9-41D9-B672-CB5FD85548E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC20ACF9-12E9-41D9-B672-CB5FD85548E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -178,6 +186,10 @@ Global
 		{505421EC-2598-4114-B2EC-997959B89E74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{505421EC-2598-4114-B2EC-997959B89E74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{505421EC-2598-4114-B2EC-997959B89E74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC15CF34-2C1A-4B15-85CC-A99EA25C47D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC15CF34-2C1A-4B15-85CC-A99EA25C47D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC15CF34-2C1A-4B15-85CC-A99EA25C47D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC15CF34-2C1A-4B15-85CC-A99EA25C47D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -204,8 +216,10 @@ Global
 		{D3B72031-D4BD-44D3-973C-2752AB1570F6} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{A9967817-2A2C-4C6D-A133-967A6062E9B3} = {75F709FD-8CC2-4558-A802-FE57086167C2}
+		{D9356867-0A30-4B17-BD4C-0F7EF70984C6} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{DC20ACF9-12E9-41D9-B672-CB5FD85548E9} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{4FC45D20-0BA9-484B-9040-641687659AF6} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
+		{FC15CF34-2C1A-4B15-85CC-A99EA25C47D2} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{99E727A3-8EB3-437E-AAC8-3596E8B9B2AE} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{505421EC-2598-4114-B2EC-997959B89E74} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 	EndGlobalSection
