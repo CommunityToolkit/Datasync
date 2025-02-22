@@ -13,4 +13,7 @@
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.175" />
   </ItemGroup>
 
+  <Target Name="CleanWwwRootLib" AfterTargets="Clean">
+    <RemoveDir Directories="$(ProjectDir)wwwroot\lib" />
+  </Target>
 </Project>

@@ -3,6 +3,8 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+TodoApp.Service/wwwroot/lib/
+
 # dotenv files
 .env
 
