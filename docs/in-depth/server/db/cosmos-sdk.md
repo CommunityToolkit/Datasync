@@ -11,6 +11,9 @@ Use the [CommunityToolkit.Datasync.Server.CosmosDb](https://www.nuget.org/packag
 
 Azure Cosmos DB is a fully managed NoSQL database for high-performance applications of any size or scale.  See [Azure Cosmos DB for NoSQL .NET SDK](https://learn.microsoft.com/azure/cosmos-db/nosql/quickstart-dotnet) for information on using Azure Cosmos DB via the SDK.
 
+!!! info
+    The Cosmos DB library and sample has been kindly contributed to the community by [@richard-einfinity](https://github.com/richard-einfinity).
+
 ## Set up
 
 1.  Set up the Cosmos Container with a composite index that specifies the `UpdatedAt` and `Id` fields.  Composite indices can be added to a container through the Azure portal, ARM, Bicep, Terraform, or within code. Here's an example [bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep/overview) resource definition that would store all datasync entities in the same container:
