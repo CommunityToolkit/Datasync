@@ -6,7 +6,6 @@ using CommunityToolkit.Datasync.Server.Abstractions.Json;
 using CommunityToolkit.Datasync.Server.CosmosDb.Test.Models;
 using CommunityToolkit.Datasync.Server.CosmosDb.Test.Options;
 using CommunityToolkit.Datasync.TestCommon;
-using CommunityToolkit.Datasync.TestCommon.Databases;
 using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
@@ -57,7 +56,9 @@ public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IDispos
             }
 
             if (!int.TryParse(parts[1], out int year))
+            {
                 throw new ArgumentException("Invalid ID Part");
+            }
 
             return await this._container.ReadItemAsync<CosmosDbMovie>(id, new PartitionKey(year));
         }
@@ -122,7 +123,7 @@ public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IDispos
                     CompositeIndexes =
                     {
                         new Collection<CompositePath>()
-                        {                       
+                        {
                             new() { Path = "/updatedAt", Order = CompositePathSortOrder.Ascending },
                             new() { Path = "/id", Order = CompositePathSortOrder.Ascending }
                         },
@@ -134,7 +135,7 @@ public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IDispos
                     }
                 }
             });
-            
+
             foreach (CosmosDbMovie movie in TestData.Movies.OfType<CosmosDbMovie>())
             {
                 movie.Id = $"{Guid.NewGuid()}:{movie.Year}";
@@ -148,7 +149,6 @@ public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IDispos
                 this._client,
                 new PackedKeyOptions("Movies", "Movies")
                 );
-
         }
     }
 
@@ -180,6 +180,7 @@ public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IDispos
 
         (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(400);
     }
+
     [SkippableTheory]
     [InlineData("BadId")]
     [InlineData("12345-12345")]
@@ -193,5 +194,4 @@ public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IDispos
         (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(400);
         (await GetEntityCountAsync()).Should().Be(TestData.Movies.Count<CosmosDbMovie>());
     }
-
 }

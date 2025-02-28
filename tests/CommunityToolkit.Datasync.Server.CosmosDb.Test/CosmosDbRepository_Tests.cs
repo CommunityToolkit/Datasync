@@ -5,7 +5,6 @@
 using CommunityToolkit.Datasync.Server.Abstractions.Json;
 using CommunityToolkit.Datasync.Server.CosmosDb.Test.Models;
 using CommunityToolkit.Datasync.TestCommon;
-using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using System.Collections.ObjectModel;
@@ -42,6 +41,7 @@ public class CosmosDbRepository_Tests : RepositoryTests<CosmosDbMovie>, IDisposa
     }
 
     override protected bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
+
     protected override async Task<CosmosDbMovie> GetEntityAsync(string id)
     {
         try
@@ -109,7 +109,7 @@ public class CosmosDbRepository_Tests : RepositoryTests<CosmosDbMovie>, IDisposa
                     CompositeIndexes =
                     {
                         new Collection<CompositePath>()
-                        {                       
+                        {
                             new() { Path = "/updatedAt", Order = CompositePathSortOrder.Ascending },
                             new() { Path = "/id", Order = CompositePathSortOrder.Ascending }
                         },
@@ -121,7 +121,7 @@ public class CosmosDbRepository_Tests : RepositoryTests<CosmosDbMovie>, IDisposa
                     }
                 }
             });
-            
+
             foreach (CosmosDbMovie movie in TestCommon.TestData.Movies.OfType<CosmosDbMovie>())
             {
                 movie.UpdatedAt = DateTimeOffset.UtcNow;
@@ -134,7 +134,6 @@ public class CosmosDbRepository_Tests : RepositoryTests<CosmosDbMovie>, IDisposa
                 this._client,
                 new CosmosSingleTableOptions<CosmosDbMovie>("Movies", "Movies")
                 );
-
         }
     }
 
