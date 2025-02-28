@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageVersion Include="CommunityToolkit.WinUI.Behaviors" Version="8.1.240916" />
     <PackageVersion Include="CommunityToolkit.WinUI.Converters" Version="8.1.240916" />
+    <PackageVersion Include="CommunityToolkit.Datasync.Client" Version="9.0.0" />
     <PackageVersion Include="Refit" Version="8.0.0" />
     <PackageVersion Include="System.Formats.Asn1" Version="9.0.0" />
     <PackageVersion Include="System.IO.Packaging" Version="9.0.0" />
