@@ -3,7 +3,7 @@ name: Deploy documentation site to GitHub Pages
 on:
   push:
     branches: [ main ]
-    paths: [ 'docs/**', 'mkdocs.yml' ]
+    paths: [ 'docs/**', 'mkdocs.yml', 'mkdocs.shared.yml', 'mkdocs.production.yml' ]
   workflow_dispatch:
 
 permissions:
