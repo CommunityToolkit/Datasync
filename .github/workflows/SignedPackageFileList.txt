@@ -1,11 +1,12 @@
 **/CommunityToolkit.Datasync.Client
-**/CommunityToolkit.Datasync.Server
 **/CommunityToolkit.Datasync.Server.Abstractions
 **/CommunityToolkit.Datasync.Server.Automapper
+**/CommunityToolkit.Datasync.Server.CosmosDb
 **/CommunityToolkit.Datasync.Server.EntityFrameworkCore
 **/CommunityToolkit.Datasync.Server.InMemory
 **/CommunityToolkit.Datasync.Server.LiteDb
-**/CommunityToolkit.Datasync.Server.MongoDb
+**/CommunityToolkit.Datasync.Server.MongoDB
 **/CommunityToolkit.Datasync.Server.NSwag
 **/CommunityToolkit.Datasync.Server.OpenApi
 **/CommunityToolkit.Datasync.Server.Swashbuckle
+**/CommunityToolkit.Datasync.Server
