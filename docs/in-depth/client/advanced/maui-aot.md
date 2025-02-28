@@ -75,7 +75,6 @@ Create a new partial class that inherits from `JsonSerializerContext`.  It shoul
       AllowTrailingCommas = true,
       DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
       Converters = [
-        typeof(JsonStringEnumConverter),
         typeof(DateTimeConverter),
         typeof(DateTimeOffsetConverter),
         typeof(TimeOnlyConverter),
@@ -85,6 +84,17 @@ Create a new partial class that inherits from `JsonSerializerContext`.  It shoul
     public partial class MySerializerContext : JsonSerializerContext
     {
     }
+
+Enumerations (enum) are transmitted as strings.  If you use an enum in any of your models, you will additionally have to add `typeof(JsonStringEnumConverter<TEnum>)` to the list of converters, where `TEnum` is the type of the enum you are using.  Repeat this for each enum you are using.  For example, let's say you have multiple models.  One of your models is using the enum `CategoryType` and another model is using `CustomerType`, your Converters section would look like this:
+
+    Converters = [
+      typeof(JsonStringEnumConverter<CategoryType>)
+      typeof(JsonStringEnumConverter<CustomerType>)
+      typeof(DateTimeConverter),
+      typeof(DateTimeOffsetConverter),
+      typeof(TimeOnlyConverter),
+      typeof(SpatialGeoJsonConverter)
+    ]
 
 Add a `JsonSerializable` attribute for each entity that is stored in your `DbContext` similar to the ones in the example above.  Finally, install the modified `JsonSerializerContext` in the `MauiProgram.cs` as the second statment in the `CreateMauiApp` function:
 
@@ -105,5 +115,4 @@ The property group should look something like the following:
 
 ## Having problems?
 
-Unfortunately, the development team does not have much experience with releasing iOS applications, so is of limited help.  While you can [add a discussion](https://github.com/CommunityToolkit/Datasync/discussions), you will probably get more assistance in the [MAUI](https://github.com/dotnet/maui) and [Entity Framework Core](https://github.com/dotnet/efcore) projects.
-
+Unfortunately, the development team does not have much experience with releasing with Native AOT, so is of limited help.  While you can [add a discussion](https://github.com/CommunityToolkit/Datasync/discussions), you will probably get more assistance in the [MAUI](https://github.com/dotnet/maui) and [Entity Framework Core](https://github.com/dotnet/efcore) projects.
