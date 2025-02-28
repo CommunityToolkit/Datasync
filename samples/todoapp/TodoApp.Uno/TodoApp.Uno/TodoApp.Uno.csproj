@@ -40,7 +40,7 @@
       Navigation;
     </UnoFeatures>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    
+
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\AddItem.png" />
@@ -55,14 +55,12 @@
     <None Remove="Views\TodoListPage.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <UpToDateCheckInput Remove="Views\TodoListPage.xaml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" />
     <PackageReference Include="CommunityToolkit.WinUI.Converters" />
+    <PackageReference Include="CommunityToolkit.Datasync.Client" />
     <PackageReference Include="System.Formats.Asn1" />
     <PackageReference Include="System.IO.Packaging" />
     <PackageReference Include="System.Private.Uri" />
