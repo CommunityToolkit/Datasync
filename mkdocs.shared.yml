@@ -41,6 +41,7 @@ nav:
       - Databases:
         - Azure SQL: in-depth/server/db/azuresql.md
         - "CosmosDB (EFCore)": in-depth/server/db/cosmos.md
+        - "CosmosDB (SDK)": in-depth/server/db/cosmos-sdk.md
         - In Memory: in-depth/server/db/in-memory.md
         - LiteDb: in-depth/server/db/litedb.md
         - MongoDb: in-depth/server/db/mongodb.md
