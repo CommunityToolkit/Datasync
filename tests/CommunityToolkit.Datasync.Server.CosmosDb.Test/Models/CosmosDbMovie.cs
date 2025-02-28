@@ -3,11 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.TestCommon.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommunityToolkit.Datasync.Server.CosmosDb.Test.Models;
 public class CosmosDbMovie : CosmosTableData, IMovie

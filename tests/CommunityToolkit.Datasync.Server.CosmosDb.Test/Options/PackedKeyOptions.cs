@@ -4,20 +4,12 @@
 
 using CommunityToolkit.Datasync.Server.CosmosDb.Test.Models;
 using Microsoft.Azure.Cosmos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommunityToolkit.Datasync.Server.CosmosDb.Test.Options;
 
-public class PackedKeyOptions : CosmosSingleTableOptions<CosmosDbMovie>
+public class PackedKeyOptions(string databaseId, string containerId, bool shouldUpdateTimestamp = true)
+    : CosmosSingleTableOptions<CosmosDbMovie>(databaseId, containerId, shouldUpdateTimestamp)
 {
-    public PackedKeyOptions(string databaseId, string containerId, bool shouldUpdateTimestamp = true) : base(databaseId, containerId, shouldUpdateTimestamp)
-    {
-    }
-
     public override Func<CosmosDbMovie, string> IdGenerator => (entity) => $"{Guid.NewGuid()}:{entity.Year}";
     public override string GetPartitionKey(CosmosDbMovie entity, out PartitionKey partitionKey)
     {
@@ -35,7 +27,9 @@ public class PackedKeyOptions : CosmosSingleTableOptions<CosmosDbMovie>
         }
 
         if (!int.TryParse(parts[1], out int year))
+        {
             throw new ArgumentException("Invalid ID Part");
+        }
 
         partitionKey = new PartitionKey(year);
         return id;
