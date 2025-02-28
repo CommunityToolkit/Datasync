@@ -13,6 +13,7 @@ Client platforms that have been tested include:
 
 * [Avalonia][avalonia]
 * [.NET MAUI][maui]
+* [Uno Platform][uno]
 * [Windows Presentation Framework (WPF)][wpf]
 * [Windows UI Library (WinUI) 3][winui3]
 
@@ -43,5 +44,6 @@ Find out more about developing datasync applications:
 [dotnetfdn]: https://dotnetfoundation.org/
 [avalonia]: https://www.avaloniaui.net/
 [maui]: https://dotnet.microsoft.com/apps/maui
+[uno]: https://platform.uno/
 [wpf]: https://learn.microsoft.com/dotnet/desktop/wpf/overview/
 [winui3]: https://learn.microsoft.com/windows/apps/winui/winui3/
