@@ -1,6 +1,13 @@
-# Cosmos (via EF Core)
+# Cosmos (EF Core)
 
-Cosmos is configured via Entity Framework Core.  Use the [CommunityToolkit.Datasync.Server.EntityFrameworkCore](https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.EntityFrameworkCore) package to add support for this repository.
+Support for Cosmos DB is available in two flavors:
+
+* via Entity Framework Core (this document) - see [EF Core Azure Cosmos DB Provider](https://learn.microsoft.com/ef/core/providers/cosmos/)
+* via [the Cosmos DB SDK](./cosmos-sdk.md) - see [the official documentation](https://learn.microsoft.com/azure/cosmos-db/nosql/quickstart-dotnet)
+
+There are differences between the two providers that impact how you configure the container and the operations that are available.
+
+Cosmos DB is configured via Entity Framework Core.  Use the [CommunityToolkit.Datasync.Server.EntityFrameworkCore](https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.EntityFrameworkCore) package to add support for this repository.
 
 Azure Cosmos DB is a fully managed NoSQL database for high-performance applications of any size or scale.  See [Azure Cosmos DB Provider](https://learn.microsoft.com/ef/core/providers/cosmos/) for information on using Azure Cosmos DB with Entity Framework Core.  When using Azure Cosmos DB with the Datasync Community Toolkit:
 
@@ -15,34 +22,18 @@ Azure Cosmos DB is a fully managed NoSQL database for high-performance applicati
                 resource: {
                     id: 'TodoItems'
                     partitionKey: {
-                        paths: [
-                            '/Id'
-                        ]
+                        paths: [ '/Id' ]
                         kind: 'Hash'
                     }
                     indexingPolicy: {
                         indexingMode: 'consistent'
                         automatic: true
-                        includedPaths: [
-                            {
-                                path: '/*'
-                            }
-                        ]
-                        excludedPaths: [
-                            {
-                                path: '/"_etag"/?'
-                            }
-                        ]
+                        includedPaths: [ { path: '/*' } ]
+                        excludedPaths: [ { path: '/"_etag"/?' } ]
                         compositeIndexes: [
                             [
-                                {
-                                    path: '/UpdatedAt'
-                                    order: 'ascending'
-                                }
-                                {
-                                    path: '/Id'
-                                    order: 'ascending'
-                                }
+                                { path: '/UpdatedAt', order: 'ascending' }
+                                { path: '/Id', order: 'ascending' }
                             ]
                         ]
                     }

@@ -19,7 +19,7 @@ The datasync service support a number of backend database servers, and allows fo
 
 Default repository implementations are provided for Entity Framework Core, LiteDB, an in-memory store, and an Automapper store.  For specific database support, see the following:
 
-* [Azure Cosmos DB](./db/cosmos.md)
+* Azure Cosmos DB ([EFCore](./db/cosmos.md) and [SDK](./db/cosmos-sdk.md))
 * [Azure SQL and SQL Server](./db/azuresql.md)
 * [In Memory Datastore](./db/in-memory.md)
 * [LiteDb](./db/litedb.md)
@@ -60,9 +60,13 @@ Ensure you map the controllers when setting up your HTTP middleware pipeline.  Y
 
 All model classes must implement `ITableData`.  Each repository type has an abstract class that implements `ITableData` and provides additional functionality to the repository.  For example, the Entity Framework Core repository provides:
 
-* `SqliteEntityTableData` for Sqlite.
+* `InMemoryTableData` for an in-memory data store.
+* `LiteDbTableData` for a LiteDb based store.
 * `CosmosEntityTableData` for Cosmos Db support via EF Core.
-* `EntityTableData` for other EF-Core based database connections.
+* `CosmosTableData` for Cosmos Db support via the Cosmos DB SDK.
+* `EntityTableData` for most EF-Core based database providers.
+* `MongoTableData` for Mongo DB (via the MongoDB SDK).
+* `SqliteEntityTableData` for Sqlite.
 
 A typical "TodoItem" entity for PostgreSQL would look like this:
 
