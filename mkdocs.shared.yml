@@ -34,7 +34,11 @@ nav:
       - "Standard repositories": tutorial/server/part-2.md
       - "Custom repositories": tutorial/server/part-3.md
       - "Access control": tutorial/server/part-4.md
-      - "Real-time updates": tutorial/server/part-5.md  
+      - "Real-time updates": tutorial/server/part-5.md
+    - Client:
+      - "Online access":
+        - "The basics": tutorial/client/part-1.md
+        - Authentication: tutorial/client/part-2.md 
   - In depth:
     - Server:
       - The basics: in-depth/server/index.md
