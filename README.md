@@ -50,10 +50,13 @@ The following NuGet packages have been published:
 | [CommunityToolkit.Datasync.Server] | ![Core Library Version][vs-core] | ![Core Library Downloads][ds-core] |
 | [CommunityToolkit.Datasync.Server.Abstractions] | ![Abstractions Library Version][vs-abstractions] | ![Abstractions Library Downloads][ds-abstractions] |
 | [CommunityToolkit.Datasync.Server.Automapper] | ![Automapper Library Version][vs-automapper] | ![Automapper Library Downloads][ds-automapper] |
+| [CommunityToolkit.Datasync.Server.CosmosDB] | ![CosmosDB Library Version][vs-cosmosdb] | ![CosmosDB Library Downloads][ds-cosmosdb] |
 | [CommunityToolkit.Datasync.Server.EntityFrameworkCore] | ![EFCore Library Version][vs-efcore] | ![EFCore Library Downloads][ds-efcore] |
 | [CommunityToolkit.Datasync.Server.InMemory] | ![InMemory Library Version][vs-inmemory] | ![InMemory Library Downloads][ds-inmemory] |
 | [CommunityToolkit.Datasync.Server.LiteDb] | ![LiteDb Library Version][vs-litedb] | ![LiteDb Library Downloads][ds-litedb] |
+| [CommunityToolkit.Datasync.Server.MongoDB] | ![MongoDB Library Version][vs-mongodb] | ![MongoDB Library Downloads][ds-mongodb] |
 | [CommunityToolkit.Datasync.Server.NSwag] | ![NSwag Library Version][vs-nswag] | ![NSwag Library Downloads][ds-nswag] |
+| [CommunityToolkit.Datasync.Server.OpenApi] | ![OpenApi Library Version][vs-openapi] | ![OpenApi Library Downloads][ds-openapi] |
 | [CommunityToolkit.Datasync.Server.Swashbuckle] | ![Swashbuckle Library Version][vs-swashbuckle] | ![Swashbuckle Library Downloads][ds-swashbuckle] |
 
 ## Running Live Tests
@@ -102,10 +105,13 @@ The Datasync Toolkit used to be known as Azure Mobile Apps.  You can find the co
 [CommunityToolkit.Datasync.Server]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server
 [CommunityToolkit.Datasync.Server.Abstractions]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.Abstractions
 [CommunityToolkit.Datasync.Server.Automapper]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.Automapper
+[CommunityToolkit.Datasync.Server.CosmosDB]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.CosmosDB
 [CommunityToolkit.Datasync.Server.EntityFrameworkCore]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.EntityFrameworkCore
 [CommunityToolkit.Datasync.Server.InMemory]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.InMemory
 [CommunityToolkit.Datasync.Server.LiteDb]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.LiteDb
+[CommunityToolkit.Datasync.Server.MongoDB]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.MongoDB
 [CommunityToolkit.Datasync.Server.NSwag]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.NSwag
+[CommunityToolkit.Datasync.Server.OpenApi]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.OpenApi
 [CommunityToolkit.Datasync.Server.Swashbuckle]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Server.Swashbuckle
 [CommunityToolkit.Datasync.Client]: https://www.nuget.org/packages/CommunityToolkit.Datasync.Client
 
@@ -113,19 +119,25 @@ The Datasync Toolkit used to be known as Azure Mobile Apps.  You can find the co
 [vs-core]: https://badgen.net/nuget/v/CommunityToolkit.Datasync.Server
 [vs-abstractions]: https://badgen.net/nuget/v/CommunityToolkit.Datasync.Server.Abstractions
 [vs-automapper]: https://badgen.net/nuget/v/CommunityToolkit.Datasync.Server.Automapper
+[vs-cosmosdb]: https://badgen.net/nuget/v/CommunityToolkit.Datasync.Server.CosmosDB
 [vs-efcore]: https://badgen.net/nuget/v/CommunityToolkit.Datasync.Server.EntityFrameworkCore
 [vs-inmemory]: https://badgen.net/nuget/v/CommunityToolkit.Datasync.Server.InMemory
 [vs-litedb]: https://badgen.net/nuget/v/CommunityToolkit.Datasync.Server.LiteDb
+[vs-mongodb]: https://badgen.net/nuget/v/CommunityToolkit.Datasync.Server.MongoDB
 [vs-nswag]: https://badgen.net/nuget/v/CommunityToolkit.Datasync.Server.NSwag
+[vs-openapi]: https://badgen.net/nuget/v/CommunityToolkit.Datasync.Server.OpenApi
 [vs-swashbuckle]: https://badgen.net/nuget/v/CommunityToolkit.Datasync.Server.Swashbuckle
 [vc-core]: https://badgen.net/nuget/v/CommunityToolkit.Datasync.Client
 
 [ds-core]: https://badgen.net/nuget/dt/CommunityToolkit.Datasync.Server
 [ds-abstractions]: https://badgen.net/nuget/dt/CommunityToolkit.Datasync.Server.Abstractions
 [ds-automapper]: https://badgen.net/nuget/dt/CommunityToolkit.Datasync.Server.Automapper
+[ds-cosmosdb]: https://badgen.net/nuget/dt/CommunityToolkit.Datasync.Server.CosmosDB
 [ds-efcore]: https://badgen.net/nuget/dt/CommunityToolkit.Datasync.Server.EntityFrameworkCore
 [ds-inmemory]: https://badgen.net/nuget/dt/CommunityToolkit.Datasync.Server.InMemory
 [ds-litedb]: https://badgen.net/nuget/dt/CommunityToolkit.Datasync.Server.LiteDb
+[ds-mongodb]: https://badgen.net/nuget/dt/CommunityToolkit.Datasync.Server.MongoDB
 [ds-nswag]: https://badgen.net/nuget/dt/CommunityToolkit.Datasync.Server.NSwag
+[ds-openapi]: https://badgen.net/nuget/dt/CommunityToolkit.Datasync.Server.OpenApi
 [ds-swashbuckle]: https://badgen.net/nuget/dt/CommunityToolkit.Datasync.Server.Swashbuckle
 [dc-core]: https://badgen.net/nuget/dt/CommunityToolkit.Datasync.Client
