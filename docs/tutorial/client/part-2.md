@@ -267,7 +267,7 @@ The `HttpClientFactory` class is provided inside the `CommunityToolkit.Datasync.
 
 The main problem with authentication in datasync is the same as authentication in a Web API world.  You have to get that going before you can configure the datasync library to use it.  Once you have configured authentication to work, it's as simple as an additional single line in the client options.  You can also use the same mechanism in your own HTTP clients.  This makes building authenticated clients for other purposes (like calling a non-datasync web API) simple as well.
 
-In the next tutorial, we'll take a final look at the online client by investigating the pipeline and how it can be used for API keys, logging, and more.
+In the [next tutorial](./part-3.md), we'll take a final look at the online client by investigating the pipeline and how it can be used for API keys, logging, and more.
 
 <!-- Links -->
 [1]: https://github.com/CommunityToolkit/Datasync
