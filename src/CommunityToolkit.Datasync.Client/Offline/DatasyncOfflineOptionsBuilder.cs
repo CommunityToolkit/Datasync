@@ -165,6 +165,11 @@ public class DatasyncOfflineOptionsBuilder
         public Uri Endpoint { get; set; } = new Uri($"/tables/{entityType.Name.ToLowerInvariant()}", UriKind.Relative);
 
         /// <summary>
+        /// The conflict resolver for this entity.
+        /// </summary>
+        public IConflictResolver? ConflictResolver { get; set; }
+
+        /// <summary>
         /// The query description for the entity type - may be null (to mean "pull everything").
         /// </summary>
         internal QueryDescription? QueryDescription { get; set; }
@@ -185,6 +190,11 @@ public class DatasyncOfflineOptionsBuilder
         /// The name of the client to use when requesting a <see cref="HttpClient"/>.
         /// </summary>
         public string ClientName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The conflict resolver for this entity.
+        /// </summary>
+        public IConflictResolver? ConflictResolver { get; set; }
 
         /// <summary>
         /// The endpoint for the entity type.

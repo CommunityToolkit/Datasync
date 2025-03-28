@@ -43,6 +43,7 @@ internal class OfflineOptions()
         {
             return new()
             {
+                ConflictResolver = options.ConflictResolver,
                 Endpoint = options.Endpoint,
                 HttpClient = HttpClientFactory.CreateClient(options.ClientName),
                 QueryDescription = options.QueryDescription ?? new QueryDescription()
@@ -52,6 +53,7 @@ internal class OfflineOptions()
         {
             return new()
             {
+                ConflictResolver = null,
                 Endpoint = new Uri($"tables/{entityType.Name.ToLowerInvariant()}", UriKind.Relative),
                 HttpClient = HttpClientFactory.CreateClient(),
                 QueryDescription = new QueryDescription()
@@ -68,6 +70,11 @@ internal class OfflineOptions()
         /// The name of the client to use when requesting a <see cref="HttpClient"/>.
         /// </summary>
         public required string ClientName { get; set; }
+
+        /// <summary>
+        /// The conflict resolver for the entity options.
+        /// </summary>
+        internal IConflictResolver? ConflictResolver { get; set; }
 
         /// <summary>
         /// The endpoint for the entity type.

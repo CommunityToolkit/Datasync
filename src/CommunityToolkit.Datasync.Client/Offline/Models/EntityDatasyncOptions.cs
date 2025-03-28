@@ -12,6 +12,11 @@ namespace CommunityToolkit.Datasync.Client.Offline.Models;
 internal class EntityDatasyncOptions
 {
     /// <summary>
+    /// The conflict resolver for the entity.
+    /// </summary>
+    internal IConflictResolver? ConflictResolver { get; init; }
+
+    /// <summary>
     /// The endpoint for the entity type.
     /// </summary>
     public required Uri Endpoint { get; init; }

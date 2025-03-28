@@ -299,6 +299,29 @@ internal class OperationsQueueManager : IOperationsQueueManager
         ExecutableOperation op = await ExecutableOperation.CreateAsync(operation, cancellationToken).ConfigureAwait(false);
         ServiceResponse response = await op.ExecuteAsync(options, cancellationToken).ConfigureAwait(false);
 
+        if (response.IsConflictStatusCode && options.ConflictResolver is not null)
+        {
+            object? serverEntity = JsonSerializer.Deserialize(response.ContentStream, entityType, DatasyncSerializer.JsonSerializerOptions);
+            object? clientEntity = JsonSerializer.Deserialize(operation.Item, entityType, DatasyncSerializer.JsonSerializerOptions);
+            object? resolvedEntity = await options.ConflictResolver.ResolveConflictAsync(clientEntity, serverEntity, cancellationToken).ConfigureAwait(false);
+            if (resolvedEntity is not null)
+            {
+                lock (this.pushlock)
+                {
+                    operation.Item = JsonSerializer.Serialize(resolvedEntity, entityType, DatasyncSerializer.JsonSerializerOptions);
+                    operation.State = OperationState.Pending;
+                    operation.LastAttempt = DateTimeOffset.UtcNow;
+                    operation.HttpStatusCode = response.StatusCode;
+                    operation.EntityVersion = string.Empty; // Force the push
+                    operation.Version++;
+                    _ = this._context.Update(operation);
+                }
+
+                ExecutableOperation resolveOperation = await ExecutableOperation.CreateAsync(operation, cancellationToken).ConfigureAwait(false);
+                response = await resolveOperation.ExecuteAsync(options, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
         if (!response.IsSuccessful)
         {
             lock (this.pushlock)
