@@ -25,11 +25,18 @@ internal class OfflineOptions()
     /// </summary>
     /// <param name="entityType">The type of the entity being stored.</param>
     /// <param name="clientName">The name of the client.</param>
+    /// <param name="conflictResolver">The conflict resolver to use.</param>
     /// <param name="endpoint">The endpoint serving the datasync services.</param>
     /// <param name="queryDescription">The optional query description to describe what entities need to be pulled.</param>
-    public void AddEntity(Type entityType, string clientName, Uri endpoint, QueryDescription? queryDescription = null)
+    public void AddEntity(Type entityType, string clientName, IConflictResolver? conflictResolver, Uri endpoint, QueryDescription? queryDescription = null)
     {
-        this._cache.Add(entityType, new EntityOptions { ClientName = clientName, Endpoint = endpoint, QueryDescription = queryDescription });
+        this._cache.Add(entityType, new EntityOptions 
+        { 
+            ClientName = clientName, 
+            ConflictResolver = conflictResolver,
+            Endpoint = endpoint, 
+            QueryDescription = queryDescription
+        });
     }
 
     /// <summary>

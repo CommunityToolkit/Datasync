@@ -151,8 +151,15 @@ public class ConflictResolver_Tests : BaseTest
         var context = CreateContext();
 
         // Configure context to use client wins resolver
-        context.Configurator = builder => builder.Entity<ClientMovie>(c =>
-            c.ConflictResolver = new ClientWinsConflictResolver());
+        context.Configurator = builder =>
+        {
+            builder.Entity<ClientMovie>(c =>
+            {
+                c.ClientName = "movies";
+                c.Endpoint = new Uri("/tables/movies", UriKind.Relative);
+                c.ConflictResolver = new ClientWinsConflictResolver();
+            });
+        };
 
         // Create a client movie and save it to generate operation
         var clientMovie = new ClientMovie(TestData.Movies.BlackPanther)

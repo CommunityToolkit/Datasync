@@ -95,6 +95,7 @@ public class DatasyncOfflineOptionsBuilder
         EntityOfflineOptions<TEntity> entity = new();
         configure(entity);
         options.ClientName = entity.ClientName;
+        options.ConflictResolver = entity.ConflictResolver;
         options.Endpoint = entity.Endpoint;
         options.QueryDescription = new QueryTranslator<TEntity>(entity.Query).Translate();
         return this;
@@ -137,7 +138,7 @@ public class DatasyncOfflineOptionsBuilder
 
         foreach (EntityOfflineOptions entity in this._entities.Values)
         {
-            result.AddEntity(entity.EntityType, entity.ClientName, entity.Endpoint, entity.QueryDescription);
+            result.AddEntity(entity.EntityType, entity.ClientName, entity.ConflictResolver, entity.Endpoint, entity.QueryDescription);
         }
 
         return result;
