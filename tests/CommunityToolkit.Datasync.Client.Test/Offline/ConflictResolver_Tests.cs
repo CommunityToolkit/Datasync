@@ -33,10 +33,11 @@ public class ConflictResolver_Tests : BaseTest
         };
 
         // Act
-        var result = await clientResolver.ResolveConflictAsync(clientObject, serverObject);
+        var resolution = await clientResolver.ResolveConflictAsync(clientObject, serverObject);
 
         // Assert
-        result.Should().BeSameAs(clientObject);
+        resolution.Result.Should().Be(ConflictResolutionResult.Client);
+        resolution.Entity.Should().BeSameAs(clientObject);
     }
 
     [Fact]
@@ -52,10 +53,11 @@ public class ConflictResolver_Tests : BaseTest
         };
 
         // Act
-        var result = await serverResolver.ResolveConflictAsync(clientObject, serverObject);
+        var resolution = await serverResolver.ResolveConflictAsync(clientObject, serverObject);
 
         // Assert
-        result.Should().BeSameAs(serverObject);
+        resolution.Result.Should().Be(ConflictResolutionResult.Server);
+        resolution.Entity.Should().BeSameAs(serverObject);
     }
 
     [Fact]
@@ -66,10 +68,11 @@ public class ConflictResolver_Tests : BaseTest
         var clientObject = new ClientMovie(TestData.Movies.BlackPanther) { Id = "test-id" };
 
         // Act
-        var result = await clientResolver.ResolveConflictAsync(clientObject, null);
+        var resolution = await clientResolver.ResolveConflictAsync(clientObject, null);
 
         // Assert
-        result.Should().BeSameAs(clientObject);
+        resolution.Result.Should().Be(ConflictResolutionResult.Client);
+        resolution.Entity.Should().BeSameAs(clientObject);
     }
 
     [Fact]
@@ -84,10 +87,11 @@ public class ConflictResolver_Tests : BaseTest
         };
 
         // Act
-        var result = await serverResolver.ResolveConflictAsync(null, serverObject);
+        var resolution = await serverResolver.ResolveConflictAsync(null, serverObject);
 
         // Assert
-        result.Should().BeSameAs(serverObject);
+        resolution.Result.Should().Be(ConflictResolutionResult.Server);
+        resolution.Entity.Should().BeSameAs(serverObject);
     }
 
     #endregion
@@ -108,12 +112,14 @@ public class ConflictResolver_Tests : BaseTest
         };
 
         // Act
-        var result = await resolver.ResolveConflictAsync(clientObject, serverObject);
+        var resolution = await resolver.ResolveConflictAsync(clientObject, serverObject);
 
         // Assert
-        result.Should().NotBeNull();
-        result.Title.Should().Be(serverObject.Title); // From server
-        result.Rating.Should().Be(clientObject.Rating); // From client
+        resolution.Result.Should().Be(ConflictResolutionResult.Client);
+        var mergedMovie = resolution.Entity as ClientMovie;
+        mergedMovie.Should().NotBeNull();
+        mergedMovie!.Title.Should().Be(serverObject.Title); // From server
+        mergedMovie.Rating.Should().Be(clientObject.Rating); // From client
     }
 
     [Fact]
@@ -130,14 +136,29 @@ public class ConflictResolver_Tests : BaseTest
         };
 
         // Act
-        var result = await resolver.ResolveConflictAsync((object)clientObject, (object)serverObject);
+        var resolution = await resolver.ResolveConflictAsync((object)clientObject, (object)serverObject);
 
         // Assert
-        result.Should().NotBeNull();
-        var movie = result as ClientMovie;
+        resolution.Result.Should().Be(ConflictResolutionResult.Client);
+        var movie = resolution.Entity as ClientMovie;
         movie.Should().NotBeNull();
         movie!.Title.Should().Be(serverObject.Title); // From server
         movie.Rating.Should().Be(clientObject.Rating); // From client
+    }
+
+    // ...existing code...
+    [Fact]
+    public async Task GenericConflictResolver_BothNull_ShouldReturnDefault()
+    {
+        // Arrange
+        var resolver = new TestGenericConflictResolver();
+
+        // Act
+        var resolution = await resolver.ResolveConflictAsync(null, null);
+
+        // Assert
+        resolution.Result.Should().Be(ConflictResolutionResult.Default);
+        resolution.Entity.Should().BeNull();
     }
 
     #endregion
@@ -264,7 +285,7 @@ public class ConflictResolver_Tests : BaseTest
         var savedMovie = context.Movies.Find(clientMovie.Id);
         savedMovie.Should().NotBeNull();
         savedMovie!.Title.Should().Be("Server Title");
-        savedMovie.Version.Should().Be(finalMovie.Version);
+        savedMovie.Version.Should().Be(serverMovie.Version);
     }
 
     [Fact]
@@ -384,7 +405,7 @@ public class ConflictResolver_Tests : BaseTest
         var savedMovie = context.Movies.Find(clientMovie.Id);
         savedMovie.Should().NotBeNull();
         savedMovie!.Title.Should().Be("Server Title");
-        savedMovie.Version.Should().Be(finalMovie.Version);
+        savedMovie.Version.Should().Be(serverMovie.Version);
     }
 
     [Fact]
@@ -440,6 +461,91 @@ public class ConflictResolver_Tests : BaseTest
     }
 
     [Fact]
+    public async Task PushAsync_WithDeleteOperation_AndConflict_ServerWinsResolver_ShouldResolveConflict()
+    {
+        // Arrange
+        var context = CreateContext();
+        context.Configurator = builder => builder.Entity<ClientMovie>(c =>
+            c.ConflictResolver = new ServerWinsConflictResolver());
+
+        // Create a client movie and save it, then delete it to create a local delete operation
+        var clientMovie = new ClientMovie(TestData.Movies.BlackPanther)
+        {
+            Id = Guid.NewGuid().ToString("N"),
+            Title = "Deleted Title"
+        };
+        context.Movies.Add(clientMovie);
+        context.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+        context.Movies.Remove(clientMovie);
+        context.SaveChanges();
+
+        // Setup conflict (server version) followed by success
+        var serverMovie = new ClientMovie(TestData.Movies.BlackPanther)
+        {
+            Id = clientMovie.Id,
+            Title = "Server Title",
+            UpdatedAt = DateTimeOffset.UtcNow,
+            Version = Guid.NewGuid().ToString()
+        };
+        context.Handler.AddResponseContent(DatasyncSerializer.Serialize(serverMovie), HttpStatusCode.Conflict);
+        context.Handler.AddResponse(HttpStatusCode.NoContent);
+
+        // Act
+        var result = await context.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.CompletedOperations.Should().Be(1);
+        result.FailedRequests.Should().BeEmpty();
+
+        // ServerWinsResolver would restore the server entity, but the local request was a delete
+        // so final result in the local DB is that the entity remains deleted
+        context.Movies.Find(clientMovie.Id).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task PushAsync_WithReplaceOperation_AndConflict_ShouldResolveConflict()
+    {
+        // Arrange
+        var context = CreateContext();
+        context.Configurator = builder => builder.Entity<ClientMovie>(c =>
+            c.ConflictResolver = new ServerWinsConflictResolver());
+
+        // Create a client movie and modify it to create a replace operation
+        var clientMovie = new ClientMovie(TestData.Movies.BlackPanther)
+        {
+            Id = Guid.NewGuid().ToString("N"),
+            Title = "Local Replacement"
+        };
+        context.Movies.Add(clientMovie);
+        context.SaveChanges();
+
+        // Setup conflict (server version) followed by final success
+        var serverMovie = new ClientMovie(TestData.Movies.BlackPanther)
+        {
+            Id = clientMovie.Id,
+            Title = "Server Title",
+            UpdatedAt = DateTimeOffset.UtcNow,
+            Version = Guid.NewGuid().ToString()
+        };
+        context.Handler.AddResponseContent(DatasyncSerializer.Serialize(serverMovie), HttpStatusCode.Conflict);
+
+        // Act
+        var result = await context.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+
+        // Assert
+        result.IsSuccessful.Should().BeTrue();
+        result.CompletedOperations.Should().Be(1);
+        result.FailedRequests.Should().BeEmpty();
+
+        // Verify the database has the server's final value because ServerWins
+        var savedMovie = context.Movies.Find(serverMovie.Id);
+        savedMovie.Should().NotBeNull();
+        savedMovie!.Title.Should().Be("Server Title");
+        savedMovie.Version.Should().Be(serverMovie.Version);
+    }
+
+    [Fact]
     public async Task PushAsync_WithNull_ConflictResolver_ShouldNotResolveConflict()
     {
         // Arrange
@@ -483,37 +589,51 @@ public class ConflictResolver_Tests : BaseTest
     #endregion
 }
 
-/// <summary>
-/// A test conflict resolver implementation that merges client and server objects,
-/// taking the Title from the server and the Rating from the client.
-/// </summary>
+// ...existing code...
 public class TestGenericConflictResolver : AbstractConflictResolver<ClientMovie>
 {
-    public override Task<ClientMovie> ResolveConflictAsync(ClientMovie clientObject, ClientMovie serverObject, CancellationToken cancellationToken = default)
+    public override Task<ConflictResolution> ResolveConflictAsync(ClientMovie clientObject, ClientMovie serverObject, CancellationToken cancellationToken = default)
     {
-        if (clientObject == null)
+        if (clientObject is null && serverObject is null)
         {
-            return Task.FromResult(serverObject);
+            return Task.FromResult(new ConflictResolution
+            {
+                Result = ConflictResolutionResult.Default
+            });
         }
 
-        if (serverObject == null)
+        if (clientObject is null)
         {
-            return Task.FromResult(clientObject);
+            return Task.FromResult(new ConflictResolution
+            {
+                Result = ConflictResolutionResult.Server,
+                Entity = serverObject
+            });
+        }
+
+        if (serverObject is null)
+        {
+            return Task.FromResult(new ConflictResolution
+            {
+                Result = ConflictResolutionResult.Client,
+                Entity = clientObject
+            });
         }
 
         // Create a merged object - take title from server but rating from client
-        ClientMovie mergedMovie = new(serverObject)
+        var mergedMovie = new ClientMovie(serverObject)
         {
-            // Keep these from server:
             Id = serverObject.Id,
             Title = serverObject.Title,
             UpdatedAt = serverObject.UpdatedAt,
             Version = serverObject.Version,
-
-            // Take these from client:
             Rating = clientObject.Rating
         };
 
-        return Task.FromResult<ClientMovie>(mergedMovie);
+        return Task.FromResult(new ConflictResolution
+        {
+            Result = ConflictResolutionResult.Client,
+            Entity = mergedMovie
+        });
     }
 }

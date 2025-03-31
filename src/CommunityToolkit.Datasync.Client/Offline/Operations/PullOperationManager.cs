@@ -59,19 +59,19 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
                 {
                     _ = context.Add(item);
                     result.IncrementAdditions();
-                } 
+                }
                 else if (originalEntity is not null && metadata.Deleted)
                 {
                     _ = context.Remove(originalEntity);
                     result.IncrementDeletions();
-                } 
+                }
                 else if (originalEntity is not null && !metadata.Deleted)
                 {
                     context.Entry(originalEntity).CurrentValues.SetValues(item);
                     result.IncrementReplacements();
                 }
 
-                if (metadata.UpdatedAt.HasValue && metadata.UpdatedAt.Value > lastSynchronization)
+                if (metadata.UpdatedAt > lastSynchronization)
                 {
                     lastSynchronization = metadata.UpdatedAt.Value;
                     bool isAdded = await DeltaTokenStore.SetDeltaTokenAsync(pullResponse.QueryId, metadata.UpdatedAt.Value, cancellationToken).ConfigureAwait(false);

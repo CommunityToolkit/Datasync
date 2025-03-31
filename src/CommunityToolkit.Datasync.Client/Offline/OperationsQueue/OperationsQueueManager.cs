@@ -8,6 +8,7 @@ using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Net;
 using System.Reflection;
 using System.Text.Json;
 
@@ -77,7 +78,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
     /// </summary>
     /// <remarks>
     /// An entity is "synchronization ready" if:
-    /// 
+    ///
     /// * It is a property on this context
     /// * The property is public and a <see cref="DbSet{TEntity}"/>.
     /// * The property does not have a <see cref="DoNotSynchronizeAttribute"/> specified.
@@ -215,7 +216,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
     /// </summary>
     /// <remarks>
     /// An entity is "synchronization ready" if:
-    /// 
+    ///
     /// * It is a property on this context
     /// * The property is public and a <see cref="DbSet{TEntity}"/>.
     /// * The property does not have a <see cref="DoNotSynchronizeAttribute"/> specified.
@@ -299,30 +300,40 @@ internal class OperationsQueueManager : IOperationsQueueManager
         ExecutableOperation op = await ExecutableOperation.CreateAsync(operation, cancellationToken).ConfigureAwait(false);
         ServiceResponse response = await op.ExecuteAsync(options, cancellationToken).ConfigureAwait(false);
 
+        bool isSuccessful = response.IsSuccessful;
         if (response.IsConflictStatusCode && options.ConflictResolver is not null)
         {
             object? serverEntity = JsonSerializer.Deserialize(response.ContentStream, entityType, DatasyncSerializer.JsonSerializerOptions);
             object? clientEntity = JsonSerializer.Deserialize(operation.Item, entityType, DatasyncSerializer.JsonSerializerOptions);
-            object? resolvedEntity = await options.ConflictResolver.ResolveConflictAsync(clientEntity, serverEntity, cancellationToken).ConfigureAwait(false);
-            if (resolvedEntity is not null)
+            ConflictResolution resolution = await options.ConflictResolver.ResolveConflictAsync(clientEntity, serverEntity, cancellationToken).ConfigureAwait(false);
+
+            if (resolution.Result is ConflictResolutionResult.Client)
+            {
+                operation.Item = JsonSerializer.Serialize(resolution.Entity, entityType, DatasyncSerializer.JsonSerializerOptions);
+                operation.State = OperationState.Pending;
+                operation.LastAttempt = DateTimeOffset.UtcNow;
+                operation.HttpStatusCode = response.StatusCode;
+                operation.EntityVersion = string.Empty; // Force the push
+                operation.Version++;
+                _ = this._context.Update(operation);
+                ExecutableOperation resolvedOp = await ExecutableOperation.CreateAsync(operation, cancellationToken).ConfigureAwait(false);
+                response = await resolvedOp.ExecuteAsync(options, cancellationToken).ConfigureAwait(false);
+                isSuccessful = response.IsSuccessful;
+            }
+            else if (resolution.Result is ConflictResolutionResult.Server)
             {
                 lock (this.pushlock)
                 {
-                    operation.Item = JsonSerializer.Serialize(resolvedEntity, entityType, DatasyncSerializer.JsonSerializerOptions);
-                    operation.State = OperationState.Pending;
+                    operation.State = OperationState.Completed; // Make it successful
                     operation.LastAttempt = DateTimeOffset.UtcNow;
-                    operation.HttpStatusCode = response.StatusCode;
-                    operation.EntityVersion = string.Empty; // Force the push
-                    operation.Version++;
+                    operation.HttpStatusCode = 200;
+                    isSuccessful = true;
                     _ = this._context.Update(operation);
                 }
-
-                ExecutableOperation resolveOperation = await ExecutableOperation.CreateAsync(operation, cancellationToken).ConfigureAwait(false);
-                response = await resolveOperation.ExecuteAsync(options, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        if (!response.IsSuccessful)
+        if (!isSuccessful)
         {
             lock (this.pushlock)
             {
@@ -338,6 +349,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
         // If the operation is a success, then the content may need to be updated.
         if (operation.Kind != OperationKind.Delete)
         {
+            _ = response.ContentStream.Seek(0L, SeekOrigin.Begin); // Reset the memory stream to the beginning.
             object? newValue = JsonSerializer.Deserialize(response.ContentStream, entityType, DatasyncSerializer.JsonSerializerOptions);
             object? oldValue = await this._context.FindAsync(entityType, [operation.ItemId], cancellationToken).ConfigureAwait(false);
             ReplaceDatabaseValue(oldValue, newValue);

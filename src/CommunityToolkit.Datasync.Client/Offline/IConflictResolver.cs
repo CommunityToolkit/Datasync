@@ -18,7 +18,7 @@ public interface IConflictResolver
     /// <param name="serverObject">The server object.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The conflict resolution.</returns>
-    Task<object?> ResolveConflictAsync(object? clientObject, object? serverObject, CancellationToken cancellationToken = default);
+    Task<ConflictResolution> ResolveConflictAsync(object? clientObject, object? serverObject, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -36,5 +36,5 @@ public interface IConflictResolver<TEntity> : IConflictResolver
     /// <param name="serverObject">The server object.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The conflict resolution.</returns>
-    Task<TEntity?> ResolveConflictAsync(TEntity? clientObject, TEntity? serverObject, CancellationToken cancellationToken = default);
+    Task<ConflictResolution> ResolveConflictAsync(TEntity? clientObject, TEntity? serverObject, CancellationToken cancellationToken = default);
 }

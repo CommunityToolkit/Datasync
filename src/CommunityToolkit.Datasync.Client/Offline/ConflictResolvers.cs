@@ -12,7 +12,7 @@ namespace CommunityToolkit.Datasync.Client.Offline;
 public abstract class AbstractConflictResolver<TEntity> : IConflictResolver<TEntity>
 {
     /// <inheritdoc />
-    public abstract Task<TEntity?> ResolveConflictAsync(TEntity? clientObject, TEntity? serverObject, CancellationToken cancellationToken = default);
+    public abstract Task<ConflictResolution> ResolveConflictAsync(TEntity? clientObject, TEntity? serverObject, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The object version of the resolver calls the typed version.
@@ -21,7 +21,7 @@ public abstract class AbstractConflictResolver<TEntity> : IConflictResolver<TEnt
     /// <param name="serverObject"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public virtual async Task<object?> ResolveConflictAsync(object? clientObject, object? serverObject, CancellationToken cancellationToken = default)
+    public virtual async Task<ConflictResolution> ResolveConflictAsync(object? clientObject, object? serverObject, CancellationToken cancellationToken = default)
         => await ResolveConflictAsync((TEntity?)clientObject, (TEntity?)serverObject, cancellationToken);
 }
 
@@ -31,8 +31,12 @@ public abstract class AbstractConflictResolver<TEntity> : IConflictResolver<TEnt
 public class ClientWinsConflictResolver : IConflictResolver
 {
     /// <inheritdoc />
-    public Task<object?> ResolveConflictAsync(object? clientObject, object? serverObject, CancellationToken cancellationToken = default)
-        => Task.FromResult(clientObject);
+    public Task<ConflictResolution> ResolveConflictAsync(object? clientObject, object? serverObject, CancellationToken cancellationToken = default)
+        => Task.FromResult(new ConflictResolution
+        {
+            Result = ConflictResolutionResult.Client,
+            Entity = clientObject
+        });
 }
 
 /// <summary>
@@ -41,7 +45,11 @@ public class ClientWinsConflictResolver : IConflictResolver
 public class ServerWinsConflictResolver : IConflictResolver
 {
     /// <inheritdoc />
-    public Task<object?> ResolveConflictAsync(object? clientObject, object? serverObject, CancellationToken cancellationToken = default)
-        => Task.FromResult(serverObject);
+    public Task<ConflictResolution> ResolveConflictAsync(object? clientObject, object? serverObject, CancellationToken cancellationToken = default)
+        => Task.FromResult(new ConflictResolution
+        {
+            Result = ConflictResolutionResult.Server,
+            Entity = serverObject
+        });
 }
 
