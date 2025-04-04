@@ -95,6 +95,7 @@ public class DatasyncOfflineOptionsBuilder
         EntityOfflineOptions<TEntity> entity = new();
         configure(entity);
         options.ClientName = entity.ClientName;
+        options.ConflictResolver = entity.ConflictResolver;
         options.Endpoint = entity.Endpoint;
         options.QueryDescription = new QueryTranslator<TEntity>(entity.Query).Translate();
         return this;
@@ -137,7 +138,7 @@ public class DatasyncOfflineOptionsBuilder
 
         foreach (EntityOfflineOptions entity in this._entities.Values)
         {
-            result.AddEntity(entity.EntityType, entity.ClientName, entity.Endpoint, entity.QueryDescription);
+            result.AddEntity(entity.EntityType, entity.ClientName, entity.ConflictResolver, entity.Endpoint, entity.QueryDescription);
         }
 
         return result;
@@ -165,6 +166,11 @@ public class DatasyncOfflineOptionsBuilder
         public Uri Endpoint { get; set; } = new Uri($"/tables/{entityType.Name.ToLowerInvariant()}", UriKind.Relative);
 
         /// <summary>
+        /// The conflict resolver for this entity.
+        /// </summary>
+        public IConflictResolver? ConflictResolver { get; set; }
+
+        /// <summary>
         /// The query description for the entity type - may be null (to mean "pull everything").
         /// </summary>
         internal QueryDescription? QueryDescription { get; set; }
@@ -185,6 +191,11 @@ public class DatasyncOfflineOptionsBuilder
         /// The name of the client to use when requesting a <see cref="HttpClient"/>.
         /// </summary>
         public string ClientName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The conflict resolver for this entity.
+        /// </summary>
+        public IConflictResolver? ConflictResolver { get; set; }
 
         /// <summary>
         /// The endpoint for the entity type.

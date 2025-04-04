@@ -25,11 +25,18 @@ internal class OfflineOptions()
     /// </summary>
     /// <param name="entityType">The type of the entity being stored.</param>
     /// <param name="clientName">The name of the client.</param>
+    /// <param name="conflictResolver">The conflict resolver to use.</param>
     /// <param name="endpoint">The endpoint serving the datasync services.</param>
     /// <param name="queryDescription">The optional query description to describe what entities need to be pulled.</param>
-    public void AddEntity(Type entityType, string clientName, Uri endpoint, QueryDescription? queryDescription = null)
+    public void AddEntity(Type entityType, string clientName, IConflictResolver? conflictResolver, Uri endpoint, QueryDescription? queryDescription = null)
     {
-        this._cache.Add(entityType, new EntityOptions { ClientName = clientName, Endpoint = endpoint, QueryDescription = queryDescription });
+        this._cache.Add(entityType, new EntityOptions 
+        { 
+            ClientName = clientName, 
+            ConflictResolver = conflictResolver,
+            Endpoint = endpoint, 
+            QueryDescription = queryDescription
+        });
     }
 
     /// <summary>
@@ -43,6 +50,7 @@ internal class OfflineOptions()
         {
             return new()
             {
+                ConflictResolver = options.ConflictResolver,
                 Endpoint = options.Endpoint,
                 HttpClient = HttpClientFactory.CreateClient(options.ClientName),
                 QueryDescription = options.QueryDescription ?? new QueryDescription()
@@ -52,6 +60,7 @@ internal class OfflineOptions()
         {
             return new()
             {
+                ConflictResolver = null,
                 Endpoint = new Uri($"tables/{entityType.Name.ToLowerInvariant()}", UriKind.Relative),
                 HttpClient = HttpClientFactory.CreateClient(),
                 QueryDescription = new QueryDescription()
@@ -68,6 +77,11 @@ internal class OfflineOptions()
         /// The name of the client to use when requesting a <see cref="HttpClient"/>.
         /// </summary>
         public required string ClientName { get; set; }
+
+        /// <summary>
+        /// The conflict resolver for the entity options.
+        /// </summary>
+        internal IConflictResolver? ConflictResolver { get; set; }
 
         /// <summary>
         /// The endpoint for the entity type.
