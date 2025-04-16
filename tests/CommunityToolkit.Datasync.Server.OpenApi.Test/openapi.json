@@ -4,6 +4,11 @@
     "title": "CommunityToolkit.Datasync.Server.OpenApi.Test | v1",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "http://localhost/"
+    }
+  ],
   "paths": {
     "/tables/kitchenreader": {
       "get": {
