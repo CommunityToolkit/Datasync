@@ -2,13 +2,28 @@ name: Build and Test Library
 
 on:
   push:
-    branches: [ main ]
-    paths: [ 'src/**', 'tests/**', 'Datasync Solution.sln', '.github/workflows/build-library.yml', '.github/workflows/SignedPackageFileList.txt' ]
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'Datasync.Toolkit.sln'
+      - 'Directory.Packages.props'
+      - '.github/workflows/build-library.yml'
+      - '.github/workflows/SignedPackageFileList.txt'
   pull_request:
-    branches: [ main ]
-    paths: [ 'src/**', 'tests/**', 'Datasync Solution.sln', '.github/workflows/build-library.yml', '.github/workflows/SignedPackageFileList.txt' ]
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'Datasync.Toolkit.sln'
+      - 'Directory.Packages.props'
+      - '.github/workflows/build-library.yml'
+      - '.github/workflows/SignedPackageFileList.txt'
   release:
-    types: [ published ]
+    types:
+      - published
   workflow_dispatch:
 
 env:
@@ -17,7 +32,7 @@ env:
   DOTNET_NOLOGO: true
   DOTNET_CONFIGURATION: 'Release'
   NuGetDirectory: ${{ github.workspace }}/nuget
-  SolutionFile: 'Datasync Solution.sln'
+  SolutionFile: 'Datasync.Toolkit.sln'
   BASE_VERSION: '9.0.0'
 
 permissions:
