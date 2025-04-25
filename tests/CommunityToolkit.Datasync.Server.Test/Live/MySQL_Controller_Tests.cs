@@ -5,6 +5,7 @@
 using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
 using CommunityToolkit.Datasync.Server.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Xunit.Abstractions;
@@ -13,7 +14,7 @@ namespace CommunityToolkit.Datasync.Server.Test.Live;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class MySQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : LiveControllerTests<MysqlEntityMovie>, IAsyncLifetime
+public class MySQL_Controller_Tests(MySqlDatabaseFixture fixture, ITestOutputHelper output) : LiveControllerTests<MysqlEntityMovie>, IClassFixture<MySqlDatabaseFixture>, IAsyncLifetime
 {
     #region Setup
     private readonly Random random = new();
@@ -21,16 +22,8 @@ public class MySQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper o
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(ConnectionStrings.MySql))
-        {
-            // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
-            // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
-            // to the database then change clearEntities to true.
-            output.WriteLine($"MysqlIsInitialized = {fixture.MysqlIsInitialized}");
-            Context = await MysqlDbContext.CreateContextAsync(ConnectionStrings.MySql, output, clearEntities: !fixture.MysqlIsInitialized);
-            this.movies = await Context.Movies.AsNoTracking().ToListAsync();
-            fixture.MysqlIsInitialized = true;
-        }
+        Context = await MysqlDbContext.CreateContextAsync(fixture.ConnectionString, output);
+        this.movies = await Context.Movies.AsNoTracking().ToListAsync();
     }
 
     public async Task DisposeAsync()
@@ -45,7 +38,7 @@ public class MySQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper o
 
     protected override string DriverName { get; } = "MySQL";
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.MySql);
+    protected override bool CanRunLiveTests() => true;
 
     protected override async Task<MysqlEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);

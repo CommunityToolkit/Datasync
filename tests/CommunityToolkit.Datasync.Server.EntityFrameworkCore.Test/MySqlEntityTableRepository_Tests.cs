@@ -4,8 +4,8 @@
 
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Fixtures;
 using Microsoft.EntityFrameworkCore;
-using Testcontainers.MySql;
 using Xunit.Abstractions;
 
 #pragma warning disable CS9113 // Parameter is unread.
@@ -14,28 +14,15 @@ namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class MysqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : RepositoryTests<MysqlEntityMovie>, IAsyncLifetime
+public class MysqlEntityTableRepository_Tests(MySqlDatabaseFixture fixture, ITestOutputHelper output) : RepositoryTests<MysqlEntityMovie>, IClassFixture<MySqlDatabaseFixture>, IAsyncLifetime
 {
     #region Setup
     private readonly Random random = new();
     private List<MysqlEntityMovie> movies = [];
-    private MySqlContainer _container;
 
     public async Task InitializeAsync()
     {
-        this._container = new MySqlBuilder()
-            .WithImage("mysql:lts-oracle")
-            .WithCleanUp(true)
-            .WithUsername("testuser")
-            .WithPassword("testpassword")
-            .WithDatabase("testdb")
-            .Build();
-
-        await this._container.StartAsync();
-
-        string connectionString = this._container.GetConnectionString();
-
-        Context = await MysqlDbContext.CreateContextAsync(connectionString, output);
+        Context = await MysqlDbContext.CreateContextAsync(fixture.ConnectionString, output);
         this.movies = await Context.Movies.AsNoTracking().ToListAsync();
     }
 
@@ -44,11 +31,6 @@ public class MysqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutp
         if (Context is not null)
         {
             await Context.DisposeAsync();
-        }
-
-        if (this._container is not null)
-        {
-            await this._container.DisposeAsync();
         }
     }
 
