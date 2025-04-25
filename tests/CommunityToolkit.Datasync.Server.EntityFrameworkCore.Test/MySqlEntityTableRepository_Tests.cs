@@ -5,6 +5,7 @@
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
+using Testcontainers.MySql;
 using Xunit.Abstractions;
 
 #pragma warning disable CS9113 // Parameter is unread.
@@ -18,14 +19,24 @@ public class MysqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutp
     #region Setup
     private readonly Random random = new();
     private List<MysqlEntityMovie> movies = [];
+    private MySqlContainer _container;
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(ConnectionStrings.MySql))
-        {
-            Context = await MysqlDbContext.CreateContextAsync(ConnectionStrings.MySql, output);
-            this.movies = await Context.Movies.AsNoTracking().ToListAsync();
-        }
+        this._container = new MySqlBuilder()
+            .WithImage("mysql:lts-oracle")
+            .WithCleanUp(true)
+            .WithUsername("testuser")
+            .WithPassword("testpassword")
+            .WithDatabase("testdb")
+            .Build();
+
+        await this._container.StartAsync();
+
+        string connectionString = this._container.GetConnectionString();
+
+        Context = await MysqlDbContext.CreateContextAsync(connectionString, output);
+        this.movies = await Context.Movies.AsNoTracking().ToListAsync();
     }
 
     public async Task DisposeAsync()
@@ -34,11 +45,16 @@ public class MysqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutp
         {
             await Context.DisposeAsync();
         }
+
+        if (this._container is not null)
+        {
+            await this._container.DisposeAsync();
+        }
     }
 
     private MysqlDbContext Context { get; set; }
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.MySql);
+    protected override bool CanRunLiveTests() => true;
 
     protected override async Task<MysqlEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);

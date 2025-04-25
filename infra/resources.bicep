@@ -34,7 +34,6 @@ var appServiceName = 'web-${resourceToken}'
 var azsqlServerName = 'sql-${resourceToken}'
 var cosmosServerName = 'cosmos-${resourceToken}'
 var pgsqlServerName = 'pgsql-${resourceToken}'
-var mysqlServerName = 'mysql-${resourceToken}'
 var mongoServerName = 'mongo-${resourceToken}'
 var mongoaciServerName = 'mongoaci-${resourceToken}'
 
@@ -76,19 +75,6 @@ module pgsql './modules/postgresql.bicep' = {
         databaseName: testDatabaseName
         firewallRules: clientIpFirewallRules
         sqlServerName: pgsqlServerName
-        sqlAdminUsername: sqlAdminUsername
-        sqlAdminPassword: sqlAdminPassword
-    }
-}
-
-module mysql './modules/mysql.bicep' = {
-    name: 'mysql-deployment-${resourceToken}'
-    params: {
-        location: location
-        tags: tags
-        databaseName: testDatabaseName
-        firewallRules: clientIpFirewallRules
-        sqlServerName: mysqlServerName
         sqlAdminUsername: sqlAdminUsername
         sqlAdminPassword: sqlAdminPassword
     }
@@ -150,6 +136,5 @@ output AZSQL_CONNECTIONSTRING string = azuresql.outputs.AZSQL_CONNECTIONSTRING
 output COSMOS_CONNECTIONSTRING string = cosmos.outputs.COSMOS_CONNECTIONSTRING
 output MONGO_CONNECTIONSTRING string = mongodb.outputs.MONGO_CONNECTIONSTRING
 output MONGOACI_CONNECTIONSTRING string = mongoaci.outputs.MONGO_CONNECTIONSTRING
-output MYSQL_CONNECTIONSTRING string = mysql.outputs.MYSQL_CONNECTIONSTRING
 output PGSQL_CONNECTIONSTRING string = pgsql.outputs.PGSQL_CONNECTIONSTRING
 output SERVICE_ENDPOINT string = app_service.outputs.SERVICE_ENDPOINT
