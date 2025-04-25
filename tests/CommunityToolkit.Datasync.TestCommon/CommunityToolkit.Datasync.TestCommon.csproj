@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsTestProject>false</IsTestProject>
   </PropertyGroup>
@@ -20,6 +20,7 @@
     <PackageReference Include="Microsoft.Spatial" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" />
+    <PackageReference Include="TestContainers.MySql" />
   </ItemGroup>
 
   <ItemGroup>

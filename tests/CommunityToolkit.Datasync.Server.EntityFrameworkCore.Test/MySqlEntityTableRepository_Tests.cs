@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -13,7 +14,7 @@ namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class MysqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : RepositoryTests<MysqlEntityMovie>, IAsyncLifetime
+public class MysqlEntityTableRepository_Tests(MySqlDatabaseFixture fixture, ITestOutputHelper output) : RepositoryTests<MysqlEntityMovie>, IClassFixture<MySqlDatabaseFixture>, IAsyncLifetime
 {
     #region Setup
     private readonly Random random = new();
@@ -21,11 +22,8 @@ public class MysqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutp
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(ConnectionStrings.MySql))
-        {
-            Context = await MysqlDbContext.CreateContextAsync(ConnectionStrings.MySql, output);
-            this.movies = await Context.Movies.AsNoTracking().ToListAsync();
-        }
+        Context = await MysqlDbContext.CreateContextAsync(fixture.ConnectionString, output);
+        this.movies = await Context.Movies.AsNoTracking().ToListAsync();
     }
 
     public async Task DisposeAsync()
@@ -38,7 +36,7 @@ public class MysqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutp
 
     private MysqlDbContext Context { get; set; }
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.MySql);
+    protected override bool CanRunLiveTests() => true;
 
     protected override async Task<MysqlEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
