@@ -7,7 +7,6 @@ namespace CommunityToolkit.Datasync.TestCommon.Databases;
 [ExcludeFromCodeCoverage]
 public static class ConnectionStrings
 {
-    public static readonly string AzureSql = Environment.GetEnvironmentVariable("AZSQL_CONNECTION_STRING");
     public static readonly string CosmosDb = Environment.GetEnvironmentVariable("COSMOS_CONNECTION_STRING");
     public static readonly string MongoCommunity = Environment.GetEnvironmentVariable("MONGOACI_CONNECTION_STRING");
     public static readonly string CosmosMongo = Environment.GetEnvironmentVariable("MONGO_CONNECTION_STRING");

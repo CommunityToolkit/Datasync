@@ -5,6 +5,7 @@
 using CommunityToolkit.Datasync.Server.EntityFrameworkCore;
 using CommunityToolkit.Datasync.Server.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -12,7 +13,7 @@ namespace CommunityToolkit.Datasync.Server.Test.Live;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class AzureSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : LiveControllerTests<AzureSqlEntityMovie>, IAsyncLifetime
+public class AzureSQL_Controller_Tests(MsSqlDatabaseFixture fixture, ITestOutputHelper output) : LiveControllerTests<AzureSqlEntityMovie>, IClassFixture<MsSqlDatabaseFixture>, IAsyncLifetime
 {
     #region Setup
     private readonly Random random = new();
@@ -20,16 +21,8 @@ public class AzureSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelpe
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(ConnectionStrings.AzureSql))
-        {
-            // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
-            // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
-            // to the database then change clearEntities to true.
-            output.WriteLine($"AzureSqlIsInitialized = {fixture.AzureSqlIsInitialized}");
-            Context = await AzureSqlDbContext.CreateContextAsync(ConnectionStrings.AzureSql, output, clearEntities: !fixture.AzureSqlIsInitialized);
-            this.movies = await Context.Movies.AsNoTracking().ToListAsync();
-            fixture.AzureSqlIsInitialized = true;
-        }
+        Context = await AzureSqlDbContext.CreateContextAsync(fixture.ConnectionString, output);
+        this.movies = await Context.Movies.AsNoTracking().ToListAsync();
     }
 
     public async Task DisposeAsync()
@@ -44,7 +37,7 @@ public class AzureSQL_Controller_Tests(DatabaseFixture fixture, ITestOutputHelpe
 
     protected override string DriverName { get; } = "AzureSQL";
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.AzureSql);
+    protected override bool CanRunLiveTests() => true;
 
     protected override Task<AzureSqlEntityMovie> GetEntityAsync(string id)
         => Task.FromResult(Context.Movies.AsNoTracking().SingleOrDefault(m => m.Id == id));
