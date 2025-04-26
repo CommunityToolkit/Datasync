@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -13,7 +14,7 @@ namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class AzureSqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : RepositoryTests<AzureSqlEntityMovie>, IAsyncLifetime
+public class AzureSqlEntityTableRepository_Tests(MsSqlDatabaseFixture fixture, ITestOutputHelper output) : RepositoryTests<AzureSqlEntityMovie>, IClassFixture<MsSqlDatabaseFixture>, IAsyncLifetime
 {
     #region Setup
     private readonly Random random = new();
@@ -21,11 +22,8 @@ public class AzureSqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestO
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(ConnectionStrings.AzureSql))
-        {
-            Context = await AzureSqlDbContext.CreateContextAsync(ConnectionStrings.AzureSql, output);
-            this.movies = await Context.Movies.AsNoTracking().ToListAsync();
-        }
+        Context = await AzureSqlDbContext.CreateContextAsync(fixture.ConnectionString, output);
+        this.movies = await Context.Movies.AsNoTracking().ToListAsync();
     }
 
     public async Task DisposeAsync()
@@ -38,7 +36,7 @@ public class AzureSqlEntityTableRepository_Tests(DatabaseFixture fixture, ITestO
 
     private AzureSqlDbContext Context { get; set; }
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.AzureSql);
+    protected override bool CanRunLiveTests() => true;
 
     protected override async Task<AzureSqlEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
