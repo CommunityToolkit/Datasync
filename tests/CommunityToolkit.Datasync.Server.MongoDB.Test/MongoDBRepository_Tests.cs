@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -13,7 +14,7 @@ using Xunit.Abstractions;
 namespace CommunityToolkit.Datasync.Server.MongoDB.Test;
 
 [ExcludeFromCodeCoverage]
-public class MongoDBRepository_Tests(ITestOutputHelper output) : RepositoryTests<MongoDBMovie>(), IAsyncLifetime
+public class MongoDBRepository_Tests(MongoDatabaseFixture fixture, ITestOutputHelper output) : RepositoryTests<MongoDBMovie>(), IClassFixture<MongoDatabaseFixture>, IAsyncLifetime
 {
     #region Setup
     private readonly Random random = new();
@@ -21,11 +22,8 @@ public class MongoDBRepository_Tests(ITestOutputHelper output) : RepositoryTests
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(ConnectionStrings.MongoCommunity))
-        {
-            Context = await MongoDBContext.CreateContextAsync(ConnectionStrings.MongoCommunity, output);
-            this.movies = await Context.Movies.Find(new BsonDocument()).ToListAsync();
-        }
+        Context = await MongoDBContext.CreateContextAsync(fixture.ConnectionString, output);
+        this.movies = await Context.Movies.Find(new BsonDocument()).ToListAsync();
     }
 
     public async Task DisposeAsync()
@@ -38,7 +36,7 @@ public class MongoDBRepository_Tests(ITestOutputHelper output) : RepositoryTests
 
     public MongoDBContext Context { get; set; }
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.CosmosDb);
+    protected override bool CanRunLiveTests() => true;
 
     protected override async Task<MongoDBMovie> GetEntityAsync(string id)
         => await Context.Movies.Find(Builders<MongoDBMovie>.Filter.Eq(x => x.Id, id)).FirstOrDefaultAsync();

@@ -88,17 +88,6 @@ module mongodb './modules/cosmos-mongodb.bicep' = {
     }
 }
 
-module mongoaci './modules/aci-mongodb.bicep' = {
-    name: 'mongoaci-deployment-${resourceToken}'
-    params: {
-        location: location
-        tags: tags
-        serverName: mongoaciServerName
-        administratorPassword: sqlAdminPassword
-
-    }
-}
-
 module app_service './modules/appservice.bicep' = {
     name: 'appsvc-deployment-${resourceToken}'
     params: {
@@ -121,5 +110,4 @@ module app_service './modules/appservice.bicep' = {
 output AZSQL_CONNECTIONSTRING string = azuresql.outputs.AZSQL_CONNECTIONSTRING
 output COSMOS_CONNECTIONSTRING string = cosmos.outputs.COSMOS_CONNECTIONSTRING
 output MONGO_CONNECTIONSTRING string = mongodb.outputs.MONGO_CONNECTIONSTRING
-output MONGOACI_CONNECTIONSTRING string = mongoaci.outputs.MONGO_CONNECTIONSTRING
 output SERVICE_ENDPOINT string = app_service.outputs.SERVICE_ENDPOINT

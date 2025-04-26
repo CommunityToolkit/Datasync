@@ -5,6 +5,7 @@
 using CommunityToolkit.Datasync.Server.MongoDB;
 using CommunityToolkit.Datasync.Server.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Fixtures;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Xunit.Abstractions;
@@ -13,7 +14,7 @@ namespace CommunityToolkit.Datasync.Server.Test.Live;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class MongoDB_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper output) : LiveControllerTests<MongoDBMovie>(), IAsyncLifetime
+public class MongoDB_Controller_Tests(MongoDatabaseFixture fixture, ITestOutputHelper output) : LiveControllerTests<MongoDBMovie>(), IClassFixture<MongoDatabaseFixture>, IAsyncLifetime
 {
     #region Setup
     private readonly Random random = new();
@@ -21,16 +22,8 @@ public class MongoDB_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(ConnectionStrings.MongoCommunity))
-        {
-            // Note: we don't clear entities on every run to speed up the test runs.  This can only be done because
-            // the tests are read-only (associated with the query and get capabilities).  If the test being run writes
-            // to the database then change clearEntities to true.
-            output.WriteLine($"MongoCommunityIsInitialized = {fixture.MongoCommunityIsInitialized}");
-            Context = await MongoDBContext.CreateContextAsync(ConnectionStrings.MongoCommunity, output, clearEntities: !fixture.MongoCommunityIsInitialized);
-            this.movies = await Context.Movies.Find(new BsonDocument()).ToListAsync();
-            fixture.MongoCommunityIsInitialized = true;
-        }
+        Context = await MongoDBContext.CreateContextAsync(fixture.ConnectionString, output);
+        this.movies = await Context.Movies.Find(new BsonDocument()).ToListAsync();
     }
 
     public async Task DisposeAsync()
@@ -45,7 +38,7 @@ public class MongoDB_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper
 
     protected override string DriverName { get; } = "MongoDB";
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.MongoCommunity);
+    protected override bool CanRunLiveTests() => true;
 
     protected override async Task<MongoDBMovie> GetEntityAsync(string id)
         => await Context.Movies.Find(Builders<MongoDBMovie>.Filter.Eq(x => x.Id, id)).FirstOrDefaultAsync();
