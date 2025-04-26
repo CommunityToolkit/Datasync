@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Fixtures;
 using Microsoft.EntityFrameworkCore;
 using Xunit.Abstractions;
 
@@ -13,7 +14,7 @@ namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 
 [ExcludeFromCodeCoverage]
 [Collection("LiveTestsCollection")]
-public class PgEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputHelper output) : RepositoryTests<PgEntityMovie>, IAsyncLifetime
+public class PgEntityTableRepository_Tests(PostgreSqlDatabaseFixture fixture, ITestOutputHelper output) : RepositoryTests<PgEntityMovie>, IClassFixture<PostgreSqlDatabaseFixture>, IAsyncLifetime
 {
     #region Setup
     private readonly Random random = new();
@@ -21,11 +22,8 @@ public class PgEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputH
 
     public async Task InitializeAsync()
     {
-        if (!string.IsNullOrEmpty(ConnectionStrings.PgSql))
-        {
-            Context = await PgDbContext.CreateContextAsync(ConnectionStrings.PgSql, output);
-            this.movies = await Context.Movies.AsNoTracking().ToListAsync();
-        }
+        Context = await PgDbContext.CreateContextAsync(fixture.ConnectionString, output);
+        this.movies = await Context.Movies.AsNoTracking().ToListAsync();
     }
 
     public async Task DisposeAsync()
@@ -38,7 +36,7 @@ public class PgEntityTableRepository_Tests(DatabaseFixture fixture, ITestOutputH
 
     private PgDbContext Context { get; set; }
 
-    protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.PgSql);
+    protected override bool CanRunLiveTests() => true;
 
     protected override async Task<PgEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
