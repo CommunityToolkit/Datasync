@@ -19,7 +19,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
 
         HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.MovieEndpoint}/{existingMovie.Id}");
-        response.Should().HaveStatusCode(HttpStatusCode.NoContent);
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         InMemoryMovie serverEntity = this.factory.GetServerEntityById<InMemoryMovie>(existingMovie.Id);
         serverEntity.Should().BeNull();
@@ -39,7 +39,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
         request.Headers.Add(headerName, etag);
 
         HttpResponseMessage response = await this.client.SendAsync(request);
-        response.Should().HaveStatusCode(expectedStatusCode);
+        response.StatusCode.Should().Be(expectedStatusCode);
 
         if (expectedStatusCode == HttpStatusCode.PreconditionFailed)
         {
@@ -53,7 +53,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     public async Task Delete_MissingId_Returns404()
     {
         HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.MovieEndpoint}/missing");
-        response.Should().HaveStatusCode(HttpStatusCode.NotFound);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -64,7 +64,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
         DateTimeOffset existingUpdatedAt = (DateTimeOffset)existingMovie.UpdatedAt;
 
         HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}");
-        response.Should().HaveStatusCode(HttpStatusCode.NoContent);
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         InMemoryMovie serverEntity = this.factory.GetServerEntityById<InMemoryMovie>(existingMovie.Id);
         serverEntity.Should().NotBeNull();
@@ -80,7 +80,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
         this.factory.SoftDelete(existingMovie);
 
         HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}");
-        response.Should().HaveStatusCode(HttpStatusCode.Gone);
+        response.StatusCode.Should().Be(HttpStatusCode.Gone);
 
         InMemoryMovie serverEntity = this.factory.GetServerEntityById<InMemoryMovie>(existingMovie.Id);
         serverEntity.Should().NotBeNull();

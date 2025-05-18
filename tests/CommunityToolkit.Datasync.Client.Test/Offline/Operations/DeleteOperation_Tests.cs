@@ -21,7 +21,7 @@ public class DeleteOperation_Tests
     {
         MockDelegatingHandler handler = new();
         HttpClient client = new(handler) { BaseAddress = new Uri("https://test.zumo.net") };
-        string itemJson = """{"id":"123"}""";
+        const string itemJson = """{"id":"123"}""";
         DatasyncOperation op = new()
         {
             Id = Guid.NewGuid().ToString(),
@@ -52,7 +52,7 @@ public class DeleteOperation_Tests
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Delete);
         request.RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/123");
-        request.Should().NotHaveHeader("If-Match");
+        request.Headers.Should().NotContain(x => x.Key == "If-Match");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeFalse();
@@ -67,7 +67,7 @@ public class DeleteOperation_Tests
     {
         MockDelegatingHandler handler = new();
         HttpClient client = new(handler) { BaseAddress = new Uri("https://test.zumo.net") };
-        string itemJson = """{"id":"123"}""";
+        const string itemJson = """{"id":"123"}""";
         DatasyncOperation op = new()
         {
             Id = Guid.NewGuid().ToString(),
@@ -98,7 +98,7 @@ public class DeleteOperation_Tests
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Delete);
         request.RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/123");
-        request.Should().HaveHeader("If-Match", "\"abcdefg\"");
+        request.Headers.Should().Contain(x => x.Key == "If-Match" && x.Value.First() == "\"abcdefg\"");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeFalse();

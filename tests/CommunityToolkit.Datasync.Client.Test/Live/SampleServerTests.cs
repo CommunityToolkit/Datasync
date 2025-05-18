@@ -24,7 +24,7 @@ public class SampleServerTests
         TodoItem source = new() { Title = "Test item" };
         HttpResponseMessage response = await client.PostAsJsonAsync($"{this.serviceEndpoint}/tables/TodoItem", source);
 
-        response.Should().HaveHttpStatusCode(HttpStatusCode.Created);
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
 
         TodoItem result = await response.Content.ReadFromJsonAsync<TodoItem>();
         result.Id.Should().NotBeNullOrEmpty();

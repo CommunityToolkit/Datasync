@@ -17,13 +17,12 @@ namespace CommunityToolkit.Datasync.Client.Test.Offline.Operations;
 [ExcludeFromCodeCoverage]
 public class ReplaceOperation_Tests
 {
-
     [Fact]
     public async Task ReplaceOperation_ExecuteAsync()
     {
         MockDelegatingHandler handler = new();
         HttpClient client = new(handler) { BaseAddress = new Uri("https://test.zumo.net") };
-        string itemJson = """{"id":"123"}""";
+        const string itemJson = """{"id":"123"}""";
         DatasyncOperation op = new()
         {
             Id = Guid.NewGuid().ToString(),
@@ -55,7 +54,7 @@ public class ReplaceOperation_Tests
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/123");
-        request.Should().NotHaveHeader("If-Match");
+        request.Headers.Should().NotContain(x => x.Key == "If-Match");
         (await request.Content.ReadAsStringAsync()).Should().Be(itemJson);
 
         response.Should().NotBeNull();
@@ -73,7 +72,7 @@ public class ReplaceOperation_Tests
     {
         MockDelegatingHandler handler = new();
         HttpClient client = new(handler) { BaseAddress = new Uri("https://test.zumo.net") };
-        string itemJson = """{"id":"123"}""";
+        const string itemJson = """{"id":"123"}""";
         DatasyncOperation op = new()
         {
             Id = Guid.NewGuid().ToString(),
@@ -105,7 +104,7 @@ public class ReplaceOperation_Tests
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/123");
-        request.Should().HaveHeader("If-Match", "\"abcdefg\"");
+        request.Headers.Should().Contain(x => x.Key == "If-Match" && x.Value.First() == "\"abcdefg\"");
         (await request.Content.ReadAsStringAsync()).Should().Be(itemJson);
 
         response.Should().NotBeNull();

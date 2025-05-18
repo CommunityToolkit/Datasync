@@ -30,7 +30,7 @@ public class Query_Tests(ServiceApplicationFactory factory) : ServiceTest(factor
     public async Task FailedQueryTest(string query, HttpStatusCode expectedStatusCode)
     {
         HttpResponseMessage response = await this.client.GetAsync($"{this.factory.MovieEndpoint}?{query}");
-        response.Should().HaveStatusCode(expectedStatusCode);
+        response.StatusCode.Should().Be(expectedStatusCode);
     }
 
     [Fact]
@@ -3904,7 +3904,7 @@ public class Query_Tests(ServiceApplicationFactory factory) : ServiceTest(factor
         string query = $"{this.factory.MovieEndpoint}?$top=5&$skip=5&$select={string.Join(',', selection)}";
 
         HttpResponseMessage response = await this.client.GetAsync(query);
-        response.Should().HaveStatusCode(HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
         string content = await response.Content.ReadAsStringAsync();
         PageOfItems<ClientObject> result = JsonSerializer.Deserialize<PageOfItems<ClientObject>>(content, this.serializerOptions);
         result.Should().NotBeNull();
@@ -3930,7 +3930,7 @@ public class Query_Tests(ServiceApplicationFactory factory) : ServiceTest(factor
     {
         HttpResponseMessage response = await this.client.GetAsync(pathAndQuery);
         string content = await response.Content.ReadAsStringAsync();
-        response.Should().HaveStatusCode(HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         PageOfItems<ClientMovie> result = JsonSerializer.Deserialize<PageOfItems<ClientMovie>>(content, this.serializerOptions);
 
@@ -3961,7 +3961,7 @@ public class Query_Tests(ServiceApplicationFactory factory) : ServiceTest(factor
     {
         HttpResponseMessage response = await this.client.GetAsync(pathAndQuery);
         string content = await response.Content.ReadAsStringAsync();
-        response.Should().HaveStatusCode(HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         PageOfItems<ClientKitchenSink> result = JsonSerializer.Deserialize<PageOfItems<ClientKitchenSink>>(content, this.serializerOptions);
 
@@ -4000,7 +4000,7 @@ public class Query_Tests(ServiceApplicationFactory factory) : ServiceTest(factor
             loops++;
             HttpResponseMessage response = await this.client.GetAsync(query);
             string content = await response.Content.ReadAsStringAsync();
-            response.Should().HaveStatusCode(HttpStatusCode.OK);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
             PageOfItems<ClientMovie> result = JsonSerializer.Deserialize<PageOfItems<ClientMovie>>(content, this.serializerOptions);
             result.Items.Should().NotBeNull();
             result.Items.ToList().ForEach(x => items.Add(x.Id, x));

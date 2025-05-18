@@ -289,7 +289,7 @@ public class GenericAuthenticationProvider_Tests
         response.Should().NotBeNull();
 
         handler.Requests.Should().ContainSingle();
-        handler.Requests[0].Should().HaveHeader("Authorization", $"Bearer {ValidAuthenticationToken.Token}");
+        handler.Requests[0].Headers.Should().ContainSingle(x => x.Key == "Authorization" && x.Value.First() == $"Bearer {ValidAuthenticationToken.Token}");
     }
 
     [Fact]
@@ -308,7 +308,7 @@ public class GenericAuthenticationProvider_Tests
         response.Should().NotBeNull();
 
         handler.Requests.Should().ContainSingle();
-        handler.Requests[0].Should().NotHaveHeader("Authorization");
+        handler.Requests[0].Headers.Should().NotContain(x => x.Key == "Authorization");
     }
 
     [Fact]
@@ -328,7 +328,7 @@ public class GenericAuthenticationProvider_Tests
         response.Should().NotBeNull();
 
         handler.Requests.Should().ContainSingle();
-        handler.Requests[0].Should().NotHaveHeader("Authorization");
+        handler.Requests[0].Headers.Should().NotContain(x => x.Key == "Authorization");
     }
 
     [Fact]
@@ -348,7 +348,7 @@ public class GenericAuthenticationProvider_Tests
         response.Should().NotBeNull();
 
         handler.Requests.Should().ContainSingle();
-        handler.Requests[0].Should().HaveHeader("Authorization", $"Bearer {ValidAuthenticationToken.Token}");
+        handler.Requests[0].Headers.Should().ContainSingle(x => x.Key == "Authorization" && x.Value.First() == $"Bearer {ValidAuthenticationToken.Token}");
     }
 
     /// <summary>

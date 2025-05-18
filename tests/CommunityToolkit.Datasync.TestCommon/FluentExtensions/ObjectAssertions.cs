@@ -7,6 +7,7 @@ using CommunityToolkit.Datasync.TestCommon.Models;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -20,7 +21,7 @@ public static class FluentObjectAssertions
     /// </summary>
     public static AndConstraint<ObjectAssertions> BeETag(this ObjectAssertions current, string value, string because = "", params object[] becauseArgs)
     {
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is EntityTagHeaderValue)
             .FailWith("Expected object to be an EntityTagHeaderValue", current.Subject)
@@ -30,41 +31,22 @@ public static class FluentObjectAssertions
         return new AndConstraint<ObjectAssertions>(current);
     }
 
-    public static AndConstraint<ObjectAssertions> BeHttpGet(this ObjectAssertions current, string uri, string because = "", params object[] becauseArgs)
-    {
-        Execute.Assertion
-            .BecauseOf(because, becauseArgs)
-            .ForCondition(current.Subject is HttpRequestMessage)
-            .FailWith("Expected object to be an HttpRequestMessage", current.Subject);
-        HttpRequestMessage sut = (HttpRequestMessage)current.Subject;
-        Execute.Assertion
-            .BecauseOf(because, becauseArgs)
-            .ForCondition(sut.Method == HttpMethod.Get)
-            .FailWith("Expected HttpRequestMessage to have Method == GET, but found {0}", sut.Method);
-        Execute.Assertion
-            .BecauseOf(because, becauseArgs)
-            .ForCondition(sut.RequestUri.ToString() == uri)
-            .FailWith("Expected HttpRequestMessage to have RequestUri == {0}, but found {1}", uri, sut.RequestUri.ToString());
-
-        return new AndConstraint<ObjectAssertions>(current);
-    }
-
     /// <summary>
     /// Checks that the current object is a <see cref="JsonElement"/> that is a boolean with the specified value.
     /// </summary>
     public static AndConstraint<ObjectAssertions> BeJsonElement(this ObjectAssertions current, bool value, string because = "", params object[] becauseArgs)
     {
-        Execute.Assertion
-        .BecauseOf(because, becauseArgs)
+        current.CurrentAssertionChain
+            .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is JsonElement)
             .FailWith("Expected object to be a JsonElement", current.Subject);
         JsonElement jsonElement = (JsonElement)current.Subject;
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(jsonElement.ValueKind is JsonValueKind.False or JsonValueKind.True)
             .FailWith("Expected object to be a boolean, but found {0}", jsonElement.ValueKind);
         bool elementValue = jsonElement.GetBoolean();
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(elementValue == value)
             .FailWith("Expected object to be a boolean with value {0}, but found {1}", value, elementValue);
@@ -77,17 +59,17 @@ public static class FluentObjectAssertions
     /// </summary>
     public static AndConstraint<ObjectAssertions> BeJsonElement(this ObjectAssertions current, double value, string because = "", params object[] becauseArgs)
     {
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is JsonElement)
             .FailWith("Expected object to be a JsonElement", current.Subject);
         JsonElement jsonElement = (JsonElement)current.Subject;
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(jsonElement.ValueKind == JsonValueKind.Number)
             .FailWith("Expected object to be a number, but found {0}", jsonElement.ValueKind);
         double elementValue = jsonElement.GetDouble();
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(elementValue == value)
             .FailWith("Expected object to be a double with value {0}, but found {1}", value, elementValue);
@@ -100,17 +82,17 @@ public static class FluentObjectAssertions
     /// </summary>
     public static AndConstraint<ObjectAssertions> BeJsonElement(this ObjectAssertions current, int value, string because = "", params object[] becauseArgs)
     {
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is JsonElement)
             .FailWith("Expected object to be a JsonElement", current.Subject);
         JsonElement jsonElement = (JsonElement)current.Subject;
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(jsonElement.ValueKind == JsonValueKind.Number)
             .FailWith("Expected object to be a number, but found {0}", jsonElement.ValueKind);
         int elementValue = jsonElement.GetInt32();
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(elementValue == value)
             .FailWith("Expected object to be an int with value {0}, but found {1}", value, elementValue);
@@ -123,18 +105,18 @@ public static class FluentObjectAssertions
     /// </summary>
     public static AndConstraint<ObjectAssertions> BeJsonElement(this ObjectAssertions current, string value, string because = "", params object[] becauseArgs)
     {
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is JsonElement)
             .FailWith("Expected object to be a JsonElement", current.Subject);
 
         JsonElement jsonElement = (JsonElement)current.Subject;
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(jsonElement.ValueKind == JsonValueKind.String)
             .FailWith("Expected object to be a string, but found {0}", jsonElement.ValueKind);
         string elementValue = jsonElement.GetString();
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(elementValue == value)
             .FailWith("Expected object to be a string with value {0}, but found {1}", value, elementValue);
@@ -147,13 +129,13 @@ public static class FluentObjectAssertions
     /// </summary>
     public static AndConstraint<ObjectAssertions> BeNullJsonElement(this ObjectAssertions current, string because = "", params object[] becauseArgs)
     {
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is null or JsonElement)
             .FailWith("Expected object to be a JsonElement", current.Subject);
         if (current.Subject is JsonElement jsonElement)
         {
-            Execute.Assertion
+            current.CurrentAssertionChain
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(jsonElement.ValueKind == JsonValueKind.Null)
                 .FailWith("Expected object to be a NULL, but found {0}", jsonElement.ValueKind);
@@ -167,18 +149,18 @@ public static class FluentObjectAssertions
     /// </summary>
     public static AndConstraint<ObjectAssertions> BeJsonObject(this ObjectAssertions current, string value, string because = "", params object[] becauseArgs)
     {
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is JsonElement)
             .FailWith("Expected object to be a JsonElement", current.Subject);
 
         JsonElement jsonElement = (JsonElement)current.Subject;
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(jsonElement.ValueKind == JsonValueKind.Object)
             .FailWith("Expected object to be a string, but found {0}", jsonElement.ValueKind);
         string elementValue = jsonElement.ToString();
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(elementValue == value)
             .FailWith("Expected object to be a string with value {0}, but found {1}", value, elementValue);
@@ -194,13 +176,13 @@ public static class FluentObjectAssertions
         // Round the start time to the nearest lowest millisecond.
         DateTimeOffset st = DateTimeOffset.FromUnixTimeMilliseconds(startTime.ToUnixTimeMilliseconds());
 
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is ClientTableData)
             .FailWith("Expected object to be derived from ClientTableData");
         ClientTableData metadata = (ClientTableData)current.Subject;
 
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(id == null ? !string.IsNullOrEmpty(metadata.Id) : metadata.Id == id)
             .FailWith(id == null ? "Expected Id to be set" : "Expected Id to be {0}, but found {1}", id, metadata.Id)
@@ -222,7 +204,7 @@ public static class FluentObjectAssertions
         // Round the start time to the nearest lowest millisecond.
         DateTimeOffset st = DateTimeOffset.FromUnixTimeMilliseconds(startTime.ToUnixTimeMilliseconds());
 
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is ClientTableData)
             .FailWith("Expected object to be derived from ClientTableData")
@@ -231,7 +213,7 @@ public static class FluentObjectAssertions
             .FailWith("Expected source to be derived from ClientTableData or ITableData");
         ClientTableData metadata = (ClientTableData)current.Subject;
         ClientTableData sourceMetadata = source is ClientTableData data ? data : new ClientTableData(source);
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(metadata.Id == sourceMetadata.Id)
             .FailWith("Exepcted Id to be {0}, but found {1}", sourceMetadata.Id, metadata.Id)
@@ -251,7 +233,7 @@ public static class FluentObjectAssertions
     {
         const string dateFormat = "yyyy-MM-ddTHH:mm:ss.fffK";
 
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(current.Subject is ITableData or ClientTableData)
             .FailWith("Expected object to be derived from ITableData or ClientTableData", current.Subject);
@@ -259,7 +241,7 @@ public static class FluentObjectAssertions
         ClientTableData metadata = current.Subject is ClientTableData data ? data : new ClientTableData(current.Subject);
         bool updatedAtEquals = source.UpdatedAt == metadata.UpdatedAt;
         bool updatedAtClose = source.UpdatedAt != null && metadata.UpdatedAt != null && (source.UpdatedAt - metadata.UpdatedAt) < TimeSpan.FromMilliseconds(1);
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(metadata.Id == source.Id)
             .FailWith("Expected Id to be {0}, but found {1}", source.Id, metadata.Id)
@@ -273,56 +255,6 @@ public static class FluentObjectAssertions
             .ForCondition(updatedAtEquals || updatedAtClose)
             .FailWith("Expected UpdatedAt to be {0}, but found {1}", source.UpdatedAt?.ToString(dateFormat), metadata.UpdatedAt?.ToString(dateFormat));
 
-        return new AndConstraint<ObjectAssertions>(current);
-    }
-
-    /// <summary>
-    /// Checks that a <see cref="HttpRequestMessage"/> has a specific header with a specific value.
-    /// </summary>
-    /// <param name="current">The current assertion.</param>
-    /// <param name="headerName">The name of the header that is expected.</param>
-    /// <param name="expectedValue">The expected value in the header.</param>
-    /// <param name="because">A reason to use.</param>
-    /// <param name="becauseArgs">Any arguments to the reason.</param>
-    /// <returns>A chaining construct.</returns>
-    public static AndConstraint<ObjectAssertions> HaveHeader(this ObjectAssertions current, string headerName, string expectedValue, string because = "", params object[] becauseArgs)
-    {
-        Execute.Assertion
-            .BecauseOf(because, becauseArgs)
-            .ForCondition(current.Subject is HttpRequestMessage)
-            .FailWith("Expected object to be a HttpRequestMessage", current.Subject);
-
-        HttpRequestMessage request = (HttpRequestMessage)current.Subject;
-        Execute.Assertion
-            .BecauseOf(because, becauseArgs)
-            .ForCondition(request.Headers.TryGetValues(headerName, out IEnumerable<string> values))
-            .FailWith("Expected header {0} to be present", headerName)
-        .Then
-            .ForCondition(values.Contains(expectedValue))
-            .FailWith("Exepcted header {0} to have value {1}", headerName, expectedValue);
-        return new AndConstraint<ObjectAssertions>(current);
-    }
-
-    /// <summary>
-    /// Checks that a <see cref="HttpRequestMessage"/> does not have a specific header.
-    /// </summary>
-    /// <param name="current">The current assertion.</param>
-    /// <param name="headerName">The name of the header that is not expected.</param>
-    /// <param name="because">A reason to use.</param>
-    /// <param name="becauseArgs">Any arguments to the reason.</param>
-    /// <returns>A chaining construct.</returns>
-    public static AndConstraint<ObjectAssertions> NotHaveHeader(this ObjectAssertions current, string headerName, string because = "", params object[] becauseArgs)
-    {
-        Execute.Assertion
-            .BecauseOf(because, becauseArgs)
-            .ForCondition(current.Subject is HttpRequestMessage)
-            .FailWith("Expected object to be a HttpRequestMessage", current.Subject);
-
-        HttpRequestMessage request = (HttpRequestMessage)current.Subject;
-        Execute.Assertion
-            .BecauseOf(because, becauseArgs)
-            .ForCondition(!request.Headers.TryGetValues(headerName, out IEnumerable<string> _))
-            .FailWith("Expected header {0} to not be present", headerName);
         return new AndConstraint<ObjectAssertions>(current);
     }
 }

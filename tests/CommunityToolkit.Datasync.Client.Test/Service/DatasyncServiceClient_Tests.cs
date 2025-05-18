@@ -56,7 +56,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     /// <summary>
     /// A test evaluator that ensures DateTimeOffset, DateTime, and TimeOnly values are msec resolution.
     /// </summary>
-    private readonly Func<EquivalencyAssertionOptions<ClientKitchenSink>, EquivalencyAssertionOptions<ClientKitchenSink>> entityEquivalentOptions = (options) =>
+    private readonly Func<EquivalencyOptions<ClientKitchenSink>, EquivalencyOptions<ClientKitchenSink>> entityEquivalentOptions = (options) =>
     {
         options.Using<DateTimeOffset>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1.Milliseconds())).WhenTypeIs<DateTimeOffset>();
         options.Using<DateTime>(ctx => ctx.Subject.Should().BeCloseTo(ctx.Expectation, 1.Milliseconds())).WhenTypeIs<DateTime>();
@@ -267,7 +267,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         this.mockHandler.Responses.Add(GetSuccessfulResponse(this.successfulKitchenSink, code));
         ClientKitchenSink entity = new() { Id = "1", StringValue = "abc" };
-        string expected = """{"stringValue":"abc","id":"1"}""";
+        const string expected = """{"stringValue":"abc","id":"1"}""";
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
 
         Func<Task> act = async () => _ = await client.AddAsync(entity, new DatasyncServiceOptions());
@@ -1204,7 +1204,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     [Fact]
     public async Task Query_TwoPagesOfItems()
     {
-        Page<ClientKitchenSink> 
+        Page<ClientKitchenSink>
             page1 = CreatePage(5, null, "$skip=5"),
             page2 = CreatePage(5);
 
@@ -1436,7 +1436,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Delete);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{id}");
-        request.Should().HaveHeader("If-Match", "\"abcdefg1234\"");
+        request.Headers.Should().Contain(x => x.Key == "If-Match" && x.Value.First() == "\"abcdefg1234\"");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeFalse();
@@ -1458,7 +1458,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Delete);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
-        request.Should().HaveHeader("If-Match", "\"abcdefg1234\"");
+        request.Headers.Should().Contain(x => x.Key == "If-Match" && x.Value.First() == "\"abcdefg1234\"");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeFalse();
@@ -1480,7 +1480,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Delete);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
-        request.Should().HaveHeader("If-Match", "\"abcdefg1234\"");
+        request.Headers.Should().Contain(x => x.Key == "If-Match" && x.Value.First() == "\"abcdefg1234\"");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeFalse();
@@ -1502,7 +1502,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Delete);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
-        request.Should().NotHaveHeader("If-Match");
+        request.Headers.Should().NotContain(x => x.Key == "If-Match");
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeFalse();
@@ -1745,7 +1745,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
-        request.Should().HaveHeader("If-Match", "\"abcdefg1234\"");
+        request.Headers.Should().Contain(x => x.Key == "If-Match" && x.Value.First() == "\"abcdefg1234\"");
         (await request.Content.ReadAsStringAsync()).Should().Be(expected);
 
         response.Should().NotBeNull();
@@ -1771,7 +1771,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
-        request.Should().NotHaveHeader("If-Match");
+        request.Headers.Should().NotContain(x => x.Key == "If-Match");
         (await request.Content.ReadAsStringAsync()).Should().Be(expected);
 
         response.Should().NotBeNull();
@@ -1797,7 +1797,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
-        request.Should().HaveHeader("If-Match", "\"abcdefg1234\"");
+        request.Headers.Should().Contain(x => x.Key == "If-Match" && x.Value.First() == "\"abcdefg1234\"");
         (await request.Content.ReadAsStringAsync()).Should().Be(expected);
 
         response.Should().NotBeNull();
@@ -1823,7 +1823,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
-        request.Should().HaveHeader("If-Match", "\"abcdefg1234\"");
+        request.Headers.Should().Contain(x => x.Key == "If-Match" && x.Value.First() == "\"abcdefg1234\"");
         (await request.Content.ReadAsStringAsync()).Should().Be(expected);
 
         response.Should().NotBeNull();
@@ -3561,10 +3561,12 @@ public class DatasyncServiceClient_Tests : IDisposable
     [Fact]
     public void Linq_Where_EndsWith_ToUpper()
     {
+#pragma warning disable RCS1155 // Use StringComparison when comparing strings
         ExecuteQueryTest(
             x => x.Where(m => m.StringValue.ToUpperInvariant() == "ER"),
             "$filter=(toupper(stringValue) eq 'ER')"
         );
+#pragma warning restore RCS1155 // Use StringComparison when comparing strings
     }
 
     [Fact]
