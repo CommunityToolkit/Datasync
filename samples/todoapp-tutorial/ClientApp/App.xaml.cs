@@ -1,4 +1,4 @@
-﻿using ClientApp.Interfaces;
+using ClientApp.Interfaces;
 using ClientApp.Services;
 using ClientApp.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,7 +29,7 @@ public partial class App : Application, IDisposable
     {
         using IServiceScope scope = Services.CreateScope();
         IAppInitializer initializer = scope.ServiceProvider.GetRequiredService<IAppInitializer>();
-        initializer.Initialize();
+        _ = initializer.Initialize();
     }
 
     /// <summary>
