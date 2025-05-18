@@ -7,14 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Datasync.Server" Version="9.0.1" />
-    <PackageReference Include="CommunityToolkit.Datasync.Server.EntityFrameworkCore" Version="9.0.1" />
-    <PackageReference Include="CommunityToolkit.Datasync.Server.NSwag" Version="9.0.1" />
-    <PackageReference Include="CommunityToolkit.Datasync.Server.OpenApi" Version="9.0.1" />
-    <PackageReference Include="CommunityToolkit.Datasync.Server.Swashbuckle" Version="9.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.2">
+    <PackageReference Include="CommunityToolkit.Datasync.Server" Version="9.0.2" />
+    <PackageReference Include="CommunityToolkit.Datasync.Server.EntityFrameworkCore" Version="9.0.2" />
+    <PackageReference Include="CommunityToolkit.Datasync.Server.NSwag" Version="9.0.2" />
+    <PackageReference Include="CommunityToolkit.Datasync.Server.OpenApi" Version="9.0.2" />
+    <PackageReference Include="CommunityToolkit.Datasync.Server.Swashbuckle" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

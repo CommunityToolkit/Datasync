@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Datasync.Server" Version="9.0.0" />
-    <PackageReference Include="CommunityToolkit.Datasync.Server.InMemory" Version="9.0.0" />
+    <PackageReference Include="CommunityToolkit.Datasync.Server" Version="9.0.2" />
+    <PackageReference Include="CommunityToolkit.Datasync.Server.InMemory" Version="9.0.2" />
   </ItemGroup>
 
 </Project>
