@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using FluentAssertions;
 using Microsoft.AspNetCore.WebUtilities;
@@ -18,7 +17,7 @@ public static class FluentStringAssertions
     /// </summary>
     public static AndConstraint<StringAssertions> BeAGuid(this StringAssertions current, string because = "", params object[] becauseArgs)
     {
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(Guid.TryParse(current.Subject, out _))
             .FailWith("Expected object to be a Guid, but found {0}", current.Subject);
@@ -31,11 +30,10 @@ public static class FluentStringAssertions
         Dictionary<string, StringValues> q2 = QueryHelpers.ParseNullableQuery(current.Subject) ?? [];
         bool isEquivalent = q1.Count == q2.Count && !q1.Except(q2).Any();
 
-        Execute.Assertion
+        current.CurrentAssertionChain
             .BecauseOf(because, becauseArgs)
             .ForCondition(isEquivalent)
             .FailWith("Expected query string to match '{0}', but found '{1}'", queryString, current.Subject);
         return new AndConstraint<StringAssertions>(current);
-
     }
 }

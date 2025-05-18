@@ -25,7 +25,7 @@ public class Create_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
         ClientMovie source = new(TestData.Movies.BlackPanther) { Id = id };
 
         HttpResponseMessage response = await this.client.PostAsJsonAsync(this.factory.MovieEndpoint, source, this.serializerOptions);
-        response.Should().HaveStatusCode(HttpStatusCode.Created);
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
 
         ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
         clientMovie.Should().NotBeNull().And.HaveChangedMetadata(id, this.StartTime).And.BeEquivalentTo<IMovie>(source);
@@ -44,7 +44,7 @@ public class Create_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
         ClientMovie source = new(TestData.Movies.BlackPanther) { Id = existingMovie.Id };
 
         HttpResponseMessage response = await this.client.PostAsJsonAsync(this.factory.MovieEndpoint, source, this.serializerOptions);
-        response.Should().HaveStatusCode(HttpStatusCode.Conflict);
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
         clientMovie.Should().NotBeNull().And.HaveEquivalentMetadataTo(existingMovie).And.BeEquivalentTo<IMovie>(existingMovie);
@@ -60,7 +60,7 @@ public class Create_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
         ClientMovie source = new(TestData.Movies.BlackPanther) { Id = existingMovie.Id };
 
         HttpResponseMessage response = await this.client.PostAsJsonAsync(this.factory.MovieEndpoint, source, this.serializerOptions);
-        response.Should().HaveStatusCode(HttpStatusCode.Conflict);
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
         clientMovie.Should().NotBeNull().And.HaveEquivalentMetadataTo(existingMovie).And.BeEquivalentTo<IMovie>(existingMovie);
@@ -83,7 +83,7 @@ public class Create_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
         };
 
         HttpResponseMessage response = await this.client.PostAsJsonAsync(this.factory.KitchenSinkEndpoint, source, this.serializerOptions);
-        response.Should().HaveStatusCode(HttpStatusCode.Created);
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
 
         ClientKitchenSink clientKitchenSink = await response.Content.ReadFromJsonAsync<ClientKitchenSink>(this.serializerOptions);
         clientKitchenSink.Should().NotBeNull().And.HaveChangedMetadata(id, this.StartTime).And.BeEquivalentTo<IKitchenSink>(source);
@@ -97,7 +97,7 @@ public class Create_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     {
         const string content = "<html><body><h1>Not JSON</h1></body></html>";
         HttpResponseMessage response = await this.client.PostAsync(this.factory.MovieEndpoint, new StringContent(content, Encoding.UTF8, "text/html"));
-        response.Should().HaveStatusCode(HttpStatusCode.UnsupportedMediaType);
+        response.StatusCode.Should().Be(HttpStatusCode.UnsupportedMediaType);
     }
 
     [Theory]
@@ -134,6 +134,6 @@ public class Create_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
         }
 
         HttpResponseMessage response = await this.client.PostAsJsonAsync(this.factory.MovieEndpoint, source, this.serializerOptions);
-        response.Should().HaveStatusCode(HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }
