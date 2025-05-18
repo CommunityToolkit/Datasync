@@ -10,9 +10,9 @@
     <PackageVersion Include="FluentAssertions.Web" Version="1.8.0" />
     <PackageVersion Include="LiteDB" Version="5.0.21" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.3.1" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.49.0" />
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.51.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Cosmos" Version="9.0.4" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.4" />
@@ -20,9 +20,9 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.4" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.5" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageVersion Include="Microsoft.OData.Core" Version="8.2.3" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
