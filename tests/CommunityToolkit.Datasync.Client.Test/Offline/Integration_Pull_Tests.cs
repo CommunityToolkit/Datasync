@@ -152,7 +152,7 @@ public class Integration_Pull_Tests : ServiceTest, IClassFixture<ServiceApplicat
         await this.context.MoviesWithLocalData.PushAsync();
 
         // Reload the local data from the server and check that the local data is still there
-        await this.context.Entry(t1).ReloadAsync();
+        await this.context.Entry(t2).ReloadAsync();
         t2.UserRating.Should().Be(5);
         t2.Title.Should().Be("New Title");
 
