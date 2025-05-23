@@ -8,7 +8,7 @@ using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System.Net;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
 
@@ -23,7 +23,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
     /// <summary>
     /// A lock object for locking against concurrent changes to the queue.
     /// </summary>
-    private readonly object pushlock = new();
+    private readonly Lock pushlock = new();
 
     /// <summary>
     /// The map of valid entities that can be synchronized to the service.
@@ -67,24 +67,26 @@ internal class OperationsQueueManager : IOperationsQueueManager
     /// in scope for the operations queue.
     /// </summary>
     /// <returns>A list of <see cref="EntityEntry"/> values.</returns>
+    [SuppressMessage("Style", "IDE0305:Simplify collection initialization", Justification = "Readability")]
     internal List<EntityEntry> GetChangedEntitiesInScope()
         => ChangeTracker.Entries()
-            .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)
-            .Where(e => this._entityMap.ContainsKey(e.Metadata.Name.AsNullableEmptyString()))
+            .Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted && this._entityMap.ContainsKey(e.Metadata.Name.AsNullableEmptyString()))
             .ToList();
 
     /// <summary>
     /// Retrieves the list of synchronizable entities that are available for datasync operations.
     /// </summary>
     /// <remarks>
-    /// An entity is "synchronization ready" if:
-    ///
+    /// <para>An entity is "synchronization ready" if:</para>
+    /// <para>
     /// * It is a property on this context
     /// * The property is public and a <see cref="DbSet{TEntity}"/>.
     /// * The property does not have a <see cref="DoNotSynchronizeAttribute"/> specified.
     /// * The entity type is defined in the model.
     /// * The entity type has an Id, UpdatedAt, and Version property (according to the <see cref="EntityResolver"/>).
+    /// </para>
     /// </remarks>
+    [SuppressMessage("Style", "IDE0305:Simplify collection initialization", Justification = "Readability")]
     internal Dictionary<string, Type> GetEntityMap(OfflineDbContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -215,11 +217,12 @@ internal class OperationsQueueManager : IOperationsQueueManager
     /// Determines if the provided property is a synchronizable property.
     /// </summary>
     /// <remarks>
-    /// An entity is "synchronization ready" if:
-    ///
+    /// <para>An entity is "synchronization ready" if:</para>
+    /// <para>
     /// * It is a property on this context
     /// * The property is public and a <see cref="DbSet{TEntity}"/>.
     /// * The property does not have a <see cref="DoNotSynchronizeAttribute"/> specified.
+    /// </para>
     /// </remarks>
     /// <param name="property">The <see cref="PropertyInfo"/> for the property to check.</param>
     /// <returns><c>true</c> if the property is synchronizable; <c>false</c> otherwise.</returns>
@@ -243,6 +246,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
     /// <param name="pushOptions">The options to use for this push operation.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The results of the push operation (asynchronously)</returns>
+    [SuppressMessage("Style", "IDE0305:Simplify collection initialization", Justification = "Readability")]
     internal async Task<PushResult> PushAsync(IEnumerable<Type> entityTypes, PushOptions pushOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(entityTypes);
@@ -309,6 +313,13 @@ internal class OperationsQueueManager : IOperationsQueueManager
 
             if (resolution.Result is ConflictResolutionResult.Client)
             {
+                // The client entity is the winner, so we need to update the operation and re-queue it.
+                if (operation.Kind == OperationKind.Add)
+                {
+                    // The server has an entity and the client is winning, so we need to replace the entity on the server.
+                    operation.Kind = OperationKind.Replace;
+                }
+
                 operation.Item = JsonSerializer.Serialize(resolution.Entity, entityType, DatasyncSerializer.JsonSerializerOptions);
                 operation.State = OperationState.Pending;
                 operation.LastAttempt = DateTimeOffset.UtcNow;
