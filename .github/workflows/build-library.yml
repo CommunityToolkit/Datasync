@@ -90,7 +90,8 @@ jobs:
       - name: Combine coverage reports
         uses: danielpalme/ReportGenerator-GitHub-Action@5.2.4
         with:
-          reports: "**/*.cobertura.xml"
+          reports: "**/coverage.cobertura.xml"
+          assemblyfilters: "-*Test*"
           targetdir: "${{ github.workspace }}/TestResults" 
           reporttypes: "Cobertura;lcov;MarkdownSummaryGithub" 
           verbosity: "Info"
