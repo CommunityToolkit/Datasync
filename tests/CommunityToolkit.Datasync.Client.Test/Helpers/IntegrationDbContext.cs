@@ -16,6 +16,8 @@ public class IntegrationDbContext(DbContextOptions<IntegrationDbContext> options
 
     public DbSet<ByteVersionMovie> ByteMovies => Set<ByteVersionMovie>();
 
+    public DbSet<ClientMovieWithLocalData> MoviesWithLocalData => Set<ClientMovieWithLocalData>();
+
     public ServiceApplicationFactory Factory { get; set; }
 
     public SqliteConnection Connection { get; set; }
@@ -32,6 +34,12 @@ public class IntegrationDbContext(DbContextOptions<IntegrationDbContext> options
         });
 
         optionsBuilder.Entity<ByteVersionMovie>(cfg =>
+        {
+            cfg.ClientName = "movies";
+            cfg.Endpoint = new Uri($"/{Factory.MovieEndpoint}", UriKind.Relative);
+        });
+
+        optionsBuilder.Entity<ClientMovieWithLocalData>(cfg =>
         {
             cfg.ClientName = "movies";
             cfg.Endpoint = new Uri($"/{Factory.MovieEndpoint}", UriKind.Relative);

@@ -1,12 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <PackageReference Include="Ulid" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj" />
-    <ProjectReference Include="..\CommunityToolkit.Datasync.TestCommon\CommunityToolkit.Datasync.TestCommon.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="coverlet.collector">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -19,5 +12,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Ulid" />
+    <PackageReference Include="xRetry" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.EntityFrameworkCore\CommunityToolkit.Datasync.Server.EntityFrameworkCore.csproj" />
+    <ProjectReference Include="..\CommunityToolkit.Datasync.TestCommon\CommunityToolkit.Datasync.TestCommon.csproj" />
+  </ItemGroup>
+
 </Project>
