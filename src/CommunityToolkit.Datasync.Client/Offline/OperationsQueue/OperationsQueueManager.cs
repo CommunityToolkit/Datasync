@@ -8,9 +8,11 @@ using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CommunityToolkit.Datasync.Client.Offline.OperationsQueue;
 
@@ -379,6 +381,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
     /// </summary>
     /// <param name="oldValue">The old value.</param>
     /// <param name="newValue">The new value.</param>
+    [SuppressMessage("Style", "IDE0305:Simplify collection initialization", Justification = "Readability")]
     internal void ReplaceDatabaseValue(object? oldValue, object? newValue)
     {
         if (oldValue is null || newValue is null)
@@ -388,8 +391,21 @@ internal class OperationsQueueManager : IOperationsQueueManager
 
         lock (this.pushlock)
         {
-            EntityEntry tracker = this._context.Entry(oldValue);
-            tracker.CurrentValues.SetValues(newValue);
+            EntityEntry oldEntry = this._context.Entry(oldValue);
+            EntityEntry newEntry = this._context.Entry(newValue);
+
+            HashSet<string> ignoredProps = oldValue.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(p => p.IsDefined(typeof(JsonIgnoreAttribute), inherit: true))
+                .Select(p => p.Name)
+                .ToHashSet();
+
+            foreach (IProperty property in oldEntry.Metadata.GetProperties())
+            {
+                if (!ignoredProps.Contains(property.Name))
+                {
+                    oldEntry.Property(property.Name).CurrentValue = newEntry.Property(property.Name).CurrentValue;
+                }
+            }
         }
     }
 

@@ -8,9 +8,12 @@ using CommunityToolkit.Datasync.Client.Query.Linq;
 using CommunityToolkit.Datasync.Client.Query.OData;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Threading;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CommunityToolkit.Datasync.Client.Offline.Operations;
 
@@ -42,6 +45,7 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
     /// <param name="pullOptions">The pull options to use.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
     /// <returns>The results of the pull operation.</returns>
+    [SuppressMessage("Style", "IDE0305:Simplify collection initialization", Justification = "Readability")]
     public async Task<PullResult> ExecuteAsync(IEnumerable<PullRequest> requests, PullOptions pullOptions, CancellationToken cancellationToken = default)
     {
         ArgumentValidationException.ThrowIfNotValid(pullOptions, nameof(pullOptions));
@@ -67,7 +71,25 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
                 }
                 else if (originalEntity is not null && !metadata.Deleted)
                 {
-                    context.Entry(originalEntity).CurrentValues.SetValues(item);
+                    // Gather properties marked with [JsonIgnore]
+                    HashSet<string> ignoredProps = pullResponse.EntityType
+                        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(p => p.IsDefined(typeof(JsonIgnoreAttribute), inherit: true))
+                        .Select(p => p.Name)
+                        .ToHashSet();
+
+                    EntityEntry originalEntry = context.Entry(originalEntity);
+                    EntityEntry newEntry = context.Entry(item);
+
+                    // Only copy properties that are not marked with [JsonIgnore]
+                    foreach (IProperty property in originalEntry.Metadata.GetProperties())
+                    {
+                        if (!ignoredProps.Contains(property.Name))
+                        {
+                            originalEntry.Property(property.Name).CurrentValue = newEntry.Property(property.Name).CurrentValue;
+                        }
+                    }
+
                     result.IncrementReplacements();
                 }
 
@@ -161,12 +183,11 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
             object? result = await JsonSerializer.DeserializeAsync(response.ContentStream, pageType, context.JsonSerializerOptions, cancellationToken).ConfigureAwait(false)
                 ?? throw new DatasyncPullException("JSON result is null") { ServiceResponse = response };
 
-            Page<object> page = new Page<object>()
+            return new Page<object>()
             {
                 Items = (IEnumerable<object>)itemsPropInfo.GetValue(result)!,
                 NextLink = (string?)nextLinkPropInfo.GetValue(result)
             };
-            return page;
         }
         catch (JsonException ex)
         {

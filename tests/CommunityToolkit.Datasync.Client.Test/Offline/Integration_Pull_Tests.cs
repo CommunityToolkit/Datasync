@@ -120,4 +120,46 @@ public class Integration_Pull_Tests : ServiceTest, IClassFixture<ServiceApplicat
                 .And.HaveEquivalentMetadataTo(serviceMovie);
         }
     }
+
+    [Fact]
+    public async Task PullAsync_WithLocalData_Works()
+    {
+        const string testId = "id-010";
+
+        await this.context.MoviesWithLocalData.PullAsync();
+
+        ClientMovieWithLocalData t1 = await this.context.MoviesWithLocalData.FindAsync([testId]);
+
+        // Update the local data part and push it back to the server.
+        t1.UserRating = 5;
+        this.context.Update(t1);
+        await this.context.SaveChangesAsync();
+        await this.context.MoviesWithLocalData.PushAsync();
+
+        // Reload the local data from the server and check that the local data is still there
+        await this.context.Entry(t1).ReloadAsync();
+        t1.UserRating.Should().Be(5);
+
+        // Pull again and check that the local data is still there.
+        await this.context.MoviesWithLocalData.PullAsync();
+        ClientMovieWithLocalData t2 = await this.context.MoviesWithLocalData.FindAsync([testId]);
+        t2.UserRating.Should().Be(5);
+
+        // Do another change (this time, server side) and push again
+        t2.Title = "New Title";
+        this.context.Update(t2);
+        await this.context.SaveChangesAsync();
+        await this.context.MoviesWithLocalData.PushAsync();
+
+        // Reload the local data from the server and check that the local data is still there
+        await this.context.Entry(t2).ReloadAsync();
+        t2.UserRating.Should().Be(5);
+        t2.Title.Should().Be("New Title");
+
+        // Pull again and check that the local data is still there.
+        await this.context.MoviesWithLocalData.PullAsync();
+        ClientMovieWithLocalData t3 = await this.context.MoviesWithLocalData.FindAsync([testId]);
+        t3.UserRating.Should().Be(5);
+        t3.Title.Should().Be("New Title");
+    }
 }

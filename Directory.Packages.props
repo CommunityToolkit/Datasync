@@ -44,12 +44,12 @@
     <PackageVersion Include="TestContainers.MsSql" Version="4.4.0" />
     <PackageVersion Include="TestContainers.MySql" Version="4.4.0" />
     <PackageVersion Include="TestContainers.PostgreSql" Version="4.4.0" />
+    <PackageVersion Include="xRetry" Version="1.9.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="coverlet.msbuild" Version="6.0.4" />
     <PackageVersion Include="Ulid" Version="1.3.4" />
-
     <!-- Do not change XUnit.Combinatorial to v2 (xUnit v2 compatibility) -->
     <PackageVersion Include="XUnit.Combinatorial" Version="1.6.24" />
     <PackageVersion Include="XUnit.SkippableFact" Version="1.5.23" />
