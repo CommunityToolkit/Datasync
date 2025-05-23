@@ -101,7 +101,7 @@ jobs:
 
       - name: Add code coverage summary to job
         if: always()
-        run: cat "${{ github.workspace }}/TestResults/SummaryGitHub.md" >> $GITHUB_STEP_SUMMARY
+        run: cat "${{ github.workspace }}/TestResults/SummaryGithub.md" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload code coverage reports
         uses: actions/upload-artifact@v4
