@@ -47,6 +47,13 @@ public class Cosmos_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper 
 
     protected override bool CanRunLiveTests() => !string.IsNullOrEmpty(ConnectionStrings.CosmosDb);
 
+    // We don't support querying date components in Cosmos because the underlying database doesn't support it.
+    // See https://learn.microsoft.com/en-us/azure/cosmos-db/sql/sql-query-date-time-functions for more information.
+    protected override bool CanQueryDateComponents() => false;
+
+    // We don't support complex math (like floor() and ceiling()) in Cosmos because the underlying database doesn't support it.
+    protected override bool CanDoComplexMath() => false;
+
     protected override async Task<CosmosEntityMovie> GetEntityAsync(string id)
         => await Context.Movies.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id);
 

@@ -40,6 +40,12 @@ public class MongoDB_Controller_Tests(MongoDatabaseFixture fixture, ITestOutputH
 
     protected override bool CanRunLiveTests() => true;
 
+    // We don't support querying date components in MongoDB because the underlying database doesn't support it.
+    protected override bool CanQueryDateComponents() => false;
+
+    // We don't support complex math (like floor() and ceiling()) in Mongo because the underlying database doesn't support it.
+    protected override bool CanDoComplexMath() => false;
+
     protected override async Task<MongoDBMovie> GetEntityAsync(string id)
         => await Context.Movies.Find(Builders<MongoDBMovie>.Filter.Eq(x => x.Id, id)).FirstOrDefaultAsync();
 
