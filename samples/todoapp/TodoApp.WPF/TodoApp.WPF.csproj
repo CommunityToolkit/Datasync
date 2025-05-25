@@ -9,16 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Images\completed.png" />
-    <None Remove="Images\incomplete.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Images\completed.png" />
-    <Resource Include="Images\incomplete.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="CommunityToolkit.Datasync.Client" Version="9.0.2" />
   </ItemGroup>

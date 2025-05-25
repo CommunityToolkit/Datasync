@@ -4,15 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TodoApp.WPF"
-        xmlns:conv="clr-namespace:TodoApp.WPF.Converters"
         mc:Ignorable="d"
         Title="MainWindow" Height="420" Width="800"
         ResizeMode="CanMinimize">
     <Window.Resources>
-        <conv:BooleanToImageConverter x:Key="BooleanToImageConverter" />
-
         <DataTemplate x:Key="CompletedIconTemplate">
-            <Image Width="16" Height="16" Source="{Binding Path=IsComplete, Converter={StaticResource BooleanToImageConverter}}" />
+            <Grid>
+                <TextBlock FontFamily="Segoe Fluent Icons,Segoe MDL2 Assets" Text="&#xEC61;" Visibility="{Binding Path=IsComplete, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                <TextBlock FontFamily="Segoe Fluent Icons,Segoe MDL2 Assets" Text="&#xEA3A;" />
+            </Grid>
         </DataTemplate>
     </Window.Resources>
     
@@ -23,7 +23,7 @@
                 <ListView
                     x:Name="TodoListView"
                     ItemsSource="{Binding Items}"
-                    Height="300"
+                    Height="270"
                     Margin="5"
                     VerticalAlignment="Top">
                     <ListView.View>
@@ -42,27 +42,26 @@
         </GroupBox>
 
         <GroupBox Header="Add Task">
-            <StackPanel Margin="5">
-                <DockPanel Height="26">
-                    <TextBox x:Name="NewTodoItemTitle"
+            <StackPanel Margin="5" Height="30" Orientation="Horizontal">
+                <TextBox x:Name="NewTodoItemTitle"
                              Width="560"
                              HorizontalAlignment="Left"
                              Margin="5,0,5,0"
-                             Text="{Binding AddItemTitle, Mode=TwoWay}"
+                             Text="{Binding AddItemTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              VerticalContentAlignment="Center"/>
                     <Button x:Name="AddTodoItemButton"
                             Width="75"
                             HorizontalAlignment="Right"
                             Content="Add" 
                             Margin="5,0,5,0"
+                            IsDefault="True"
                             Command="{Binding AddItemCommand}"/>
-                    <Button x:Name="RefreshTodoItemsButton"
+                <Button x:Name="RefreshTodoItemsButton"
                             Width="75"
                             HorizontalAlignment="Right"
                             Margin="5,0,5,0"
                             Content="Refresh" 
                             Command="{Binding RefreshItemsCommand}"/>
-                </DockPanel>
             </StackPanel>
         </GroupBox>
     </StackPanel>
