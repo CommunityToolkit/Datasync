@@ -4,65 +4,73 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TodoApp.WPF"
+        xmlns:data="clr-namespace:TodoApp.WPF.Database"
         mc:Ignorable="d"
         Title="MainWindow" Height="420" Width="800"
         ResizeMode="CanMinimize">
     <Window.Resources>
-        <DataTemplate x:Key="CompletedIconTemplate">
+        <DataTemplate x:Key="TaskItemTemplate" DataType="{x:Type data:TodoItem}">
             <Grid>
-                <TextBlock FontFamily="Segoe Fluent Icons,Segoe MDL2 Assets" Text="&#xEC61;" Visibility="{Binding Path=IsComplete, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                <TextBlock FontFamily="Segoe Fluent Icons,Segoe MDL2 Assets" Text="&#xEA3A;" />
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{Binding Title}" />
+                <Grid Grid.Column="1" Width="75">
+                    <TextBlock FontFamily="Segoe Fluent Icons,Segoe MDL2 Assets" Text="&#xEC61;" Visibility="{Binding Path=IsComplete, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <TextBlock FontFamily="Segoe Fluent Icons,Segoe MDL2 Assets" Text="&#xEA3A;" />
+                </Grid>
             </Grid>
         </DataTemplate>
     </Window.Resources>
-    
-    <StackPanel Margin="10">
-        <!-- List View-->
-        <GroupBox Header="Tasks" Height="300">
-            <StackPanel>
-                <ListView
-                    x:Name="TodoListView"
-                    ItemsSource="{Binding Items}"
-                    Height="270"
-                    Margin="5"
-                    VerticalAlignment="Top">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Title" Width="650" DisplayMemberBinding="{Binding Title}"/>
-                            <GridViewColumn Header="Completed" Width="75" CellTemplate="{StaticResource CompletedIconTemplate}"/>
-                        </GridView>
-                    </ListView.View>
-                    <ListView.Resources>
-                        <Style TargetType="ListViewItem">
-                            <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_DoubleClickEventHandler" />
-                        </Style>
-                    </ListView.Resources>
-                </ListView>
-            </StackPanel>
-        </GroupBox>
 
-        <GroupBox Header="Add Task">
-            <StackPanel Margin="5" Height="30" Orientation="Horizontal">
-                <TextBox x:Name="NewTodoItemTitle"
-                             Width="560"
-                             HorizontalAlignment="Left"
-                             Margin="5,0,5,0"
-                             Text="{Binding AddItemTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             VerticalContentAlignment="Center"/>
-                    <Button x:Name="AddTodoItemButton"
-                            Width="75"
-                            HorizontalAlignment="Right"
-                            Content="Add" 
-                            Margin="5,0,5,0"
-                            IsDefault="True"
-                            Command="{Binding AddItemCommand}"/>
-                <Button x:Name="RefreshTodoItemsButton"
-                            Width="75"
-                            HorizontalAlignment="Right"
-                            Margin="5,0,5,0"
-                            Content="Refresh" 
-                            Command="{Binding RefreshItemsCommand}"/>
-            </StackPanel>
-        </GroupBox>
-    </StackPanel>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <!-- Title -->
+        <TextBlock Margin="10" Style="{StaticResource SubtitleTextBlockStyle}" Text="Tasks" />
+        <!-- List View-->
+        <ListView x:Name="TodoListView"
+                  Grid.Row="1"
+                  Margin="5"
+                  ItemTemplate="{StaticResource TaskItemTemplate}"
+                  ItemsSource="{Binding Items}">
+            <ListView.Resources>
+                <Style BasedOn="{StaticResource {x:Type ListViewItem}}" TargetType="ListViewItem">
+                    <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_DoubleClickEventHandler" />
+                </Style>
+            </ListView.Resources>
+        </ListView>
+        <!-- Buttom -->
+        <Grid Grid.Row="2" Height="36">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="NewTodoItemTitle"
+                     HorizontalAlignment="Stretch"
+                     Margin="5,0,5,0"
+                     Text="{Binding AddItemTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     VerticalContentAlignment="Center"/>
+            <Button x:Name="AddTodoItemButton"
+                    Grid.Column="1"
+                    Width="75"
+                    HorizontalAlignment="Right"
+                    Content="Add" 
+                    Margin="5,0,5,0"
+                    IsDefault="True"
+                    Command="{Binding AddItemCommand}"/>
+            <Button x:Name="RefreshTodoItemsButton"
+                    Grid.Column="2"
+                    Width="75"
+                    HorizontalAlignment="Right"
+                    Margin="5,0,5,0"
+                    Content="Refresh" 
+                    Command="{Binding RefreshItemsCommand}"/>
+        </Grid>
+    </Grid>
 </Window>
