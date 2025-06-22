@@ -141,10 +141,18 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
             }
         });
 
+        // Get requests we need to enqueue. Note : do not enqueue them yet. Context only supports one outstanding query at a time and we don't want a query from a background task being run concurrently with GetDeltaTokenAsync.
+        List<PullRequest> requestsToEnqueue = [];
         foreach (PullRequest request in requests)
         {
             DateTimeOffset lastSynchronization = await context.DeltaTokenStore.GetDeltaTokenAsync(request.QueryId, cancellationToken).ConfigureAwait(false);
             request.QueryDescription = PrepareQueryDescription(request.QueryDescription, lastSynchronization);
+            requestsToEnqueue.Add(request);
+        }
+
+        // Now enqueue the requests.
+        foreach (PullRequest request in requestsToEnqueue)
+        {
             serviceRequestQueue.Enqueue(request);
         }
 
