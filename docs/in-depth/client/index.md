@@ -117,6 +117,29 @@ This example shows all of the options that can be configured for an entity:
 * The `Endpoint` can be relative or absolute.  If relative, it is relative to the `BaseAddress` of the `HttpClient` that is used.
 * The `Query` limits which entities are requested from the remote service.
 
+### Configuring automatic conflict resolution
+
+By default, the library does not do conflict resolution automatically.  You can set an automated conflict resolver by writing an `IConflictResolver` or `IConflictResolver<T>` implementation.  The library provides two by default:
+
+* `ClientWinsConflictResolver` will force-write the client version to the server.
+* `ServerWinsConflictResolver` will replace the client version with the server version.
+
+You can set the conflict resolver in two ways - per-entity or as a fallback default:
+
+```csharp
+protected override void OnDatasyncInitialization(DatasyncOfflineOptionsBuilder builder)
+{
+  // A fallback default for cases when you did not set one per entity
+  builder.UseDefaultConflictResolver(new ClientWinsConflictResolver());
+
+  // Set a specific conflict resolver for an entity.
+  builder.Entity<Movie>(cfg => {
+    cfg.ConflictResolver = new ServerWinsConflictResolver();
+    // Along with any other settings you want to use
+  })
+}
+```
+
 ## Local only entities
 
 You can specify that a dataset is not to be synchronized by using the `[DoNotSynchronize]` attribute:
@@ -165,9 +188,60 @@ When the push result is complete, the `PushResult` is returned.  This has the fo
 
 * `CompletedOperations` - the number of operations that were completed successfully.
 * `IsSuccessful` - a boolean to indicate that the push was completed with no errors.
-* `FailedRequests` - a `Dictionary<Uri, ServiceResponse>` that indicates which requests failed.
+* `FailedRequests` - a `Dictionary<string, ServiceResponse>` that indicates which requests failed.
 
 In addition, the operations queue is updated.  Completed operations are removed and failed operations are marked as failed.  You can use the `FailedRequests` property to see the exact error that was returned by the service.
+
+### Conflict resolution
+
+When a conflict resolver is configured, that will be used before a queued change is marked as failed.  In the case of a failed request, you can process the failed requests as follows:
+
+```csharp
+foreach (var failedRequest in result.FailedRequests)
+{
+  var operationId = failedRequest.Key;
+  var serviceResponse = failedRequest.Value;
+
+  DatasyncOperation operation = context.DatasyncOperationsQueue.Single(x => x.Id == operationId);
+  // operation.EntityType is the type of entity being transferred
+  // operation.Item is the JSON-serialized client-side entity
+  // operation.EntityVersion is the version of the entity that should be overwritten
+  // serviceResponse.ContentStream is the JSON-serialized server-side entity
+}
+```
+
+Handling conflicts is complex and involves modifying the queue entity and/or client-side entity to match requirements.   Use conflict resolvers in preference of these manual techniques.  A conflict resolver is an implementation of `IConflictResolver` or `IConflictResolver<T>` that is attached to the push operation.  The main method is `ResolveConflictAsync()`.  For example, let's look at the "client-wins" conflict resolver:
+
+```csharp
+public class ClientWinsConflictResolver : IConflictResolver
+{
+    /// <inheritdoc />
+    public async Task<ConflictResolution> ResolveConflictAsync(object? clientObject, object? serverObject, CancellationToken cancellationToken = default)
+    {
+        return new ConflictResolution { Result = ConflictResolutionResult.Client, Entity = clientObject };
+    }
+}
+```
+
+The `IConflictResolver<T>` is the same as `IConflictResolver` with the notable exception that the `clientObject` and `serverObject` are typed instead of objects.  The `ConflictResolution` result model consists of two parts:
+
+* `Result` is either `ConflictResolutionResult.Client` (indicating that the client wins and the server entity should be overwritten) or `ConflictResolutionResult.Server` (indicating that the server wins and the client entity should be overwritten).
+* `Entity` is the entity that should be written.
+
+To provide another example, let's say you want to allow updates from the client for all columns except for a `Title` column.  You can do this as follows:
+
+```csharp
+public class CustomConflictResolver : IConflictResolver<Movie>
+{
+  public async Task<ConflictResolution> ResolverConflictAsync(Movie? clientObject, Movie? serverObject, CancellationToken cancellationToken = default)
+  {
+    clientObject.Movie = serverObject.Movie;
+    return new ConflictResolution { Result = ConflictResolutionResult.Client, Entity = clientObject };
+  }
+}
+```
+
+Here, we copy the server value of the movie title to the client before returning so that the title is preserved.
 
 ## Pulling data from the service
 
