@@ -14,6 +14,7 @@ namespace CommunityToolkit.Datasync.Client.Offline;
 public class DatasyncOfflineOptionsBuilder
 {
     internal IHttpClientFactory? _httpClientFactory;
+    internal IConflictResolver? _defaultConflictResolver;
     internal readonly Dictionary<string, EntityOfflineOptions> _entities;
 
     /// <summary>
@@ -79,6 +80,19 @@ public class DatasyncOfflineOptionsBuilder
     }
 
     /// <summary>
+    /// Sets the default conflict resolver to use for all entities that do not have a specific
+    /// conflict resolver set.
+    /// </summary>
+    /// <param name="conflictResolver">The default conflict resolver.</param>
+    /// <returns>The current builder for chaining.</returns>
+    public DatasyncOfflineOptionsBuilder UseDefaultConflictResolver(IConflictResolver conflictResolver)
+    {
+        ArgumentNullException.ThrowIfNull(conflictResolver);
+        this._defaultConflictResolver = conflictResolver;
+        return this;
+    }
+
+    /// <summary>
     /// Configures the specified entity type for offline operations.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -133,7 +147,8 @@ public class DatasyncOfflineOptionsBuilder
 
         OfflineOptions result = new()
         {
-            HttpClientFactory = this._httpClientFactory
+            HttpClientFactory = this._httpClientFactory,
+            DefaultConflictResolver = this._defaultConflictResolver
         };
 
         foreach (EntityOfflineOptions entity in this._entities.Values)
