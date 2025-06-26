@@ -21,6 +21,11 @@ internal class OfflineOptions()
     public required IHttpClientFactory HttpClientFactory { get; init; }
 
     /// <summary>
+    /// The default <see cref="IConflictResolver"/> to use for this request.
+    /// </summary>
+    public IConflictResolver? DefaultConflictResolver { get; set; }
+
+    /// <summary>
     /// Adds an entity to the mapping of options.
     /// </summary>
     /// <param name="entityType">The type of the entity being stored.</param>
@@ -50,7 +55,7 @@ internal class OfflineOptions()
         {
             return new()
             {
-                ConflictResolver = options.ConflictResolver,
+                ConflictResolver = options.ConflictResolver ?? DefaultConflictResolver,
                 Endpoint = options.Endpoint,
                 HttpClient = HttpClientFactory.CreateClient(options.ClientName),
                 QueryDescription = options.QueryDescription ?? new QueryDescription()
@@ -60,7 +65,7 @@ internal class OfflineOptions()
         {
             return new()
             {
-                ConflictResolver = null,
+                ConflictResolver = DefaultConflictResolver,
                 Endpoint = new Uri($"tables/{entityType.Name.ToLowerInvariant()}", UriKind.Relative),
                 HttpClient = HttpClientFactory.CreateClient(),
                 QueryDescription = new QueryDescription()
