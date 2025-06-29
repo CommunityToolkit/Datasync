@@ -1433,6 +1433,59 @@ public class OfflineDbContext_Tests : BaseTest
     }
     #endregion
 
+    #region SynchronizationProgress
+    [Fact]
+    public async Task SynchronizationProgress_Event_Works()
+    {
+        Page<ClientMovie> page1 = CreatePage(5, 20, "$skip=5");
+        Page<ClientMovie> page2 = CreatePage(5, 20, "$skip=10");
+        Page<ClientMovie> page3 = CreatePage(5, 20, "$skip=15");
+        Page<ClientMovie> page4 = CreatePage(5, 20);
+
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page1);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page2);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page3);
+        this.context.Handler.AddResponse(HttpStatusCode.OK, page4);
+
+        bool eventFiredForFetch = true;
+        bool eventFiredForCommit = true;
+        long currentItemsFetched = 0;
+        long currentItemsCommited = 0;
+
+        this.context.SynchronizationProgress += (sender, args) =>
+        {
+            sender.Should().Be(this.context);
+            args.EntityType.Should().Be<ClientMovie>();
+            args.QueryId.Should().Be("CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie");
+            args.TotalNrItems.Should().Be(20);
+            switch(args.EventType)
+            {
+                case SynchronizationEventType.ItemsFetched:
+                    currentItemsFetched += 5;
+                    args.ItemsProcessed.Should().Be(currentItemsFetched);
+                    eventFiredForFetch = true;
+                    break;
+                case SynchronizationEventType.ItemsCommitted:
+                    currentItemsCommited += 5;
+                    args.ItemsProcessed.Should().Be(currentItemsCommited);
+                    eventFiredForCommit = true;
+                    break;
+                default:
+                    Assert.Fail($"Invalid event type: {args.EventType}");
+                    break;
+            }
+        };
+
+        await this.context.Movies.PullAsync();
+
+        eventFiredForFetch.Should().BeTrue();
+        eventFiredForCommit.Should().BeTrue();
+        currentItemsFetched.Should().Be(20);
+        currentItemsCommited.Should().Be(20);
+    }
+
+    #endregion
+
     public class NotOfflineDbContext : DbContext
     {
         public NotOfflineDbContext() : base()

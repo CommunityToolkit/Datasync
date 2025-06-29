@@ -105,6 +105,15 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
                 }
             }
 
+            context.SendSynchronizationEvent(new SynchronizationEventArgs()
+            {
+                EventType = SynchronizationEventType.ItemsCommitted,
+                EntityType = pullResponse.EntityType,
+                ItemsProcessed = pullResponse.TotalItemsProcessed,
+                TotalNrItems = pullResponse.TotalRequestItems,
+                QueryId = pullResponse.QueryId
+            });
+
             if (pullOptions.SaveAfterEveryServiceRequest)
             {
                 _ = await context.SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
@@ -120,10 +129,22 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
             try
             {
                 bool completed = false;
+                long itemsProcessed = 0;
                 do
                 {
                     Page<object> page = await GetPageAsync(pullRequest.HttpClient, requestUri, pageType, cancellationToken).ConfigureAwait(false);
-                    databaseUpdateQueue.Enqueue(new PullResponse(pullRequest.EntityType, pullRequest.QueryId, page.Items));
+                    itemsProcessed += page.Items.Count();
+
+                    context.SendSynchronizationEvent(new SynchronizationEventArgs()
+                    {
+                        EventType = SynchronizationEventType.ItemsFetched,
+                        EntityType = pullRequest.EntityType,
+                        ItemsProcessed = itemsProcessed,
+                        TotalNrItems = page.Count ?? 0,
+                        QueryId = pullRequest.QueryId
+                    });
+
+                    databaseUpdateQueue.Enqueue(new PullResponse(pullRequest.EntityType, pullRequest.QueryId, page.Items, page.Count ?? 0, itemsProcessed));
                     if (!string.IsNullOrEmpty(page.NextLink))
                     {
                         requestUri = new UriBuilder(endpoint) { Query = page.NextLink }.Uri;
@@ -173,6 +194,8 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
     /// <exception cref="DatasyncPullException">Thrown on error</exception>
     internal async Task<Page<object>> GetPageAsync(HttpClient client, Uri requestUri, Type pageType, CancellationToken cancellationToken = default)
     {
+        PropertyInfo countPropInfo = pageType.GetProperty("Count")
+            ?? throw new DatasyncException($"Page type '{pageType.Name}' does not have a 'Count' property");
         PropertyInfo itemsPropInfo = pageType.GetProperty("Items")
             ?? throw new DatasyncException($"Page type '{pageType.Name}' does not have an 'Items' property");
         PropertyInfo nextLinkPropInfo = pageType.GetProperty("NextLink")
@@ -193,6 +216,7 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
 
             return new Page<object>()
             {
+                Count = (long?)countPropInfo.GetValue(result),
                 Items = (IEnumerable<object>)itemsPropInfo.GetValue(result)!,
                 NextLink = (string?)nextLinkPropInfo.GetValue(result)
             };
@@ -237,6 +261,8 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
     /// <param name="EntityType">The type of entity contained within the items.</param>
     /// <param name="QueryId">The query ID for the request.</param>
     /// <param name="Items">The list of items to process.</param>
+    /// <param name="TotalRequestItems">The total number of items in the current pull request.</param>
+    /// <param name="TotalItemsProcessed">The total number of items processed, <paramref name="Items"/> included.</param>
     [ExcludeFromCodeCoverage]
-    internal record PullResponse(Type EntityType, string QueryId, IEnumerable<object> Items);
+    internal record PullResponse(Type EntityType, string QueryId, IEnumerable<object> Items, long TotalRequestItems, long TotalItemsProcessed);
 }
