@@ -10,6 +10,11 @@ namespace CommunityToolkit.Datasync.Client.Offline;
 public enum SynchronizationEventType
 {
     /// <summary>
+    /// Pull for the given entity starts.
+    /// </summary>
+    /// <remarks><see cref="SynchronizationEventArgs.ItemsProcessed"/> is not yet known here</remarks>
+    PullStarted,
+    /// <summary>
     /// Occurs when items have been successfully fetches from the server.
     /// </summary>
     /// <remarks>This event is raised after a page of entities was succesfully fetched from the server, ready to be commited to the data store.</remarks>
@@ -20,6 +25,11 @@ public enum SynchronizationEventType
     /// </summary>
     /// <remarks>This event is raised after a page of entities was succesfully commited to the database</remarks>
     ItemsCommitted,
+
+    /// <summary>
+    /// Pull for the given entiry ended.
+    /// </summary>
+    PullEnded,
 }
 
 /// <summary>
@@ -51,4 +61,14 @@ public class SynchronizationEventArgs
     /// The query ID that is being processed
     /// </summary>
     public required string QueryId { get; init; }
+
+    /// <summary>
+    /// If not <c>null</c> on event type <see cref="SynchronizationEventType.PullEnded"/>, indicates pull failed with this exception.
+    /// </summary>
+    public Exception? Exception { get; init; }
+
+    /// <summary>
+    /// If a <see cref="DatasyncException"/> occured in <see cref="Exception"/> during server call processing, this property has more detail on the server response.
+    /// </summary>
+    public ServiceResponse? ServiceResponse { get; init; }
 }

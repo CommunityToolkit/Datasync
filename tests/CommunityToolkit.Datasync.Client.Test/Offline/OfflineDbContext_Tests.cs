@@ -1447,8 +1447,10 @@ public class OfflineDbContext_Tests : BaseTest
         this.context.Handler.AddResponse(HttpStatusCode.OK, page3);
         this.context.Handler.AddResponse(HttpStatusCode.OK, page4);
 
-        bool eventFiredForFetch = true;
-        bool eventFiredForCommit = true;
+        bool eventFiredForFetch = false;
+        bool eventFiredForCommit = false;
+        bool eventFiredForStart = false;
+        bool eventFiredForEnd = false;
         long currentItemsFetched = 0;
         long currentItemsCommited = 0;
 
@@ -1457,18 +1459,31 @@ public class OfflineDbContext_Tests : BaseTest
             sender.Should().Be(this.context);
             args.EntityType.Should().Be<ClientMovie>();
             args.QueryId.Should().Be("CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie");
-            args.TotalNrItems.Should().Be(20);
-            switch(args.EventType)
+            args.Exception.Should().BeNull();   // We don't test exceptions here, so should always be null.
+            args.ServiceResponse.Should().BeNull();
+            switch (args.EventType)
             {
                 case SynchronizationEventType.ItemsFetched:
                     currentItemsFetched += 5;
                     args.ItemsProcessed.Should().Be(currentItemsFetched);
+                    args.TotalNrItems.Should().Be(20);
                     eventFiredForFetch = true;
                     break;
                 case SynchronizationEventType.ItemsCommitted:
                     currentItemsCommited += 5;
                     args.ItemsProcessed.Should().Be(currentItemsCommited);
+                    args.TotalNrItems.Should().Be(20);
                     eventFiredForCommit = true;
+                    break;
+                case SynchronizationEventType.PullStarted:
+                    eventFiredForStart.Should().BeFalse("PullStarted event should only fire once");
+                    eventFiredForStart = true;
+                    break;
+                case SynchronizationEventType.PullEnded:
+                    eventFiredForEnd.Should().BeFalse("PullEnded event should only fire once");
+                    eventFiredForEnd = true;
+                    args.ItemsProcessed.Should().Be(20);
+                    args.TotalNrItems.Should().Be(20);
                     break;
                 default:
                     Assert.Fail($"Invalid event type: {args.EventType}");
@@ -1478,8 +1493,10 @@ public class OfflineDbContext_Tests : BaseTest
 
         await this.context.Movies.PullAsync();
 
+        eventFiredForStart.Should().BeTrue();
         eventFiredForFetch.Should().BeTrue();
         eventFiredForCommit.Should().BeTrue();
+        eventFiredForEnd.Should().BeTrue();
         currentItemsFetched.Should().Be(20);
         currentItemsCommited.Should().Be(20);
     }

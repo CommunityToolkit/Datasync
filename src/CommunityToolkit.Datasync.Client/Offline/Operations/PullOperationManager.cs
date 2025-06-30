@@ -14,6 +14,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using static CommunityToolkit.Datasync.Client.Offline.Operations.PullOperationManager;
 
 namespace CommunityToolkit.Datasync.Client.Offline.Operations;
 
@@ -53,70 +54,87 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
 
         QueueHandler<PullResponse> databaseUpdateQueue = new(1, async pullResponse =>
         {
-            DateTimeOffset lastSynchronization = await DeltaTokenStore.GetDeltaTokenAsync(pullResponse.QueryId, cancellationToken).ConfigureAwait(false);
-            foreach (object item in pullResponse.Items)
+            if (pullResponse.Items.Any())
             {
-                EntityMetadata metadata = EntityResolver.GetEntityMetadata(item, pullResponse.EntityType);
-                object? originalEntity = await context.FindAsync(pullResponse.EntityType, [metadata.Id], cancellationToken).ConfigureAwait(false);
-
-                if (originalEntity is null && !metadata.Deleted)
+                DateTimeOffset lastSynchronization = await DeltaTokenStore.GetDeltaTokenAsync(pullResponse.QueryId, cancellationToken).ConfigureAwait(false);
+                foreach (object item in pullResponse.Items)
                 {
-                    _ = context.Add(item);
-                    result.IncrementAdditions();
-                }
-                else if (originalEntity is not null && metadata.Deleted)
-                {
-                    _ = context.Remove(originalEntity);
-                    result.IncrementDeletions();
-                }
-                else if (originalEntity is not null && !metadata.Deleted)
-                {
-                    // Gather properties marked with [JsonIgnore]
-                    HashSet<string> ignoredProps = pullResponse.EntityType
-                        .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                        .Where(p => p.IsDefined(typeof(JsonIgnoreAttribute), inherit: true))
-                        .Select(p => p.Name)
-                        .ToHashSet();
+                    EntityMetadata metadata = EntityResolver.GetEntityMetadata(item, pullResponse.EntityType);
+                    object? originalEntity = await context.FindAsync(pullResponse.EntityType, [metadata.Id], cancellationToken).ConfigureAwait(false);
 
-                    EntityEntry originalEntry = context.Entry(originalEntity);
-                    EntityEntry newEntry = context.Entry(item);
-
-                    // Only copy properties that are not marked with [JsonIgnore]
-                    foreach (IProperty property in originalEntry.Metadata.GetProperties())
+                    if (originalEntity is null && !metadata.Deleted)
                     {
-                        if (!ignoredProps.Contains(property.Name))
+                        _ = context.Add(item);
+                        result.IncrementAdditions();
+                    }
+                    else if (originalEntity is not null && metadata.Deleted)
+                    {
+                        _ = context.Remove(originalEntity);
+                        result.IncrementDeletions();
+                    }
+                    else if (originalEntity is not null && !metadata.Deleted)
+                    {
+                        // Gather properties marked with [JsonIgnore]
+                        HashSet<string> ignoredProps = pullResponse.EntityType
+                            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                            .Where(p => p.IsDefined(typeof(JsonIgnoreAttribute), inherit: true))
+                            .Select(p => p.Name)
+                            .ToHashSet();
+
+                        EntityEntry originalEntry = context.Entry(originalEntity);
+                        EntityEntry newEntry = context.Entry(item);
+
+                        // Only copy properties that are not marked with [JsonIgnore]
+                        foreach (IProperty property in originalEntry.Metadata.GetProperties())
                         {
-                            originalEntry.Property(property.Name).CurrentValue = newEntry.Property(property.Name).CurrentValue;
+                            if (!ignoredProps.Contains(property.Name))
+                            {
+                                originalEntry.Property(property.Name).CurrentValue = newEntry.Property(property.Name).CurrentValue;
+                            }
+                        }
+
+                        result.IncrementReplacements();
+                    }
+
+                    if (metadata.UpdatedAt > lastSynchronization)
+                    {
+                        lastSynchronization = metadata.UpdatedAt.Value;
+                        bool isAdded = await DeltaTokenStore.SetDeltaTokenAsync(pullResponse.QueryId, metadata.UpdatedAt.Value, cancellationToken).ConfigureAwait(false);
+                        if (isAdded)
+                        {
+                            // Sqlite oddity - you can't add then update; it changes the change type to UPDATE, which then fails.
+                            _ = await context.SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
                         }
                     }
-
-                    result.IncrementReplacements();
                 }
 
-                if (metadata.UpdatedAt > lastSynchronization)
+                if (pullOptions.SaveAfterEveryServiceRequest)
                 {
-                    lastSynchronization = metadata.UpdatedAt.Value;
-                    bool isAdded = await DeltaTokenStore.SetDeltaTokenAsync(pullResponse.QueryId, metadata.UpdatedAt.Value, cancellationToken).ConfigureAwait(false);
-                    if (isAdded)
-                    {
-                        // Sqlite oddity - you can't add then update; it changes the change type to UPDATE, which then fails.
-                        _ = await context.SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
-                    }
+                    _ = await context.SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
                 }
+
+                context.SendSynchronizationEvent(new SynchronizationEventArgs()
+                {
+                    EventType = SynchronizationEventType.ItemsCommitted,
+                    EntityType = pullResponse.EntityType,
+                    ItemsProcessed = pullResponse.TotalItemsProcessed,
+                    TotalNrItems = pullResponse.TotalRequestItems,
+                    QueryId = pullResponse.QueryId
+                });
             }
 
-            context.SendSynchronizationEvent(new SynchronizationEventArgs()
+            if (pullResponse.Completed)
             {
-                EventType = SynchronizationEventType.ItemsCommitted,
-                EntityType = pullResponse.EntityType,
-                ItemsProcessed = pullResponse.TotalItemsProcessed,
-                TotalNrItems = pullResponse.TotalRequestItems,
-                QueryId = pullResponse.QueryId
-            });
-
-            if (pullOptions.SaveAfterEveryServiceRequest)
-            {
-                _ = await context.SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
+                context.SendSynchronizationEvent(new SynchronizationEventArgs()
+                {
+                    EventType = SynchronizationEventType.PullEnded,
+                    EntityType = pullResponse.EntityType,
+                    ItemsProcessed = pullResponse.TotalItemsProcessed,
+                    TotalNrItems = pullResponse.TotalRequestItems,
+                    QueryId = pullResponse.QueryId,
+                    Exception = pullResponse.Exception,
+                    ServiceResponse = pullResponse.Exception is DatasyncPullException ex ? ex.ServiceResponse : null
+                });
             }
         });
 
@@ -125,15 +143,24 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
             Uri endpoint = ExecutableOperation.MakeAbsoluteUri(pullRequest.HttpClient.BaseAddress, pullRequest.Endpoint);
             Uri requestUri = new UriBuilder(endpoint) { Query = pullRequest.QueryDescription.ToODataQueryString() }.Uri;
             Type pageType = typeof(Page<>).MakeGenericType(pullRequest.EntityType);
+            long itemsProcessed = 0;
+            long totalCount = 0;
 
             try
             {
                 bool completed = false;
-                long itemsProcessed = 0;
+                // Signal we started the pull operation.
+                context.SendSynchronizationEvent(new SynchronizationEventArgs()
+                {
+                    EventType = SynchronizationEventType.PullStarted,
+                    EntityType = pullRequest.EntityType,
+                    QueryId = pullRequest.QueryId
+                });
                 do
                 {
                     Page<object> page = await GetPageAsync(pullRequest.HttpClient, requestUri, pageType, cancellationToken).ConfigureAwait(false);
                     itemsProcessed += page.Items.Count();
+                    totalCount = page.Count ?? totalCount;
 
                     context.SendSynchronizationEvent(new SynchronizationEventArgs()
                     {
@@ -144,7 +171,6 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
                         QueryId = pullRequest.QueryId
                     });
 
-                    databaseUpdateQueue.Enqueue(new PullResponse(pullRequest.EntityType, pullRequest.QueryId, page.Items, page.Count ?? 0, itemsProcessed));
                     if (!string.IsNullOrEmpty(page.NextLink))
                     {
                         requestUri = new UriBuilder(endpoint) { Query = page.NextLink }.Uri;
@@ -153,12 +179,15 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
                     {
                         completed = true;
                     }
+
+                    databaseUpdateQueue.Enqueue(new PullResponse(pullRequest.EntityType, pullRequest.QueryId, page.Items, totalCount, itemsProcessed, completed));
                 }
                 while (!completed);
             }
             catch (DatasyncPullException ex)
             {
                 result.AddFailedRequest(requestUri, ex.ServiceResponse);
+                databaseUpdateQueue.Enqueue(new PullResponse(pullRequest.EntityType, pullRequest.QueryId, Enumerable.Empty<object>(), totalCount, itemsProcessed, true, ex));
             }
         });
 
@@ -263,6 +292,8 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
     /// <param name="Items">The list of items to process.</param>
     /// <param name="TotalRequestItems">The total number of items in the current pull request.</param>
     /// <param name="TotalItemsProcessed">The total number of items processed, <paramref name="Items"/> included.</param>
+    /// <param name="Completed">If <c>true</c>, indicates that the pull request is completed.</param>
+    /// <param name="Exception">Indicates an exception occured during fetching of data</param>
     [ExcludeFromCodeCoverage]
-    internal record PullResponse(Type EntityType, string QueryId, IEnumerable<object> Items, long TotalRequestItems, long TotalItemsProcessed);
+    internal record PullResponse(Type EntityType, string QueryId, IEnumerable<object> Items, long TotalRequestItems, long TotalItemsProcessed, bool Completed, Exception? Exception = null);
 }
