@@ -19,22 +19,14 @@ public class DateTimeConverter : JsonConverter<DateTime>
     /// <inheritdoc />
     public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        string? token = reader.GetString();
-        if (string.IsNullOrEmpty(token))
+        // Check if datetime was 'default'. If so do not adjust to local time.
+        DateTime utc = DateTime.Parse(reader.GetString() ?? "", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
+        if (utc == default)
         {
-            return DateTime.MinValue;
+            return utc;
         }
-        else
-        {
-            // Check if datetime was 'default'. If so do not adjust to local time.
-            DateTime utc = DateTime.Parse(token, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
-            if (utc == default)
-            {
-                return utc;
-            }
 
-            return DateTime.Parse(token);
-        }
+        return utc.ToLocalTime();
     }
 
     /// <inheritdoc />

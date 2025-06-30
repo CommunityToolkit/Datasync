@@ -1467,13 +1467,13 @@ public class OfflineDbContext_Tests : BaseTest
                 case SynchronizationEventType.ItemsFetched:
                     currentItemsFetched += 5;
                     args.ItemsProcessed.Should().Be(currentItemsFetched);
-                    args.TotalNrItems.Should().Be(20);
+                    args.ItemsTotal.Should().Be(20);
                     eventFiredForFetch = true;
                     break;
                 case SynchronizationEventType.ItemsCommitted:
                     currentItemsCommited += 5;
                     args.ItemsProcessed.Should().Be(currentItemsCommited);
-                    args.TotalNrItems.Should().Be(20);
+                    args.ItemsTotal.Should().Be(20);
                     eventFiredForCommit = true;
                     break;
                 case SynchronizationEventType.PullStarted:
@@ -1484,7 +1484,7 @@ public class OfflineDbContext_Tests : BaseTest
                     eventFiredForEnd.Should().BeFalse("PullEnded event should only fire once");
                     eventFiredForEnd = true;
                     args.ItemsProcessed.Should().Be(20);
-                    args.TotalNrItems.Should().Be(20);
+                    args.ItemsTotal.Should().Be(20);
                     break;
                 default:
                     Assert.Fail($"Invalid event type: {args.EventType}");
@@ -1572,11 +1572,11 @@ public class OfflineDbContext_Tests : BaseTest
             sender.Should().Be(this.context);
             args.Exception.Should().BeNull();
             args.ServiceResponse.Should().BeNull();
-            args.TotalNrItems.Should().Be(newMovies.Length);
+            args.ItemsTotal.Should().Be(newMovies.Length);
             switch (args.EventType)
             {
                 case SynchronizationEventType.PushItem:
-                    args.TotalNrItems.Should().Be(newMovies.Length);
+                    args.ItemsTotal.Should().Be(newMovies.Length);
                     args.ItemsProcessed.Should().BeInRange(1,newMovies.Length);
                     int prevProcessed = Interlocked.Exchange(ref itemsProcessedReported[args.ItemsProcessed-1], 1);
                     prevProcessed.Should().Be(0, "Each item should only be reported once");

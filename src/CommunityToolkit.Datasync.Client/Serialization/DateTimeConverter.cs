@@ -33,7 +33,7 @@ public class DateTimeConverter : JsonConverter<DateTime>
                 return utc;
             }
 
-            return DateTime.Parse(token);
+            return utc.ToLocalTime();
         }
     }
 

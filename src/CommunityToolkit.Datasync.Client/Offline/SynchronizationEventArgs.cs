@@ -73,7 +73,7 @@ public class SynchronizationEventArgs
     /// When pulling records, the total number of items to pull for the given entity in the current pull request
     /// When pushing records, the total number of items that are being pushed in the current push request.
     /// </summary>
-    public long TotalNrItems { get; init; }
+    public long ItemsTotal { get; init; }
 
     /// <summary>
     /// The query ID that is being processed on pull operations. Not used on push events.

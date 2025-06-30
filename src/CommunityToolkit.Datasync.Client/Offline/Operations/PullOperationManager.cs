@@ -118,7 +118,7 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
                     EventType = SynchronizationEventType.ItemsCommitted,
                     EntityType = pullResponse.EntityType,
                     ItemsProcessed = pullResponse.TotalItemsProcessed,
-                    TotalNrItems = pullResponse.TotalRequestItems,
+                    ItemsTotal = pullResponse.TotalRequestItems,
                     QueryId = pullResponse.QueryId
                 });
             }
@@ -130,7 +130,7 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
                     EventType = SynchronizationEventType.PullEnded,
                     EntityType = pullResponse.EntityType,
                     ItemsProcessed = pullResponse.TotalItemsProcessed,
-                    TotalNrItems = pullResponse.TotalRequestItems,
+                    ItemsTotal = pullResponse.TotalRequestItems,
                     QueryId = pullResponse.QueryId,
                     Exception = pullResponse.Exception,
                     ServiceResponse = pullResponse.Exception is DatasyncPullException ex ? ex.ServiceResponse : null
@@ -167,7 +167,7 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
                         EventType = SynchronizationEventType.ItemsFetched,
                         EntityType = pullRequest.EntityType,
                         ItemsProcessed = itemsProcessed,
-                        TotalNrItems = page.Count ?? 0,
+                        ItemsTotal = page.Count ?? 0,
                         QueryId = pullRequest.QueryId
                     });
 

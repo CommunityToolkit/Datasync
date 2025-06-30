@@ -275,7 +275,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
         this._context.SendSynchronizationEvent(new SynchronizationEventArgs()
         {
             EventType = SynchronizationEventType.PushStarted,
-            TotalNrItems = queuedOperations.Count
+            ItemsTotal = queuedOperations.Count
         });
 
         if (queuedOperations.Count == 0)
@@ -301,7 +301,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
             {
                 EventType = SynchronizationEventType.PushItem,
                 ItemsProcessed = newItemsProcessed,
-                TotalNrItems = queuedOperations.Count,
+                ItemsTotal = queuedOperations.Count,
                 PushOperation = operation,
             });
         });
@@ -317,7 +317,7 @@ internal class OperationsQueueManager : IOperationsQueueManager
         {
             EventType = SynchronizationEventType.PushEnded,
             ItemsProcessed = nrItemsProcessed,
-            TotalNrItems = queuedOperations.Count,
+            ItemsTotal = queuedOperations.Count,
         });
 
         return pushResult;
