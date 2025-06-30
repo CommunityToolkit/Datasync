@@ -9,6 +9,7 @@ using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Test.Offline.Helpers;
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
+using CommunityToolkit.Datasync.TestCommon.Models;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -1499,6 +1500,112 @@ public class OfflineDbContext_Tests : BaseTest
         eventFiredForEnd.Should().BeTrue();
         currentItemsFetched.Should().Be(20);
         currentItemsCommited.Should().Be(20);
+    }
+
+    [Fact]
+    public async Task PullAsync_List_FailedRequest_SynchronizationEventWorks()
+    {
+        this.context.Handler.AddResponse(HttpStatusCode.BadRequest);
+
+        bool eventFiredForStart = false;
+        bool eventFiredForEnd = false;
+
+        this.context.SynchronizationProgress += (sender, args) =>
+        {
+            sender.Should().Be(this.context);
+            args.EntityType.Should().Be<ClientMovie>();
+            args.QueryId.Should().Be("CommunityToolkit.Datasync.TestCommon.Databases.ClientMovie");
+            switch (args.EventType)
+            {
+                case SynchronizationEventType.PullStarted:
+                    eventFiredForStart.Should().BeFalse("PullStarted event should only fire once");
+                    eventFiredForStart = true;
+                    args.Exception.Should().BeNull();
+                    args.ServiceResponse.Should().BeNull();
+                    break;
+                case SynchronizationEventType.PullEnded:
+                    eventFiredForEnd.Should().BeFalse("PullEnded event should only fire once");
+                    eventFiredForEnd = true;
+                    args.Exception.Should().NotBeNull();
+                    args.Exception.Should().BeOfType<Client.Exceptions.DatasyncPullException>();
+                    args.ServiceResponse.Should().NotBeNull();
+                    args.ServiceResponse.StatusCode.Should().Be(400);
+                    break;
+                default:
+                    Assert.Fail($"Unexpected event type: {args.EventType}");
+                    break;
+            }
+        };
+
+        PullResult pullResult = await this.context.PullAsync([typeof(ClientMovie)], new PullOptions());
+
+        eventFiredForStart.Should().BeTrue();
+        eventFiredForEnd.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SynchronizationProgress_Event_Works_For_Push()
+    {
+        // Add movies for testing
+        (MovieBase movie, string id)[] newMovies =
+            [
+                (TestData.Movies.BlackPanther,Guid.NewGuid().ToString("N")),
+                (TestData.Movies.Dune,Guid.NewGuid().ToString("N")),
+                (TestData.Movies.DrNo ,Guid.NewGuid().ToString("N")),
+            ];
+
+        foreach ((MovieBase movie, string id) in newMovies)
+        {
+            this.context.Movies.Add(new(movie) { Id = id });
+            ClientMovie responseMovie = new(movie) { Id = id, UpdatedAt = DateTimeOffset.UtcNow, Version = Guid.NewGuid().ToString() };
+            this.context.Handler.AddResponseContent(DatasyncSerializer.Serialize(responseMovie), HttpStatusCode.Created);
+            this.context.SaveChanges();
+        }
+
+        bool eventFiredForItem = false;
+        bool eventFiredForStart = false;
+        bool eventFiredForEnd = false;
+        int[] itemsProcessedReported = new int[newMovies.Length];    // Due to multithreading, we can't guarantee the order of items processed. So register arrival of each separately.
+
+        this.context.SynchronizationProgress += (sender, args) =>
+        {
+            sender.Should().Be(this.context);
+            args.Exception.Should().BeNull();
+            args.ServiceResponse.Should().BeNull();
+            args.TotalNrItems.Should().Be(newMovies.Length);
+            switch (args.EventType)
+            {
+                case SynchronizationEventType.PushItem:
+                    args.TotalNrItems.Should().Be(newMovies.Length);
+                    args.ItemsProcessed.Should().BeInRange(1,newMovies.Length);
+                    int prevProcessed = Interlocked.Exchange(ref itemsProcessedReported[args.ItemsProcessed-1], 1);
+                    prevProcessed.Should().Be(0, "Each item should only be reported once");
+                    args.PushOperation.Should().NotBeNull();
+                    args.PushOperation.ItemId.Should().Be(newMovies[args.ItemsProcessed - 1].id);
+                    eventFiredForItem = true;
+                    break;
+                case SynchronizationEventType.PushStarted:
+                    eventFiredForStart.Should().BeFalse("PushStarted event should only fire once");
+                    eventFiredForStart = true;
+                    break;
+                case SynchronizationEventType.PushEnded:
+                    eventFiredForEnd.Should().BeFalse("PushEnded event should only fire once");
+                    eventFiredForEnd = true;
+                    args.ItemsProcessed.Should().Be(newMovies.Length);
+                    itemsProcessedReported.Should().OnlyContain(x => x == 1, "All items should be reported as processed");
+                    args.PushOperation.Should().BeNull();
+                    break;
+                default:
+                    Assert.Fail($"Invalid event type: {args.EventType}");
+                    break;
+            }
+        };
+
+        PushResult results = await this.context.Movies.PushAsync();
+
+        eventFiredForStart.Should().BeTrue();
+        eventFiredForItem.Should().BeTrue();
+        eventFiredForEnd.Should().BeTrue();
     }
 
     #endregion

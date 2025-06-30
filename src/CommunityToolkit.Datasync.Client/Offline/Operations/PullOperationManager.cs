@@ -187,7 +187,7 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
             catch (DatasyncPullException ex)
             {
                 result.AddFailedRequest(requestUri, ex.ServiceResponse);
-                databaseUpdateQueue.Enqueue(new PullResponse(pullRequest.EntityType, pullRequest.QueryId, Enumerable.Empty<object>(), totalCount, itemsProcessed, true, ex));
+                databaseUpdateQueue.Enqueue(new PullResponse(pullRequest.EntityType, pullRequest.QueryId, [], totalCount, itemsProcessed, true, ex));
             }
         });
 

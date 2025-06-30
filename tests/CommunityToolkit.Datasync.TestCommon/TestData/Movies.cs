@@ -20,6 +20,26 @@ public static class Movies
         Year = 2018
     };
 
+    public static readonly MovieBase Dune = new()
+    {
+        BestPictureWinner = false,
+        Duration = 155,
+        Rating = MovieRating.PG13,
+        ReleaseDate = new DateOnly(2021, 10, 22),
+        Title = "Dune",
+        Year = 2021
+    };
+
+    public static readonly MovieBase DrNo = new()
+    {
+        BestPictureWinner = false,
+        Duration = 110,
+        Rating = MovieRating.PG,
+        ReleaseDate = new DateOnly(1962, 5, 8),
+        Title = "Dr. No",
+        Year = 1962
+    };
+
     /// <summary>
     /// Counts the number of items in the list that match the predicate.
     /// </summary>

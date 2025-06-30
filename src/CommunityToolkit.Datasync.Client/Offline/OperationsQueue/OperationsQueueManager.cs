@@ -270,16 +270,40 @@ internal class OperationsQueueManager : IOperationsQueueManager
 
         // Determine the list of queued operations in scope.
         List<DatasyncOperation> queuedOperations = await GetQueuedOperationsAsync(entityTypeNames, cancellationToken).ConfigureAwait(false);
+
+        // Signal we started the push operation.
+        this._context.SendSynchronizationEvent(new SynchronizationEventArgs()
+        {
+            EventType = SynchronizationEventType.PushStarted,
+            TotalNrItems = queuedOperations.Count
+        });
+
         if (queuedOperations.Count == 0)
         {
+            // Signal we ended the push operation.
+            this._context.SendSynchronizationEvent(new SynchronizationEventArgs()
+            {
+                EventType = SynchronizationEventType.PushEnded
+            });
             return pushResult;
         }
+
+        int nrItemsProcessed = 0;
 
         // Push things in parallel, according to the PushOptions
         QueueHandler<DatasyncOperation> queueHandler = new(pushOptions.ParallelOperations, async operation =>
         {
             ServiceResponse? response = await PushOperationAsync(operation, cancellationToken).ConfigureAwait(false);
             pushResult.AddOperationResult(operation, response);
+            // We can run on multiple threads, so use Interlocked to update the number of items processed.
+            int newItemsProcessed = Interlocked.Increment(ref nrItemsProcessed);
+            this._context.SendSynchronizationEvent(new SynchronizationEventArgs()
+            {
+                EventType = SynchronizationEventType.PushItem,
+                ItemsProcessed = newItemsProcessed,
+                TotalNrItems = queuedOperations.Count,
+                PushOperation = operation,
+            });
         });
 
         // Enqueue and process all the queued operations in scope
@@ -288,6 +312,14 @@ internal class OperationsQueueManager : IOperationsQueueManager
 
         // Save the changes, this time we don't update the queue.
         _ = await this._context.SaveChangesAsync(acceptAllChangesOnSuccess: true, addToQueue: false, cancellationToken).ConfigureAwait(false);
+
+        this._context.SendSynchronizationEvent(new SynchronizationEventArgs()
+        {
+            EventType = SynchronizationEventType.PushEnded,
+            ItemsProcessed = nrItemsProcessed,
+            TotalNrItems = queuedOperations.Count,
+        });
+
         return pushResult;
     }
 
