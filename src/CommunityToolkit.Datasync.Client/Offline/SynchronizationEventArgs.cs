@@ -15,7 +15,7 @@ public enum SynchronizationEventType
     /// <remarks><see cref="SynchronizationEventArgs.ItemsProcessed"/> is not yet known here</remarks>
     PullStarted,
     /// <summary>
-    /// Occurs when items have been successfully fetches from the server.
+    /// Occurs when items have been successfully fetched from the server.
     /// </summary>
     /// <remarks>This event is raised after a page of entities was succesfully fetched from the server, ready to be commited to the data store.</remarks>
     ItemsFetched,
