@@ -17,13 +17,13 @@ public enum SynchronizationEventType
     /// <summary>
     /// Occurs when items have been successfully fetched from the server.
     /// </summary>
-    /// <remarks>This event is raised after a page of entities was succesfully fetched from the server, ready to be commited to the data store.</remarks>
+    /// <remarks>This event is raised after a page of entities was successfully fetched from the server, ready to be committed to the data store.</remarks>
     ItemsFetched,
 
     /// <summary>
     /// Occurs when items have been successfully committed to the underlying data store.
     /// </summary>
-    /// <remarks>This event is raised after a page of entities was succesfully commited to the database</remarks>
+    /// <remarks>This event is raised after a page of entities was successfully committed to the database</remarks>
     ItemsCommitted,
 
     /// <summary>
