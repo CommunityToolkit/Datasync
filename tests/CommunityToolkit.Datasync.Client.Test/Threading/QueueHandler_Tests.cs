@@ -23,7 +23,7 @@ public class QueueHandler_Tests
         {
             accId.Enqueue(el);
             accTh.Enqueue(Environment.CurrentManagedThreadId);
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
             return Task.CompletedTask;
         });
         DateTimeOffset startTime = DateTimeOffset.Now;
@@ -49,7 +49,7 @@ public class QueueHandler_Tests
         accTh.AsEnumerable().Distinct().Should().HaveCount(nThreads);
         // This just makes sure that the amount of time is "of the right order of magnitude" since CI systems
         // are notoriously bad at correct timings.  We just don't want it to be 10x the expected time.
-        (endTime - startTime).TotalSeconds.Should().BeLessThanOrEqualTo((nElements / nThreads) + 5);
+        (endTime - startTime).TotalSeconds.Should().BeLessThanOrEqualTo(2 * (nElements / nThreads) + 5);
     }
 
     [Theory(Timeout = 30000)]
