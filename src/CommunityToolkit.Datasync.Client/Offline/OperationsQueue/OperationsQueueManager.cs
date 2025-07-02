@@ -283,7 +283,9 @@ internal class OperationsQueueManager : IOperationsQueueManager
             // Signal we ended the push operation.
             this._context.SendSynchronizationEvent(new SynchronizationEventArgs()
             {
-                EventType = SynchronizationEventType.PushEnded
+                EventType = SynchronizationEventType.PushEnded,
+                ItemsProcessed = 0,
+                ItemsTotal = 0
             });
             return pushResult;
         }
