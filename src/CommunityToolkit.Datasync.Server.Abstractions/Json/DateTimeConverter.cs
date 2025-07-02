@@ -18,7 +18,16 @@ public class DateTimeConverter : JsonConverter<DateTime>
 
     /// <inheritdoc />
     public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        => DateTime.Parse(reader.GetString() ?? string.Empty);
+    {
+        // Check if datetime was 'default'. If so do not adjust to local time.
+        DateTime utc = DateTime.Parse(reader.GetString() ?? "", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
+        if (utc == default)
+        {
+            return utc;
+        }
+
+        return utc.ToLocalTime();
+    }
 
     /// <inheritdoc />
     public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
