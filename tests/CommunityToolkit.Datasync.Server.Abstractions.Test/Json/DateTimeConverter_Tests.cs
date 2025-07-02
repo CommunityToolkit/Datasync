@@ -69,6 +69,52 @@ public class DateTimeConverter_Tests : SerializerTests
         act.Should().Throw<FormatException>();
     }
 
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_Roundtrip_Consistent_Default(string culture)
+    {
+        DateTime value = default;
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = new() { UpdatedAt = value };
+            string serialized = JsonSerializer.Serialize(entity, SerializerOptions);
+            Entity deserialized = JsonSerializer.Deserialize<Entity>(serialized, SerializerOptions);
+            Assert.Equal(deserialized.UpdatedAt, value);
+        });
+    }
+
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_Roundtrip_Consistent_Local(string culture)
+    {
+        DateTime value = new(2021, 8, 21, 12, 30, 15, 123, DateTimeKind.Local);
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = new() { UpdatedAt = value };
+            string serialized = JsonSerializer.Serialize(entity, SerializerOptions);
+            Entity deserialized = JsonSerializer.Deserialize<Entity>(serialized, SerializerOptions);
+            Assert.Equal(deserialized.UpdatedAt, value);
+        });
+    }
+
+    [Theory]
+    [MemberData(nameof(Locales))]
+    public void Converter_Roundtrip_Consistent_Utc(string culture)
+    {
+        DateTime value = new(2021, 8, 21, 14, 35, 20, 12, DateTimeKind.Utc);
+
+        TestWithCulture(culture, () =>
+        {
+            Entity entity = new() { UpdatedAt = value };
+            string serialized = JsonSerializer.Serialize(entity, SerializerOptions);
+            Entity deserialized = JsonSerializer.Deserialize<Entity>(serialized, SerializerOptions);
+            // Roundtrip will convert to local time, DateTimeKind is not preserved.
+            Assert.Equal(deserialized.UpdatedAt, value.ToLocalTime());
+        });
+    }
+
     #region Models
     public class Entity
     {
