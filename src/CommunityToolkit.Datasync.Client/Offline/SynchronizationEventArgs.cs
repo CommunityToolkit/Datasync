@@ -27,7 +27,7 @@ public enum SynchronizationEventType
     ItemsCommitted,
 
     /// <summary>
-    /// Pull for the given entiry ended.
+    /// Pull for the given entity ended.
     /// </summary>
     PullEnded,
     /// <summary>
