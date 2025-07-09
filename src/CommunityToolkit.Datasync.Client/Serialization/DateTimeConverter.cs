@@ -26,7 +26,14 @@ public class DateTimeConverter : JsonConverter<DateTime>
         }
         else
         {
-            return DateTime.Parse(token);
+            // Check if datetime was 'default'. If so do not adjust to local time.
+            DateTime utc = DateTime.Parse(token, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal);
+            if (utc == default)
+            {
+                return utc;
+            }
+
+            return utc.ToLocalTime();
         }
     }
 

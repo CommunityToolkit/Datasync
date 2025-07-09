@@ -100,6 +100,12 @@ public abstract partial class OfflineDbContext : DbContext
     internal OperationsQueueManager QueueManager { get; }
 
     /// <summary>
+    /// An event delegate that allows the app to monitor synchronization events.
+    /// </summary>
+    /// <remarks>This event can be called from background threads.</remarks>
+    public event EventHandler<SynchronizationEventArgs>? SynchronizationProgress;
+
+    /// <summary>
     ///     Initializes a new instance of the <see cref="OfflineDbContext" /> class. The 
     ///     <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method will be called to 
     ///     configure the database (and other options) to be used for this context.
@@ -559,6 +565,15 @@ public abstract partial class OfflineDbContext : DbContext
         }
 
         return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends a synchronization event to the consumers.
+    /// </summary>
+    /// <param name="eventArgs">The event arguments.</param>
+    internal void SendSynchronizationEvent(SynchronizationEventArgs eventArgs)
+    {
+        SynchronizationProgress?.Invoke(this, eventArgs);
     }
 
     #region IDisposable
