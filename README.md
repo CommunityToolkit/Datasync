@@ -61,20 +61,20 @@ The following NuGet packages have been published:
 
 ## Running Live Tests
 
-The test suite for the library includes "live tests" against real servers that are not normally run.  To run those tests, you will need access to an
-Azure account (you can sign up for one for free):
+The majority of tests in the test suite provide [TestContainers](https://testcontainers.com/) so that the tests are run against real servers running inside containers.  However, some test suites have not been set up yet or do not work as expected.  For those services, you will need to provide a real service and configure the `.runsettings` file to run the service.  Here is a typical `.runsettings` file:
 
-1. Install the [Azure Developer CLI](https://learn.microsoft.com/azure/developer/azure-developer-cli/install-azd)
-2. Run `azd up` in a command line.
-
-This script will create several resources.  The cost of running those resources is approximately $40/month (US dollars).  However, you will only have 
-to run the services for less than an hour, so the cost of testing the library should be minimal.  The process will create a `.runsettings` file in the
-tests directory which you can use to enable the live testing. 
-
-Live testing can be run using the Visual Studio Test Explorer or via `dotnet test`.
-
-Once you have completed running the tests, you can remove the created services using `azd down`.  This will also remove the `.runsettings` file so that
-live tests are not attempted any more.
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <EnvironmentVariables>
+      <ENABLE_SQL_LOGGING>true</ENABLE_SQL_LOGGING>
+      <COSMOS_CONNECTION_STRING>{insert your connection string here}</COSMOS_CONNECTION_STRING>
+      <AZSQL_CONNECTION_STRING>{insert your connection string here}</AZSQL_CONNECTION_STRING>
+    </EnvironmentVariables>
+  </RunConfiguration>
+</RunSettings>
+```
 
 > **NOTE**: The `.runsettings` file contains secrets.  It should not be checked in.  We have added this file to the `.gitignore` to ensure that it is
 > not checked into public GitHub repositories.
