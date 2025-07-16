@@ -1,9 +1,9 @@
 # Creating offline clients
 
-This guide shows you how to perform common scenarios using the Datasync Community Toolkit.  Use the client library in any .NET 8 application, including AvaloniaUI, MAUI, Uno Platform, WinUI, and WPF applications.
+This guide shows you how to perform common scenarios using the Datasync Community Toolkit.  Use the client library in any .NET 9 application, including AvaloniaUI, MAUI, Uno Platform, WinUI, and WPF applications.
 
 !!! note **Blazor WASM and Blazor Hybrid**
-    The offline capabilities are known to have issues with Blazor WASM and Blazor Hybrid (since EF Core and SQLite do not work in those environments when running in the browser).  Use online-only operations in these environments.
+    The offline capabilities are known to have issues with Blazor WASM and Blazor Hybrid (since EF Core and SQLite do not work in those environments when running in the browser).  Use online-only operations in these environments.  For more information, see [our guide on Blazor WASM](./advanced/blazor-wasm.md)
 
 This guide primary deals with offline operations.  For online operations, see the [Online operations guide](./online.md).
 
