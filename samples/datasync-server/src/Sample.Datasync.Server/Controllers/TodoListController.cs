@@ -10,6 +10,7 @@ using Sample.Datasync.Server.Db;
 namespace Sample.Datasync.Server.Controllers;
 
 [Route("tables/[controller]")]
+[ApiExplorerSettings(IgnoreApi = false)]
 public class TodoListController : TableController<TodoList>
 {
     public TodoListController(AppDbContext context) : base(new EntityTableRepository<TodoList>(context))

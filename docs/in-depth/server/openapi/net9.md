@@ -11,8 +11,9 @@ Follow [the basic instructions for OpenApi integration](https://learn.microsoft.
 
         using CommunityToolkit.Datasync.Server.OpenApi;
 
-3. Add a service to generate an OpenAPI definition to your `Program.cs` file:
+3. Add services to generate an OpenAPI definition to your `Program.cs` file:
 
+        builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddOpenApi(options => options.AddDatasyncTransformers());
 
 4. Enable the middleware for serving the generated JSON document and the Swagger UI, also in `Program.cs`:
