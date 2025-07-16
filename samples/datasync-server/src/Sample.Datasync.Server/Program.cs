@@ -6,6 +6,7 @@ using CommunityToolkit.Datasync.Server;
 using CommunityToolkit.Datasync.Server.NSwag;
 using CommunityToolkit.Datasync.Server.OpenApi;
 using CommunityToolkit.Datasync.Server.Swashbuckle;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sample.Datasync.Server.Db;
 
@@ -36,6 +37,8 @@ if (swashbuckleEnabled)
 
 if (openApiEnabled)
 {
+    // Explicit API Explorer configuration
+    _ = builder.Services.AddEndpointsApiExplorer();
     _ = builder.Services.AddOpenApi(options => options.AddDatasyncTransformers());
 }
 
@@ -60,13 +63,13 @@ if (swashbuckleEnabled)
     _ = app.UseSwagger().UseSwaggerUI();
 }
 
+app.UseAuthorization();
+app.MapControllers();
+
 if (openApiEnabled)
 {
     _ = app.MapOpenApi(pattern: "swagger/{documentName}/swagger.json");
     _ = app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "Sample.Datasync.Server v1"));
 }
-
-app.UseAuthorization();
-app.MapControllers();
 
 app.Run();

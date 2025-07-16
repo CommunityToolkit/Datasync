@@ -10,6 +10,7 @@ using Sample.Datasync.Server.Db;
 namespace Sample.Datasync.Server.Controllers;
 
 [Route("tables/[controller]")]
+[ApiExplorerSettings(IgnoreApi = false)]
 public class TodoItemController : TableController<TodoItem>
 {
     public TodoItemController(AppDbContext context) 
