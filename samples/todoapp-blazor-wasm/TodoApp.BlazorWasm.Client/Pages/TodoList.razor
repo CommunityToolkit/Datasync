@@ -1,0 +1,259 @@
+@page "/"
+@page "/{filter}"
+@inject ITodoService TodoService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>TodoMVC - Blazor WASM</PageTitle>
+
+<section class="todoapp">
+    <header class="header">
+        <h1>todos</h1>
+        <input class="new-todo" 
+               placeholder="What needs to be done?" 
+               @bind="newTodoTitle" 
+               @onkeypress="HandleNewTodoKeyPress" 
+               autofocus />
+    </header>
+    
+    @if (todoItems.Any())
+    {
+        <section class="main">
+            <input id="toggle-all" 
+                   class="toggle-all" 
+                   type="checkbox" 
+                   checked="@allCompleted"
+                   @onchange="ToggleAllTodos" />
+            <label for="toggle-all">Mark all as complete</label>
+            
+            <ul class="todo-list">
+                @foreach (var item in FilteredTodos)
+                {
+                    <li class="@(item.Completed ? "completed" : "")" @key="item.Id">
+                        <div class="view">
+                            <input class="toggle" 
+                                   type="checkbox" 
+                                   checked="@item.Completed"
+                                   @onchange="() => ToggleTodo(item)" />
+                            <label @ondblclick="() => StartEditing(item.Id)">@item.Title</label>
+                            <button class="destroy" @onclick="() => DeleteTodo(item.Id)"></button>
+                        </div>
+                        @if (editingTodoId == item.Id)
+                        {
+                            <input class="edit" 
+                                   @bind="editingTitle" 
+                                   @onkeypress="(e) => HandleEditKeyPress(e, item)"
+                                   @onblur="() => SaveEdit(item)"
+                                   @ref="editInput" />
+                        }
+                    </li>
+                }
+            </ul>
+        </section>
+        
+        <footer class="footer">
+            <span class="todo-count">
+                <strong>@activeTodoCount</strong> @(activeTodoCount == 1 ? "item" : "items") left
+            </span>
+            
+            <ul class="filters">
+                <li><a href="/" class="@(CurrentFilter == "all" ? "selected" : "")">All</a></li>
+                <li><a href="/active" class="@(CurrentFilter == "active" ? "selected" : "")">Active</a></li>
+                <li><a href="/completed" class="@(CurrentFilter == "completed" ? "selected" : "")">Completed</a></li>
+            </ul>
+            
+            @if (completedTodoCount > 0)
+            {
+                <button class="clear-completed" @onclick="ClearCompleted">
+                    Clear completed
+                </button>
+            }
+        </footer>
+    }
+</section>
+
+<footer class="info">
+    <p>Double-click to edit a todo</p>
+    <p>Created with <a href="https://blazor.net/">Blazor</a></p>
+    <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+</footer>
+
+@code {
+    [Parameter] public string? Filter { get; set; }
+    
+    private List<TodoItemDto> todoItems = new();
+    private string newTodoTitle = string.Empty;
+    private string? editingTodoId;
+    private string editingTitle = string.Empty;
+    private bool allCompleted;
+    private ElementReference editInput;
+    
+    private string CurrentFilter => Filter ?? "all";
+    
+    private IEnumerable<TodoItemDto> FilteredTodos => CurrentFilter switch
+    {
+        "active" => todoItems.Where(t => !t.Completed),
+        "completed" => todoItems.Where(t => t.Completed),
+        _ => todoItems
+    };
+    
+    private int activeTodoCount => todoItems.Count(t => !t.Completed);
+    private int completedTodoCount => todoItems.Count(t => t.Completed);
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTodos();
+    }
+    
+    private async Task LoadTodos()
+    {
+        try
+        {
+            var items = await TodoService.GetTodoItemsAsync();
+            todoItems = items.ToList();
+            UpdateAllCompletedState();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading todos: {ex.Message}");
+        }
+    }
+    
+    private async Task HandleNewTodoKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(newTodoTitle))
+        {
+            await CreateTodo();
+        }
+    }
+    
+    private async Task CreateTodo()
+    {
+        try
+        {
+            var newItem = await TodoService.CreateTodoItemAsync(newTodoTitle.Trim());
+            todoItems.Add(newItem);
+            newTodoTitle = string.Empty;
+            UpdateAllCompletedState();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating todo: {ex.Message}");
+        }
+    }
+    
+    private async Task UpdateTodo(TodoItemDto item)
+    {
+        try
+        {
+            await TodoService.UpdateTodoItemAsync(item);
+            UpdateAllCompletedState();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating todo: {ex.Message}");
+        }
+    }
+    
+    private async Task ToggleTodo(TodoItemDto item)
+    {
+        item.Completed = !item.Completed;
+        await UpdateTodo(item);
+    }
+    
+    private async Task DeleteTodo(string id)
+    {
+        try
+        {
+            await TodoService.DeleteTodoItemAsync(id);
+            todoItems.RemoveAll(t => t.Id == id);
+            UpdateAllCompletedState();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting todo: {ex.Message}");
+        }
+    }
+    
+    private async Task ToggleAllTodos()
+    {
+        try
+        {
+            foreach (var item in todoItems)
+            {
+                item.Completed = allCompleted;
+                await TodoService.UpdateTodoItemAsync(item);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error toggling all todos: {ex.Message}");
+        }
+    }
+    
+    private async Task ClearCompleted()
+    {
+        try
+        {
+            var completedItems = todoItems.Where(t => t.Completed).ToList();
+            foreach (var item in completedItems)
+            {
+                await TodoService.DeleteTodoItemAsync(item.Id);
+            }
+            todoItems.RemoveAll(t => t.Completed);
+            UpdateAllCompletedState();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error clearing completed todos: {ex.Message}");
+        }
+    }
+    
+    private async Task StartEditing(string id)
+    {
+        editingTodoId = id;
+        var item = todoItems.First(t => t.Id == id);
+        editingTitle = item.Title;
+        
+        await Task.Delay(1); // Allow DOM to update
+        await editInput.FocusAsync();
+    }
+    
+    private async Task HandleEditKeyPress(KeyboardEventArgs e, TodoItemDto item)
+    {
+        if (e.Key == "Enter")
+        {
+            await SaveEdit(item);
+        }
+        else if (e.Key == "Escape")
+        {
+            CancelEdit();
+        }
+    }
+    
+    private async Task SaveEdit(TodoItemDto item)
+    {
+        if (!string.IsNullOrWhiteSpace(editingTitle))
+        {
+            item.Title = editingTitle.Trim();
+            await UpdateTodo(item);
+        }
+        else
+        {
+            await DeleteTodo(item.Id);
+        }
+        
+        editingTodoId = null;
+        editingTitle = string.Empty;
+    }
+    
+    private void CancelEdit()
+    {
+        editingTodoId = null;
+        editingTitle = string.Empty;
+    }
+    
+    private void UpdateAllCompletedState()
+    {
+        allCompleted = todoItems.Any() && todoItems.All(t => t.Completed);
+    }
+}

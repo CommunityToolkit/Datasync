@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "TodoApp.BlazorWasm.Client": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:53033;http://localhost:53034"
+    }
+  }
+}

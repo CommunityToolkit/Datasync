@@ -2,6 +2,8 @@
 
 Not all data needs to be synchronized.  You may want to do an online search of records for a search capability, for example.  To support this, The Datasync Community Toolkit supports an online client in addition to offline usage.
 
+If you are using the Datasync Community Toolkit with Blazor WASM, see [our guide on Blazor WASM usage](./advanced/blazor-wasm.md).
+
 ## Creating a Http Client Factory
 
 To create an online client, you must create an `IHttpClientFactory` that creates the appropriate `HttpClient` objects that are used to communicate with the remote service.  This can handle authentication, logging, and anything else that is required by the remote service.  At a minimum, a `BaseAddress` must be established.  To facilitate this, the Datasync Community Toolkit provides a default `HttpClientFactory` that can be used:
