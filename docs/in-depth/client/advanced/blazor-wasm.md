@@ -31,5 +31,4 @@ This will suppress the harmless SQLite warning that appears when building Blazor
 
 ## Sample
 
-We have a Blazor WASM sample in our sample set: [samples/todoapp-blazor-wasm](https://github.com/CommunityToolkit/Datasync/tree/main/samples/todoapp-blazor-wasm).
-
+We have a Blazor WASM sample in our sample set: [samples/todoapp-blazor-wasm](https://github.com/CommunityToolkit/Datasync/tree/main/samples/todoapp-blazor-wasm).  This sample comprises a server (which uses an in-memory EF Core database) combined with a Blazor Web Assembly client.

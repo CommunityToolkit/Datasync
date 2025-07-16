@@ -12,6 +12,7 @@ Currently, the library supports:
 Client platforms that have been tested include:
 
 * [Avalonia][avalonia]
+* [Blazor WASM][blazor-wasm]
 * [.NET MAUI][maui]
 * [Uno Platform][uno]
 * [Windows Presentation Framework (WPF)][wpf]
@@ -43,6 +44,7 @@ Find out more about developing datasync applications:
 [org-github]: https://learn.microsoft.com/en-us/dotnet/communitytoolkit/
 [dotnetfdn]: https://dotnetfoundation.org/
 [avalonia]: https://www.avaloniaui.net/
+[blazor-wasm]: https://learn.microsoft.com/en-us/aspnet/core/blazor/webassembly-build-tools-and-aot
 [maui]: https://dotnet.microsoft.com/apps/maui
 [uno]: https://platform.uno/
 [wpf]: https://learn.microsoft.com/dotnet/desktop/wpf/overview/
