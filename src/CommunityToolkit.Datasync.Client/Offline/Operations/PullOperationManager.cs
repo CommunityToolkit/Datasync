@@ -54,86 +54,108 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
 
         QueueHandler<PullResponse> databaseUpdateQueue = new(1, async pullResponse =>
         {
-            if (pullResponse.Items.Any())
+            EntityMetadata? currentMetadata = null;
+
+            try
             {
-                DateTimeOffset lastSynchronization = await DeltaTokenStore.GetDeltaTokenAsync(pullResponse.QueryId, cancellationToken).ConfigureAwait(false);
-                foreach (object item in pullResponse.Items)
+                if (pullResponse.Items.Any())
                 {
-                    EntityMetadata metadata = EntityResolver.GetEntityMetadata(item, pullResponse.EntityType);
-                    object? originalEntity = await context.FindAsync(pullResponse.EntityType, [metadata.Id], cancellationToken).ConfigureAwait(false);
-
-                    if (originalEntity is null && !metadata.Deleted)
+                    DateTimeOffset lastSynchronization = await DeltaTokenStore.GetDeltaTokenAsync(pullResponse.QueryId, cancellationToken).ConfigureAwait(false);
+                    foreach (object item in pullResponse.Items)
                     {
-                        _ = context.Add(item);
-                        result.IncrementAdditions();
-                    }
-                    else if (originalEntity is not null && metadata.Deleted)
-                    {
-                        _ = context.Remove(originalEntity);
-                        result.IncrementDeletions();
-                    }
-                    else if (originalEntity is not null && !metadata.Deleted)
-                    {
-                        // Gather properties marked with [JsonIgnore]
-                        HashSet<string> ignoredProps = pullResponse.EntityType
-                            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                            .Where(p => p.IsDefined(typeof(JsonIgnoreAttribute), inherit: true))
-                            .Select(p => p.Name)
-                            .ToHashSet();
+                        EntityMetadata metadata = EntityResolver.GetEntityMetadata(item, pullResponse.EntityType);
+                        currentMetadata = metadata;
+                        object? originalEntity = await context.FindAsync(pullResponse.EntityType, [metadata.Id], cancellationToken).ConfigureAwait(false);
 
-                        EntityEntry originalEntry = context.Entry(originalEntity);
-                        EntityEntry newEntry = context.Entry(item);
-
-                        // Only copy properties that are not marked with [JsonIgnore]
-                        foreach (IProperty property in originalEntry.Metadata.GetProperties())
+                        if (originalEntity is null && !metadata.Deleted)
                         {
-                            if (!ignoredProps.Contains(property.Name))
+                            _ = context.Add(item);
+                            result.IncrementAdditions();
+                        }
+                        else if (originalEntity is not null && metadata.Deleted)
+                        {
+                            _ = context.Remove(originalEntity);
+                            result.IncrementDeletions();
+                        }
+                        else if (originalEntity is not null && !metadata.Deleted)
+                        {
+                            // Gather properties marked with [JsonIgnore]
+                            HashSet<string> ignoredProps = pullResponse.EntityType
+                                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                                .Where(p => p.IsDefined(typeof(JsonIgnoreAttribute), inherit: true))
+                                .Select(p => p.Name)
+                                .ToHashSet();
+
+                            EntityEntry originalEntry = context.Entry(originalEntity);
+                            EntityEntry newEntry = context.Entry(item);
+
+                            // Only copy properties that are not marked with [JsonIgnore]
+                            foreach (IProperty property in originalEntry.Metadata.GetProperties())
                             {
-                                originalEntry.Property(property.Name).CurrentValue = newEntry.Property(property.Name).CurrentValue;
+                                if (!ignoredProps.Contains(property.Name))
+                                {
+                                    originalEntry.Property(property.Name).CurrentValue = newEntry.Property(property.Name).CurrentValue;
+                                }
+                            }
+
+                            result.IncrementReplacements();
+                        }
+
+                        if (metadata.UpdatedAt > lastSynchronization)
+                        {
+                            lastSynchronization = metadata.UpdatedAt.Value;
+                            bool isAdded = await DeltaTokenStore.SetDeltaTokenAsync(pullResponse.QueryId, metadata.UpdatedAt.Value, cancellationToken).ConfigureAwait(false);
+                            if (isAdded)
+                            {
+                                // Sqlite oddity - you can't add then update; it changes the change type to UPDATE, which then fails.
+                                _ = await context.SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
                             }
                         }
-
-                        result.IncrementReplacements();
+                        currentMetadata = null;
                     }
 
-                    if (metadata.UpdatedAt > lastSynchronization)
+                    if (pullOptions.SaveAfterEveryServiceRequest)
                     {
-                        lastSynchronization = metadata.UpdatedAt.Value;
-                        bool isAdded = await DeltaTokenStore.SetDeltaTokenAsync(pullResponse.QueryId, metadata.UpdatedAt.Value, cancellationToken).ConfigureAwait(false);
-                        if (isAdded)
-                        {
-                            // Sqlite oddity - you can't add then update; it changes the change type to UPDATE, which then fails.
-                            _ = await context.SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
-                        }
+                        _ = await context.SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
                     }
+
+                    context.SendSynchronizationEvent(new SynchronizationEventArgs()
+                    {
+                        EventType = SynchronizationEventType.ItemsCommitted,
+                        EntityType = pullResponse.EntityType,
+                        ItemsProcessed = pullResponse.TotalItemsProcessed,
+                        ItemsTotal = pullResponse.TotalRequestItems,
+                        QueryId = pullResponse.QueryId
+                    });
                 }
 
-                if (pullOptions.SaveAfterEveryServiceRequest)
+                if (pullResponse.Completed)
                 {
-                    _ = await context.SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
+                    context.SendSynchronizationEvent(new SynchronizationEventArgs()
+                    {
+                        EventType = SynchronizationEventType.PullEnded,
+                        EntityType = pullResponse.EntityType,
+                        ItemsProcessed = pullResponse.TotalItemsProcessed,
+                        ItemsTotal = pullResponse.TotalRequestItems,
+                        QueryId = pullResponse.QueryId,
+                        Exception = pullResponse.Exception,
+                        ServiceResponse = pullResponse.Exception is DatasyncPullException ex ? ex.ServiceResponse : null
+                    });
                 }
-
-                context.SendSynchronizationEvent(new SynchronizationEventArgs()
-                {
-                    EventType = SynchronizationEventType.ItemsCommitted,
-                    EntityType = pullResponse.EntityType,
-                    ItemsProcessed = pullResponse.TotalItemsProcessed,
-                    ItemsTotal = pullResponse.TotalRequestItems,
-                    QueryId = pullResponse.QueryId
-                });
             }
-
-            if (pullResponse.Completed)
+            catch (Exception ex)
             {
+                // An exception is thrown in the local processing section of the pull operation.  We can't
+                // handle it properly, so we add it to the result and send a synchronization event to allow
+                // the developer to capture the exception.
+                result.AddLocalException(currentMetadata, ex);
                 context.SendSynchronizationEvent(new SynchronizationEventArgs()
                 {
-                    EventType = SynchronizationEventType.PullEnded,
+                    EventType = SynchronizationEventType.LocalException,
                     EntityType = pullResponse.EntityType,
-                    ItemsProcessed = pullResponse.TotalItemsProcessed,
-                    ItemsTotal = pullResponse.TotalRequestItems,
                     QueryId = pullResponse.QueryId,
-                    Exception = pullResponse.Exception,
-                    ServiceResponse = pullResponse.Exception is DatasyncPullException ex ? ex.ServiceResponse : null
+                    Exception = ex,
+                    EntityMetadata = currentMetadata
                 });
             }
         });
@@ -188,6 +210,20 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
             {
                 result.AddFailedRequest(requestUri, ex.ServiceResponse);
                 databaseUpdateQueue.Enqueue(new PullResponse(pullRequest.EntityType, pullRequest.QueryId, [], totalCount, itemsProcessed, true, ex));
+            }
+            catch (Exception localex)
+            {
+                // An exception is thrown that is locally generated.  We can't handle it properly, so we
+                // add it to the result and send a synchronization event to allow the developer to capture
+                // the exception.
+                result.AddLocalException(null, localex);
+                context.SendSynchronizationEvent(new SynchronizationEventArgs()
+                {
+                    EventType = SynchronizationEventType.LocalException,
+                    EntityType = pullRequest.EntityType,
+                    QueryId = pullRequest.QueryId,
+                    Exception = localex
+                });
             }
         });
 

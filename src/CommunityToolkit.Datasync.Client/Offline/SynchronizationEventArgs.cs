@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Serialization;
+
 namespace CommunityToolkit.Datasync.Client.Offline;
 
 /// <summary>
@@ -14,6 +16,7 @@ public enum SynchronizationEventType
     /// </summary>
     /// <remarks><see cref="SynchronizationEventArgs.ItemsProcessed"/> is not yet known here</remarks>
     PullStarted,
+
     /// <summary>
     /// Occurs when items have been successfully fetched from the server.
     /// </summary>
@@ -30,18 +33,26 @@ public enum SynchronizationEventType
     /// Pull for the given entity ended.
     /// </summary>
     PullEnded,
+
     /// <summary>
     /// Push operation started.
     /// </summary>
     PushStarted,
+
     /// <summary>
     /// An item was pushed to the server
     /// </summary>
     PushItem,
+
     /// <summary>
     /// Push operation ended.
     /// </summary>
     PushEnded,
+
+    /// <summary>
+    /// A local exception was thrown during pull operations.
+    /// </summary>
+    LocalException,
 }
 
 /// <summary>
@@ -94,4 +105,9 @@ public class SynchronizationEventArgs
     /// The operation that was executed. Not used on pull events.
     /// </summary>
     public DatasyncOperation? PushOperation { get; init; }
+
+    /// <summary>
+    /// The local metadata of the entity being modified during local exceptions.
+    /// </summary>
+    public EntityMetadata? EntityMetadata { get; init; }
 }
