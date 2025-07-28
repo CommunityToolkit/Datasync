@@ -7,7 +7,7 @@ namespace CommunityToolkit.Datasync.Client.Serialization;
 /// <summary>
 /// A representation of just the metadata for an entity.
 /// </summary>
-internal class EntityMetadata
+public class EntityMetadata
 {
     /// <summary>
     /// The globally unique ID of the entity.
