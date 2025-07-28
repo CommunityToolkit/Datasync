@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Client.Offline.Models;
+using System.Net;
 using System.Net.Http.Headers;
 
 namespace CommunityToolkit.Datasync.Client.Offline.Operations;
@@ -29,6 +30,16 @@ internal class DeleteOperation(DatasyncOperation operation) : ExecutableOperatio
         }
 
         using HttpResponseMessage response = await options.HttpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
-        return new ServiceResponse(response);
+        ServiceResponse serviceResponse = new(response);
+
+        // #397 - if the response is 404 (Not Found) or 410 (Gone), we return a successful response
+        //        since the item was deleted on the server.
+        if (response.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Gone)
+        {
+            // Convert the response to a successful response
+            serviceResponse.StatusCode = (int)HttpStatusCode.NoContent;
+        }
+
+        return serviceResponse;
     }
 }
