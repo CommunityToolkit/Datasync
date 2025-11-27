@@ -6,7 +6,7 @@ using CommunityToolkit.Datasync.Server.Filters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace CommunityToolkit.Datasync.Server.OpenApi;
 
@@ -108,6 +108,8 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
         Type entityType = GetEntityType(context);
 
         operation.AddRequestBody(context.GetSchemaForType(entityType));
+
+        operation.Responses ??= new OpenApiResponses();
 
         operation.Responses.AddEntityResponse(StatusCodes.Status201Created,
             context.GetSchemaForType(entityType), includeConditionalHeaders: true);

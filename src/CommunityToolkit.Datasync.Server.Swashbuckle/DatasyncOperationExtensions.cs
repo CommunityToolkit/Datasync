@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace CommunityToolkit.Datasync.Server.Swashbuckle;
 
@@ -24,13 +24,15 @@ internal static class DatasyncOperationExtensions
             ? "Conditionally execute only if the entity version does not match the provided string (RFC 9110 13.1.2)."
             : "Conditionally execute only if the entity version matches the provided string (RFC 9110 13.1.1).";
 
+        operation.Parameters ??= new List<IOpenApiParameter>();
+
         operation.Parameters.Add(new OpenApiParameter
         {
             Name = headerName,
             Description = description,
             In = ParameterLocation.Header,
             Required = false,
-            Schema = new OpenApiSchema { Type = "string" }
+            Schema = new OpenApiSchema { Type = JsonSchemaType.String }
         });
     }
 
@@ -41,8 +43,10 @@ internal static class DatasyncOperationExtensions
     /// <param name="parameterName">The name of the query parameter.</param>
     /// <param name="parameterType">The OpenAPI type for the query parameter.</param>
     /// <param name="description">The OpenAPI description for the query parameter.</param>
-    internal static void AddODataQueryParameter(this OpenApiOperation operation, string parameterName, string parameterType, string description)
+    internal static void AddODataQueryParameter(this OpenApiOperation operation, string parameterName, JsonSchemaType parameterType, string description)
     {
+        operation.Parameters ??= new List<IOpenApiParameter>();
+
         operation.Parameters.Add(new OpenApiParameter
         {
             Name = parameterName,
@@ -59,13 +63,13 @@ internal static class DatasyncOperationExtensions
     /// <param name="operation">The <see cref="OpenApiOperation"/> reference.</param>
     internal static void AddODataQueryParameters(this OpenApiOperation operation)
     {
-        operation.AddODataQueryParameter("$count", "boolean", "If true, return the total number of items matched by the filter");
-        operation.AddODataQueryParameter("$filter", "string", "An OData filter describing the entities to be returned");
-        operation.AddODataQueryParameter("$orderby", "string", "A comma-separated list of ordering instructions.  Each ordering instruction is a field name with an optional direction (asc or desc).");
-        operation.AddODataQueryParameter("$select", "string", "A comma-separated list of fields to be returned in the result set.");
-        operation.AddODataQueryParameter("$skip", "integer", "The number of items in the list to skip for paging support.");
-        operation.AddODataQueryParameter("$top", "integer", "The number of items in the list to return for paging support.");
-        operation.AddODataQueryParameter("__includedeleted", "boolean", "If true, soft-deleted items are returned as well as non-deleted items.");
+        operation.AddODataQueryParameter("$count", JsonSchemaType.Boolean, "If true, return the total number of items matched by the filter");
+        operation.AddODataQueryParameter("$filter", JsonSchemaType.String, "An OData filter describing the entities to be returned");
+        operation.AddODataQueryParameter("$orderby", JsonSchemaType.String, "A comma-separated list of ordering instructions.  Each ordering instruction is a field name with an optional direction (asc or desc).");
+        operation.AddODataQueryParameter("$select", JsonSchemaType.String, "A comma-separated list of fields to be returned in the result set.");
+        operation.AddODataQueryParameter("$skip", JsonSchemaType.Integer, "The number of items in the list to skip for paging support.");
+        operation.AddODataQueryParameter("$top", JsonSchemaType.Integer, "The number of items in the list to return for paging support.");
+        operation.AddODataQueryParameter("__includedeleted", JsonSchemaType.Boolean, "If true, soft-deleted items are returned as well as non-deleted items.");
     }
 
     /// <summary>
@@ -75,7 +79,7 @@ internal static class DatasyncOperationExtensions
     /// <param name="statusCode">The HTTP status code to model.</param>
     /// <param name="description">The description of the HTTP status code.</param>
     /// <param name="schema">The schema of the entity to return.</param>
-    internal static void AddResponseWithContent(this OpenApiOperation operation, string statusCode, string description, OpenApiSchema schema)
+    internal static void AddResponseWithContent(this OpenApiOperation operation, string statusCode, string description, IOpenApiSchema schema)
     {
         OpenApiResponse response = new()
         {
@@ -88,11 +92,15 @@ internal static class DatasyncOperationExtensions
         string etagDescription = statusCode is "409" or "412"
             ? "The opaque versioning identifier of the conflicting entity"
             : "The opaque versioning identifier of the entity";
+        response.Headers ??= new Dictionary<string, IOpenApiHeader>();
+
         response.Headers.Add("ETag", new OpenApiHeader
         {
-            Schema = new OpenApiSchema { Type = "string" },
+            Schema = new OpenApiSchema { Type = JsonSchemaType.String },
             Description = $"{etagDescription}, per RFC 9110 8.8.3."
         });
+        operation.Responses ??= new OpenApiResponses();
+
         operation.Responses[statusCode] = response;
     }
     /// <summary>
@@ -100,7 +108,7 @@ internal static class DatasyncOperationExtensions
     /// </summary>
     /// <param name="operation">The <see cref="OpenApiOperation"/> to modify.</param>
     /// <param name="schema">The schema of the entity in the request.</param>
-    internal static void AddRequestWithContent(this OpenApiOperation operation, OpenApiSchema schema)
+    internal static void AddRequestWithContent(this OpenApiOperation operation, IOpenApiSchema schema)
     {
         operation.RequestBody = new OpenApiRequestBody
         {
@@ -119,7 +127,7 @@ internal static class DatasyncOperationExtensions
     /// </summary>
     /// <param name="operation">The <see cref="OpenApiOperation"/> to modify.</param>
     /// <param name="schema">The schema of the entity to return.</param>
-    internal static void AddConflictResponse(this OpenApiOperation operation, OpenApiSchema schema)
+    internal static void AddConflictResponse(this OpenApiOperation operation, IOpenApiSchema schema)
     {
         operation.AddResponseWithContent("409", "Conflict", schema);
         operation.AddResponseWithContent("412", "Precondition failed", schema);
@@ -129,13 +137,13 @@ internal static class DatasyncOperationExtensions
     /// Makes the system properties in the schema read-only.
     /// </summary>
     /// <param name="schema">The <see cref="OpenApiSchema"/> to edit.</param>
-    public static void MakeSystemPropertiesReadonly(this OpenApiSchema schema)
+    public static void MakeSystemPropertiesReadonly(this IOpenApiSchema schema)
     {
-        foreach (KeyValuePair<string, OpenApiSchema> property in schema.Properties)
+        foreach (KeyValuePair<string, IOpenApiSchema> property in schema.Properties ?? new Dictionary<string, IOpenApiSchema>())
         {
-            if (SystemProperties.Contains(property.Key))
+            if (SystemProperties.Contains(property.Key) && property.Value is OpenApiSchema prop)
             {
-                property.Value.ReadOnly = true;
+                prop.ReadOnly = true;
             }
         }
     }

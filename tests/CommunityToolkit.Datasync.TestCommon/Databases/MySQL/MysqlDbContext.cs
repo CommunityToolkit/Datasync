@@ -18,7 +18,7 @@ public class MysqlDbContext(DbContextOptions<MysqlDbContext> options) : BaseDbCo
         }
 
         DbContextOptionsBuilder<MysqlDbContext> optionsBuilder = new DbContextOptionsBuilder<MysqlDbContext>()
-            .UseMySql(connectionString: connectionString, serverVersion: ServerVersion.AutoDetect(connectionString), options => options.EnableRetryOnFailure())
+            //.UseMySql(connectionString: connectionString, serverVersion: ServerVersion.AutoDetect(connectionString), options => options.EnableRetryOnFailure())
             .EnableLogging(output);
         MysqlDbContext context = new(optionsBuilder.Options);
 

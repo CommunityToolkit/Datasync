@@ -4,9 +4,9 @@
 
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
 using System.Net.Mime;
+using Microsoft.OpenApi;
+using System.Text.Json.Nodes;
 
 namespace CommunityToolkit.Datasync.Server.OpenApi;
 
@@ -22,13 +22,15 @@ internal static class InternalExtensions
     /// <param name="bodySchema">The schema for the entity in the body.</param>
     internal static void AddRequestBody(this OpenApiOperation operation, OpenApiSchema bodySchema)
     {
-        operation.RequestBody ??= new OpenApiRequestBody();
-        operation.RequestBody.Content.Add(MediaTypeNames.Application.Json, new OpenApiMediaType
+        OpenApiRequestBody requestBody = new();
+        requestBody.Content ??= new Dictionary<string, OpenApiMediaType>();
+        requestBody.Content.Add(MediaTypeNames.Application.Json, new OpenApiMediaType
         {
             Schema = bodySchema
         });
-        operation.RequestBody.Description = "The entity to process.";
-        operation.RequestBody.Required = true;
+        requestBody.Description = "The entity to process.";
+        requestBody.Required = true;
+        operation.RequestBody ??= requestBody;
     }
 
     /// <summary>
@@ -37,7 +39,7 @@ internal static class InternalExtensions
     /// <param name="parameters">The parameters collection.</param>
     /// <param name="paramName">The parameter name.</param>
     /// <param name="description">The parameter description.</param>
-    internal static void AddBooleanQueryParameter(this IList<OpenApiParameter> parameters, string paramName, string description)
+    internal static void AddBooleanQueryParameter(this IList<IOpenApiParameter> parameters, string paramName, string description)
     {
         parameters.Add(new OpenApiParameter
         {
@@ -47,8 +49,8 @@ internal static class InternalExtensions
             Required = false,
             Schema = new OpenApiSchema
             {
-                Type = "string",
-                Enum = [new OpenApiString("true"), new OpenApiString("false")]
+                Type = JsonSchemaType.String,
+                Enum = ["true", "false"]
             }
         });
     }
@@ -59,7 +61,7 @@ internal static class InternalExtensions
     /// <param name="parameters">The parameters collection.</param>
     /// <param name="headerName">The parameter name.</param>
     /// <param name="description">The parameter description.</param>
-    internal static void AddDateTimeHeader(this IList<OpenApiParameter> parameters, string headerName, string description)
+    internal static void AddDateTimeHeader(this IList<IOpenApiParameter> parameters, string headerName, string description)
     {
         parameters.Add(new OpenApiParameter
         {
@@ -67,7 +69,7 @@ internal static class InternalExtensions
             In = ParameterLocation.Header,
             Description = description,
             Required = false,
-            Schema = new OpenApiSchema { Type = "string", Format = "date-time" }
+            Schema = new OpenApiSchema { Type = JsonSchemaType.String, Format = "date-time" }
         });
     }
 
@@ -91,17 +93,17 @@ internal static class InternalExtensions
                     Schema = schema
                 }
             },
-            Headers = includeConditionalHeaders ? new Dictionary<string, OpenApiHeader>
+            Headers = includeConditionalHeaders ? new Dictionary<string, IOpenApiHeader>
             {
                 ["ETag"] = new OpenApiHeader
                 {
                     Description = "The ETag value for the entity",
-                    Schema = new OpenApiSchema { Type = "string" }
+                    Schema = new OpenApiSchema { Type = JsonSchemaType.String }
                 },
                 ["Last-Modified"] = new OpenApiHeader
                 {
                     Description = "The last modified timestamp for the entity",
-                    Schema = new OpenApiSchema { Type = "string", Format = "date-time" }
+                    Schema = new OpenApiSchema { Type = JsonSchemaType.String, Format = "date-time" }
                 }
             } : null
         };
@@ -112,35 +114,35 @@ internal static class InternalExtensions
     /// Adds the <c>__includeDeleted</c> query parameter to the operation.
     /// </summary>
     /// <param name="parameters">The parameters list to modify.</param>
-    internal static void AddIncludeDeletedQuery(this IList<OpenApiParameter> parameters)
+    internal static void AddIncludeDeletedQuery(this IList<IOpenApiParameter> parameters)
         => parameters.AddBooleanQueryParameter("__includeDeleted", "Include deleted items in the response ('true' or 'false').");
 
     /// <summary>
     /// Adds the <c>If-Modified-Since</c> header to the operation.
     /// </summary>
     /// <param name="parameters">The parameters list to modify.</param>
-    internal static void AddIfModifiedSinceHeader(this IList<OpenApiParameter> parameters)
+    internal static void AddIfModifiedSinceHeader(this IList<IOpenApiParameter> parameters)
         => parameters.AddDateTimeHeader("If-Modified-Since", "Timestamp to conditionally fetch the entity");
 
     /// <summary>
     /// Adds the <c>If-Modified-Since</c> header to the operation.
     /// </summary>
     /// <param name="parameters">The parameters list to modify.</param>
-    internal static void AddIfUnmodifiedSinceHeader(this IList<OpenApiParameter> parameters)
+    internal static void AddIfUnmodifiedSinceHeader(this IList<IOpenApiParameter> parameters)
         => parameters.AddDateTimeHeader("If-Unmodified-Since", "Timestamp to conditionally fetch the entity");
 
     /// <summary>
     /// Adds the <c>If-None-Match</c> header to the operation.
     /// </summary>
     /// <param name="parameters">The parameters list to modify.</param>
-    internal static void AddIfNoneMatchHeader(this IList<OpenApiParameter> parameters)
+    internal static void AddIfNoneMatchHeader(this IList<IOpenApiParameter> parameters)
         => parameters.AddStringHeader("If-None-Match", "ETag value to conditionally fetch the entity");
 
     /// <summary>
     /// Adds the <c>If-Match</c> header to the operation.
     /// </summary>
     /// <param name="parameters">The parameters list to modify.</param>
-    internal static void AddIfMatchHeader(this IList<OpenApiParameter> parameters)
+    internal static void AddIfMatchHeader(this IList<IOpenApiParameter> parameters)
         => parameters.AddStringHeader("If-Match", "ETag value to conditionally fetch the entity");
 
     /// <summary>
@@ -150,7 +152,7 @@ internal static class InternalExtensions
     /// <param name="paramName">The parameter name.</param>
     /// <param name="description">The parameter description.</param>
     /// <param name="minValue">The minimum value for the parameter.</param>
-    internal static void AddIntQueryParameter(this IList<OpenApiParameter> parameters, string paramName, string description, int minValue = 0)
+    internal static void AddIntQueryParameter(this IList<IOpenApiParameter> parameters, string paramName, string description, int minValue = 0)
     {
         parameters.Add(new OpenApiParameter
         {
@@ -158,7 +160,7 @@ internal static class InternalExtensions
             In = ParameterLocation.Query,
             Description = description,
             Required = false,
-            Schema = new OpenApiSchema { Type = "integer", Minimum = minValue }
+            Schema = new OpenApiSchema { Type = JsonSchemaType.Integer, Minimum = minValue.ToString() }
         });
     }
 
@@ -176,7 +178,7 @@ internal static class InternalExtensions
     /// <param name="parameters">The parameters collection.</param>
     /// <param name="headerName">The parameter name.</param>
     /// <param name="description">The parameter description.</param>
-    internal static void AddStringHeader(this IList<OpenApiParameter> parameters, string headerName, string description)
+    internal static void AddStringHeader(this IList<IOpenApiParameter> parameters, string headerName, string description)
     {
         parameters.Add(new OpenApiParameter
         {
@@ -184,7 +186,7 @@ internal static class InternalExtensions
             In = ParameterLocation.Header,
             Description = description,
             Required = false,
-            Schema = new OpenApiSchema { Type = "string" }
+            Schema = new OpenApiSchema { Type = JsonSchemaType.String }
         });
     }
 
@@ -194,7 +196,7 @@ internal static class InternalExtensions
     /// <param name="parameters">The parameters collection.</param>
     /// <param name="paramName">The parameter name.</param>
     /// <param name="description">The parameter description.</param>
-    internal static void AddStringQueryParameter(this IList<OpenApiParameter> parameters, string paramName, string description)
+    internal static void AddStringQueryParameter(this IList<IOpenApiParameter> parameters, string paramName, string description)
     {
         parameters.Add(new OpenApiParameter
         {
@@ -202,7 +204,7 @@ internal static class InternalExtensions
             In = ParameterLocation.Query,
             Description = description,
             Required = false,
-            Schema = new OpenApiSchema { Type = "string" }
+            Schema = new OpenApiSchema { Type = JsonSchemaType.String }
         });
     }
 
@@ -217,7 +219,7 @@ internal static class InternalExtensions
     internal static OpenApiSchema GetSchemaForType(this OpenApiOperationTransformerContext context, Type type)
     {
         // TODO: Add support for retrieving schemas.
-        return new OpenApiSchema { Type = "object" };
+        return new OpenApiSchema { Type = JsonSchemaType.Object };
     }
 
     /// <summary>

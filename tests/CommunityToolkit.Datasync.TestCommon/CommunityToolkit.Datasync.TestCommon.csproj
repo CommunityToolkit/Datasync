@@ -19,7 +19,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Spatial" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" />
     <PackageReference Include="TestContainers.MongoDb" />
     <PackageReference Include="TestContainers.MsSql" />
     <PackageReference Include="TestContainers.MySql" />

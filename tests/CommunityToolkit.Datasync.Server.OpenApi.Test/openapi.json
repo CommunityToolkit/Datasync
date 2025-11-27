@@ -1,5 +1,5 @@
 {
-  "openapi": "3.0.1",
+  "openapi": "3.1.1",
   "info": {
     "title": "CommunityToolkit.Datasync.Server.OpenApi.Test | v1",
     "version": "1.0.0"
@@ -1193,7 +1193,6 @@
       }
     }
   },
-  "components": { },
   "tags": [
     {
       "name": "KitchenReader"
