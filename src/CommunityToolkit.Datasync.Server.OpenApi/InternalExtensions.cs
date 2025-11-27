@@ -20,7 +20,7 @@ internal static class InternalExtensions
     /// </summary>
     /// <param name="operation">The operation to modify.</param>
     /// <param name="bodySchema">The schema for the entity in the body.</param>
-    internal static void AddRequestBody(this OpenApiOperation operation, OpenApiSchema bodySchema)
+    internal static void AddRequestBody(this OpenApiOperation operation, IOpenApiSchema bodySchema)
     {
         OpenApiRequestBody requestBody = new();
         requestBody.Content ??= new Dictionary<string, OpenApiMediaType>();
@@ -49,8 +49,7 @@ internal static class InternalExtensions
             Required = false,
             Schema = new OpenApiSchema
             {
-                Type = JsonSchemaType.String,
-                Enum = ["true", "false"]
+                Type = JsonSchemaType.Boolean
             }
         });
     }
@@ -81,7 +80,7 @@ internal static class InternalExtensions
     /// <param name="schema">The schema of the entity.</param>
     /// <param name="includeConditionalHeaders">If true, include the headers for conditional access.</param>
     internal static void AddEntityResponse(this OpenApiResponses responses,
-        int statusCode, OpenApiSchema schema, bool includeConditionalHeaders = true)
+        int statusCode, IOpenApiSchema schema, bool includeConditionalHeaders = true)
     {
         OpenApiResponse response = new()
         {
@@ -208,18 +207,16 @@ internal static class InternalExtensions
         });
     }
 
-    /// <summary>
-    /// Retrieves the schema for a given type.  If the schema is not found, it is generated.  If the schema
-    /// cannot be generated, an exception is thrown.
-    /// </summary>
-    /// <param name="context">The operation context.</param>
-    /// <param name="type">The entity type.</param>
-    /// <returns>The schema for the entity type.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the schema cannot be found or generated.</exception>
-    internal static OpenApiSchema GetSchemaForType(this OpenApiOperationTransformerContext context, Type type)
+    private static readonly string[] SystemProperties = ["updatedAt", "version", "deleted"];
+    internal static void MakeSystemPropertiesReadonly(this OpenApiSchema schema)
     {
-        // TODO: Add support for retrieving schemas.
-        return new OpenApiSchema { Type = JsonSchemaType.Object };
+        foreach (KeyValuePair<string, IOpenApiSchema> property in schema.Properties ?? new Dictionary<string, IOpenApiSchema>())
+        {
+            if (SystemProperties.Contains(property.Key) && property.Value is OpenApiSchema prop)
+            {
+                prop.ReadOnly = true;
+            }
+        }
     }
 
     /// <summary>
