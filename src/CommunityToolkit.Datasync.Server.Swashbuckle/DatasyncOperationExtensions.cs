@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using Microsoft.OpenApi;
+using System;
 
 namespace CommunityToolkit.Datasync.Server.Swashbuckle;
 
@@ -78,7 +79,7 @@ internal static class DatasyncOperationExtensions
     /// <param name="statusCode">The HTTP status code to model.</param>
     /// <param name="description">The description of the HTTP status code.</param>
     /// <param name="schema">The schema of the entity to return.</param>
-    internal static void AddResponseWithContent(this OpenApiOperation operation, string statusCode, string description, OpenApiSchema schema)
+    internal static void AddResponseWithContent(this OpenApiOperation operation, string statusCode, string description, IOpenApiSchema schema)
     {
         OpenApiResponse response = new()
         {
@@ -107,7 +108,7 @@ internal static class DatasyncOperationExtensions
     /// </summary>
     /// <param name="operation">The <see cref="OpenApiOperation"/> to modify.</param>
     /// <param name="schema">The schema of the entity in the request.</param>
-    internal static void AddRequestWithContent(this OpenApiOperation operation, OpenApiSchema schema)
+    internal static void AddRequestWithContent(this OpenApiOperation operation, IOpenApiSchema schema)
     {
         operation.RequestBody = new OpenApiRequestBody
         {
@@ -126,7 +127,7 @@ internal static class DatasyncOperationExtensions
     /// </summary>
     /// <param name="operation">The <see cref="OpenApiOperation"/> to modify.</param>
     /// <param name="schema">The schema of the entity to return.</param>
-    internal static void AddConflictResponse(this OpenApiOperation operation, OpenApiSchema schema)
+    internal static void AddConflictResponse(this OpenApiOperation operation, IOpenApiSchema schema)
     {
         operation.AddResponseWithContent("409", "Conflict", schema);
         operation.AddResponseWithContent("412", "Precondition failed", schema);
@@ -136,7 +137,7 @@ internal static class DatasyncOperationExtensions
     /// Makes the system properties in the schema read-only.
     /// </summary>
     /// <param name="schema">The <see cref="OpenApiSchema"/> to edit.</param>
-    public static void MakeSystemPropertiesReadonly(this OpenApiSchema schema)
+    public static void MakeSystemPropertiesReadonly(this IOpenApiSchema schema)
     {
         foreach (KeyValuePair<string, IOpenApiSchema> property in schema.Properties!)
         {

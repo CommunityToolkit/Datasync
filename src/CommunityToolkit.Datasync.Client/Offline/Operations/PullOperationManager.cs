@@ -111,6 +111,7 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
                                 _ = await context.SaveChangesAsync(true, false, cancellationToken).ConfigureAwait(false);
                             }
                         }
+
                         currentMetadata = null;
                     }
 

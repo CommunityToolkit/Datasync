@@ -7,7 +7,7 @@
     <DotNetVersion>10.0.0</DotNetVersion>
     <EFCoreVersion>10.0.0</EFCoreVersion>
     <TestContainersVersion>4.9.0</TestContainersVersion>
-    <ODataVersion>9.0.0-preview.3</ODataVersion>
+    <ODataVersion>8.4.3</ODataVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="AutoMapper" Version="13.0.1" />
@@ -16,7 +16,7 @@
     <PackageVersion Include="FluentAssertions.Web" Version="1.9.5" />
     <PackageVersion Include="LiteDB" Version="5.0.21" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(DotNetVersion)" />
-    <PackageVersion Include="Microsoft.AspNetCore.OData" Version="10.0.0-preview.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.4.1" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(DotNetVersion)" />
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.56.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EFCoreVersion)" />
@@ -24,6 +24,8 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="$(EFCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Proxies" Version="$(EFCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EFCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Proxies" Version="$(EFCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(EFCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFCoreVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="$(EFCoreVersion)" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(EFCoreVersion)" />
