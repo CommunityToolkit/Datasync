@@ -6,7 +6,7 @@ using CommunityToolkit.Datasync.Server.Filters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace CommunityToolkit.Datasync.Server.OpenApi;
 
@@ -15,6 +15,11 @@ namespace CommunityToolkit.Datasync.Server.OpenApi;
 /// </summary>
 public class DatasyncOperationTransformer : IOpenApiOperationTransformer
 {
+    /// <summary>
+    /// The list of processed entity names (which are those we have added to the schema already).
+    /// </summary>
+    private readonly List<string> processedEntityNames = [];
+
     /// <inheritdoc />
     public async Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
     {
@@ -70,6 +75,35 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
         => context.Description.ActionDescriptor.FilterDescriptors.Any(fd => fd.Filter is DatasyncControllerAttribute);
 
     /// <summary>
+    /// Adds a schema for the given type if it is not already processed.
+    /// </summary>
+    /// <param name="context">The transformer context holding the OpenApi document.</param>
+    /// <param name="entityType">The entity type to add.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    internal async Task AddSchemaIfNotProcessedAsync(OpenApiOperationTransformerContext context, Type entityType, CancellationToken cancellationToken)
+    {
+        if (this.processedEntityNames.Contains(entityType.Name))
+        {
+            return;
+        }
+
+        OpenApiSchema schema = await context.GetOrCreateSchemaAsync(entityType, cancellationToken: cancellationToken).ConfigureAwait(false);
+        schema.SetSystemPropertiesReadonly();
+        _ = context.Document!.AddComponent(entityType.Name, schema);
+
+        Type pagedEntityType = typeof(PagedResult<>).MakeGenericType(entityType);
+        OpenApiSchema pagedSchema = await context.GetOrCreateSchemaAsync(pagedEntityType, cancellationToken: cancellationToken).ConfigureAwait(false);
+        pagedSchema.SetSchemaPropertyReadonly("items");
+        pagedSchema.SetSchemaItemsReference("items", new OpenApiSchemaReference(entityType.Name, context.Document));
+        pagedSchema.SetSchemaPropertyReadonly("count");
+        pagedSchema.SetSchemaPropertyReadonly("nextLink");
+        pagedSchema.AdditionalPropertiesAllowed = false;
+        _ = context.Document.AddComponent($"{entityType.Name}Page", pagedSchema);
+
+        this.processedEntityNames.Add(entityType.Name);
+    }
+
+    /// <summary>
     /// Retrieves the entity type for the controller.
     /// </summary>
     /// <param name="context">The transformer context.</param>
@@ -97,27 +131,38 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
     }
 
     /// <summary>
+    /// Gets a reference to the schema for the given entity type, adding it to the document if needed.
+    /// </summary>
+    /// <param name="context">the transformer context holding the document.</param>
+    /// <param name="entityType">The entity type being referenced.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>A task that returns the schema reference when resolved.</returns>
+    internal async Task<OpenApiSchemaReference> GetSchemaReferenceAsync(OpenApiOperationTransformerContext context, Type entityType, CancellationToken cancellationToken)
+    {
+        context.ThrowIfDocumentIsUnavailable();
+        await AddSchemaIfNotProcessedAsync(context, entityType, cancellationToken).ConfigureAwait(false);
+        return new OpenApiSchemaReference(entityType.Name, context.Document);
+    }
+
+    /// <summary>
     /// Transforms a create operation.
     /// </summary>
     /// <param name="operation">The operation to transform.</param>
     /// <param name="context">The operation transformer context.</param>
     /// <param name="cancellationToken">A cancellation token to observe.</param>
     /// <returns>A task that resolves when the operation is complete.</returns>
-    internal Task TransformCreateAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
+    internal async Task TransformCreateAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
     {
         Type entityType = GetEntityType(context);
+        OpenApiSchemaReference schemaRef = await GetSchemaReferenceAsync(context, entityType, cancellationToken).ConfigureAwait(false);
 
-        operation.AddRequestBody(context.GetSchemaForType(entityType));
+        operation.AddRequestBody(schemaRef);
 
-        operation.Responses.AddEntityResponse(StatusCodes.Status201Created,
-            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
+        operation.Responses ??= [];
+        operation.Responses.AddEntityResponse(StatusCodes.Status201Created, schemaRef, includeConditionalHeaders: true);
         operation.Responses.AddStatusCode(StatusCodes.Status400BadRequest);
-        operation.Responses.AddEntityResponse(StatusCodes.Status409Conflict,
-            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
-        operation.Responses.AddEntityResponse(StatusCodes.Status412PreconditionFailed,
-            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
-
-        return Task.CompletedTask;
+        operation.Responses.AddEntityResponse(StatusCodes.Status409Conflict, schemaRef, includeConditionalHeaders: true);
+        operation.Responses.AddEntityResponse(StatusCodes.Status412PreconditionFailed, schemaRef, includeConditionalHeaders: true);
     }
 
     /// <summary>
@@ -127,9 +172,13 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
     /// <param name="context">The operation transformer context.</param>
     /// <param name="cancellationToken">A cancellation token to observe.</param>
     /// <returns>A task that resolves when the operation is complete.</returns>
-    internal Task TransformDeleteAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
+    internal async Task TransformDeleteAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
     {
         Type entityType = GetEntityType(context);
+        OpenApiSchemaReference schemaRef = await GetSchemaReferenceAsync(context, entityType, cancellationToken).ConfigureAwait(false);
+
+        operation.Parameters ??= [];
+        operation.Responses ??= [];
 
         operation.Parameters.AddIfMatchHeader();
         operation.Parameters.AddIfUnmodifiedSinceHeader();
@@ -137,12 +186,8 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
         operation.Responses.AddStatusCode(StatusCodes.Status400BadRequest);
         operation.Responses.AddStatusCode(StatusCodes.Status404NotFound);
         operation.Responses.AddStatusCode(StatusCodes.Status410Gone);
-        operation.Responses.AddEntityResponse(StatusCodes.Status409Conflict,
-            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
-        operation.Responses.AddEntityResponse(StatusCodes.Status412PreconditionFailed,
-            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
-
-        return Task.CompletedTask;
+        operation.Responses.AddEntityResponse(StatusCodes.Status409Conflict, schemaRef, includeConditionalHeaders: true);
+        operation.Responses.AddEntityResponse(StatusCodes.Status412PreconditionFailed, schemaRef, includeConditionalHeaders: true);
     }
 
     /// <summary>
@@ -152,10 +197,14 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
     /// <param name="context">The operation transformer context.</param>
     /// <param name="cancellationToken">A cancellation token to observe.</param>
     /// <returns>A task that resolves when the operation is complete.</returns>
-    internal Task TransformQueryAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
+    internal async Task TransformQueryAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
     {
         Type entityType = GetEntityType(context);
-        Type pagedEntityType = typeof(PagedResult<>).MakeGenericType(entityType);
+        await AddSchemaIfNotProcessedAsync(context, entityType, cancellationToken).ConfigureAwait(false);
+        OpenApiSchemaReference pagedSchemaRef = new($"{entityType.Name}Page", context.Document!);
+
+        operation.Parameters ??= [];
+        operation.Responses ??= [];
 
         operation.Parameters.AddBooleanQueryParameter("$count", "Whether to include the total count of items matching the query in the result");
         operation.Parameters.AddStringQueryParameter("$filter", "The filter to apply to the query");
@@ -165,11 +214,8 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
         operation.Parameters.AddIntQueryParameter("$top", "The number of items to return", 1);
         operation.Parameters.AddIncludeDeletedQuery();
 
-        operation.Responses.AddEntityResponse(StatusCodes.Status200OK,
-            context.GetSchemaForType(pagedEntityType), includeConditionalHeaders: false);
+        operation.Responses.AddEntityResponse(StatusCodes.Status200OK, pagedSchemaRef, includeConditionalHeaders: false);
         operation.Responses.AddStatusCode(StatusCodes.Status400BadRequest);
-
-        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -179,21 +225,22 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
     /// <param name="context">The operation transformer context.</param>
     /// <param name="cancellationToken">A cancellation token to observe.</param>
     /// <returns>A task that resolves when the operation is complete.</returns>
-    internal Task TransformReadAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
+    internal async Task TransformReadAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
     {
         Type entityType = GetEntityType(context);
+        OpenApiSchemaReference schemaRef = await GetSchemaReferenceAsync(context, entityType, cancellationToken).ConfigureAwait(false);
+
+        operation.Parameters ??= [];
+        operation.Responses ??= [];
 
         operation.Parameters.AddIncludeDeletedQuery();
         operation.Parameters.AddIfNoneMatchHeader();
         operation.Parameters.AddIfModifiedSinceHeader();
 
-        operation.Responses.AddEntityResponse(StatusCodes.Status200OK,
-            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
+        operation.Responses.AddEntityResponse(StatusCodes.Status200OK, schemaRef, includeConditionalHeaders: true);
         operation.Responses.AddStatusCode(StatusCodes.Status304NotModified);
         operation.Responses.AddStatusCode(StatusCodes.Status404NotFound);
         operation.Responses.AddStatusCode(StatusCodes.Status410Gone);
-
-        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -203,25 +250,24 @@ public class DatasyncOperationTransformer : IOpenApiOperationTransformer
     /// <param name="context">The operation transformer context.</param>
     /// <param name="cancellationToken">A cancellation token to observe.</param>
     /// <returns>A task that resolves when the operation is complete.</returns>
-    internal Task TransformReplaceAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
+    internal async Task TransformReplaceAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
     {
         Type entityType = GetEntityType(context);
+        OpenApiSchemaReference schemaRef = await GetSchemaReferenceAsync(context, entityType, cancellationToken).ConfigureAwait(false);
 
-        operation.AddRequestBody(context.GetSchemaForType(entityType));
+        operation.Parameters ??= [];
+        operation.Responses ??= [];
+
+        operation.AddRequestBody(schemaRef);
         operation.Parameters.AddIncludeDeletedQuery();
         operation.Parameters.AddIfMatchHeader();
         operation.Parameters.AddIfUnmodifiedSinceHeader();
 
-        operation.Responses.AddEntityResponse(StatusCodes.Status200OK,
-            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
+        operation.Responses.AddEntityResponse(StatusCodes.Status200OK, schemaRef, includeConditionalHeaders: true);
         operation.Responses.AddStatusCode(StatusCodes.Status400BadRequest);
         operation.Responses.AddStatusCode(StatusCodes.Status404NotFound);
         operation.Responses.AddStatusCode(StatusCodes.Status410Gone);
-        operation.Responses.AddEntityResponse(StatusCodes.Status409Conflict,
-            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
-        operation.Responses.AddEntityResponse(StatusCodes.Status412PreconditionFailed,
-            context.GetSchemaForType(entityType), includeConditionalHeaders: true);
-
-        return Task.CompletedTask;
+        operation.Responses.AddEntityResponse(StatusCodes.Status409Conflict, schemaRef, includeConditionalHeaders: true);
+        operation.Responses.AddEntityResponse(StatusCodes.Status412PreconditionFailed, schemaRef, includeConditionalHeaders: true);
     }
 }
