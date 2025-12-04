@@ -1114,5 +1114,16 @@
         "additionalProperties": false
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "KitchenReader"
+    },
+    {
+      "name": "KitchenSink"
+    },
+    {
+      "name": "TodoItem"
+    }
+  ]
 }

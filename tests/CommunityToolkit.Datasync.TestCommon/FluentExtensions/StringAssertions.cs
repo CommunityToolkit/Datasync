@@ -2,8 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using FluentAssertions.Primitives;
-using FluentAssertions;
+using AwesomeAssertions.Primitives;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Primitives;
 
@@ -13,7 +13,7 @@ namespace CommunityToolkit.Datasync.TestCommon;
 public static class FluentStringAssertions
 {
     /// <summary>
-    /// An extension to FluentAssertions to validate that a string is a GUID.
+    /// An extension to AwesomeAssertions to validate that a string is a GUID.
     /// </summary>
     public static AndConstraint<StringAssertions> BeAGuid(this StringAssertions current, string because = "", params object[] becauseArgs)
     {

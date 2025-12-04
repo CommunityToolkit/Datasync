@@ -4,7 +4,10 @@
 
 using CommunityToolkit.Datasync.Server.OpenApi.Test.Service;
 using CommunityToolkit.Datasync.TestCommon;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -13,12 +16,26 @@ namespace CommunityToolkit.Datasync.Server.OpenApi.Test;
 [ExcludeFromCodeCoverage]
 public class OpenApi_Tests
 {
-    private readonly TestServer server = OpenApiServer.CreateTestServer();
-
     [Fact]
     public async Task GeneratesCorrectOpenApiFile()
     {
-        HttpClient client = this.server.CreateClient();
+        using IHost host = new HostBuilder().ConfigureWebHost(builder =>
+        {
+            builder
+                .UseTestServer()
+                .UseEnvironment("Test")
+                .UseContentRoot(AppContext.BaseDirectory)
+                .UseStartup<ServiceStartup>();
+        }).Build();
+        await host.StartAsync();
+
+        TestServer server = host.GetTestServer();
+
+        using IServiceScope scope = server.Services.CreateScope();
+        ServiceDbContext context = scope.ServiceProvider.GetRequiredService<ServiceDbContext>();
+        context.InitializeDatabase();
+
+        HttpClient client = server.CreateClient();
         string actualContent = (await client.GetStringAsync("openapi/v1.json")).NormalizeContent();
         string expectedContent = Assembly.GetExecutingAssembly().ReadExternalFile("openapi.json");
 

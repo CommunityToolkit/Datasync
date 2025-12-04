@@ -11,12 +11,11 @@
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Test.Helpers;
-using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Mocks;
 using CommunityToolkit.Datasync.TestCommon.Models;
-using FluentAssertions.Equivalency;
-using FluentAssertions.Extensions;
+using AwesomeAssertions.Equivalency;
+using AwesomeAssertions.Extensions;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -3548,7 +3547,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         );
     }
 
-    [Fact]
+    [Fact(Skip = "OData v8.4 does not allow string.contains")]
     public void Linq_Where_String_Contains()
     {
         string[] ratings = ["A", "B"];

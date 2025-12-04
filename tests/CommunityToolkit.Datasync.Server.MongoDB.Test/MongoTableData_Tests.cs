@@ -4,7 +4,7 @@
 
 using CommunityToolkit.Datasync.Common.Test;
 using CommunityToolkit.Datasync.TestCommon;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace CommunityToolkit.Datasync.Server.MongoDB.Test;

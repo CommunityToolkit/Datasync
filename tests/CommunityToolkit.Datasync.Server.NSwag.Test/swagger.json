@@ -15,7 +15,7 @@
         "tags": [
           "KitchenReader"
         ],
-        "summary": "The GET method is used to retrieve resource representation.  The resource is never modified.\nIn this case, an OData v4 query is accepted with the following options:\n\n\n- $count is used to return a count of entities within the search parameters within the  response.\n- $filter is used to restrict the entities to be sent.\n- $orderby is used for ordering the entities to be sent.\n- $select is used to select which properties of the entities are sent.\n- $skip is used to skip some entities\n- $top is used to limit the number of entities returned.\n\n\nIn addition, the __includeDeleted parameter is used to decide whether to include soft-deleted items in the result.",
+        "summary": "The GET method is used to retrieve resource representation.  The resource is never modified.\nIn this case, an OData v4 query is accepted with the following options:\n- $count is used to return a count of entities within the search parameters within the PagedResult response.\n- $filter is used to restrict the entities to be sent.\n- $orderby is used for ordering the entities to be sent.\n- $select is used to select which properties of the entities are sent.\n- $skip is used to skip some entities\n- $top is used to limit the number of entities returned.\nIn addition, the __includeDeleted parameter is used to decide whether to include soft-deleted items in the result.",
         "operationId": "KitchenReader_Query",
         "parameters": [
           {
@@ -295,7 +295,7 @@
         "tags": [
           "KitchenSink"
         ],
-        "summary": "The GET method is used to retrieve resource representation.  The resource is never modified.\nIn this case, an OData v4 query is accepted with the following options:\n\n\n- $count is used to return a count of entities within the search parameters within the  response.\n- $filter is used to restrict the entities to be sent.\n- $orderby is used for ordering the entities to be sent.\n- $select is used to select which properties of the entities are sent.\n- $skip is used to skip some entities\n- $top is used to limit the number of entities returned.\n\n\nIn addition, the __includeDeleted parameter is used to decide whether to include soft-deleted items in the result.",
+        "summary": "The GET method is used to retrieve resource representation.  The resource is never modified.\nIn this case, an OData v4 query is accepted with the following options:\n- $count is used to return a count of entities within the search parameters within the PagedResult response.\n- $filter is used to restrict the entities to be sent.\n- $orderby is used for ordering the entities to be sent.\n- $select is used to select which properties of the entities are sent.\n- $skip is used to skip some entities\n- $top is used to limit the number of entities returned.\nIn addition, the __includeDeleted parameter is used to decide whether to include soft-deleted items in the result.",
         "operationId": "KitchenSink_Query",
         "parameters": [
           {
@@ -750,7 +750,7 @@
         "tags": [
           "TodoItem"
         ],
-        "summary": "The GET method is used to retrieve resource representation.  The resource is never modified.\nIn this case, an OData v4 query is accepted with the following options:\n\n\n- $count is used to return a count of entities within the search parameters within the  response.\n- $filter is used to restrict the entities to be sent.\n- $orderby is used for ordering the entities to be sent.\n- $select is used to select which properties of the entities are sent.\n- $skip is used to skip some entities\n- $top is used to limit the number of entities returned.\n\n\nIn addition, the __includeDeleted parameter is used to decide whether to include soft-deleted items in the result.",
+        "summary": "The GET method is used to retrieve resource representation.  The resource is never modified.\nIn this case, an OData v4 query is accepted with the following options:\n- $count is used to return a count of entities within the search parameters within the PagedResult response.\n- $filter is used to restrict the entities to be sent.\n- $orderby is used for ordering the entities to be sent.\n- $select is used to select which properties of the entities are sent.\n- $skip is used to skip some entities\n- $top is used to limit the number of entities returned.\nIn addition, the __includeDeleted parameter is used to decide whether to include soft-deleted items in the result.",
         "operationId": "TodoItem_Query",
         "parameters": [
           {

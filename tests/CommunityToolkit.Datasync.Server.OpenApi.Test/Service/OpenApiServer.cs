@@ -9,27 +9,9 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace CommunityToolkit.Datasync.Server.OpenApi.Test.Service;
-
-[ExcludeFromCodeCoverage]
-internal static class OpenApiServer
-{
-    internal static TestServer CreateTestServer()
-    {
-        IWebHostBuilder builder = new WebHostBuilder()
-            .UseEnvironment("Test")
-            .UseContentRoot(AppContext.BaseDirectory)
-            .UseStartup<ServiceStartup>();
-        TestServer server = new(builder);
-
-        using IServiceScope scope = server.Services.CreateScope();
-        ServiceDbContext context = scope.ServiceProvider.GetRequiredService<ServiceDbContext>();
-        context.InitializeDatabase();
-
-        return server;
-    }
-}
 
 [ExcludeFromCodeCoverage]
 internal class ServiceStartup

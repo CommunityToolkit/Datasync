@@ -4,7 +4,7 @@
 
 using CommunityToolkit.Datasync.Server.Filters;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -33,8 +33,8 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
     }
 
     // The names of the QueryAsync() and CreateAsync() methods in the TableController<T>.
-    private const string queryMethod = nameof(TableController<ITableData>.QueryAsync);
-    private const string createMethod = nameof(TableController<ITableData>.CreateAsync);
+    private const string queryMethod = nameof(TableController<>.QueryAsync);
+    private const string createMethod = nameof(TableController<>.CreateAsync);
 
     // The list of entity names that have already had their schema adjusted.
     private readonly List<string> processedEntityNames = [];
@@ -51,12 +51,36 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
             if (TryGetTableEntityType(controller, out Type? entityType))
             {
                 string? routePath = GetRoutePathFromContext(context, controller);
-                if (routePath != null)
+                if (routePath is not null)
                 {
                     ProcessController(entityType!, routePath, document, context);
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Adds the schema reference for the entity type if it hasn't already been processed.
+    /// </summary>
+    /// <param name="context">The document filter context.</param>
+    /// <param name="document">The OpenApi document.</param>
+    /// <param name="entityType">The entity type</param>
+    internal void AddSchemaReferenceForEntity(DocumentFilterContext context, OpenApiDocument document, Type entityType)
+    {
+        if (this.processedEntityNames.Contains(entityType.Name))
+        {
+            return;
+        }
+
+        // Generate a schema for the entity if it doesn't exist.
+        if (context.SchemaRepository.Schemas.GetValueOrDefault(entityType.Name) is null)
+        {
+            _ = context.SchemaGenerator.GenerateSchema(entityType, context.SchemaRepository);
+        }
+
+        context.SchemaRepository.Schemas[entityType.Name].MakeSystemPropertiesReadonly();
+        _ = document.AddComponent(entityType.Name, context.SchemaRepository.Schemas[entityType.Name]);
+        this.processedEntityNames.Add(entityType.Name);
     }
 
     /// <summary>
@@ -74,50 +98,37 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
 
         // Get the various operations
         Dictionary<OpType, OpenApiOperation> operations = [];
-        AddOperationIfPresent(operations, OpType.Create, document, allEntitiesPath, OperationType.Post);
-        AddOperationIfPresent(operations, OpType.Delete, document, singleEntityPath, OperationType.Delete);
-        AddOperationIfPresent(operations, OpType.GetById, document, singleEntityPath, OperationType.Get);
-        AddOperationIfPresent(operations, OpType.List, document, allEntitiesPath, OperationType.Get);
-        AddOperationIfPresent(operations, OpType.Replace, document, singleEntityPath, OperationType.Put);
+        AddOperationIfPresent(operations, OpType.Create, document, allEntitiesPath, HttpMethod.Post);
+        AddOperationIfPresent(operations, OpType.Delete, document, singleEntityPath, HttpMethod.Delete);
+        AddOperationIfPresent(operations, OpType.GetById, document, singleEntityPath, HttpMethod.Get);
+        AddOperationIfPresent(operations, OpType.List, document, allEntitiesPath, HttpMethod.Get);
+        AddOperationIfPresent(operations, OpType.Replace, document, singleEntityPath, HttpMethod.Put);
 
-        // Make the system properties in the entity read-only
-        if (!this.processedEntityNames.Contains(entityType.Name))
-        {
-            // Generate a schema for the entity if it doesn't exist.
-            if (context.SchemaRepository.Schemas.GetValueOrDefault(entityType.Name) == null)
-            {
-                _ = context.SchemaGenerator.GenerateSchema(entityType, context.SchemaRepository);
-            }
+        // Add the schema for the entity type if it doesn't already exist.
+        AddSchemaReferenceForEntity(context, document, entityType);
+        IOpenApiSchema schema = new OpenApiSchemaReference(entityType.Name, document);
 
-            // This is a Datasync schema, so update the schema for the datasync attributes.
-            context.SchemaRepository.Schemas[entityType.Name].MakeSystemPropertiesReadonly();
-            context.SchemaRepository.Schemas[entityType.Name].UnresolvedReference = false;
-            context.SchemaRepository.Schemas[entityType.Name].Reference = new OpenApiReference
-            {
-                Id = entityType.Name,
-                Type = ReferenceType.Schema
-            };
-            this.processedEntityNames.Add(entityType.Name);
-        }
-
+        // Create the schema for a list of entities.
         Type listEntityType = typeof(Page<>).MakeGenericType(entityType);
-        OpenApiSchema listSchemaRef = context.SchemaRepository.Schemas.GetValueOrDefault(listEntityType.Name)
+        IOpenApiSchema listSchemaRef = context.SchemaRepository.Schemas.GetValueOrDefault(listEntityType.Name)
             ?? context.SchemaGenerator.GenerateSchema(listEntityType, context.SchemaRepository);
 
         foreach (KeyValuePair<OpType, OpenApiOperation> operation in operations)
         {
+            operation.Value.Responses ??= [];
+
             // Each operation also has certain modifications.
             switch (operation.Key)
             {
                 case OpType.Create:
                     // Request Edits
                     operation.Value.AddConditionalHeader(true);
-                    operation.Value.AddRequestWithContent(context.SchemaRepository.Schemas[entityType.Name]);
+                    operation.Value.AddRequestWithContent(schema);
 
                     // Response Edits
-                    operation.Value.AddResponseWithContent("201", "Created", context.SchemaRepository.Schemas[entityType.Name]);
+                    operation.Value.AddResponseWithContent("201", "Created", schema);
                     operation.Value.Responses["400"] = new OpenApiResponse { Description = "Bad Request" };
-                    operation.Value.AddConflictResponse(context.SchemaRepository.Schemas[entityType.Name]);
+                    operation.Value.AddConflictResponse(schema);
                     break;
 
                 case OpType.Delete:
@@ -128,7 +139,7 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
                     operation.Value.Responses["204"] = new OpenApiResponse { Description = "No Content" };
                     operation.Value.Responses["404"] = new OpenApiResponse { Description = "Not Found" };
                     operation.Value.Responses["410"] = new OpenApiResponse { Description = "Gone" };
-                    operation.Value.AddConflictResponse(context.SchemaRepository.Schemas[entityType.Name]);
+                    operation.Value.AddConflictResponse(schema);
                     break;
 
                 case OpType.GetById:
@@ -136,7 +147,7 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
                     operation.Value.AddConditionalHeader(true);
 
                     // Response Edits
-                    operation.Value.AddResponseWithContent("200", "OK", context.SchemaRepository.Schemas[entityType.Name]);
+                    operation.Value.AddResponseWithContent("200", "OK", schema);
                     operation.Value.Responses["304"] = new OpenApiResponse { Description = "Not Modified" };
                     operation.Value.Responses["404"] = new OpenApiResponse { Description = "Not Found" };
                     break;
@@ -153,14 +164,14 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
                 case OpType.Replace:
                     // Request Edits
                     operation.Value.AddConditionalHeader();
-                    operation.Value.AddRequestWithContent(context.SchemaRepository.Schemas[entityType.Name]);
+                    operation.Value.AddRequestWithContent(schema);
 
                     // Response Edits
-                    operation.Value.AddResponseWithContent("200", "OK", context.SchemaRepository.Schemas[entityType.Name]);
+                    operation.Value.AddResponseWithContent("200", "OK", schema);
                     operation.Value.Responses["400"] = new OpenApiResponse { Description = "Bad Request" };
                     operation.Value.Responses["404"] = new OpenApiResponse { Description = "Not Found" };
                     operation.Value.Responses["410"] = new OpenApiResponse { Description = "Gone" };
-                    operation.Value.AddConflictResponse(context.SchemaRepository.Schemas[entityType.Name]);
+                    operation.Value.AddConflictResponse(schema);
                     break;
             }
         }
@@ -179,14 +190,13 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
     /// <param name="document">The <see cref="OpenApiDocument"/> being processed.</param>
     /// <param name="path">The expected path for the operation type.</param>
     /// <param name="operationType">The operation type being processed.</param>
-    private static void AddOperationIfPresent(Dictionary<OpType, OpenApiOperation> operations, OpType opType, OpenApiDocument document, string path, OperationType operationType)
+    private static void AddOperationIfPresent(Dictionary<OpType, OpenApiOperation> operations, OpType opType, OpenApiDocument document, string path, HttpMethod operationType)
     {
-        if (document.Paths.TryGetValue(path, out OpenApiPathItem? pathValue))
+        if (document.Paths.TryGetValue(path, out IOpenApiPathItem? pathValue)
+            && pathValue.Operations is not null
+            && pathValue.Operations.TryGetValue(operationType, out OpenApiOperation? operation))
         {
-            if (pathValue!.Operations.TryGetValue(operationType, out OpenApiOperation? operation))
-            {
-                operations[opType] = operation!;
-            }
+            operations[opType] = operation!;
         }
     }
 
@@ -228,7 +238,7 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
     /// <param name="assembly">The assembly to query.  Be default, the calling assembly is queried.</param>
     /// <returns>The list of table controllers in the assembly.</returns>
     internal static List<Type> GetAllTableControllers(Assembly? assembly)
-        => (assembly ?? Assembly.GetCallingAssembly()).GetTypes().Where(IsTableController).ToList();
+        => [.. (assembly ?? Assembly.GetCallingAssembly()).GetTypes().Where(IsTableController)];
 
     /// <summary>
     /// Determines if the controller type provided is a datasync table controller.
@@ -237,9 +247,9 @@ public class DatasyncDocumentFilter(Assembly? assemblyToQuery = null) : IDocumen
     /// <returns><c>true</c> if the type is a datasync table controller.</returns>
     internal static bool IsTableController(Type type)
     {
-        if (!type.IsAbstract && type.BaseType != null && type.BaseType.IsGenericType == true)
+        if (!type.IsAbstract && type.BaseType is not null && type.BaseType.IsGenericType == true)
         {
-            if (type.GetCustomAttribute<DatasyncControllerAttribute>() != null)
+            if (type.GetCustomAttribute<DatasyncControllerAttribute>() is not null)
             {
                 return true;
             }

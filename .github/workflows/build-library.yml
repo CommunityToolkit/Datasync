@@ -27,13 +27,13 @@ on:
   workflow_dispatch:
 
 env:
-  DOTNET_VERSION: '9.0.x'
+  DOTNET_VERSION: '10.0.x'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   DOTNET_CONFIGURATION: 'Release'
   NuGetDirectory: ${{ github.workspace }}/nuget
   SolutionFile: 'Datasync.Toolkit.sln'
-  BASE_VERSION: '9.0.0'
+  BASE_VERSION: '10.0.0'
 
 permissions:
   pull-requests: write
