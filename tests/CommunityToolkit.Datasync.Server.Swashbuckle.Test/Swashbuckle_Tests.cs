@@ -2,14 +2,18 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using AwesomeAssertions;
 using CommunityToolkit.Datasync.Server.Swashbuckle.Test.Service;
 using CommunityToolkit.Datasync.TestCommon;
-using AwesomeAssertions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using NSubstitute;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Xunit;
 
 namespace CommunityToolkit.Datasync.Server.Swashbuckle.Test;
@@ -17,20 +21,33 @@ namespace CommunityToolkit.Datasync.Server.Swashbuckle.Test;
 [ExcludeFromCodeCoverage]
 public class Swashbuckle_Tests
 {
-    private readonly TestServer server = SwashbuckleServer.CreateTestServer();
-
     [Fact]
     public async Task Swashbuckle_GeneratesSwagger()
     {
-        HttpClient client = this.server.CreateClient();
+        using IHost host = new HostBuilder().ConfigureWebHost(builder =>
+        {
+            builder
+                .UseTestServer()
+                .UseEnvironment("Test")
+                .UseContentRoot(AppContext.BaseDirectory)
+                .UseStartup<ServiceStartup>();
+        }).Build();
+        await host.StartAsync();
+
+        TestServer server = host.GetTestServer();
+
+        using IServiceScope scope = server.Services.CreateScope();
+        ServiceDbContext context = scope.ServiceProvider.GetRequiredService<ServiceDbContext>();
+        context.InitializeDatabase();
+        HttpClient client = server.CreateClient();
         string actualContent = (await client.GetStringAsync("swagger/v1/swagger.json")).NormalizeContent();
         string expectedContent = Assembly.GetExecutingAssembly().ReadExternalFile("swagger.json");
 
         // There is an x-generator field that is library specific and completely irrelevant
         // to the comparison, so this line will remove it for comparison purposes.
-        //Regex generatorRegex = new("\"x-generator\": \"[^\\\"]+\",");
-        //actualContent = generatorRegex.Replace(actualContent, "", 1);
-        //expectedContent = generatorRegex.Replace(expectedContent, "", 1);
+        Regex generatorRegex = new("\"x-generator\": \"[^\\\"]+\",");
+        actualContent = generatorRegex.Replace(actualContent, "", 1);
+        expectedContent = generatorRegex.Replace(expectedContent, "", 1);
 
         // If the expected content is different, it is really hard to diagnose why.
         // Likelihood is that NSwag changed the formatting, and you just need to

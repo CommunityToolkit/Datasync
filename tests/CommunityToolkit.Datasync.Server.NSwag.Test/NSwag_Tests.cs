@@ -6,8 +6,11 @@
 
 using CommunityToolkit.Datasync.Server.NSwag.Test.Service;
 using CommunityToolkit.Datasync.TestCommon;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using NSwag;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -17,12 +20,26 @@ namespace CommunityToolkit.Datasync.Server.NSwag.Test;
 [ExcludeFromCodeCoverage]
 public class NSwag_Tests
 {
-    private readonly TestServer server = NSwagServer.CreateTestServer();
-
     [Fact]
     public async Task NSwag_GeneratesSwagger()
     {
-        HttpClient client = this.server.CreateClient();
+        using IHost host = new HostBuilder().ConfigureWebHost(builder =>
+        {
+            builder
+                .UseTestServer()
+                .UseEnvironment("Test")
+                .UseContentRoot(AppContext.BaseDirectory)
+                .UseStartup<ServiceStartup>();
+        }).Build();
+        await host.StartAsync();
+
+        TestServer server = host.GetTestServer();
+
+        using IServiceScope scope = server.Services.CreateScope();
+        ServiceDbContext context = scope.ServiceProvider.GetRequiredService<ServiceDbContext>();
+        context.InitializeDatabase();
+
+        HttpClient client = server.CreateClient();
         string actualContent = (await client.GetStringAsync("swagger/v1/swagger.json")).NormalizeContent();
         string expectedContent = Assembly.GetExecutingAssembly().ReadExternalFile("swagger.json");
 
@@ -56,17 +73,16 @@ public class NSwag_Tests
         act.Should().NotThrow();
     }
 
-    [Fact]
-    public void ContainsRequestHeader_ReturnsFalse_WhenQueryParam()
+    [Theory]
+    [InlineData("X-DOES-NOT-EXIST", false)]
+    [InlineData("$count", false)]
+    public void ContainsRequestHeader_ReturnsFalse_WhenQueryParam(string headerName, bool expected)
     {
         OpenApiOperation sut = new();
         sut.AddODataQueryParameters();
 
-        // Something that doesn't exist.
-        sut.ContainsRequestHeader("X-DOES-NOT-EXIST").Should().BeFalse();
-
-        // Something that exists as a query parameter.
-        sut.ContainsRequestHeader("$count").Should().BeFalse();
+        // Check the requested parameters
+        sut.ContainsRequestHeader(headerName).Should().Be(expected);
     }
 
     [Theory]

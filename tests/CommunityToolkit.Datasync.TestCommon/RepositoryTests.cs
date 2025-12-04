@@ -19,9 +19,10 @@ namespace CommunityToolkit.Datasync.TestCommon;
 public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData, IMovie, new()
 {
     /// <summary>
-    /// The time that the current test started.
+    /// The time that the current test started.  Note that we subtrace 1ms to account
+    /// for rounding errors and clock skew.
     /// </summary>
-    protected DateTimeOffset StartTime { get; } = DateTimeOffset.UtcNow;
+    protected DateTimeOffset StartTime { get; } = DateTimeOffset.UtcNow.AddMilliseconds(-1);
 
     /// <summary>
     /// Returns true if all the requirements for live tests are met.

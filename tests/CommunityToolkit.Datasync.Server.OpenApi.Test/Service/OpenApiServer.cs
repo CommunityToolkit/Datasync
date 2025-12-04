@@ -14,29 +14,6 @@ using Microsoft.Extensions.Hosting;
 namespace CommunityToolkit.Datasync.Server.OpenApi.Test.Service;
 
 [ExcludeFromCodeCoverage]
-internal static class OpenApiServer
-{
-    internal static TestServer CreateTestServer()
-    {
-        IHost host = new HostBuilder().ConfigureWebHost(builder =>
-        {
-            builder
-                .UseTestServer()
-                .UseEnvironment("Test")
-                .UseContentRoot(AppContext.BaseDirectory)
-                .UseStartup<ServiceStartup>();
-        }).Build();
-        TestServer server = host.GetTestServer();
-
-        using IServiceScope scope = server.Services.CreateScope();
-        ServiceDbContext context = scope.ServiceProvider.GetRequiredService<ServiceDbContext>();
-        context.InitializeDatabase();
-
-        return server;
-    }
-}
-
-[ExcludeFromCodeCoverage]
 internal class ServiceStartup
 {
     public ServiceStartup(IConfiguration configuration)
