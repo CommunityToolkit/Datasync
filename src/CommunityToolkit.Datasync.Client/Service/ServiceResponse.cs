@@ -84,7 +84,7 @@ public class ServiceResponse
     /// <summary>
     /// The HTTP status code for this response.
     /// </summary>
-    public int StatusCode { get; }
+    public int StatusCode { get; internal set; }
 
     /// <summary>
     /// Tries to get a header returned by the response; returns true if the header exists and false otherwise.
