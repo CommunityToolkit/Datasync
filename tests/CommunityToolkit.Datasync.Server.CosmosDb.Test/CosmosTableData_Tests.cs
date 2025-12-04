@@ -5,7 +5,7 @@
 using CommunityToolkit.Datasync.Common.Test;
 using CommunityToolkit.Datasync.Server.CosmosDb;
 using CommunityToolkit.Datasync.TestCommon;
-using FluentAssertions;
+using AwesomeAssertions;
 
 namespace CommunityToolkit.Datasync.Server.EntityFrameworkCore.Test;
 

@@ -24,7 +24,7 @@ public class PostgreSqlDatabaseFixture : IAsyncLifetime
             .WithUsername("testuser")
             .WithPassword("testpassword")
             .WithDatabase("testdb")
-            .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(5432))
+            .WithWaitStrategy(Wait.ForUnixContainer().UntilExternalTcpPortIsAvailable(5432))
             .Build();
     }
 

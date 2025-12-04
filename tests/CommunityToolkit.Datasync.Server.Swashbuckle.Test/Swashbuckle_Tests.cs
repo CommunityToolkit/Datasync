@@ -4,7 +4,7 @@
 
 using CommunityToolkit.Datasync.Server.Swashbuckle.Test.Service;
 using CommunityToolkit.Datasync.TestCommon;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.TestHost;
 using NSubstitute;

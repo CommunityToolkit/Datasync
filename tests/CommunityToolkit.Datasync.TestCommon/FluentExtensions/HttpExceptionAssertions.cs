@@ -3,8 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using CommunityToolkit.Datasync.Server;
-using FluentAssertions;
-using FluentAssertions.Specialized;
+using AwesomeAssertions;
+using AwesomeAssertions.Specialized;
 
 namespace CommunityToolkit.Datasync.TestCommon;
 
@@ -12,7 +12,7 @@ namespace CommunityToolkit.Datasync.TestCommon;
 public static class FluentHttpExceptionAssertions
 {
     /// <summary>
-    /// An extension to FluentAssertions to validate the payload of a <see cref="HttpException"/>.
+    /// An extension to AwesomeAssertions to validate the payload of a <see cref="HttpException"/>.
     /// </summary>
     public static AndConstraint<ExceptionAssertions<HttpException>> WithPayload(this ExceptionAssertions<HttpException> current, object payload, string because = "", params object[] becauseArgs)
     {
@@ -21,7 +21,7 @@ public static class FluentHttpExceptionAssertions
     }
 
     /// <summary>
-    /// An extension to FluentAssertions to validate the StatusCode of a <see cref="HttpException"/>
+    /// An extension to AwesomeAssertions to validate the StatusCode of a <see cref="HttpException"/>
     /// </summary>
     public static AndConstraint<ExceptionAssertions<HttpException>> WithStatusCode(this ExceptionAssertions<HttpException> current, int statusCode, string because = "", params object[] becauseArgs)
     {

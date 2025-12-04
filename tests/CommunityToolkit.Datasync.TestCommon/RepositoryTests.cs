@@ -6,7 +6,7 @@
 
 using CommunityToolkit.Datasync.Server;
 using CommunityToolkit.Datasync.TestCommon.Models;
-using FluentAssertions;
+using AwesomeAssertions;
 using Xunit;
 
 namespace CommunityToolkit.Datasync.TestCommon;

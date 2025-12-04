@@ -6,7 +6,7 @@ using CommunityToolkit.Datasync.Server.Abstractions.Json;
 using CommunityToolkit.Datasync.Server.CosmosDb.Test.Models;
 using CommunityToolkit.Datasync.Server.CosmosDb.Test.Options;
 using CommunityToolkit.Datasync.TestCommon;
-using FluentAssertions;
+using AwesomeAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using System.Collections.ObjectModel;
