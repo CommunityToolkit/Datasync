@@ -6,8 +6,10 @@
 // a generalized "nullable" option here to allow us to do that.
 #nullable disable
 
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace CommunityToolkit.Datasync.Client.Query.Linq;
 
@@ -17,6 +19,30 @@ namespace CommunityToolkit.Datasync.Client.Query.Linq;
 /// </summary>
 internal static class ExpressionExtensions
 {
+    private static readonly MethodInfo Contains;
+    private static readonly MethodInfo SequenceEqual;
+
+    static ExpressionExtensions()
+    {
+        Dictionary<string, List<MethodInfo>> queryableMethodGroups = typeof(Enumerable)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
+            .GroupBy(mi => mi.Name)
+            .ToDictionary(e => e.Key, l => l.ToList());
+
+        MethodInfo GetMethod(string name, int genericParameterCount, Func<Type[], Type[]> parameterGenerator)
+            => queryableMethodGroups[name].Single(mi => ((genericParameterCount == 0 && !mi.IsGenericMethod)
+                    || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
+                && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
+                    parameterGenerator(mi.IsGenericMethod ? mi.GetGenericArguments() : [])));
+
+        Contains = GetMethod(
+            nameof(Enumerable.Contains), 1,
+            types => [typeof(IEnumerable<>).MakeGenericType(types[0]), types[0]]);
+        SequenceEqual = GetMethod(
+            nameof(Enumerable.SequenceEqual), 1,
+            types => [typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(IEnumerable<>).MakeGenericType(types[0])]);
+    }
+
     /// <summary>
     /// Walk the expression and compute all the subtrees that are not dependent on any
     /// of the expressions parameters.
@@ -127,6 +153,7 @@ internal static class ExpressionExtensions
     /// <returns>The partially evaluated expression</returns>
     internal static Expression PartiallyEvaluate(this Expression expression)
     {
+        expression = expression.RemoveSpanImplicitCast();
         List<Expression> subtrees = expression.FindIndependentSubtrees();
         return VisitorHelper.VisitAll(expression, (Expression expr, Func<Expression, Expression> recurse) =>
         {
@@ -140,6 +167,63 @@ internal static class ExpressionExtensions
             {
                 return recurse(expr);
             }
+        });
+    }
+
+    internal static Expression RemoveSpanImplicitCast(this Expression expression)
+    {
+        return VisitorHelper.VisitAll(expression, (Expression expr, Func<Expression, Expression> recurse) =>
+        {
+            if (expr is MethodCallExpression methodCall)
+            {
+                MethodInfo method = methodCall.Method;
+
+                if (method.DeclaringType == typeof(MemoryExtensions))
+                {
+                    switch (method.Name)
+                    {
+                        case nameof(MemoryExtensions.Contains)
+                            when methodCall.Arguments is [Expression arg0, Expression arg1] && TryUnwrapSpanImplicitCast(arg0, out Expression unwrappedArg0):
+                        {
+                            Expression unwrappedExpr = Expression.Call(
+                                    Contains.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
+                                    unwrappedArg0, arg1);
+                            return recurse(unwrappedExpr);
+                        }
+
+                        case nameof(MemoryExtensions.SequenceEqual)
+                            when methodCall.Arguments is [Expression arg0, Expression arg1]
+                            && TryUnwrapSpanImplicitCast(arg0, out Expression unwrappedArg0)
+                            && TryUnwrapSpanImplicitCast(arg1, out Expression unwrappedArg1):
+                        {
+                            Expression unwrappedExpr = Expression.Call(
+                                    SequenceEqual.MakeGenericMethod(methodCall.Method.GetGenericArguments()[0]),
+                                    unwrappedArg0, unwrappedArg1);
+                            return recurse(unwrappedExpr);
+                        }
+                    }
+
+                    static bool TryUnwrapSpanImplicitCast(Expression expression, out Expression result)
+                    {
+                        if (expression is MethodCallExpression
+                            {
+                                Method: { Name: "op_Implicit", DeclaringType: { IsGenericType: true } implicitCastDeclaringType },
+                                Arguments: [Expression unwrapped]
+                            }
+                            && implicitCastDeclaringType.GetGenericTypeDefinition() is Type genericTypeDefinition
+                            && (genericTypeDefinition == typeof(Span<>) || genericTypeDefinition == typeof(ReadOnlySpan<>)))
+                        {
+                            result = unwrapped;
+                            return true;
+                        }
+
+                        result = null;
+                        return false;
+                    }
+                }
+            }
+
+            return recurse(expr);
         });
     }
 
