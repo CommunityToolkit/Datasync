@@ -1177,7 +1177,7 @@ public class IDatasyncPullQuery_Tests
         );
     }
 
-    [Fact(Skip = "OData v8.4 does not allow string.contains")]
+    [Fact]
     public void Linq_Where_String_Contains()
     {
         string[] ratings = ["A", "B"];

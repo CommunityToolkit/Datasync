@@ -540,7 +540,7 @@ public class Integration_Query_Tests(ServiceApplicationFactory factory) : Servic
     //    );
     //}
 
-    [Fact(Skip = "OData v8.4 does not allow string.contains")]
+    [Fact]
     public async Task KitchenSinkQueryTest_020()
     {
         SeedKitchenSinkWithCountryData();
