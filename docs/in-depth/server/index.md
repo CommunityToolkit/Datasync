@@ -9,7 +9,7 @@ Because the datasync service is designed to provide disconnected access over int
 
 ## Supported Platforms
 
-The ASP.NET Core packages support ASP.NET 8.0 or later.
+The ASP.NET Core packages support ASP.NET 10.0 or later.
 
 The datasync service support a number of backend database servers, and allows for the custom implementation of repositories.  Each entity that is synchronized must meet the following criteria:
 
@@ -37,8 +37,8 @@ A datasync server based on the Datasync Community Toolkit supports:
 
 To create a new datasync service:
 
-1. Create an ASP.NET 8.0 (or later) WebAPI project.
-2. Add Entity Framework Core.
+1. Create an ASP.NET 10.0 (or later) WebAPI project.
+2. Add Entity Framework Core 10.0 (or later).
 3. Add Datasync Community Toolkit.
 
 For information on creating an ASP.NET Core service with Entity Framework Core, see [the official tutorial](https://learn.microsoft.com/aspnet/core/tutorials/first-web-api).
@@ -202,7 +202,7 @@ If you want to allow both unauthenticated and authenticated access to a table, d
 
 ## Configure logging
 
-Logging is handled through [the normal logging mechanism](https://learn.microsoft.com/aspnet/core/fundamentals/logging/?view=aspnetcore-8.0) for ASP.NET Core.  Assign the `ILogger` object to the `Logger` property:
+Logging is handled through [the normal logging mechanism](https://learn.microsoft.com/aspnet/core/fundamentals/logging/?view=aspnetcore-10.0) for ASP.NET Core.  Assign the `ILogger` object to the `Logger` property:
 
     [Route("tables/[controller]")]
     public class ModelController : TableController<Model>
@@ -255,7 +255,7 @@ The `TableController<T>` base class contains an event handler that is called at 
 
 ## OpenAPI Support
 
-You can publish the API defined by data sync controllers using [NSwag](https://learn.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-nswag?view=aspnetcore-8.0&tabs=visual-studio), [Swashbuckle](https://learn.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-8.0&tabs=visual-studio), or the [OpenApi support in .NET 9](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/overview?view=aspnetcore-9.0).  In all cases, start by setting up the service as you normally would for the chosen library. 
+You can publish the API defined by data sync controllers using [NSwag](https://learn.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-nswag?view=aspnetcore-10.0&tabs=visual-studio), [Swashbuckle](https://learn.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-10.0&tabs=visual-studio), or the [OpenApi support in .NET 10](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/overview?view=aspnetcore-10.0).  In all cases, start by setting up the service as you normally would for the chosen library. 
 
 Review the instructions for each library:
 

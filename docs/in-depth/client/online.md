@@ -29,7 +29,7 @@ The `HttpClientOptions` allows you to specify the following values:
 * `Timeout` - a `TimeSpan` (default: 60 seconds); specifies the `HttpClient.Timeout` value for created clients.
 * `UserAgent` - the User-Agent header value for each request.  By default, a Datasync service specific value is used.
 
- The HTTP pipeline is an important mechanism by which you can adjust the requests as they flow through the Datasync Community Toolkit.  For instance, you might want to use a custom delegating handler for authentication, another for logging, and another for adding an API key to the request.  If you are adding a custom [HttpClientHandler](https://learn.microsoft.com/dotnet/api/system.net.http.httpclienthandler?view=net-8.0), then it should be the last element in the `HttpPipeline`.  You can specify a pipeline like this:
+ The HTTP pipeline is an important mechanism by which you can adjust the requests as they flow through the Datasync Community Toolkit.  For instance, you might want to use a custom delegating handler for authentication, another for logging, and another for adding an API key to the request.  If you are adding a custom [HttpClientHandler](https://learn.microsoft.com/dotnet/api/system.net.http.httpclienthandler?view=net-10.0), then it should be the last element in the `HttpPipeline`.  You can specify a pipeline like this:
 
 ```csharp
 using CommunityToolkit.Datasync.Client.Http;
