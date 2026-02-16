@@ -200,6 +200,11 @@ To use this access control provider, update your `TableController` as follows:
 
 If you want to allow both unauthenticated and authenticated access to a table, decorate the controller with `[AllowAnonymous]` instead of `[Authorize]`.
 
+!!! warning
+    It is very easy to accidentally leak data for a different user when using access control providers to limit the data.  If the operation is create and the entity that exists is for another user, the response will contain the information for the other user.
+
+    To prevent this data leakage case, it is important to add a filtering that ensures the data being returned is for the same user.
+
 ## Configure logging
 
 Logging is handled through [the normal logging mechanism](https://learn.microsoft.com/aspnet/core/fundamentals/logging/?view=aspnetcore-10.0) for ASP.NET Core.  Assign the `ILogger` object to the `Logger` property:
