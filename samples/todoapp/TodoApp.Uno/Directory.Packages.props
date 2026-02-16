@@ -10,11 +10,11 @@
   <ItemGroup>
     <PackageVersion Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250402" />
     <PackageVersion Include="CommunityToolkit.WinUI.Converters" Version="8.2.250402" />
-    <PackageVersion Include="CommunityToolkit.Datasync.Client" Version="9.0.0" />
+    <PackageVersion Include="CommunityToolkit.Datasync.Client" Version="10.0.0" />
     <PackageVersion Include="Refit" Version="8.0.0" />
-    <PackageVersion Include="System.Formats.Asn1" Version="9.0.0" />
-    <PackageVersion Include="System.IO.Packaging" Version="9.0.0" />
+    <PackageVersion Include="System.Formats.Asn1" Version="10.0.3" />
+    <PackageVersion Include="System.IO.Packaging" Version="10.0.3" />
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
-    <PackageVersion Include="System.Text.Json" Version="9.0.2" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.3" />
   </ItemGroup>
 </Project>
