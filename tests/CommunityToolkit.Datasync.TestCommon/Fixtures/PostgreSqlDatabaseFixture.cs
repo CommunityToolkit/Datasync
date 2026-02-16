@@ -14,12 +14,12 @@ namespace CommunityToolkit.Datasync.TestCommon.Fixtures;
 [ExcludeFromCodeCoverage]
 public class PostgreSqlDatabaseFixture : IAsyncLifetime
 {
+    private const string imageName = "postgres:18-alpine";
     private readonly PostgreSqlContainer _container;
 
     public PostgreSqlDatabaseFixture()
     {
-        this._container = new PostgreSqlBuilder()
-            .WithImage("postgres:17-alpine")
+        this._container = new PostgreSqlBuilder(imageName)
             .WithCleanUp(true)
             .WithUsername("testuser")
             .WithPassword("testpassword")
