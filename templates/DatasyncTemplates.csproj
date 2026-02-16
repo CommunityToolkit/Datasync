@@ -9,7 +9,7 @@
     <PackageId>CommunityToolkit.Datasync.Server.Template.CSharp</PackageId>
     <PackageTags>dotnet-new;template;aspnetcore;datasync</PackageTags>
     <PackageType>Template</PackageType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Title>Template for creating an ASP.NET Core Service using the Community Datasync Toolkit</Title>
   </PropertyGroup>
 
