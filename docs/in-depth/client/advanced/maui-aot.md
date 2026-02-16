@@ -4,7 +4,7 @@ When using [Native AOT with .NET MAUI](https://learn.microsoft.com/dotnet/maui/d
 
 1. [Implement compiled models for Entity Framework Core](https://learn.microsoft.com/ef/core/performance/advanced-performance-topics?tabs=with-di%2Cexpression-api-with-constant#compiled-models).
 2. [Implement source generation in System.Text.Json](https://learn.microsoft.com/dotnet/standard/serialization/system-text-json/source-generation).
-3. [Enable the Interpreter for iOS and Mac Catalyst](https://learn.microsoft.com/dotnet/maui/macios/interpreter?view=net-maui-8.0#enable-the-interpreter).
+3. [Enable the Interpreter for iOS and Mac Catalyst](https://learn.microsoft.com/dotnet/maui/macios/interpreter?view=net-maui-10.0#enable-the-interpreter).
 
 The following are basic instructions on how to fulfill these requirements.  However, you should consult the official documentation (linked above) for each requirement.
 
@@ -15,7 +15,7 @@ The following are basic instructions on how to fulfill these requirements.  Howe
 
 To enable compiled models in your MAUI project:
 
-1. Move your `DbContext` and models to a separate library that targets `net8.0`.
+1. Move your `DbContext` and models to a separate library that targets `net10.0`.
 2. Create a dummy project with a project reference to the library.  This will act as a startup project for the EF Core Tools we will run later.  This can be as simple as a console application.
 3. Implement an `IDesignTimeDbContextFactory` for your context.  This can be placed in your dummy project.  For example:
 
@@ -108,7 +108,7 @@ Add the following property to the iOS release configuration in your MAUI app pro
 
 The property group should look something like the following:
 
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-ios|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-ios|AnyCPU'">
       <OptimizePNGs>true</OptimizePNGs>
       <MtouchInterpreter>all</MtouchInterpreter>
     </PropertyGroup>

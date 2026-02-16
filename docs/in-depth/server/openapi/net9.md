@@ -1,6 +1,6 @@
-# .NET 9.x OpenApi support
+# .NET 10.x OpenApi support
 
-Follow [the basic instructions for OpenApi integration](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/aspnetcore-openapi?view=aspnetcore-9.0&tabs=visual-studio), then modify as follows:
+Follow [the basic instructions for OpenApi integration](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/aspnetcore-openapi?view=aspnetcore-10.0&tabs=visual-studio), then modify as follows:
 
 1. Add packages to your project to support NSwag.  The following packages are required:
 
@@ -28,4 +28,4 @@ Browsing to the `/openapi/v1.json` endpoint of the web service allows you to dow
 
 ## Known issues
 
-The .NET 9.x OpenApi support currently does not support dynamic schema generation.  This means that the schema generated within the OpenApi document will be incomplete.
+The .NET 10.x OpenApi support currently does not support dynamic schema generation.  This means that the schema generated within the OpenApi document will be incomplete.

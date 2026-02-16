@@ -3,7 +3,7 @@
 MySQL is supported via the Entity Framework Core repository. Add the [`Pomelo.EntityFrameworkCore.Mysql`](https://www.nuget.org/packages/Pomelo.EntityFrameworkCore.MySql) driver to your project.
 
 !!! note
-    You can probably use the `MySql.EntityFrameworkCore` library as well.  However, we only test with the Pomelo driver.
+    As of the v10.0.0 of the Datasync Library, we no longer test MySQL.  It **should** work, but we can not make any guarantees.  Open an issue if you find problems.
 
 ## Set up
 

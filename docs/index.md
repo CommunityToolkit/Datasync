@@ -4,8 +4,8 @@ The [Datasync Community Toolkit][nuget] is a collection of libraries that implem
 
 Currently, the library supports:
 
-* ASP.NET Core 8.x or later.
-* .NET clients using .NET 8.x or later.
+* ASP.NET Core 10.x or later.
+* .NET clients using .NET 10.x or later.
 
 > Ensure you match the version of the Datasync Community Toolkit to the version of .NET you are using.
 

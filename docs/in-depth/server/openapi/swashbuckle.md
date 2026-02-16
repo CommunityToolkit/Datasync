@@ -1,6 +1,6 @@
 # Swashbuckle support
 
-Follow the [basic instructions for Swashbuckle integration](https://learn.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-8.0&tabs=visual-studio), then modify as follows:
+Follow the [basic instructions for Swashbuckle integration](https://learn.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-10.0&tabs=visual-studio), then modify as follows:
 
 1. Add packages to your project to support Swashbuckle.  The following packages are required:
 
