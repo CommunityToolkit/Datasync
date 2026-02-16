@@ -148,6 +148,10 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         TEntity addition = TestData.Movies.OfType<TEntity>(TestData.Movies.BlackPanther, id);
         TEntity sut = addition.Clone();
         await Repository.CreateAsync(sut);
+
+        // Let's sleep for a tiny bit of time to allow any writes to actually happen.
+        await Task.Delay(100);
+
         TEntity actual = await GetEntityAsync(id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);
@@ -169,6 +173,10 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         addition.Id = id;
         TEntity sut = addition.Clone();
         await Repository.CreateAsync(sut);
+
+        // Let's sleep for a tiny bit of time to allow any writes to actually happen.
+        await Task.Delay(100);
+
         TEntity actual = await GetEntityAsync(sut.Id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);
@@ -205,6 +213,10 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         byte[] expectedVersion = new byte[] { 0x01, 0x02, 0x03, 0x04 };
         sut.Version = expectedVersion.ToArray();
         await Repository.CreateAsync(sut);
+
+        // Let's sleep for a tiny bit of time to allow any writes to actually happen.
+        await Task.Delay(100);
+
         TEntity actual = await GetEntityAsync(id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);
@@ -399,6 +411,10 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         TEntity expected = await GetEntityAsync(id);
         byte[] version = expected.Version.ToArray();
         await Repository.ReplaceAsync(replacement, version);
+
+        // Let's sleep for a tiny bit of time to allow any writes to actually happen.
+        await Task.Delay(100);
+
         TEntity actual = await GetEntityAsync(id);
 
         actual.Should().BeEquivalentTo<IMovie>(replacement).And.NotBeEquivalentTo<ITableData>(expected);
@@ -417,6 +433,10 @@ public abstract class RepositoryTests<TEntity> where TEntity : class, ITableData
         TEntity expected = await GetEntityAsync(id);
         byte[] version = expected.Version.ToArray();
         await Repository.ReplaceAsync(replacement);
+
+        // Let's sleep for a tiny bit of time to allow any writes to actually happen.
+        await Task.Delay(100);
+
         TEntity actual = await GetEntityAsync(id);
 
         actual.Should().BeEquivalentTo<IMovie>(replacement).And.NotBeEquivalentTo<ITableData>(expected);
