@@ -11,12 +11,12 @@ namespace CommunityToolkit.Datasync.TestCommon.Fixtures;
 [ExcludeFromCodeCoverage]
 public class MongoDatabaseFixture : IAsyncLifetime
 {
+    private const string imageName = "mongo:latest";
     private readonly MongoDbContainer _container;
 
     public MongoDatabaseFixture()
     {
-        this._container = new MongoDbBuilder()
-            .WithImage("mongo:latest")
+        this._container = new MongoDbBuilder(imageName)
             .Build();
     }
 
