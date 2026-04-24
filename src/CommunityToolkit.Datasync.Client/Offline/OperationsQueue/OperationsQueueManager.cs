@@ -397,8 +397,13 @@ internal class OperationsQueueManager : IOperationsQueueManager
         if (operation.Kind != OperationKind.Delete)
         {
             _ = response.ContentStream.Seek(0L, SeekOrigin.Begin); // Reset the memory stream to the beginning.
-            object? newValue = JsonSerializer.Deserialize(response.ContentStream, entityType, DatasyncSerializer.JsonSerializerOptions);
-            object? oldValue = await this._context.FindAsync(entityType, [operation.ItemId], cancellationToken).ConfigureAwait(false);
+            object? newValue = await JsonSerializer.DeserializeAsync(
+                response.ContentStream,
+                entityType,
+                DatasyncSerializer.JsonSerializerOptions,
+                cancellationToken);
+
+            object? oldValue = await FindOldValue(operation, entityType, cancellationToken);
             ReplaceDatabaseValue(oldValue, newValue);
         }
 
@@ -408,6 +413,32 @@ internal class OperationsQueueManager : IOperationsQueueManager
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Internal helper - find the old value for a datasync operation and an entity type.
+    /// </summary>
+    /// <param name="operation">The datasync operation.</param>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns>The object associated with the datasync operation, or <c>null</c>.</returns>
+    internal async ValueTask<object?> FindOldValue(DatasyncOperation operation, Type entityType, CancellationToken cancellationToken)
+    {
+        this.pushlock.Enter();
+        try
+        {
+            object? oldValue = await this._context
+                .FindAsync(
+                    entityType,
+                    [operation.ItemId],
+                    cancellationToken)
+                .ConfigureAwait(false);
+            return oldValue;
+        }
+        finally
+        {
+            this.pushlock.Exit();
+        }
     }
 
     /// <summary>
