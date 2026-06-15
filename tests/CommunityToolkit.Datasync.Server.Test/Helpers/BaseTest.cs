@@ -32,15 +32,15 @@ public abstract class BaseTest
         return mock;
     }
 
-    protected static IRepository<TEntity> FakeRepository<TEntity>(TEntity entity = null, bool throwConflict = false) where TEntity : class, ITableData
+    protected static IRepository<TEntity> FakeRepository<TEntity>(TEntity entity = null, bool throwConflict = false, TEntity conflictPayload = null) where TEntity : class, ITableData
     {
         AbstractRepository<TEntity> mock = Substitute.ForPartsOf<AbstractRepository<TEntity>>();
 
         if (throwConflict)
         {
-            mock.CreateAsync(Arg.Any<TEntity>(), Arg.Any<CancellationToken>()).Returns(ValueTask.FromException(new HttpException(409)));
-            mock.DeleteAsync(Arg.Any<string>(), Arg.Any<byte[]>(), Arg.Any<CancellationToken>()).Returns(ValueTask.FromException(new HttpException(409)));
-            mock.ReplaceAsync(Arg.Any<TEntity>(), Arg.Any<byte[]>(), Arg.Any<CancellationToken>()).Returns(ValueTask.FromException(new HttpException(409)));
+            mock.CreateAsync(Arg.Any<TEntity>(), Arg.Any<CancellationToken>()).Returns(ValueTask.FromException(new HttpException(409) { Payload = conflictPayload }));
+            mock.DeleteAsync(Arg.Any<string>(), Arg.Any<byte[]>(), Arg.Any<CancellationToken>()).Returns(ValueTask.FromException(new HttpException(409) { Payload = conflictPayload }));
+            mock.ReplaceAsync(Arg.Any<TEntity>(), Arg.Any<byte[]>(), Arg.Any<CancellationToken>()).Returns(ValueTask.FromException(new HttpException(409) { Payload = conflictPayload }));
         }
         else
         {

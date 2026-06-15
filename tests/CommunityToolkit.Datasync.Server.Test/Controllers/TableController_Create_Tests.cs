@@ -77,6 +77,38 @@ public class TableController_Create_Tests : BaseTest
     }
 
     [Fact]
+    public async Task CreateAsync_Conflict_EntityInView_Returns409()
+    {
+        TableData conflictingEntity = new() { Id = "0da7fb24-3606-442f-9f68-c47c6e7d09d4" };
+        // The data view includes the conflicting entity, so the conflict should be surfaced as a 409.
+        IAccessControlProvider<TableData> accessProvider = FakeAccessControlProvider<TableData>(TableOperation.Create, true, x => x.Id == conflictingEntity.Id);
+        IRepository<TableData> repository = FakeRepository<TableData>(null, true, conflictingEntity);
+        ExposedTableController<TableData> controller = new(repository, accessProvider);
+        TableData entity = new() { Id = conflictingEntity.Id };
+        controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Post, "https://localhost/table", entity);
+
+        Func<Task> act = async () => await controller.CreateAsync();
+
+        (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(409);
+    }
+
+    [Fact]
+    public async Task CreateAsync_Conflict_EntityNotInView_Returns400()
+    {
+        TableData conflictingEntity = new() { Id = "0da7fb24-3606-442f-9f68-c47c6e7d09d4" };
+        // The data view excludes the conflicting entity, so the conflict must NOT be surfaced - return 400 instead.
+        IAccessControlProvider<TableData> accessProvider = FakeAccessControlProvider<TableData>(TableOperation.Create, true, x => x.Id == "some-other-id");
+        IRepository<TableData> repository = FakeRepository<TableData>(null, true, conflictingEntity);
+        ExposedTableController<TableData> controller = new(repository, accessProvider);
+        TableData entity = new() { Id = conflictingEntity.Id };
+        controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Post, "https://localhost/table", entity);
+
+        Func<Task> act = async () => await controller.CreateAsync();
+
+        (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(400).And.Which.Payload.Should().BeNull();
+    }
+
+    [Fact]
     public async Task CreateAsync_NonJsonData_Throws()
     {
         IAccessControlProvider<TableData> accessProvider = FakeAccessControlProvider<TableData>(TableOperation.Create, true);
