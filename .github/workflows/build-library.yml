@@ -88,7 +88,7 @@ jobs:
           --collect:"XPlat Code Coverage"
 
       - name: Combine coverage reports
-        uses: danielpalme/ReportGenerator-GitHub-Action@5.2.4
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.5.10
         with:
           reports: "**/coverage.cobertura.xml"
           assemblyfilters: "-*Test*"
