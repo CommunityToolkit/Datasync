@@ -15,7 +15,7 @@ using System.Text.Json.Serialization;
 namespace CommunityToolkit.Datasync.Server.CosmosDb.Test;
 
 [ExcludeFromCodeCoverage]
-public class CosmosDbRepository_Tests : RepositoryTests<CosmosDbMovie>, IDisposable, IAsyncLifetime
+public class CosmosDbRepository_Tests : RepositoryTests<CosmosDbMovie>, IAsyncLifetime
 {
     #region Setup
     private readonly Random random = new();
@@ -25,20 +25,6 @@ public class CosmosDbRepository_Tests : RepositoryTests<CosmosDbMovie>, IDisposa
     private CosmosClient _client;
     private Container _container;
     private CosmosTableRepository<CosmosDbMovie> _repository;
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            this._client?.Dispose();
-        }
-    }
 
     override protected bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
 
@@ -69,7 +55,7 @@ public class CosmosDbRepository_Tests : RepositoryTests<CosmosDbMovie>, IDisposa
         return Task.FromResult(exists ? this.movies[this.random.Next(this.movies.Count)].Id : Guid.NewGuid().ToString());
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         if (!string.IsNullOrEmpty(this.connectionString))
         {
@@ -137,7 +123,7 @@ public class CosmosDbRepository_Tests : RepositoryTests<CosmosDbMovie>, IDisposa
         }
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (this._client != null)
         {
@@ -149,6 +135,8 @@ public class CosmosDbRepository_Tests : RepositoryTests<CosmosDbMovie>, IDisposa
             {
                 // Ignore
             }
+
+            this._client.Dispose();
         }
     }
     #endregion

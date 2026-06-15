@@ -6,7 +6,6 @@ using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Fixtures;
 using Microsoft.EntityFrameworkCore;
-using Xunit.Abstractions;
 
 #pragma warning disable CS9113 // Parameter is unread.
 
@@ -20,13 +19,13 @@ public class PgEntityTableRepository_Tests(PostgreSqlDatabaseFixture fixture, IT
     private readonly Random random = new();
     private List<PgEntityMovie> movies = [];
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         Context = await PgDbContext.CreateContextAsync(fixture.ConnectionString, output);
         this.movies = await Context.Movies.AsNoTracking().ToListAsync();
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (Context is not null)
         {
@@ -51,26 +50,26 @@ public class PgEntityTableRepository_Tests(PostgreSqlDatabaseFixture fixture, IT
        => Task.FromResult(exists ? this.movies[this.random.Next(this.movies.Count)].Id : Guid.NewGuid().ToString());
     #endregion
 
-    [SkippableFact]
+    [Fact]
     public void EntityTableRepository_BadDbSet_Throws()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
         Action act = () => _ = new EntityTableRepository<EntityTableData>(Context);
         act.Should().Throw<ArgumentException>();
     }
 
-    [SkippableFact]
+    [Fact]
     public void EntityTableRepository_GoodDbSet_Works()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
         Action act = () => _ = new EntityTableRepository<PgEntityMovie>(Context);
         act.Should().NotThrow();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task WrapExceptionAsync_ThrowsConflictException_WhenDbConcurrencyUpdateExceptionThrown()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
         EntityTableRepository<PgEntityMovie> repository = await GetPopulatedRepositoryAsync() as EntityTableRepository<PgEntityMovie>;
         string id = await GetRandomEntityIdAsync(true);
         PgEntityMovie expectedPayload = await GetEntityAsync(id);
@@ -81,10 +80,10 @@ public class PgEntityTableRepository_Tests(PostgreSqlDatabaseFixture fixture, IT
         (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(409).And.WithPayload(expectedPayload);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task WrapExceptionAsync_ThrowsRepositoryException_WhenDbUpdateExceptionThrown()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
         EntityTableRepository<PgEntityMovie> repository = await GetPopulatedRepositoryAsync() as EntityTableRepository<PgEntityMovie>;
         string id = await GetRandomEntityIdAsync(true);
         PgEntityMovie expectedPayload = await GetEntityAsync(id);

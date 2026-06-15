@@ -6,7 +6,6 @@ using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Models;
 using Microsoft.EntityFrameworkCore;
-using Xunit.Abstractions;
 
 using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 
@@ -41,10 +40,10 @@ public class SqliteEntityTableRepository_Tests : RepositoryTests<SqliteEntityMov
         => Task.FromResult(exists ? this.movies[this.random.Next(Context.Movies.Count())].Id : Guid.NewGuid().ToString());
     #endregion
 
-    [SkippableFact]
+    [Fact]
     public async Task IdGenerator_Ulid_CanCreate()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         IRepository<SqliteEntityMovie> repository = await GetPopulatedRepositoryAsync();
         string generatedId = string.Empty;

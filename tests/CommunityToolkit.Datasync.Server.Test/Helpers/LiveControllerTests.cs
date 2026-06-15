@@ -129,7 +129,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     }
 
     #region Tests
-    [SkippableTheory]
+    [Theory]
     [InlineData("$filter=(year - 1900) ge 100", HttpStatusCode.BadRequest)]
     [InlineData("$filter=missing eq 20", HttpStatusCode.BadRequest)]
     [InlineData("$orderby=duration fizz", HttpStatusCode.BadRequest)]
@@ -143,7 +143,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
     [InlineData("$top=NaN", HttpStatusCode.BadRequest)]
     public async Task FailedQueryTest(string query, HttpStatusCode expectedStatusCode)
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await CreateControllerAsync(HttpMethod.Get, $"{MovieEndpoint}?{query}");
 
@@ -153,10 +153,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         ((StatusCodeResult)result).StatusCode.Should().Be((int)expectedStatusCode);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_001()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             MovieEndpoint,
@@ -167,10 +167,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_002()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true",
@@ -181,7 +181,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_003()
     {
         if (!CanDoComplexMath())
@@ -189,7 +189,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=((year div 1000.5) eq 2) and (rating eq 'R')",
@@ -200,10 +200,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_004()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=((year sub 1900) ge 80) and ((year add 10) le 2000) and (duration le 120)",
@@ -214,7 +214,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_005()
     {
         if (!CanDoComplexMath())
@@ -222,7 +222,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=(year div 1000.5) eq 2",
@@ -233,10 +233,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_006()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=(year ge 1930 and year le 1940) or (year ge 1950 and year le 1960)",
@@ -247,10 +247,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_007()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=(year sub 1900) ge 80",
@@ -261,10 +261,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_008()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner eq false",
@@ -275,7 +275,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_009()
     {
         if (!CanDoComplexMath())
@@ -283,7 +283,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2",
@@ -294,7 +294,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_010()
     {
         if (!CanDoComplexMath())
@@ -302,7 +302,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2",
@@ -313,7 +313,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_011()
     {
         if (!CanDoComplexMath())
@@ -321,7 +321,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2",
@@ -332,10 +332,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_012()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner eq true",
@@ -346,10 +346,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_013()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner ne false",
@@ -360,10 +360,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_014()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=bestPictureWinner ne true",
@@ -374,7 +374,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_015()
     {
         if (!CanDoComplexMath())
@@ -382,7 +382,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=ceiling(duration div 60.0) eq 2",
@@ -393,7 +393,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_016()
     {
         if (!CanQueryDateComponents())
@@ -401,7 +401,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=day(releaseDate) eq 1",
@@ -412,10 +412,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_017()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=duration ge 60",
@@ -426,10 +426,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_018()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=endswith(title, 'er')",
@@ -440,10 +440,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_019()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=endswith(tolower(title), 'er')",
@@ -454,10 +454,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_020()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=endswith(toupper(title), 'ER')",
@@ -468,7 +468,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_021()
     {
         if (!CanDoComplexMath())
@@ -476,7 +476,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=floor(duration div 60.0) eq 2",
@@ -487,7 +487,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_022()
     {
         if (!CanQueryDateComponents())
@@ -495,7 +495,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=month(releaseDate) eq 11",
@@ -506,10 +506,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_023()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=not(bestPictureWinner eq false)",
@@ -520,10 +520,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_024()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=not(bestPictureWinner eq true)",
@@ -534,10 +534,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_025()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=not(bestPictureWinner ne false)",
@@ -548,10 +548,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_026()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=not(bestPictureWinner ne true)",
@@ -562,10 +562,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_027()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=rating eq 'R'",
@@ -576,10 +576,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_028()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=rating ne 'PG13'",
@@ -590,10 +590,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_029()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=rating eq 'Unrated'",
@@ -604,7 +604,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_030()
     {
         if (!CanQueryDateComponents())
@@ -612,7 +612,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate eq cast(1994-10-14,Edm.Date)",
@@ -623,7 +623,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_031()
     {
         if (!CanQueryDateComponents())
@@ -631,7 +631,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());;
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");;
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate ge cast(1999-12-31,Edm.Date)",
@@ -642,7 +642,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_032()
     {
         if (!CanQueryDateComponents())
@@ -650,7 +650,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate gt cast(1999-12-31,Edm.Date)",
@@ -661,7 +661,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_033()
     {
         if (!CanQueryDateComponents())
@@ -669,7 +669,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate le cast(2000-01-01,Edm.Date)",
@@ -680,7 +680,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_034()
     {
         if (!CanQueryDateComponents())
@@ -688,7 +688,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=releaseDate lt cast(2000-01-01,Edm.Date)",
@@ -699,7 +699,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_035()
     {
         if (!CanQueryDateComponents())
@@ -707,7 +707,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=round(duration div 60.0) eq 2",
@@ -718,10 +718,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_037()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=startswith(tolower(title), 'the')",
@@ -732,10 +732,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_038()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=startswith(toupper(title), 'THE')",
@@ -746,10 +746,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_039()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=year eq 1994",
@@ -760,10 +760,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_040()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=year ge 2000 and year le 2009",
@@ -774,10 +774,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_041()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=year ge 2000",
@@ -788,10 +788,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_042()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=year gt 1999 and year lt 2010",
@@ -802,10 +802,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_043()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=year gt 1999",
@@ -816,10 +816,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_044()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=year le 2000",
@@ -830,10 +830,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_045()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=year lt 2001",
@@ -844,7 +844,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_046()
     {
         if (!CanQueryDateComponents())
@@ -852,7 +852,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$filter=year(releaseDate) eq 1994",
@@ -863,10 +863,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_047()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=bestPictureWinner asc",
@@ -877,10 +877,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_048()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=bestPictureWinner desc",
@@ -891,10 +891,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_049()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=duration asc",
@@ -905,10 +905,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_050()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=duration desc",
@@ -919,10 +919,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_051()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=rating asc",
@@ -933,10 +933,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_052()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=rating desc",
@@ -947,10 +947,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_053()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=releaseDate asc",
@@ -961,10 +961,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_054()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=releaseDate desc",
@@ -975,10 +975,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_055()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=title asc",
@@ -989,10 +989,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_056()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=title desc",
@@ -1003,10 +1003,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_057()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=year asc",
@@ -1017,10 +1017,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_058()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=year asc,title asc",
@@ -1031,10 +1031,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_059()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=year asc,title desc",
@@ -1045,10 +1045,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_060()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=year desc",
@@ -1059,10 +1059,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_061()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=year desc,title asc",
@@ -1073,10 +1073,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_062()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$orderby=year desc,title desc",
@@ -1087,7 +1087,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_063()
     {
         if (!CanDoComplexMath())
@@ -1095,7 +1095,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=((year div 1000.5) eq 2) and (rating eq 'R')",
@@ -1106,10 +1106,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_064()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=((year sub 1900) ge 80) and ((year add 10) le 2000) and (duration le 120)",
@@ -1120,7 +1120,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_065()
     {
         if (!CanDoComplexMath())
@@ -1128,7 +1128,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=(year div 1000.5) eq 2",
@@ -1139,10 +1139,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_066()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=(year ge 1930 and year le 1940) or (year ge 1950 and year le 1960)",
@@ -1153,10 +1153,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_067()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=(year sub 1900) ge 80",
@@ -1167,10 +1167,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_068()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner eq false",
@@ -1181,7 +1181,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_069()
     {
         if (!CanDoComplexMath())
@@ -1189,7 +1189,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2",
@@ -1200,7 +1200,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_070()
     {
         if (!CanDoComplexMath())
@@ -1208,7 +1208,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2",
@@ -1219,7 +1219,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_071()
     {
         if (!CanDoComplexMath())
@@ -1227,7 +1227,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2",
@@ -1238,10 +1238,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_072()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner eq true",
@@ -1252,10 +1252,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_073()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner ne false",
@@ -1266,10 +1266,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_074()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=bestPictureWinner ne true",
@@ -1280,7 +1280,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_075()
     {
         if (!CanDoComplexMath())
@@ -1288,7 +1288,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=ceiling(duration div 60.0) eq 2",
@@ -1299,7 +1299,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_076()
     {
         if (!CanQueryDateComponents())
@@ -1307,7 +1307,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=day(releaseDate) eq 1",
@@ -1318,10 +1318,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_077()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=duration ge 60",
@@ -1332,10 +1332,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_078()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=endswith(title, 'er')",
@@ -1346,10 +1346,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_079()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=endswith(tolower(title), 'er')",
@@ -1360,10 +1360,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_080()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=endswith(toupper(title), 'ER')",
@@ -1374,7 +1374,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_081()
     {
         if (!CanDoComplexMath())
@@ -1382,7 +1382,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=floor(duration div 60.0) eq 2",
@@ -1393,7 +1393,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_082()
     {
         if (!CanDoComplexMath())
@@ -1401,7 +1401,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=month(releaseDate) eq 11",
@@ -1412,10 +1412,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_083()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=not(bestPictureWinner eq false)",
@@ -1426,10 +1426,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_084()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=not(bestPictureWinner eq true)",
@@ -1440,10 +1440,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_085()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=not(bestPictureWinner ne false)",
@@ -1454,10 +1454,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_086()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=not(bestPictureWinner ne true)",
@@ -1468,10 +1468,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_087()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=rating eq 'R'",
@@ -1482,10 +1482,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_088()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=rating ne 'PG13'",
@@ -1496,10 +1496,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_089()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=rating eq 'Unrated'",
@@ -1510,7 +1510,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_090()
     {
         if (!CanQueryDateComponents())
@@ -1518,7 +1518,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate eq cast(1994-10-14,Edm.Date)",
@@ -1529,7 +1529,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_091()
     {
         if (!CanQueryDateComponents())
@@ -1537,7 +1537,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate ge cast(1999-12-31,Edm.Date)",
@@ -1548,7 +1548,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_092()
     {
         if (!CanQueryDateComponents())
@@ -1556,7 +1556,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate gt cast(1999-12-31,Edm.Date)",
@@ -1567,7 +1567,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_093()
     {
         if (!CanQueryDateComponents())
@@ -1575,7 +1575,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate le cast(2000-01-01,Edm.Date)",
@@ -1586,7 +1586,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_094()
     {
         if (!CanQueryDateComponents())
@@ -1594,7 +1594,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=releaseDate lt cast(2000-01-01,Edm.Date)",
@@ -1605,7 +1605,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_095()
     {
         if (!CanDoComplexMath())
@@ -1613,7 +1613,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=round(duration div 60.0) eq 2",
@@ -1624,10 +1624,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_097()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=startswith(tolower(title), 'the')",
@@ -1638,10 +1638,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_098()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=startswith(toupper(title), 'THE')",
@@ -1652,10 +1652,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_099()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=year eq 1994",
@@ -1666,10 +1666,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_100()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=year ge 2000 and year le 2009",
@@ -1680,10 +1680,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_101()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=year ge 2000",
@@ -1694,10 +1694,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_102()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=year gt 1999 and year lt 2010",
@@ -1708,10 +1708,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_103()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=year gt 1999",
@@ -1722,10 +1722,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_104()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=year le 2000",
@@ -1736,10 +1736,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_105()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=year lt 2001",
@@ -1750,7 +1750,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_106()
     {
         if (!CanQueryDateComponents())
@@ -1758,7 +1758,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$filter=year(releaseDate) eq 1994",
@@ -1769,10 +1769,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_107()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=bestPictureWinner asc",
@@ -1783,10 +1783,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_108()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=bestPictureWinner desc",
@@ -1797,10 +1797,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_109()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=duration asc",
@@ -1811,10 +1811,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_110()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=duration desc",
@@ -1825,10 +1825,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_111()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=rating asc",
@@ -1839,10 +1839,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_112()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=rating desc",
@@ -1853,10 +1853,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_113()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=releaseDate asc",
@@ -1867,10 +1867,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_114()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=releaseDate desc",
@@ -1881,10 +1881,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_115()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=title asc",
@@ -1895,10 +1895,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_116()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=title desc",
@@ -1909,10 +1909,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_117()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=year asc",
@@ -1923,10 +1923,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_118()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=year asc,title asc",
@@ -1937,10 +1937,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_119()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=year asc,title desc",
@@ -1951,10 +1951,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_120()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=year desc",
@@ -1965,10 +1965,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_121()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=year desc,title asc",
@@ -1979,10 +1979,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_122()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$count=true&$top=125&$orderby=year desc,title desc",
@@ -1993,7 +1993,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_123()
     {
         if (!CanDoComplexMath())
@@ -2001,7 +2001,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=((year div 1000.5) eq 2) and (rating eq 'R')",
@@ -2012,10 +2012,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_124()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=((year sub 1900) ge 80) and ((year add 10) le 2000) and (duration le 120)",
@@ -2026,7 +2026,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_125()
     {
         if (!CanDoComplexMath())
@@ -2034,7 +2034,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=(year div 1000.5) eq 2",
@@ -2045,10 +2045,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_126()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=(year ge 1930 and year le 1940) or (year ge 1950 and year le 1960)",
@@ -2059,10 +2059,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_127()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=(year sub 1900) ge 80",
@@ -2073,10 +2073,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_128()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq false",
@@ -2087,7 +2087,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_129()
     {
         if (!CanDoComplexMath())
@@ -2095,7 +2095,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2",
@@ -2106,7 +2106,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_130()
     {
         if (!CanDoComplexMath())
@@ -2114,7 +2114,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2",
@@ -2125,7 +2125,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_131()
     {
         if (!CanDoComplexMath())
@@ -2133,7 +2133,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2",
@@ -2144,10 +2144,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_132()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true",
@@ -2158,10 +2158,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_133()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner ne false",
@@ -2172,10 +2172,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_134()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner ne true",
@@ -2186,7 +2186,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_135()
     {
         if (!CanDoComplexMath())
@@ -2194,7 +2194,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=ceiling(duration div 60.0) eq 2",
@@ -2205,7 +2205,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_136()
     {
         if (!CanQueryDateComponents())
@@ -2213,7 +2213,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=day(releaseDate) eq 1",
@@ -2224,10 +2224,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_137()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=duration ge 60",
@@ -2238,10 +2238,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_138()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=endswith(title, 'er')",
@@ -2252,10 +2252,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_139()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=endswith(tolower(title), 'er')",
@@ -2266,10 +2266,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_140()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=endswith(toupper(title), 'ER')",
@@ -2280,7 +2280,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_141()
     {
         if (!CanDoComplexMath())
@@ -2288,7 +2288,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=floor(duration div 60.0) eq 2",
@@ -2299,7 +2299,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_142()
     {
         if (!CanQueryDateComponents())
@@ -2307,7 +2307,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=month(releaseDate) eq 11",
@@ -2318,10 +2318,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_143()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=not(bestPictureWinner eq false)",
@@ -2332,10 +2332,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_144()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=not(bestPictureWinner eq true)",
@@ -2346,10 +2346,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_145()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=not(bestPictureWinner ne false)",
@@ -2360,10 +2360,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_146()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=not(bestPictureWinner ne true)",
@@ -2374,10 +2374,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_147()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=rating eq 'R'",
@@ -2388,10 +2388,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_148()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=rating ne 'PG13'",
@@ -2402,10 +2402,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_149()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=rating eq 'Unrated'",
@@ -2416,7 +2416,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_150()
     {
         if (!CanQueryDateComponents())
@@ -2424,7 +2424,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate eq cast(1994-10-14,Edm.Date)",
@@ -2435,7 +2435,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_151()
     {
         if (!CanQueryDateComponents())
@@ -2443,7 +2443,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate ge cast(1999-12-31,Edm.Date)",
@@ -2454,7 +2454,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_152()
     {
         if (!CanQueryDateComponents())
@@ -2462,7 +2462,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate gt cast(1999-12-31,Edm.Date)",
@@ -2473,7 +2473,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_153()
     {
         if (!CanQueryDateComponents())
@@ -2481,7 +2481,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate le cast(2000-01-01,Edm.Date)",
@@ -2492,7 +2492,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_154()
     {
         if (!CanQueryDateComponents())
@@ -2500,7 +2500,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate lt cast(2000-01-01,Edm.Date)",
@@ -2511,7 +2511,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_155()
     {
         if (!CanDoComplexMath())
@@ -2519,7 +2519,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=round(duration div 60.0) eq 2",
@@ -2530,10 +2530,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_157()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=startswith(tolower(title), 'the')",
@@ -2544,10 +2544,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_158()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=startswith(toupper(title), 'THE')",
@@ -2558,10 +2558,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_159()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year eq 1994",
@@ -2572,10 +2572,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_160()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year ge 2000 and year le 2009",
@@ -2586,10 +2586,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_161()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year ge 2000",
@@ -2600,10 +2600,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_162()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year gt 1999 and year lt 2010",
@@ -2614,10 +2614,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_163()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year gt 1999",
@@ -2628,10 +2628,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_164()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year le 2000",
@@ -2642,10 +2642,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_165()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year lt 2001",
@@ -2656,7 +2656,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_166()
     {
         if (!CanQueryDateComponents())
@@ -2664,7 +2664,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year(releaseDate) eq 1994",
@@ -2675,10 +2675,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_167()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=bestPictureWinner asc",
@@ -2689,10 +2689,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_168()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=bestPictureWinner desc",
@@ -2703,10 +2703,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_169()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=duration asc",
@@ -2717,10 +2717,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_170()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=duration desc",
@@ -2731,10 +2731,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_171()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=rating asc",
@@ -2745,10 +2745,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_172()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=rating desc",
@@ -2759,10 +2759,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_173()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=releaseDate asc",
@@ -2773,10 +2773,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_174()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=releaseDate desc",
@@ -2787,10 +2787,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_175()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=title asc",
@@ -2801,10 +2801,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_176()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=title desc",
@@ -2815,10 +2815,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_177()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=year asc",
@@ -2829,10 +2829,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_178()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=year asc,title asc",
@@ -2843,10 +2843,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_179()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=year asc,title desc",
@@ -2857,10 +2857,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_180()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=year desc",
@@ -2871,10 +2871,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_181()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=year desc,title asc",
@@ -2885,10 +2885,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_182()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=year desc,title desc",
@@ -2899,7 +2899,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_183()
     {
         if (!CanDoComplexMath())
@@ -2907,7 +2907,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=((year div 1000.5) eq 2) and (rating eq 'R')&$skip=5",
@@ -2917,10 +2917,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             []);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_184()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=((year sub 1900) ge 80) and ((year add 10) le 2000) and (duration le 120)&$skip=5",
@@ -2931,7 +2931,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_185()
     {
         if (!CanDoComplexMath())
@@ -2939,7 +2939,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=(year div 1000.5) eq 2&$skip=5",
@@ -2950,10 +2950,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_186()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=(year ge 1930 and year le 1940) or (year ge 1950 and year le 1960)&$skip=5",
@@ -2964,10 +2964,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_187()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=(year sub 1900) ge 80&$skip=5",
@@ -2978,10 +2978,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_188()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq false&$skip=5",
@@ -2992,7 +2992,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_189()
     {
         if (!CanDoComplexMath())
@@ -3000,7 +3000,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2&$skip=5",
@@ -3011,7 +3011,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_190()
     {
         if (!CanDoComplexMath())
@@ -3019,7 +3019,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2&$skip=5",
@@ -3030,7 +3030,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_191()
     {
         if (!CanDoComplexMath())
@@ -3038,7 +3038,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2&$skip=5",
@@ -3049,10 +3049,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_192()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner eq true&$skip=5",
@@ -3063,10 +3063,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_193()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner ne false&$skip=5",
@@ -3077,10 +3077,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_194()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=bestPictureWinner ne true&$skip=5",
@@ -3091,7 +3091,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_195()
     {
         if (!CanDoComplexMath())
@@ -3099,7 +3099,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=ceiling(duration div 60.0) eq 2&$skip=5",
@@ -3110,7 +3110,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_196()
     {
         if (!CanQueryDateComponents())
@@ -3118,7 +3118,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=day(releaseDate) eq 1&$skip=5",
@@ -3129,10 +3129,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_197()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=duration ge 60&$skip=5",
@@ -3143,10 +3143,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_198()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=endswith(title, 'er')&$skip=5",
@@ -3157,10 +3157,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_199()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=endswith(tolower(title), 'er')&$skip=5",
@@ -3171,10 +3171,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_200()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=endswith(toupper(title), 'ER')&$skip=5",
@@ -3185,7 +3185,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_201()
     {
         if (!CanDoComplexMath())
@@ -3193,7 +3193,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=floor(duration div 60.0) eq 2&$skip=5",
@@ -3204,7 +3204,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_202()
     {
         if (!CanQueryDateComponents())
@@ -3212,7 +3212,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=month(releaseDate) eq 11&$skip=5",
@@ -3223,10 +3223,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_203()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=not(bestPictureWinner eq false)&$skip=5",
@@ -3237,10 +3237,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_204()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=not(bestPictureWinner eq true)&$skip=5",
@@ -3251,10 +3251,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_205()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=not(bestPictureWinner ne false)&$skip=5",
@@ -3265,10 +3265,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_206()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=not(bestPictureWinner ne true)&$skip=5",
@@ -3279,10 +3279,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_207()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=rating eq 'Unrated'&$skip=5",
@@ -3293,10 +3293,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_208()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=rating eq 'R'&$skip=5",
@@ -3307,10 +3307,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_209()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=rating ne 'PG13'&$skip=5",
@@ -3321,7 +3321,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_210()
     {
         if (!CanQueryDateComponents())
@@ -3329,7 +3329,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate eq cast(1994-10-14,Edm.Date)&$skip=5",
@@ -3339,7 +3339,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             []);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_211()
     {
         if (!CanQueryDateComponents())
@@ -3347,7 +3347,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate ge cast(1999-12-31,Edm.Date)&$skip=5",
@@ -3358,7 +3358,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_212()
     {
         if (!CanQueryDateComponents())
@@ -3366,7 +3366,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate gt cast(1999-12-31,Edm.Date)&$skip=5",
@@ -3377,7 +3377,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_213()
     {
         if (!CanQueryDateComponents())
@@ -3385,7 +3385,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate le cast(2000-01-01,Edm.Date)&$skip=5",
@@ -3396,7 +3396,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_214()
     {
         if (!CanQueryDateComponents())
@@ -3404,7 +3404,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=releaseDate lt cast(2000-01-01,Edm.Date)&$skip=5",
@@ -3415,7 +3415,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_215()
     {
         if (!CanDoComplexMath())
@@ -3423,7 +3423,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=round(duration div 60.0) eq 2&$skip=5",
@@ -3434,10 +3434,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_217()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=startswith(tolower(title), 'the')&$skip=5",
@@ -3448,10 +3448,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_218()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=startswith(toupper(title), 'THE')&$skip=5",
@@ -3462,10 +3462,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_219()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year eq 1994&$skip=5",
@@ -3475,10 +3475,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             []);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_220()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year ge 2000 and year le 2009&$skip=5",
@@ -3489,10 +3489,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_221()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year ge 2000&$skip=5",
@@ -3503,10 +3503,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_222()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year gt 1999 and year lt 2010&$skip=5",
@@ -3517,10 +3517,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_223()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year gt 1999&$skip=5",
@@ -3531,10 +3531,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_224()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year le 2000&$skip=5",
@@ -3545,10 +3545,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_225()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year lt 2001&$skip=5",
@@ -3559,7 +3559,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_226()
     {
         if (!CanQueryDateComponents())
@@ -3567,7 +3567,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$filter=year(releaseDate) eq 1994&$skip=5",
@@ -3578,10 +3578,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_227()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=bestPictureWinner asc&$skip=5",
@@ -3592,10 +3592,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_228()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=bestPictureWinner desc&$skip=5",
@@ -3606,10 +3606,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_229()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=duration asc&$skip=5",
@@ -3620,10 +3620,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_230()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=duration desc&$skip=5",
@@ -3634,10 +3634,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_231()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=rating asc&$skip=5",
@@ -3648,10 +3648,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_232()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=rating desc&$skip=5",
@@ -3662,10 +3662,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_233()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=releaseDate asc&$skip=5",
@@ -3676,10 +3676,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_234()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=releaseDate desc&$skip=5",
@@ -3690,10 +3690,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_235()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=title asc&$skip=5",
@@ -3704,10 +3704,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_236()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=title desc&$skip=5",
@@ -3718,10 +3718,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_237()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=year asc&$skip=5",
@@ -3732,10 +3732,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_238()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=year asc,title asc&$skip=5",
@@ -3746,10 +3746,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_239()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=year asc,title desc&$skip=5",
@@ -3760,10 +3760,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_240()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=year desc&$skip=5",
@@ -3774,10 +3774,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_241()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=year desc,title asc&$skip=5",
@@ -3788,10 +3788,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_242()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$orderby=year desc,title desc&$skip=5",
@@ -3802,10 +3802,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_243()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$skip=0",
@@ -3816,10 +3816,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_244()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$skip=100",
@@ -3830,10 +3830,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_245()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$skip=200",
@@ -3844,10 +3844,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_246()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$skip=300",
@@ -3857,7 +3857,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             []);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_247()
     {
         if (!CanDoComplexMath())
@@ -3865,7 +3865,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=((year div 1000.5) eq 2) and (rating eq 'R')",
@@ -3876,10 +3876,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_248()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=((year sub 1900) ge 80) and ((year add 10) le 2000) and (duration le 120)",
@@ -3890,7 +3890,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_249()
     {
         if (!CanQueryDateComponents())
@@ -3898,7 +3898,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=(year div 1000.5) eq 2",
@@ -3909,10 +3909,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_250()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=(year ge 1930 and year le 1940) or (year ge 1950 and year le 1960)",
@@ -3923,10 +3923,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_251()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=(year sub 1900) ge 80",
@@ -3937,10 +3937,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_252()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner eq false",
@@ -3951,7 +3951,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_253()
     {
         if (!CanQueryDateComponents())
@@ -3959,7 +3959,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner eq true and ceiling(duration div 60.0) eq 2",
@@ -3970,7 +3970,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_254()
     {
         if (!CanQueryDateComponents())
@@ -3978,7 +3978,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner eq true and floor(duration div 60.0) eq 2",
@@ -3989,7 +3989,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_255()
     {
         if (!CanQueryDateComponents())
@@ -3997,7 +3997,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner eq true and round(duration div 60.0) eq 2",
@@ -4008,10 +4008,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_256()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner eq true",
@@ -4022,10 +4022,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_257()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner ne false",
@@ -4036,10 +4036,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_258()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=bestPictureWinner ne true",
@@ -4050,7 +4050,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_259()
     {
         if (!CanDoComplexMath())
@@ -4058,7 +4058,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=ceiling(duration div 60.0) eq 2",
@@ -4069,7 +4069,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_260()
     {
         if (!CanQueryDateComponents())
@@ -4077,7 +4077,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=day(releaseDate) eq 1",
@@ -4088,10 +4088,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_261()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=duration ge 60",
@@ -4102,10 +4102,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_262()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=endswith(title, 'er')",
@@ -4116,10 +4116,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_263()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=endswith(tolower(title), 'er')",
@@ -4130,10 +4130,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_264()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=endswith(toupper(title), 'ER')",
@@ -4144,7 +4144,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_265()
     {
         if (!CanDoComplexMath())
@@ -4152,7 +4152,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=floor(duration div 60.0) eq 2",
@@ -4163,7 +4163,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_266()
     {
         if (!CanQueryDateComponents())
@@ -4171,7 +4171,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=month(releaseDate) eq 11",
@@ -4182,10 +4182,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_267()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=not(bestPictureWinner eq false)",
@@ -4196,10 +4196,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_268()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=not(bestPictureWinner eq true)",
@@ -4210,10 +4210,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_269()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=not(bestPictureWinner ne false)",
@@ -4224,10 +4224,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_270()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=not(bestPictureWinner ne true)",
@@ -4238,10 +4238,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_271()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=rating eq 'R'",
@@ -4252,10 +4252,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_272()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=rating ne 'PG13'",
@@ -4266,10 +4266,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_273()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=rating eq 'Unrated'",
@@ -4280,7 +4280,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_274()
     {
         if (!CanQueryDateComponents())
@@ -4288,7 +4288,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate eq cast(1994-10-14,Edm.Date)",
@@ -4299,7 +4299,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_275()
     {
         if (!CanQueryDateComponents())
@@ -4307,7 +4307,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate ge cast(1999-12-31,Edm.Date)",
@@ -4318,7 +4318,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_276()
     {
         if (!CanQueryDateComponents())
@@ -4326,7 +4326,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate gt cast(1999-12-31,Edm.Date)",
@@ -4337,7 +4337,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_277()
     {
         if (!CanQueryDateComponents())
@@ -4345,7 +4345,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate le cast(2000-01-01,Edm.Date)",
@@ -4356,7 +4356,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_278()
     {
         if (!CanQueryDateComponents())
@@ -4364,7 +4364,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=releaseDate lt cast(2000-01-01,Edm.Date)",
@@ -4375,7 +4375,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_279()
     {
         if (!CanQueryDateComponents())
@@ -4383,7 +4383,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=round(duration div 60.0) eq 2",
@@ -4394,10 +4394,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_281()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=startswith(tolower(title), 'the')",
@@ -4408,10 +4408,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_282()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=startswith(toupper(title), 'THE')",
@@ -4422,10 +4422,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_283()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=year eq 1994",
@@ -4436,10 +4436,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_284()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=year ge 2000 and year le 2009",
@@ -4450,10 +4450,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_285()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=year ge 2000",
@@ -4464,10 +4464,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_286()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=year gt 1999 and year lt 2010",
@@ -4478,10 +4478,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_287()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=year gt 1999",
@@ -4492,10 +4492,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_288()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=year le 2000",
@@ -4506,10 +4506,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_289()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=year lt 2001",
@@ -4520,7 +4520,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_290()
     {
         if (!CanQueryDateComponents())
@@ -4528,7 +4528,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
             return;
         }
 
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$filter=year(releaseDate) eq 1994",
@@ -4539,10 +4539,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_291()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=bestPictureWinner asc",
@@ -4553,10 +4553,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_292()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=bestPictureWinner desc",
@@ -4567,10 +4567,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_293()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=duration asc",
@@ -4581,10 +4581,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_294()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=duration desc",
@@ -4595,10 +4595,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_295()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=rating asc",
@@ -4609,10 +4609,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_296()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=rating desc",
@@ -4623,10 +4623,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_297()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=releaseDate asc",
@@ -4637,10 +4637,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_298()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=releaseDate desc",
@@ -4651,10 +4651,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_299()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=title asc",
@@ -4665,10 +4665,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_300()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=title desc",
@@ -4679,10 +4679,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_301()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=year asc",
@@ -4693,10 +4693,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_302()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=year asc,title asc",
@@ -4707,10 +4707,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_303()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=year asc,title desc",
@@ -4721,10 +4721,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_304()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=year desc",
@@ -4735,10 +4735,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_305()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=year desc,title asc",
@@ -4749,10 +4749,10 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
         );
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task Query_Test_306()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         await MovieQueryTest(
             $"{MovieEndpoint}?$top=5&$orderby=year desc,title desc",

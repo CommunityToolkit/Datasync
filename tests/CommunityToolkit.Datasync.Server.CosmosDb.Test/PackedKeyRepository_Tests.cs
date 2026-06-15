@@ -18,7 +18,7 @@ using TestData = CommunityToolkit.Datasync.TestCommon.TestData;
 namespace CommunityToolkit.Datasync.Server.CosmosDb.Test;
 
 [ExcludeFromCodeCoverage]
-public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IDisposable, IAsyncLifetime
+public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IAsyncLifetime
 {
     #region Setup
     private readonly Random random = new();
@@ -28,20 +28,6 @@ public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IDispos
     private CosmosClient _client;
     private Container _container;
     private CosmosTableRepository<CosmosDbMovie> _repository;
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            this._client?.Dispose();
-        }
-    }
 
     override protected bool CanRunLiveTests() => !string.IsNullOrEmpty(this.connectionString);
     protected override async Task<CosmosDbMovie> GetEntityAsync(string id)
@@ -83,7 +69,7 @@ public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IDispos
         return Task.FromResult(exists ? this.movies[this.random.Next(this.movies.Count)].Id : $"{Guid.NewGuid()}:2018");
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         if (!string.IsNullOrEmpty(this.connectionString))
         {
@@ -152,7 +138,7 @@ public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IDispos
         }
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (this._client != null)
         {
@@ -164,16 +150,18 @@ public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IDispos
             {
                 // Ignore
             }
+
+            this._client.Dispose();
         }
     }
     #endregion
 
-    [SkippableTheory]
+    [Theory]
     [InlineData("BadId")]
     [InlineData("12345-12345")]
     public async Task ReadAsync_Throws_OnMalformedId(string id)
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         IRepository<CosmosDbMovie> Repository = await GetPopulatedRepositoryAsync();
         Func<Task> act = async () => _ = await Repository.ReadAsync(id);
@@ -181,12 +169,12 @@ public class PackedKeyRepository_Tests : RepositoryTests<CosmosDbMovie>, IDispos
         (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(400);
     }
 
-    [SkippableTheory]
+    [Theory]
     [InlineData("BadId")]
     [InlineData("12345-12345")]
     public async Task DeleteAsync_Throws_OnMalformedIds(string id)
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         IRepository<CosmosDbMovie> Repository = await GetPopulatedRepositoryAsync();
         Func<Task> act = async () => await Repository.DeleteAsync(id);

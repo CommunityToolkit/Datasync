@@ -8,7 +8,7 @@ using CommunityToolkit.Datasync.TestCommon.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Runtime.CompilerServices;
-using Xunit.Abstractions;
+using Xunit;
 
 namespace CommunityToolkit.Datasync.TestCommon.Databases;
 

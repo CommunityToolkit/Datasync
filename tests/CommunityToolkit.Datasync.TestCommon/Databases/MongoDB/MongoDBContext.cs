@@ -5,7 +5,7 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Events;
-using Xunit.Abstractions;
+using Xunit;
 
 namespace CommunityToolkit.Datasync.TestCommon.Databases;
 
