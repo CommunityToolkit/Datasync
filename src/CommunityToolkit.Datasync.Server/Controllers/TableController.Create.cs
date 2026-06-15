@@ -24,14 +24,23 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
     {
         Logger.LogInformation("CreateAsync");
         TEntity entity = await DeserializeJsonContent(cancellationToken).ConfigureAwait(false);
-        Logger.LogInformation("CreateAsync: {entity}", entity.ToJsonString());
+        Logger.LogInformation("CreateAsync: {id}", entity.Id);
+        if (Options.UnsafeEntityLogging)
+        {
+            Logger.LogDebug("CreateAsync: entity {entity}", entity.ToJsonString());
+        }
 
         await AuthorizeRequestAsync(TableOperation.Create, entity, cancellationToken).ConfigureAwait(false);
         await AccessControlProvider.PreCommitHookAsync(TableOperation.Create, entity, cancellationToken).ConfigureAwait(false);
         await Repository.CreateAsync(entity, cancellationToken).ConfigureAwait(false);
         await PostCommitHookAsync(TableOperation.Create, entity, cancellationToken).ConfigureAwait(false);
 
-        Logger.LogInformation("CreateAsync: created {entity}", entity.ToJsonString());
+        Logger.LogInformation("CreateAsync: created {id}", entity.Id);
+        if (Options.UnsafeEntityLogging)
+        {
+            Logger.LogDebug("CreateAsync: created entity {entity}", entity.ToJsonString());
+        }
+
         return CreatedAtRoute(new { id = entity.Id }, entity);
     }
 }

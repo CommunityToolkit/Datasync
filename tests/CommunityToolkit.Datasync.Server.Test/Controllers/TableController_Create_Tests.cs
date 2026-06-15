@@ -5,6 +5,7 @@
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 
 namespace CommunityToolkit.Datasync.Server.Test.Controllers;
@@ -12,6 +13,41 @@ namespace CommunityToolkit.Datasync.Server.Test.Controllers;
 [ExcludeFromCodeCoverage]
 public class TableController_Create_Tests : BaseTest
 {
+    [Fact]
+    public async Task CreateAsync_UnsafeEntityLogging_False_LogsIdOnly()
+    {
+        IAccessControlProvider<TableData> accessProvider = FakeAccessControlProvider<TableData>(TableOperation.Create, true);
+        IRepository<TableData> repository = FakeRepository<TableData>(null, false);
+        TableControllerOptions options = new() { UnsafeEntityLogging = false };
+        CapturingLogger logger = new();
+        ExposedTableController<TableData> controller = new(repository, accessProvider, options) { Logger = logger };
+        TableData entity = new() { Id = "0da7fb24-3606-442f-9f68-c47c6e7d09d4" };
+        controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Post, "https://localhost/table", entity);
+
+        _ = await controller.CreateAsync();
+
+        logger.Entries.Should().Contain(e => e.LogLevel == LogLevel.Information && e.Message.Contains(entity.Id));
+        logger.Entries.Should().NotContain(e => e.Message.Contains("UpdatedAt", StringComparison.OrdinalIgnoreCase));
+        logger.Entries.Should().NotContain(e => e.LogLevel == LogLevel.Debug);
+    }
+
+    [Fact]
+    public async Task CreateAsync_UnsafeEntityLogging_True_LogsFullEntityAtDebug()
+    {
+        IAccessControlProvider<TableData> accessProvider = FakeAccessControlProvider<TableData>(TableOperation.Create, true);
+        IRepository<TableData> repository = FakeRepository<TableData>(null, false);
+        TableControllerOptions options = new() { UnsafeEntityLogging = true };
+        CapturingLogger logger = new();
+        ExposedTableController<TableData> controller = new(repository, accessProvider, options) { Logger = logger };
+        TableData entity = new() { Id = "0da7fb24-3606-442f-9f68-c47c6e7d09d4" };
+        controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Post, "https://localhost/table", entity);
+
+        _ = await controller.CreateAsync();
+
+        logger.Entries.Should().Contain(e => e.LogLevel == LogLevel.Information && e.Message.Contains(entity.Id));
+        logger.Entries.Should().Contain(e => e.LogLevel == LogLevel.Debug && e.Message.Contains("UpdatedAt", StringComparison.OrdinalIgnoreCase));
+    }
+
     [Fact]
     public async Task CreateAsync_Unauthorized_Throws()
     {

@@ -160,7 +160,12 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         bool isAuthorized = await AccessControlProvider.IsAuthorizedAsync(operation, entity, cancellationToken).ConfigureAwait(false);
         if (!isAuthorized)
         {
-            Logger.LogWarning("{operation} {entity} statusCode=401 unauthorized", operation, entity?.ToJsonString() ?? "");
+            Logger.LogWarning("{operation} {id} statusCode=401 unauthorized", operation, entity?.Id ?? "");
+            if (Options.UnsafeEntityLogging)
+            {
+                Logger.LogDebug("{operation} entity {entity} statusCode=401 unauthorized", operation, entity?.ToJsonString() ?? "");
+            }
+
             throw new HttpException(Options.UnauthorizedStatusCode);
         }
     }

@@ -18,6 +18,7 @@ public class TableControllerOptions_Tests
         sut.MaxTop.Should().Be(128000);
         sut.PageSize.Should().Be(100);
         sut.UnauthorizedStatusCode.Should().Be(StatusCodes.Status401Unauthorized);
+        sut.UnsafeEntityLogging.Should().BeFalse();
     }
 
     [Theory]
@@ -60,11 +61,12 @@ public class TableControllerOptions_Tests
     [Fact]
     public void Ctor_Roundtrips()
     {
-        TableControllerOptions sut = new() { EnableSoftDelete = true, MaxTop = 100, PageSize = 50, UnauthorizedStatusCode = 403 };
+        TableControllerOptions sut = new() { EnableSoftDelete = true, MaxTop = 100, PageSize = 50, UnauthorizedStatusCode = 403, UnsafeEntityLogging = true };
 
         sut.EnableSoftDelete.Should().BeTrue();
         sut.MaxTop.Should().Be(100);
         sut.PageSize.Should().Be(50);
         sut.UnauthorizedStatusCode.Should().Be(403);
+        sut.UnsafeEntityLogging.Should().BeTrue();
     }
 }

@@ -203,6 +203,41 @@ public class TableController_Base_Tests : BaseTest
 
         await act.Should().NotThrowAsync();
     }
+
+    [Fact]
+    public async Task AuthorizeRequestAsync_UnsafeEntityLogging_False_LogsIdOnly()
+    {
+        IAccessControlProvider<TableData> provider = FakeAccessControlProvider<TableData>(TableOperation.Update, false);
+        IRepository<TableData> repository = FakeRepository<TableData>();
+        TableControllerOptions options = new() { UnsafeEntityLogging = false };
+        CapturingLogger logger = new();
+        ExposedTableController<TableData> controller = new(repository, provider, options) { Logger = logger };
+        TableData entity = new() { Id = "0da7fb24-3606-442f-9f68-c47c6e7d09d4" };
+
+        Func<Task> act = async () => await controller.__AuthorizeRequestAsync(TableOperation.Update, entity, CancellationToken.None);
+
+        (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(401);
+        logger.Entries.Should().Contain(e => e.LogLevel == LogLevel.Warning && e.Message.Contains(entity.Id));
+        logger.Entries.Should().NotContain(e => e.Message.Contains("UpdatedAt", StringComparison.OrdinalIgnoreCase));
+        logger.Entries.Should().NotContain(e => e.LogLevel == LogLevel.Debug);
+    }
+
+    [Fact]
+    public async Task AuthorizeRequestAsync_UnsafeEntityLogging_True_LogsFullEntityAtDebug()
+    {
+        IAccessControlProvider<TableData> provider = FakeAccessControlProvider<TableData>(TableOperation.Update, false);
+        IRepository<TableData> repository = FakeRepository<TableData>();
+        TableControllerOptions options = new() { UnsafeEntityLogging = true };
+        CapturingLogger logger = new();
+        ExposedTableController<TableData> controller = new(repository, provider, options) { Logger = logger };
+        TableData entity = new() { Id = "0da7fb24-3606-442f-9f68-c47c6e7d09d4" };
+
+        Func<Task> act = async () => await controller.__AuthorizeRequestAsync(TableOperation.Update, entity, CancellationToken.None);
+
+        (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(401);
+        logger.Entries.Should().Contain(e => e.LogLevel == LogLevel.Warning && e.Message.Contains(entity.Id));
+        logger.Entries.Should().Contain(e => e.LogLevel == LogLevel.Debug && e.Message.Contains("UpdatedAt", StringComparison.OrdinalIgnoreCase));
+    }
     #endregion
 
     #region PostCommitHookAsync

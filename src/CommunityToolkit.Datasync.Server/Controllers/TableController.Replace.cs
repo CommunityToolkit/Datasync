@@ -23,9 +23,13 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
     [ProducesResponseType(StatusCodes.Status200OK)]
     public virtual async Task<IActionResult> ReplaceAsync([FromRoute] string id, CancellationToken cancellationToken = default)
     {
-        Logger.LogInformation("CreateAsync");
+        Logger.LogInformation("ReplaceAsync");
         TEntity entity = await DeserializeJsonContent(cancellationToken).ConfigureAwait(false);
-        Logger.LogInformation("ReplaceAsync: {id} {entity}", id, entity.ToJsonString());
+        Logger.LogInformation("ReplaceAsync: {id}", id);
+        if (Options.UnsafeEntityLogging)
+        {
+            Logger.LogDebug("ReplaceAsync: {id} entity {entity}", id, entity.ToJsonString());
+        }
 
         if (id != entity.Id)
         {
@@ -57,7 +61,12 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         // operation, so we have to do an additional GET to ensure we are getting the right version of the entity
         TEntity? updatedEntity = await Repository.ReadAsync(id, cancellationToken).ConfigureAwait(false);
 
-        Logger.LogInformation("ReplaceAsync: replaced {entity}", updatedEntity.ToJsonString());
+        Logger.LogInformation("ReplaceAsync: replaced {id}", updatedEntity?.Id);
+        if (Options.UnsafeEntityLogging)
+        {
+            Logger.LogDebug("ReplaceAsync: replaced entity {entity}", updatedEntity?.ToJsonString() ?? "null");
+        }
+
         return Ok(updatedEntity);
     }
 }
