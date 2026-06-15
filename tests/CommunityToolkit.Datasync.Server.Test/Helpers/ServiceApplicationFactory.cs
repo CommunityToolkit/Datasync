@@ -57,11 +57,12 @@ public class ServiceApplicationFactory : WebApplicationFactory<Program>
         return repository.GetEntity(id);
     }
 
-    internal void SetupAccessControlProvider(bool isAuthorized)
+    internal void SetupAccessControlProvider(bool isAuthorized, Expression<Func<InMemoryMovie, bool>> dataView = null)
     {
         using IServiceScope scope = Services.CreateScope();
         IAccessControlProvider<InMemoryMovie> provider = scope.ServiceProvider.GetRequiredService<IAccessControlProvider<InMemoryMovie>>();
         (provider as MovieAccessControlProvider<InMemoryMovie>).CanBeAuthorized = isAuthorized;
+        (provider as MovieAccessControlProvider<InMemoryMovie>).DataView = dataView;
     }
 
     internal InMemoryMovie GetAuthorizedEntity()

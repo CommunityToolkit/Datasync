@@ -69,6 +69,36 @@ public class Create_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     }
 
     [Fact]
+    public async Task Create_ExistingId_WithACP_InView_Returns409()
+    {
+        InMemoryMovie existingMovie = this.factory.GetRandomMovie();
+        // The data view INCLUDES the conflicting entity, so the conflict should be surfaced as a 409 with payload.
+        this.factory.SetupAccessControlProvider(true, m => m.Id == existingMovie.Id);
+        ClientMovie source = new(TestData.Movies.BlackPanther) { Id = existingMovie.Id };
+
+        HttpResponseMessage response = await this.client.PostAsJsonAsync(this.factory.AuthorizedMovieEndpoint, source, this.serializerOptions);
+        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
+        clientMovie.Should().NotBeNull().And.HaveEquivalentMetadataTo(existingMovie).And.BeEquivalentTo<IMovie>(existingMovie);
+    }
+
+    [Fact]
+    public async Task Create_ExistingId_WithACP_NotInView_Returns400()
+    {
+        InMemoryMovie existingMovie = this.factory.GetRandomMovie();
+        // The data view EXCLUDES the conflicting entity, so the conflict must NOT be surfaced - return 400 with no payload.
+        this.factory.SetupAccessControlProvider(true, m => m.Id == "id-that-does-not-exist");
+        ClientMovie source = new(TestData.Movies.BlackPanther) { Id = existingMovie.Id };
+
+        HttpResponseMessage response = await this.client.PostAsJsonAsync(this.factory.AuthorizedMovieEndpoint, source, this.serializerOptions);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        string content = await response.Content.ReadAsStringAsync();
+        content.Should().NotContain(existingMovie.Id);
+    }
+
+    [Fact]
     public async Task Create_CanRoundtrip_Types()
     {
         const string id = "ks01";

@@ -4,6 +4,7 @@
 
 using CommunityToolkit.Datasync.Server;
 using CommunityToolkit.Datasync.TestCommon.Models;
+using System.Linq.Expressions;
 
 namespace CommunityToolkit.Datasync.TestService.AccessControlProviders;
 
@@ -19,6 +20,15 @@ public class MovieAccessControlProvider<T> : AccessControlProvider<T> where T : 
     /// Determines if the entity can be authorized.
     /// </summary>
     public bool CanBeAuthorized { get; set; } = true;
+
+    /// <summary>
+    /// An optional data view filter that restricts which entities are visible to the client.
+    /// </summary>
+    public Expression<Func<T, bool>> DataView { get; set; } = null;
+
+    /// <inheritdoc />
+    public override Expression<Func<T, bool>> GetDataView()
+        => DataView;
 
     /// <inheritdoc />
     public override ValueTask<bool> IsAuthorizedAsync(TableOperation operation, T entity, CancellationToken cancellationToken = default)
