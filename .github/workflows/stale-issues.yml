@@ -23,7 +23,7 @@ jobs:
       pull-requests: write
 
     steps:
-    - uses: actions/stale@v9
+    - uses: actions/stale@v10
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         days-before-stale: 21
@@ -38,7 +38,7 @@ jobs:
         stale-issue-label: 'stale'
         stale-pr-label: 'stale'
 
-    - uses: actions/stale@v9
+    - uses: actions/stale@v10
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         days-before-stale: 5

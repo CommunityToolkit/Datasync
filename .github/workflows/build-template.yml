@@ -33,7 +33,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Get build version
         run: |
@@ -45,7 +45,7 @@ jobs:
         shell: pwsh
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -65,7 +65,7 @@ jobs:
           -p:PackageVersion=$BUILD_VERSION
 
       - name: Upload NuGet packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nuget-unsigned
           if-no-files-found: error
@@ -73,7 +73,7 @@ jobs:
           retention-days: 7
 
       - name: Upload Package List
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nuget-list
           if-no-files-found: error
@@ -89,7 +89,7 @@ jobs:
 
     steps:
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
@@ -97,13 +97,13 @@ jobs:
         run: dotnet tool install --tool-path ./tools sign --version 0.9.1-beta.23356.1
 
       - name: Download NuGet package list
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nuget-list
           path: ${{ github.workspace }}
 
       - name: Download unsigned NuGet packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nuget-unsigned
           path: ${{ github.workspace }}/packages
@@ -126,7 +126,7 @@ jobs:
           --verbosity Information        
 
       - name: Upload signed NuGet packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nuget-signed
           if-no-files-found: error
@@ -156,12 +156,12 @@ jobs:
 
     steps:
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
   
       - name: Download unsigned NuGet packages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: nuget-signed
           path: ${{ github.workspace }}/packages
