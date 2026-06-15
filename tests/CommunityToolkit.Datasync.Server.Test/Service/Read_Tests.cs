@@ -18,10 +18,10 @@ public class Read_Tests(ServiceApplicationFactory factory) : ServiceTest(factory
     public async Task Read_Returns200()
     {
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
-        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.MovieEndpoint}/{existingMovie.Id}");
+        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.MovieEndpoint}/{existingMovie.Id}", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
+        ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions, TestContext.Current.CancellationToken);
         clientMovie.Should().NotBeNull().And.HaveEquivalentMetadataTo(existingMovie).And.BeEquivalentTo<IMovie>(existingMovie);
         response.Headers.ETag.Should().BeETag($"\"{clientMovie.Version}\"");
     }
@@ -36,12 +36,12 @@ public class Read_Tests(ServiceApplicationFactory factory) : ServiceTest(factory
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         HttpRequestMessage request = new(HttpMethod.Get, $"{this.factory.MovieEndpoint}/{existingMovie.Id}");
         request.Headers.Add(headerName, headerValue ?? $"\"{Convert.ToBase64String(existingMovie.Version)}\"");
-        HttpResponseMessage response = await this.client.SendAsync(request);
+        HttpResponseMessage response = await this.client.SendAsync(request, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(expectedStatusCode);
 
         if (expectedStatusCode == HttpStatusCode.OK)
         {
-            ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
+            ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions, TestContext.Current.CancellationToken);
             clientMovie.Should().NotBeNull().And.HaveEquivalentMetadataTo(existingMovie).And.BeEquivalentTo<IMovie>(existingMovie);
             response.Headers.ETag.Should().BeETag($"\"{clientMovie.Version}\"");
         }
@@ -63,10 +63,10 @@ public class Read_Tests(ServiceApplicationFactory factory) : ServiceTest(factory
         };
         this.factory.Store(storedEntity);
 
-        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.KitchenSinkEndpoint}/{storedEntity.Id}");
+        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.KitchenSinkEndpoint}/{storedEntity.Id}", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ClientKitchenSink clientEntity = await response.Content.ReadFromJsonAsync<ClientKitchenSink>(this.serializerOptions);
+        ClientKitchenSink clientEntity = await response.Content.ReadFromJsonAsync<ClientKitchenSink>(this.serializerOptions, TestContext.Current.CancellationToken);
         clientEntity.Should().NotBeNull().And.HaveEquivalentMetadataTo(storedEntity).And.BeEquivalentTo<IKitchenSink>(storedEntity);
         response.Headers.ETag.Should().BeETag($"\"{clientEntity.Version}\"");
     }
@@ -116,10 +116,10 @@ public class Read_Tests(ServiceApplicationFactory factory) : ServiceTest(factory
         this.factory.Store(entity1);
         this.factory.Store(entity2);
 
-        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.KitchenSinkEndpoint}/{entity1.Id}");
+        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.KitchenSinkEndpoint}/{entity1.Id}", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ClientObject actual = await response.Content.ReadFromJsonAsync<ClientObject>(this.serializerOptions);
+        ClientObject actual = await response.Content.ReadFromJsonAsync<ClientObject>(this.serializerOptions, TestContext.Current.CancellationToken);
 
         actual.Data["id"].Should().BeJsonElement(entity1.Id);
         actual.Data["booleanValue"].Should().BeJsonElement(true);
@@ -142,10 +142,10 @@ public class Read_Tests(ServiceApplicationFactory factory) : ServiceTest(factory
         actual.Data["stringValue"].Should().BeJsonElement("state=none");
         actual.Data["timeOnlyValue"].Should().BeJsonElement("09:52:35.321");
 
-        HttpResponseMessage response2 = await this.client.GetAsync($"{this.factory.KitchenSinkEndpoint}/{entity2.Id}");
+        HttpResponseMessage response2 = await this.client.GetAsync($"{this.factory.KitchenSinkEndpoint}/{entity2.Id}", TestContext.Current.CancellationToken);
         response2.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ClientObject actual2 = await response2.Content.ReadFromJsonAsync<ClientObject>();
+        ClientObject actual2 = await response2.Content.ReadFromJsonAsync<ClientObject>(TestContext.Current.CancellationToken);
 
         actual2.Data["nullableDouble"].Should().BeJsonElement(42.42);
         actual2.Data["nullableEnumValue"].Should().BeJsonElement("Failed");
@@ -154,7 +154,7 @@ public class Read_Tests(ServiceApplicationFactory factory) : ServiceTest(factory
     [Fact]
     public async Task Read_MissingId_Returns404()
     {
-        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.MovieEndpoint}/missing");
+        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.MovieEndpoint}/missing", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
@@ -162,10 +162,10 @@ public class Read_Tests(ServiceApplicationFactory factory) : ServiceTest(factory
     public async Task Read_SoftDeleted_NotDeleted_Returns200()
     {
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
-        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}");
+        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
+        ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions, TestContext.Current.CancellationToken);
         clientMovie.Should().NotBeNull().And.HaveEquivalentMetadataTo(existingMovie).And.BeEquivalentTo<IMovie>(existingMovie);
         response.Headers.ETag.Should().BeETag($"\"{clientMovie.Version}\"");
     }
@@ -175,7 +175,7 @@ public class Read_Tests(ServiceApplicationFactory factory) : ServiceTest(factory
     {
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
-        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}");
+        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Gone);
     }
 
@@ -184,10 +184,10 @@ public class Read_Tests(ServiceApplicationFactory factory) : ServiceTest(factory
     {
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
-        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}?__includedeleted=true");
+        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}?__includedeleted=true", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
+        ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions, TestContext.Current.CancellationToken);
         clientMovie.Should().NotBeNull().And.HaveEquivalentMetadataTo(existingMovie).And.BeEquivalentTo<IMovie>(existingMovie);
         response.Headers.ETag.Should().BeETag($"\"{clientMovie.Version}\"");
     }

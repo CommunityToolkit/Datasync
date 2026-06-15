@@ -206,7 +206,7 @@ public class GenericAuthenticationProvider_Tests
     {
         int count = 0;
         GenericAuthenticationProvider sut = new(_ => { count++; return Task.FromResult(ValidAuthenticationToken); });
-        string actual = await sut.GetTokenAsync();
+        string actual = await sut.GetTokenAsync(cancellationToken: TestContext.Current.CancellationToken);
         actual.Should().Be(ValidAuthenticationToken.Token);
         count.Should().Be(1);
     }
@@ -216,8 +216,8 @@ public class GenericAuthenticationProvider_Tests
     {
         int count = 0;
         GenericAuthenticationProvider sut = new(_ => { count++; return Task.FromResult(ValidAuthenticationToken); });
-        string firstCall = await sut.GetTokenAsync();
-        string secondCall = await sut.GetTokenAsync();
+        string firstCall = await sut.GetTokenAsync(cancellationToken: TestContext.Current.CancellationToken);
+        string secondCall = await sut.GetTokenAsync(cancellationToken: TestContext.Current.CancellationToken);
         firstCall.Should().Be(ValidAuthenticationToken.Token);
         secondCall.Should().Be(ValidAuthenticationToken.Token);
         count.Should().Be(1);
@@ -228,9 +228,9 @@ public class GenericAuthenticationProvider_Tests
     {
         int count = 0;
         GenericAuthenticationProvider sut = new(_ => { count++; return Task.FromResult(ValidAuthenticationToken); });
-        string firstCall = await sut.GetTokenAsync();
+        string firstCall = await sut.GetTokenAsync(cancellationToken: TestContext.Current.CancellationToken);
         firstCall.Should().Be(ValidAuthenticationToken.Token);
-        string secondCall = await sut.GetTokenAsync(true);
+        string secondCall = await sut.GetTokenAsync(true, TestContext.Current.CancellationToken);
         secondCall.Should().Be(ValidAuthenticationToken.Token);
         count.Should().Be(2);
     }
@@ -239,14 +239,14 @@ public class GenericAuthenticationProvider_Tests
     public async Task GetTokenAsync_LogsOutWhenExpired()
     {
         GenericAuthenticationProvider sut = new(_ => Task.FromResult(ValidAuthenticationToken));
-        string firstCall = await sut.GetTokenAsync();
+        string firstCall = await sut.GetTokenAsync(cancellationToken: TestContext.Current.CancellationToken);
         firstCall.Should().Be(ValidAuthenticationToken.Token);
         sut.DisplayName.Should().Be(ValidAuthenticationToken.DisplayName);
         sut.UserId.Should().Be(ValidAuthenticationToken.UserId);
         sut.IsLoggedIn.Should().BeTrue();
 
         sut.TokenRequestorAsync = _ => Task.FromResult(ExpiredAuthenticationToken);
-        string secondCall = await sut.GetTokenAsync(true);
+        string secondCall = await sut.GetTokenAsync(true, TestContext.Current.CancellationToken);
         secondCall.Should().BeNull();
         sut.DisplayName.Should().BeNull();
         sut.UserId.Should().BeNull();
@@ -258,7 +258,7 @@ public class GenericAuthenticationProvider_Tests
     {
         int count = 0;
         GenericAuthenticationProvider sut = new(_ => { count++; return Task.FromResult(ValidAuthenticationToken); });
-        await sut.LoginAsync();
+        await sut.LoginAsync(TestContext.Current.CancellationToken);
         count.Should().Be(1);
     }
 
@@ -267,9 +267,9 @@ public class GenericAuthenticationProvider_Tests
     {
         int count = 0;
         GenericAuthenticationProvider sut = new(_ => { count++; return Task.FromResult(ValidAuthenticationToken); });
-        string firstCall = await sut.GetTokenAsync();
+        string firstCall = await sut.GetTokenAsync(cancellationToken: TestContext.Current.CancellationToken);
         firstCall.Should().Be(ValidAuthenticationToken.Token);
-        await sut.LoginAsync();
+        await sut.LoginAsync(TestContext.Current.CancellationToken);
         count.Should().Be(2);
     }
 
@@ -284,7 +284,7 @@ public class GenericAuthenticationProvider_Tests
             InnerHandler = handler
         };
 
-        HttpResponseMessage response = await sut.WrappedSendAsync(request);
+        HttpResponseMessage response = await sut.WrappedSendAsync(request, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
 
@@ -303,7 +303,7 @@ public class GenericAuthenticationProvider_Tests
             InnerHandler = handler
         };
 
-        HttpResponseMessage response = await sut.WrappedSendAsync(request);
+        HttpResponseMessage response = await sut.WrappedSendAsync(request, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
 
@@ -323,7 +323,7 @@ public class GenericAuthenticationProvider_Tests
             InnerHandler = handler
         };
 
-        HttpResponseMessage response = await sut.WrappedSendAsync(request);
+        HttpResponseMessage response = await sut.WrappedSendAsync(request, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
 
@@ -343,7 +343,7 @@ public class GenericAuthenticationProvider_Tests
             InnerHandler = handler
         };
 
-        HttpResponseMessage response = await sut.WrappedSendAsync(request);
+        HttpResponseMessage response = await sut.WrappedSendAsync(request, TestContext.Current.CancellationToken);
 
         response.Should().NotBeNull();
 

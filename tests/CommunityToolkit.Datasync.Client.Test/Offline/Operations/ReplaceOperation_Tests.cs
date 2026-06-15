@@ -47,15 +47,15 @@ public class ReplaceOperation_Tests
             Endpoint = new Uri("/tables/movies", UriKind.Relative),
             QueryDescription = new()
         };
-        ExecutableOperation operation = await ExecutableOperation.CreateAsync(op);
-        ServiceResponse response = await operation.ExecuteAsync(options);
+        ExecutableOperation operation = await ExecutableOperation.CreateAsync(op, TestContext.Current.CancellationToken);
+        ServiceResponse response = await operation.ExecuteAsync(options, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = handler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/123");
         request.Headers.Should().NotContain(x => x.Key == "If-Match");
-        (await request.Content.ReadAsStringAsync()).Should().Be(itemJson);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(itemJson);
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -97,15 +97,15 @@ public class ReplaceOperation_Tests
             Endpoint = new Uri("/tables/movies", UriKind.Relative),
             QueryDescription = new()
         };
-        ExecutableOperation operation = await ExecutableOperation.CreateAsync(op);
-        ServiceResponse response = await operation.ExecuteAsync(options);
+        ExecutableOperation operation = await ExecutableOperation.CreateAsync(op, TestContext.Current.CancellationToken);
+        ServiceResponse response = await operation.ExecuteAsync(options, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = handler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies/123");
         request.Headers.Should().Contain(x => x.Key == "If-Match" && x.Value.First() == "\"abcdefg\"");
-        (await request.Content.ReadAsStringAsync()).Should().Be(itemJson);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(itemJson);
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();

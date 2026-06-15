@@ -29,7 +29,7 @@ public class Query_Tests(ServiceApplicationFactory factory) : ServiceTest(factor
     [InlineData("$top=NaN", HttpStatusCode.BadRequest)]
     public async Task FailedQueryTest(string query, HttpStatusCode expectedStatusCode)
     {
-        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.MovieEndpoint}?{query}");
+        HttpResponseMessage response = await this.client.GetAsync($"{this.factory.MovieEndpoint}?{query}", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(expectedStatusCode);
     }
 
@@ -3903,9 +3903,9 @@ public class Query_Tests(ServiceApplicationFactory factory) : ServiceTest(factor
 
         string query = $"{this.factory.MovieEndpoint}?$top=5&$skip=5&$select={string.Join(',', selection)}";
 
-        HttpResponseMessage response = await this.client.GetAsync(query);
+        HttpResponseMessage response = await this.client.GetAsync(query, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        string content = await response.Content.ReadAsStringAsync();
+        string content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         PageOfItems<ClientObject> result = JsonSerializer.Deserialize<PageOfItems<ClientObject>>(content, this.serializerOptions);
         result.Should().NotBeNull();
         result.Items.Should().NotBeNullOrEmpty();

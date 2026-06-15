@@ -18,7 +18,7 @@ public class DefaultDeltaTokenStore_Tests : BaseTest
     [Fact]
     public async Task GetDeltaTokenAsync_ReturnsMinValueWhenMissing()
     {
-        DateTimeOffset actual = await DeltaTokenStore.GetDeltaTokenAsync("abc");
+        DateTimeOffset actual = await DeltaTokenStore.GetDeltaTokenAsync("abc", TestContext.Current.CancellationToken);
         actual.ToUnixTimeMilliseconds().Should().Be(0);
     }
 
@@ -28,7 +28,7 @@ public class DefaultDeltaTokenStore_Tests : BaseTest
         DateTimeOffset expected = DateTimeOffset.UtcNow;
         this.context.DatasyncDeltaTokens.Add(new DatasyncDeltaToken() { Id = "abc", Value = expected.ToUnixTimeMilliseconds() });
         this.context.SaveChanges();
-        DateTimeOffset actual = await DeltaTokenStore.GetDeltaTokenAsync("abc");
+        DateTimeOffset actual = await DeltaTokenStore.GetDeltaTokenAsync("abc", TestContext.Current.CancellationToken);
         actual.ToUnixTimeMilliseconds().Should().Be(expected.ToUnixTimeMilliseconds());
     }
 

@@ -44,8 +44,8 @@ public class Integration_Pull_Tests : ServiceTest, IClassFixture<ServiceApplicat
     [Fact]
     public async Task PullAsync_ViaDbSet_Works()
     {
-        await this.context.Movies.PullAsync();
-        List<ClientMovie> movies = await this.context.Movies.ToListAsync();
+        await this.context.Movies.PullAsync(TestContext.Current.CancellationToken);
+        List<ClientMovie> movies = await this.context.Movies.ToListAsync(TestContext.Current.CancellationToken);
 
         movies.Count.Should().Be(248);
         foreach (ClientMovie movie in movies)
@@ -60,8 +60,8 @@ public class Integration_Pull_Tests : ServiceTest, IClassFixture<ServiceApplicat
     [Fact]
     public async Task PullAsync_ViaDbSet_Works_ByteVersion()
     {
-        await this.context.ByteMovies.PullAsync();
-        List<ByteVersionMovie> movies = await this.context.ByteMovies.ToListAsync();
+        await this.context.ByteMovies.PullAsync(TestContext.Current.CancellationToken);
+        List<ByteVersionMovie> movies = await this.context.ByteMovies.ToListAsync(TestContext.Current.CancellationToken);
 
         movies.Count.Should().Be(248);
         foreach (ByteVersionMovie movie in movies)
@@ -76,8 +76,8 @@ public class Integration_Pull_Tests : ServiceTest, IClassFixture<ServiceApplicat
     [Fact]
     public async Task PullAsync_ViaContext_Works()
     {
-        await this.context.PullAsync();
-        List<ClientMovie> movies = await this.context.Movies.ToListAsync();
+        await this.context.PullAsync(TestContext.Current.CancellationToken);
+        List<ClientMovie> movies = await this.context.Movies.ToListAsync(TestContext.Current.CancellationToken);
 
         movies.Count.Should().Be(248);
         foreach (ClientMovie movie in movies)
@@ -107,8 +107,8 @@ public class Integration_Pull_Tests : ServiceTest, IClassFixture<ServiceApplicat
                 opt.QueryId = "pg13-rated";
                 opt.Query.Where(x => x.Rating == MovieRating.PG13);
             });
-        });
-        List<ClientMovie> movies = await this.context.Movies.ToListAsync();
+        }, TestContext.Current.CancellationToken);
+        List<ClientMovie> movies = await this.context.Movies.ToListAsync(TestContext.Current.CancellationToken);
 
         int expectedCount = TestCommon.TestData.Movies.MovieList.Count(x => x.Rating is MovieRating.PG or MovieRating.PG13);
         movies.Count.Should().Be(expectedCount);
@@ -126,39 +126,39 @@ public class Integration_Pull_Tests : ServiceTest, IClassFixture<ServiceApplicat
     {
         const string testId = "id-010";
 
-        await this.context.MoviesWithLocalData.PullAsync();
+        await this.context.MoviesWithLocalData.PullAsync(TestContext.Current.CancellationToken);
 
-        ClientMovieWithLocalData t1 = await this.context.MoviesWithLocalData.FindAsync([testId]);
+        ClientMovieWithLocalData t1 = await this.context.MoviesWithLocalData.FindAsync([testId], TestContext.Current.CancellationToken);
 
         // Update the local data part and push it back to the server.
         t1.UserRating = 5;
         this.context.Update(t1);
-        await this.context.SaveChangesAsync();
-        await this.context.MoviesWithLocalData.PushAsync();
+        await this.context.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await this.context.MoviesWithLocalData.PushAsync(TestContext.Current.CancellationToken);
 
         // Reload the local data from the server and check that the local data is still there
-        await this.context.Entry(t1).ReloadAsync();
+        await this.context.Entry(t1).ReloadAsync(TestContext.Current.CancellationToken);
         t1.UserRating.Should().Be(5);
 
         // Pull again and check that the local data is still there.
-        await this.context.MoviesWithLocalData.PullAsync();
-        ClientMovieWithLocalData t2 = await this.context.MoviesWithLocalData.FindAsync([testId]);
+        await this.context.MoviesWithLocalData.PullAsync(TestContext.Current.CancellationToken);
+        ClientMovieWithLocalData t2 = await this.context.MoviesWithLocalData.FindAsync([testId], TestContext.Current.CancellationToken);
         t2.UserRating.Should().Be(5);
 
         // Do another change (this time, server side) and push again
         t2.Title = "New Title";
         this.context.Update(t2);
-        await this.context.SaveChangesAsync();
-        await this.context.MoviesWithLocalData.PushAsync();
+        await this.context.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await this.context.MoviesWithLocalData.PushAsync(TestContext.Current.CancellationToken);
 
         // Reload the local data from the server and check that the local data is still there
-        await this.context.Entry(t2).ReloadAsync();
+        await this.context.Entry(t2).ReloadAsync(TestContext.Current.CancellationToken);
         t2.UserRating.Should().Be(5);
         t2.Title.Should().Be("New Title");
 
         // Pull again and check that the local data is still there.
-        await this.context.MoviesWithLocalData.PullAsync();
-        ClientMovieWithLocalData t3 = await this.context.MoviesWithLocalData.FindAsync([testId]);
+        await this.context.MoviesWithLocalData.PullAsync(TestContext.Current.CancellationToken);
+        ClientMovieWithLocalData t3 = await this.context.MoviesWithLocalData.FindAsync([testId], TestContext.Current.CancellationToken);
         t3.UserRating.Should().Be(5);
         t3.Title.Should().Be("New Title");
     }

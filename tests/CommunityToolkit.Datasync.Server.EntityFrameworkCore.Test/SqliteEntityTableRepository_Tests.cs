@@ -52,7 +52,7 @@ public class SqliteEntityTableRepository_Tests : RepositoryTests<SqliteEntityMov
         SqliteEntityMovie addition = TestData.Movies.OfType<SqliteEntityMovie>(TestData.Movies.BlackPanther);
         addition.Id = null;
         SqliteEntityMovie sut = addition.Clone();
-        await repository.CreateAsync(sut);
+        await repository.CreateAsync(sut, TestContext.Current.CancellationToken);
         SqliteEntityMovie actual = await GetEntityAsync(sut.Id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);

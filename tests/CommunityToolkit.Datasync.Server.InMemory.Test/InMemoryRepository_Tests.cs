@@ -138,7 +138,7 @@ public class InMemoryRepository_Tests : RepositoryTests<InMemoryMovie>
         InMemoryMovie addition = TestData.Movies.OfType<InMemoryMovie>(TestData.Movies.BlackPanther);
         addition.Id = null;
         InMemoryMovie sut = addition.Clone();
-        await repository.CreateAsync(sut);
+        await repository.CreateAsync(sut, TestContext.Current.CancellationToken);
         InMemoryMovie actual = await GetEntityAsync(sut.Id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);
@@ -164,7 +164,7 @@ public class InMemoryRepository_Tests : RepositoryTests<InMemoryMovie>
         InMemoryMovie addition = TestData.Movies.OfType<InMemoryMovie>(TestData.Movies.BlackPanther);
         addition.Id = null;
         InMemoryMovie sut = addition.Clone();
-        await repository.CreateAsync(sut);
+        await repository.CreateAsync(sut, TestContext.Current.CancellationToken);
         InMemoryMovie actual = await GetEntityAsync(sut.Id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);

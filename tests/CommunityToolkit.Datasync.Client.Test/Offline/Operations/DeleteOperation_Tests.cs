@@ -45,8 +45,8 @@ public class DeleteOperation_Tests
             Endpoint = new Uri("/tables/movies", UriKind.Relative),
             QueryDescription = new()
         };
-        ExecutableOperation operation = await ExecutableOperation.CreateAsync(op);
-        ServiceResponse response = await operation.ExecuteAsync(options);
+        ExecutableOperation operation = await ExecutableOperation.CreateAsync(op, TestContext.Current.CancellationToken);
+        ServiceResponse response = await operation.ExecuteAsync(options, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = handler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -91,8 +91,8 @@ public class DeleteOperation_Tests
             Endpoint = new Uri("/tables/movies", UriKind.Relative),
             QueryDescription = new()
         };
-        ExecutableOperation operation = await ExecutableOperation.CreateAsync(op);
-        ServiceResponse response = await operation.ExecuteAsync(options);
+        ExecutableOperation operation = await ExecutableOperation.CreateAsync(op, TestContext.Current.CancellationToken);
+        ServiceResponse response = await operation.ExecuteAsync(options, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = handler.Requests.SingleOrDefault();
         request.Should().NotBeNull();

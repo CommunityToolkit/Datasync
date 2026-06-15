@@ -25,7 +25,7 @@ public class TableController_Replace_Tests : BaseTest
         ExposedTableController<TableData> controller = new(repository, accessProvider, options) { Logger = logger };
         controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Put, $"https://localhost/table/{entity.Id}", entity);
 
-        _ = await controller.ReplaceAsync(entity.Id);
+        _ = await controller.ReplaceAsync(entity.Id, TestContext.Current.CancellationToken);
 
         logger.Entries.Should().Contain(e => e.LogLevel == LogLevel.Information && e.Message.Contains(entity.Id));
         logger.Entries.Should().NotContain(e => e.Message.Contains("UpdatedAt", StringComparison.OrdinalIgnoreCase));
@@ -44,7 +44,7 @@ public class TableController_Replace_Tests : BaseTest
         ExposedTableController<TableData> controller = new(repository, accessProvider, options) { Logger = logger };
         controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Put, $"https://localhost/table/{entity.Id}", entity);
 
-        _ = await controller.ReplaceAsync(entity.Id);
+        _ = await controller.ReplaceAsync(entity.Id, TestContext.Current.CancellationToken);
 
         logger.Entries.Should().Contain(e => e.LogLevel == LogLevel.Information && e.Message.Contains(entity.Id));
         logger.Entries.Should().Contain(e => e.LogLevel == LogLevel.Debug && e.Message.Contains("UpdatedAt", StringComparison.OrdinalIgnoreCase));
@@ -209,7 +209,7 @@ public class TableController_Replace_Tests : BaseTest
         List<RepositoryUpdatedEventArgs> firedEvents = [];
         controller.RepositoryUpdated += (_, e) => firedEvents.Add(e);
 
-        OkObjectResult actual = await controller.ReplaceAsync(entity.Id) as OkObjectResult;
+        OkObjectResult actual = await controller.ReplaceAsync(entity.Id, TestContext.Current.CancellationToken) as OkObjectResult;
 
         actual.Should().NotBeNull();
         actual.StatusCode.Should().Be(200);

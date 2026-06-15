@@ -47,14 +47,14 @@ public class AddOperation_Tests
             Endpoint = new Uri("/tables/movies", UriKind.Relative),
             QueryDescription = new()
         };
-        ExecutableOperation operation = await ExecutableOperation.CreateAsync(op);
-        ServiceResponse response = await operation.ExecuteAsync(options);
+        ExecutableOperation operation = await ExecutableOperation.CreateAsync(op, TestContext.Current.CancellationToken);
+        ServiceResponse response = await operation.ExecuteAsync(options, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = handler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Post);
         request.RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies");
-        (await request.Content.ReadAsStringAsync()).Should().Be(itemJson);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(itemJson);
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();

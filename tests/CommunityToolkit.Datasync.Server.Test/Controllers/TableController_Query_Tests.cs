@@ -80,7 +80,7 @@ public class TableController_Query_Tests : BaseTest
         TableController<TableData> controller = new(repository, accessProvider);
         controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Get, "https://localhost/table");
 
-        OkObjectResult result = await controller.QueryAsync() as OkObjectResult;
+        OkObjectResult result = await controller.QueryAsync(TestContext.Current.CancellationToken) as OkObjectResult;
         result.Should().NotBeNull();
         PagedResult pagedResult = result.Value as PagedResult;
         pagedResult.Should().NotBeNull();
@@ -99,7 +99,7 @@ public class TableController_Query_Tests : BaseTest
         TableController<TableData> controller = new(repository, accessProvider);
         controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Get, "https://localhost/table");
 
-        OkObjectResult result = await controller.QueryAsync() as OkObjectResult;
+        OkObjectResult result = await controller.QueryAsync(TestContext.Current.CancellationToken) as OkObjectResult;
         result.Should().NotBeNull();
         PagedResult pagedResult = result.Value as PagedResult;
         pagedResult.Should().NotBeNull();
@@ -119,7 +119,7 @@ public class TableController_Query_Tests : BaseTest
         TableController<TableData> controller = new(repository, accessProvider) { Options = options };
         controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Get, "https://localhost/table");
 
-        OkObjectResult result = await controller.QueryAsync() as OkObjectResult;
+        OkObjectResult result = await controller.QueryAsync(TestContext.Current.CancellationToken) as OkObjectResult;
         result.Should().NotBeNull();
         PagedResult pagedResult = result.Value as PagedResult;
         pagedResult.Should().NotBeNull();
@@ -139,7 +139,7 @@ public class TableController_Query_Tests : BaseTest
         TableController<TableData> controller = new(repository, accessProvider) { Options = options };
         controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Get, "https://localhost/table?__includedeleted=true");
 
-        OkObjectResult result = await controller.QueryAsync() as OkObjectResult;
+        OkObjectResult result = await controller.QueryAsync(TestContext.Current.CancellationToken) as OkObjectResult;
         result.Should().NotBeNull();
         PagedResult pagedResult = result.Value as PagedResult;
         pagedResult.Should().NotBeNull();

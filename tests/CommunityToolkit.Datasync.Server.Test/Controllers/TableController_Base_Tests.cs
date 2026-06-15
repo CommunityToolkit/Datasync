@@ -255,7 +255,7 @@ public class TableController_Base_Tests : BaseTest
         Func<Task> act = async () => await controller.__PostCommitHookAsync(op, entity, CancellationToken.None);
 
         await act.Should().NotThrowAsync();
-        await provider.ReceivedWithAnyArgs(1).PostCommitHookAsync(default, default, default);
+        await provider.ReceivedWithAnyArgs(1).PostCommitHookAsync(default, default, TestContext.Current.CancellationToken);
     }
 
     [Theory]
@@ -274,7 +274,7 @@ public class TableController_Base_Tests : BaseTest
         Func<Task> act = async () => await controller.__PostCommitHookAsync(op, entity, CancellationToken.None);
 
         await act.Should().NotThrowAsync();
-        await provider.ReceivedWithAnyArgs(1).PostCommitHookAsync(default, default, default);
+        await provider.ReceivedWithAnyArgs(1).PostCommitHookAsync(default, default, TestContext.Current.CancellationToken);
         firedEvents.Should().ContainSingle();
         firedEvents[0].Operation.Should().Be(op);
         firedEvents[0].Entity.Should().BeEquivalentTo(entity);

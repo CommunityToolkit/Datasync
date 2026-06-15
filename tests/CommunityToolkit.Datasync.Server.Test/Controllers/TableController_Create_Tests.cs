@@ -24,7 +24,7 @@ public class TableController_Create_Tests : BaseTest
         TableData entity = new() { Id = "0da7fb24-3606-442f-9f68-c47c6e7d09d4" };
         controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Post, "https://localhost/table", entity);
 
-        _ = await controller.CreateAsync();
+        _ = await controller.CreateAsync(TestContext.Current.CancellationToken);
 
         logger.Entries.Should().Contain(e => e.LogLevel == LogLevel.Information && e.Message.Contains(entity.Id));
         logger.Entries.Should().NotContain(e => e.Message.Contains("UpdatedAt", StringComparison.OrdinalIgnoreCase));
@@ -42,7 +42,7 @@ public class TableController_Create_Tests : BaseTest
         TableData entity = new() { Id = "0da7fb24-3606-442f-9f68-c47c6e7d09d4" };
         controller.ControllerContext.HttpContext = CreateHttpContext(HttpMethod.Post, "https://localhost/table", entity);
 
-        _ = await controller.CreateAsync();
+        _ = await controller.CreateAsync(TestContext.Current.CancellationToken);
 
         logger.Entries.Should().Contain(e => e.LogLevel == LogLevel.Information && e.Message.Contains(entity.Id));
         logger.Entries.Should().Contain(e => e.LogLevel == LogLevel.Debug && e.Message.Contains("UpdatedAt", StringComparison.OrdinalIgnoreCase));
@@ -132,7 +132,7 @@ public class TableController_Create_Tests : BaseTest
         List<RepositoryUpdatedEventArgs> firedEvents = [];
         controller.RepositoryUpdated += (_, e) => firedEvents.Add(e);
 
-        CreatedAtRouteResult actual = await controller.CreateAsync() as CreatedAtRouteResult;
+        CreatedAtRouteResult actual = await controller.CreateAsync(TestContext.Current.CancellationToken) as CreatedAtRouteResult;
 
         actual.Should().NotBeNull();
         actual.StatusCode.Should().Be(201);

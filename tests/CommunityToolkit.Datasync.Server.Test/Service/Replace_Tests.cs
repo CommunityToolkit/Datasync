@@ -21,11 +21,11 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     public async Task Replace_Returns200()
     {
         ClientMovie existingMovie = new(this.factory.GetRandomMovie()) { Title = "New Title" };
-        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.MovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions);
+        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.MovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
 #if CAPTURE_STRING_JSON
-        string jsonContent = await response.Content.ReadAsStringAsync();
+        string jsonContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         ClientMovie clientMovie = JsonSerializer.Deserialize<ClientMovie>(jsonContent, this.serializerOptions);
 #else
         ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
@@ -51,12 +51,12 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
         HttpRequestMessage request = new(HttpMethod.Put, $"{this.factory.MovieEndpoint}/{existingMovie.Id}") { Content = new StringContent(content, Encoding.UTF8, "application/json") };
         request.Headers.Add(headerName, etag);
 
-        HttpResponseMessage response = await this.client.SendAsync(request);
+        HttpResponseMessage response = await this.client.SendAsync(request, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(expectedStatusCode);
 
         if (expectedStatusCode == HttpStatusCode.OK)
         {
-            ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
+            ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions, TestContext.Current.CancellationToken);
             clientMovie.Should().NotBeNull().And.HaveChangedMetadata(existingMovie, this.StartTime).And.BeEquivalentTo<IMovie>(existingMovie);
 
             InMemoryMovie inMemoryMovie = this.factory.GetServerEntityById<InMemoryMovie>(clientMovie.Id);
@@ -70,7 +70,7 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     {
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         ClientMovie source = new(existingMovie) { Id = "missing" };
-        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.MovieEndpoint}/missing", source, this.serializerOptions);
+        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.MovieEndpoint}/missing", source, this.serializerOptions, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.NotFound, "Movie = {0}", existingMovie.Id);
     }
 
@@ -78,7 +78,7 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     public async Task Replace_IdMismatch_Returns400()
     {
         ClientMovie existingMovie = new(this.factory.GetRandomMovie()) { Title = "New Title" };
-        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.MovieEndpoint}/different-id", existingMovie, this.serializerOptions);
+        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.MovieEndpoint}/different-id", existingMovie, this.serializerOptions, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
@@ -86,10 +86,10 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     public async Task Replace_NotSoftDeleted_Works()
     {
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
-        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions);
+        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
+        ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions, TestContext.Current.CancellationToken);
         clientMovie.Should().NotBeNull().And.HaveChangedMetadata(existingMovie, this.StartTime).And.BeEquivalentTo<IMovie>(existingMovie);
 
         InMemoryMovie inMemoryMovie = this.factory.GetServerEntityById<InMemoryMovie>(clientMovie.Id);
@@ -102,7 +102,7 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     {
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
-        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions);
+        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Gone);
     }
 
@@ -111,7 +111,7 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     {
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
-        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions);
+        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Gone);
     }
 
@@ -121,10 +121,10 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
         existingMovie.Deleted = false;
-        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}?__includedeleted=true", existingMovie, this.serializerOptions);
+        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}?__includedeleted=true", existingMovie, this.serializerOptions, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
+        ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions, TestContext.Current.CancellationToken);
         clientMovie.Should().NotBeNull().And.HaveChangedMetadata(existingMovie, this.StartTime).And.BeEquivalentTo<IMovie>(existingMovie);
         clientMovie.Deleted.Should().BeFalse();
 
@@ -137,7 +137,7 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     public async Task Replace_NonJsonData_Returns415()
     {
         const string content = "<html><body><h1>Not JSON</h1></body></html>";
-        HttpResponseMessage response = await this.client.PutAsync($"{this.factory.MovieEndpoint}/1", new StringContent(content, Encoding.UTF8, "text/html"));
+        HttpResponseMessage response = await this.client.PutAsync($"{this.factory.MovieEndpoint}/1", new StringContent(content, Encoding.UTF8, "text/html"), TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.UnsupportedMediaType);
     }
 
@@ -153,7 +153,7 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
 
         InMemoryMovie inMemoryMovie = this.factory.GetRandomMovie();
         ClientMovie existingMovie = new(inMemoryMovie) { Title = "New Title" };
-        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.AuthorizedMovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions);
+        HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.AuthorizedMovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 
         // Ensure that the access provider was called with the existing movie, not the new movie

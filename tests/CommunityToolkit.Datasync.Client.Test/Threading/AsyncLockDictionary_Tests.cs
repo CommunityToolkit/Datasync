@@ -35,7 +35,7 @@ public class AsyncLockDictionary_Tests
         sut.IsLocked("key1").Should().BeFalse();
         sut.IsLocked("key2").Should().BeFalse();
 
-        using (await sut.AcquireLockAsync("key1"))
+        using (await sut.AcquireLockAsync("key1", TestContext.Current.CancellationToken))
         {
             sut.IsLocked("key1").Should().BeTrue();
             sut.IsLocked("key2").Should().BeFalse();

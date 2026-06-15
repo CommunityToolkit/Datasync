@@ -107,7 +107,7 @@ public class OperationsQueueManager_Tests : BaseTest
         List<Type> allowedTypes = [typeof(Entity1), typeof(Entity2), typeof(Entity4)];
         Type[] entityTypes = allowedTypes.Take(nItems).ToArray();
 
-        PushResult result = await queueManager.PushAsync(entityTypes, options);
+        PushResult result = await queueManager.PushAsync(entityTypes, options, TestContext.Current.CancellationToken);
         result.CompletedOperations.Should().Be(0);
         result.FailedRequests.Count.Should().Be(0);
     }
@@ -118,7 +118,7 @@ public class OperationsQueueManager_Tests : BaseTest
         PushOptions options = new();
         Type[] entityTypes = [typeof(ClientMovie)];
 
-        PushResult result = await queueManager.PushAsync(entityTypes, options);
+        PushResult result = await queueManager.PushAsync(entityTypes, options, TestContext.Current.CancellationToken);
         result.CompletedOperations.Should().Be(0);
         result.FailedRequests.Count.Should().Be(0);
     }
@@ -135,7 +135,7 @@ public class OperationsQueueManager_Tests : BaseTest
         string expectedJson = DatasyncSerializer.Serialize(responseMovie);
         this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.Created);
 
-        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
         results.FailedRequests.Should().BeEmpty();
@@ -156,7 +156,7 @@ public class OperationsQueueManager_Tests : BaseTest
 
         this.context.Handler.AddResponse(HttpStatusCode.InternalServerError);
 
-        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
         results.IsSuccessful.Should().BeFalse();
         results.CompletedOperations.Should().Be(0);
         results.FailedRequests.Should().HaveCount(1);
@@ -181,7 +181,7 @@ public class OperationsQueueManager_Tests : BaseTest
         string expectedJson = DatasyncSerializer.Serialize(responseMovie);
         this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.Conflict);
 
-        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
         results.IsSuccessful.Should().BeFalse();
         results.CompletedOperations.Should().Be(0);
         results.FailedRequests.Should().HaveCount(1);
@@ -208,7 +208,7 @@ public class OperationsQueueManager_Tests : BaseTest
         this.context.SaveChanges();
         this.context.Handler.AddResponse(HttpStatusCode.NoContent);
 
-        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
         results.FailedRequests.Should().BeEmpty();
@@ -228,7 +228,7 @@ public class OperationsQueueManager_Tests : BaseTest
         this.context.SaveChanges();
         this.context.Handler.AddResponse(HttpStatusCode.InternalServerError);
 
-        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
         results.IsSuccessful.Should().BeFalse();
         results.CompletedOperations.Should().Be(0);
         results.FailedRequests.Should().HaveCount(1);
@@ -256,7 +256,7 @@ public class OperationsQueueManager_Tests : BaseTest
         string expectedJson = DatasyncSerializer.Serialize(responseMovie);
         this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.Conflict);
 
-        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
         results.IsSuccessful.Should().BeFalse();
         results.CompletedOperations.Should().Be(0);
         results.FailedRequests.Should().HaveCount(1);
@@ -287,7 +287,7 @@ public class OperationsQueueManager_Tests : BaseTest
         string expectedJson = DatasyncSerializer.Serialize(responseMovie);
         this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.OK);
 
-        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
         results.FailedRequests.Should().BeEmpty();
@@ -307,7 +307,7 @@ public class OperationsQueueManager_Tests : BaseTest
         this.context.SaveChanges();
         this.context.Handler.AddResponse(HttpStatusCode.InternalServerError);
 
-        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
         results.IsSuccessful.Should().BeFalse();
         results.CompletedOperations.Should().Be(0);
         results.FailedRequests.Should().HaveCount(1);
@@ -336,7 +336,7 @@ public class OperationsQueueManager_Tests : BaseTest
         string expectedJson = DatasyncSerializer.Serialize(responseMovie);
         this.context.Handler.AddResponseContent(expectedJson, HttpStatusCode.Conflict);
 
-        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        PushResult results = await queueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
         results.IsSuccessful.Should().BeFalse();
         results.CompletedOperations.Should().Be(0);
         results.FailedRequests.Should().HaveCount(1);
@@ -427,7 +427,7 @@ public class OperationsQueueManager_Tests : BaseTest
         string expectedJson = DatasyncSerializer.Serialize(responseMovie);
         llpContext.Handler.AddResponseContent(expectedJson, HttpStatusCode.Created);
 
-        PushResult results = await llpContext.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        PushResult results = await llpContext.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
         results.FailedRequests.Should().BeEmpty();
@@ -451,7 +451,7 @@ public class OperationsQueueManager_Tests : BaseTest
         llpContext.SaveChanges();
         llpContext.Handler.AddResponse(HttpStatusCode.NoContent);
 
-        PushResult results = await llpContext.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        PushResult results = await llpContext.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
         results.FailedRequests.Should().BeEmpty();
@@ -476,7 +476,7 @@ public class OperationsQueueManager_Tests : BaseTest
         string expectedJson = DatasyncSerializer.Serialize(responseMovie);
         llpContext.Handler.AddResponseContent(expectedJson, HttpStatusCode.OK);
 
-        PushResult results = await llpContext.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions());
+        PushResult results = await llpContext.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
         results.IsSuccessful.Should().BeTrue();
         results.CompletedOperations.Should().Be(1);
         results.FailedRequests.Should().BeEmpty();

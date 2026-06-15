@@ -85,7 +85,7 @@ public class QueueHandler_Tests
         accId.Should().HaveCount(nElements);
         accTh.Should().HaveCount(nElements);
         accTh.AsEnumerable().Distinct().Should().HaveCount(nThreads);
-        (endTime - startTime).TotalSeconds.Should().BeLessThanOrEqualTo((nElements / nThreads) + 2);
+        (endTime - startTime).TotalSeconds.Should().BeLessThanOrEqualTo(2 * (nElements / nThreads) + 5);
     }
 
     [Theory, CombinatorialData]

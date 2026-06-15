@@ -28,7 +28,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         ClientMovie source = new(TestData.Movies.BlackPanther) { Id = id };
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
 
-        ServiceResponse<ClientMovie> response = await client.AddAsync(source);
+        ServiceResponse<ClientMovie> response = await client.AddAsync(source, TestContext.Current.CancellationToken);
         InMemoryMovie inMemoryMovie = GetServerEntityById<InMemoryMovie>(response.Value.Id);
 
         response.IsSuccessful.Should().BeTrue();
@@ -92,7 +92,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         };
         DatasyncServiceClient<ClientKitchenSink> client = GetKitchenSinkClient();
 
-        ServiceResponse<ClientKitchenSink> response = await client.AddAsync(source);
+        ServiceResponse<ClientKitchenSink> response = await client.AddAsync(source, TestContext.Current.CancellationToken);
         InMemoryKitchenSink serverEntity = GetServerEntityById<InMemoryKitchenSink>(id);
 
         response.IsSuccessful.Should().BeTrue();
@@ -111,7 +111,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         InMemoryMovie existingMovie = GetRandomMovie();
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
 
-        ServiceResponse<ClientMovie> response = await client.GetAsync(existingMovie.Id);
+        ServiceResponse<ClientMovie> response = await client.GetAsync(existingMovie.Id, TestContext.Current.CancellationToken);
 
         response.IsSuccessful.Should().BeTrue();
         response.StatusCode.Should().Be(200);
@@ -127,7 +127,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
         DatasyncServiceOptions options = new() { ThrowIfMissing = false };
 
-        ServiceResponse response = await client.GetAsync("id-is-missing", options);
+        ServiceResponse response = await client.GetAsync("id-is-missing", options, TestContext.Current.CancellationToken);
 
         response.IsSuccessful.Should().BeFalse();
         response.StatusCode.Should().Be(404);
@@ -149,7 +149,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         InMemoryMovie existingMovie = GetRandomMovie();
         DatasyncServiceClient<ClientMovie> client = GetSoftDeletedMovieClient();
 
-        ServiceResponse<ClientMovie> response = await client.GetAsync(existingMovie.Id);
+        ServiceResponse<ClientMovie> response = await client.GetAsync(existingMovie.Id, TestContext.Current.CancellationToken);
 
         response.IsSuccessful.Should().BeTrue();
         response.StatusCode.Should().Be(200);
@@ -180,7 +180,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         DatasyncServiceClient<ClientMovie> client = GetSoftDeletedMovieClient();
         DatasyncServiceOptions options = new() { IncludeDeleted = true };
 
-        ServiceResponse<ClientMovie> response = await client.GetAsync(existingMovie.Id, options);
+        ServiceResponse<ClientMovie> response = await client.GetAsync(existingMovie.Id, options, TestContext.Current.CancellationToken);
 
         response.IsSuccessful.Should().BeTrue();
         response.StatusCode.Should().Be(200);
@@ -198,7 +198,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         InMemoryMovie existingMovie = GetRandomMovie();
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
 
-        ServiceResponse response = await client.RemoveAsync(existingMovie.Id, new DatasyncServiceOptions());
+        ServiceResponse response = await client.RemoveAsync(existingMovie.Id, new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         response.IsSuccessful.Should().BeTrue();
         response.StatusCode.Should().Be(204);
@@ -217,7 +217,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
         DatasyncServiceOptions options = new() { Version = version };
 
-        ServiceResponse response = await client.RemoveAsync(existingMovie.Id, options);
+        ServiceResponse response = await client.RemoveAsync(existingMovie.Id, options, TestContext.Current.CancellationToken);
 
         response.IsSuccessful.Should().BeTrue();
         response.StatusCode.Should().Be(204);
@@ -254,7 +254,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
         DatasyncServiceOptions options = new() { ThrowIfMissing = false };
 
-        ServiceResponse response = await client.RemoveAsync("id-is-missing", options);
+        ServiceResponse response = await client.RemoveAsync("id-is-missing", options, TestContext.Current.CancellationToken);
 
         response.IsSuccessful.Should().BeFalse();
         response.StatusCode.Should().Be(404);
@@ -279,7 +279,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         DatasyncServiceClient<ClientMovie> client = GetSoftDeletedMovieClient();
         DatasyncServiceOptions options = new();
 
-        ServiceResponse response = await client.RemoveAsync(existingMovie.Id, options);
+        ServiceResponse response = await client.RemoveAsync(existingMovie.Id, options, TestContext.Current.CancellationToken);
 
         response.IsSuccessful.Should().BeTrue();
         response.StatusCode.Should().Be(204);
@@ -316,7 +316,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
         DatasyncServiceOptions options = new();
 
-        ServiceResponse<ClientMovie> response = await client.ReplaceAsync(existingMovie, options);
+        ServiceResponse<ClientMovie> response = await client.ReplaceAsync(existingMovie, options, TestContext.Current.CancellationToken);
         InMemoryMovie inMemoryMovie = GetServerEntityById<InMemoryMovie>(response.Value.Id);
 
         response.IsSuccessful.Should().BeTrue();
@@ -334,7 +334,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         ClientMovie existingMovie = new(GetRandomMovie()) { Title = "New Title" };
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
 
-        ServiceResponse<ClientMovie> response = await client.ReplaceAsync(existingMovie);
+        ServiceResponse<ClientMovie> response = await client.ReplaceAsync(existingMovie, TestContext.Current.CancellationToken);
         InMemoryMovie inMemoryMovie = GetServerEntityById<InMemoryMovie>(response.Value.Id);
 
         response.IsSuccessful.Should().BeTrue();
@@ -373,7 +373,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
         DatasyncServiceOptions options = new() { ThrowIfMissing = false };
 
-        ServiceResponse response = await client.ReplaceAsync(source, options);
+        ServiceResponse response = await client.ReplaceAsync(source, options, TestContext.Current.CancellationToken);
 
         response.IsSuccessful.Should().BeFalse();
         response.StatusCode.Should().Be(404);
