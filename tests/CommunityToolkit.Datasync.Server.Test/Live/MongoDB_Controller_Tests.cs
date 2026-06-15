@@ -8,7 +8,6 @@ using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Fixtures;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.Server.Test.Live;
 
@@ -20,13 +19,13 @@ public class MongoDB_Controller_Tests(MongoDatabaseFixture fixture, ITestOutputH
     private readonly Random random = new();
     private List<MongoDBMovie> movies = [];
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         Context = await MongoDBContext.CreateContextAsync(fixture.ConnectionString, output);
         this.movies = await Context.Movies.Find(new BsonDocument()).ToListAsync();
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (Context is not null)
         {

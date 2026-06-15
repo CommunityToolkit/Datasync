@@ -4,7 +4,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Xunit.Abstractions;
+using Xunit;
 
 namespace CommunityToolkit.Datasync.TestCommon.Databases;
 

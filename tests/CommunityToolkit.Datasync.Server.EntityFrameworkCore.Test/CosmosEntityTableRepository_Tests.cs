@@ -5,7 +5,6 @@
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
-using Xunit.Abstractions;
 
 #pragma warning disable CS9113 // Parameter is unread.
 
@@ -19,7 +18,7 @@ public class CosmosEntityTableRepository_Tests(DatabaseFixture fixture, ITestOut
     private readonly Random random = new();
     private List<CosmosEntityMovie> movies = [];
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         if (!string.IsNullOrEmpty(ConnectionStrings.CosmosDb))
         {
@@ -28,7 +27,7 @@ public class CosmosEntityTableRepository_Tests(DatabaseFixture fixture, ITestOut
         }
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (Context is not null)
         {
@@ -53,26 +52,26 @@ public class CosmosEntityTableRepository_Tests(DatabaseFixture fixture, ITestOut
         => Task.FromResult(exists ? this.movies[this.random.Next(this.movies.Count)].Id : Guid.NewGuid().ToString());
     #endregion
 
-    [SkippableFact]
+    [Fact]
     public void EntityTableRepository_BadDbSet_Throws()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
         Action act = () => _ = new EntityTableRepository<EntityTableData>(Context);
         act.Should().Throw<ArgumentException>();
     }
 
-    [SkippableFact]
+    [Fact]
     public void EntityTableRepository_GoodDbSet_Works()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
         Action act = () => _ = new EntityTableRepository<CosmosEntityMovie>(Context);
         act.Should().NotThrow();
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task WrapExceptionAsync_ThrowsConflictException_WhenDbConcurrencyUpdateExceptionThrown()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
         EntityTableRepository<CosmosEntityMovie> repository = await GetPopulatedRepositoryAsync() as EntityTableRepository<CosmosEntityMovie>;
         string id = await GetRandomEntityIdAsync(true);
         CosmosEntityMovie expectedPayload = await GetEntityAsync(id);
@@ -83,10 +82,10 @@ public class CosmosEntityTableRepository_Tests(DatabaseFixture fixture, ITestOut
         (await act.Should().ThrowAsync<HttpException>()).WithStatusCode(409).And.WithPayload(expectedPayload);
     }
 
-    [SkippableFact]
+    [Fact]
     public async Task WrapExceptionAsync_ThrowsRepositoryException_WhenDbUpdateExceptionThrown()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
         EntityTableRepository<CosmosEntityMovie> repository = await GetPopulatedRepositoryAsync() as EntityTableRepository<CosmosEntityMovie>;
         string id = await GetRandomEntityIdAsync(true);
         CosmosEntityMovie expectedPayload = await GetEntityAsync(id);

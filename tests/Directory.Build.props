@@ -33,14 +33,26 @@
     <UserSecretsId>060A4D30-3C90-4975-A94E-438D547508DD</UserSecretsId>
   </PropertyGroup>
 
+  <!-- Shared by all projects under tests/ (safe for libraries, web hosts, and executables). -->
   <ItemGroup>
     <PackageReference Include="AwesomeAssertions" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="NSubstitute" />
-    <PackageReference Include="xunit" />
+  </ItemGroup>
+
+  <!--
+    Runnable test projects only. xUnit.net v3 test projects are stand-alone executables,
+    and the VSTest host (Microsoft.NET.Test.Sdk + xunit.runner.visualstudio) drives
+    'dotnet test' and 'XPlat Code Coverage'. Library/web support projects (IsTestProject=false)
+    such as TestCommon and TestService do not receive these references.
+  -->
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
     <PackageReference Include="XUnit.Combinatorial" />
-    <PackageReference Include="XUnit.SkippableFact" />
   </ItemGroup>
 
   <ItemGroup>

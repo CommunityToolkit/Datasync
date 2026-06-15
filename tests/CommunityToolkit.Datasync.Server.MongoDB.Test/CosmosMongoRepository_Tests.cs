@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.Server.MongoDB.Test;
 
@@ -19,7 +18,7 @@ public class CosmosMongoRepository_Tests(ITestOutputHelper output) : RepositoryT
     private readonly Random random = new();
     private List<MongoDBMovie> movies = [];
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         if (!string.IsNullOrEmpty(ConnectionStrings.CosmosMongo))
         {
@@ -28,7 +27,7 @@ public class CosmosMongoRepository_Tests(ITestOutputHelper output) : RepositoryT
         }
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (Context is not null)
         {

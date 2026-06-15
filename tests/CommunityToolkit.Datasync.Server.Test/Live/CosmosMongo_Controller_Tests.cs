@@ -7,7 +7,6 @@ using CommunityToolkit.Datasync.Server.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.Server.Test.Live;
 
@@ -19,7 +18,7 @@ public class CosmosMongo_Controller_Tests(DatabaseFixture fixture, ITestOutputHe
     private readonly Random random = new();
     private List<MongoDBMovie> movies = [];
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         if (!string.IsNullOrEmpty(ConnectionStrings.CosmosMongo))
         {
@@ -33,7 +32,7 @@ public class CosmosMongo_Controller_Tests(DatabaseFixture fixture, ITestOutputHe
         }
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (Context is not null)
         {

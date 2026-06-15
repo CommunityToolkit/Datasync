@@ -9,7 +9,6 @@ using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.Server.Automapper.Test;
 

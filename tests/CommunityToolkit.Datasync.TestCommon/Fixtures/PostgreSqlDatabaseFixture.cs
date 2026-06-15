@@ -28,7 +28,7 @@ public class PostgreSqlDatabaseFixture : IAsyncLifetime
     }
 
     /// <inheritdoc />
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (this._container is not null)
         {
@@ -37,7 +37,7 @@ public class PostgreSqlDatabaseFixture : IAsyncLifetime
     }
 
     /// <inheritdoc />
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await this._container.StartAsync();
         ConnectionString = this._container.GetConnectionString();

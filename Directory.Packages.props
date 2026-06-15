@@ -47,14 +47,14 @@
     <PackageVersion Include="TestContainers.MongoDb" Version="$(TestContainersVersion)" />
     <PackageVersion Include="TestContainers.MsSql" Version="$(TestContainersVersion)" />
     <PackageVersion Include="TestContainers.PostgreSql" Version="$(TestContainersVersion)" />
-    <PackageVersion Include="xRetry" Version="1.9.0" />
-    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.v3" Version="3.2.2" />
+    <PackageVersion Include="xunit.v3.core" Version="3.2.2" />
+    <PackageVersion Include="xunit.v3.assert" Version="3.2.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
     <PackageVersion Include="coverlet.collector" Version="10.0.1" />
     <PackageVersion Include="coverlet.msbuild" Version="10.0.1" />
     <PackageVersion Include="Ulid" Version="1.4.1" />
-    <!-- Do not change XUnit.Combinatorial to v2 (xUnit v2 compatibility) -->
-    <PackageVersion Include="XUnit.Combinatorial" Version="1.6.24" />
-    <PackageVersion Include="XUnit.SkippableFact" Version="1.5.61" />
+    <!-- XUnit.Combinatorial v2.x targets xUnit v3 (xunit.v3.extensibility.core) -->
+    <PackageVersion Include="XUnit.Combinatorial" Version="2.0.24" />
   </ItemGroup>
 </Project>

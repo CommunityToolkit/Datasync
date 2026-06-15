@@ -7,7 +7,6 @@ using CommunityToolkit.Datasync.Server.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using CommunityToolkit.Datasync.TestCommon.Fixtures;
 using Microsoft.EntityFrameworkCore;
-using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.Server.Test.Live;
 
@@ -19,13 +18,13 @@ public class AzureSQL_Controller_Tests(MsSqlDatabaseFixture fixture, ITestOutput
     private readonly Random random = new();
     private List<AzureSqlEntityMovie> movies = [];
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         Context = await AzureSqlDbContext.CreateContextAsync(fixture.ConnectionString, output);
         this.movies = await Context.Movies.AsNoTracking().ToListAsync();
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (Context is not null)
         {

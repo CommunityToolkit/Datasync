@@ -7,7 +7,6 @@ using CommunityToolkit.Datasync.Server.Test.Helpers;
 using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
-using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.Server.Test.Live;
 
@@ -19,7 +18,7 @@ public class Cosmos_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper 
     private readonly Random random = new();
     private List<CosmosEntityMovie> movies = [];
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         if (!string.IsNullOrEmpty(ConnectionStrings.CosmosDb))
         {
@@ -33,7 +32,7 @@ public class Cosmos_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper 
         }
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         if (Context is not null)
         {
@@ -71,10 +70,10 @@ public class Cosmos_Controller_Tests(DatabaseFixture fixture, ITestOutputHelper 
     /// We test the 400 Bad Request client-side evaluation error here because Cosmos has more restrictions than most,
     /// so it's easier to test the code path.
     /// </summary>
-    [SkippableFact]
+    [Fact]
     public async Task ClientSideEvaluation_Produces_400BadRequest()
     {
-        Skip.IfNot(CanRunLiveTests());
+        Assert.SkipUnless(CanRunLiveTests(), "Live tests are not enabled.");
 
         IRepository<CosmosEntityMovie> repository = await GetPopulatedRepositoryAsync();
         TableController<CosmosEntityMovie> tableController = new(repository);
