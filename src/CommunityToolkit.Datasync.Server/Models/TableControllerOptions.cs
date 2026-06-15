@@ -43,6 +43,19 @@ public class TableControllerOptions
     public bool EnableSoftDelete { get; set; }
 
     /// <summary>
+    /// If <c>true</c>, then the full contents of an entity are serialized into the logs at
+    /// <c>Debug</c> level and only the entity ID is logged at <c>Information</c> level.  If
+    /// <c>false</c> (the default), only the entity ID is logged at <c>Information</c> level and
+    /// the full entity contents are never written to the logs.
+    /// </summary>
+    /// <remarks>
+    /// Entity contents may include personally identifiable information (PII), secrets, or other
+    /// sensitive business data.  Only enable this option when the additional diagnostic detail is
+    /// required and the log sink is appropriately secured.
+    /// </remarks>
+    public bool UnsafeEntityLogging { get; set; }
+
+    /// <summary>
     /// The maximum page size for the results returned by a query operation.  This is the
     /// maximum value that the client can specify for the <c>$top</c> query option.
     /// </summary>

@@ -42,7 +42,12 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
 
         Request.ParseConditionalRequest(entity, out _);
 
-        Logger.LogInformation("ReadAsync: read {entity}", entity.ToJsonString());
+        Logger.LogInformation("ReadAsync: read {id}", entity.Id);
+        if (Options.UnsafeEntityLogging)
+        {
+            Logger.LogDebug("ReadAsync: read entity {entity}", entity.ToJsonString());
+        }
+
         return Ok(entity);
     }
 }
