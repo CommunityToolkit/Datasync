@@ -13,6 +13,7 @@ public class TableControllerOptions
 {
     private int _pageSize = 100;
     private int _maxTop = MAX_TOP;
+    private int _unauthorizedStatusCode = StatusCodes.Status401Unauthorized;
 
     /// <summary>
     /// The maximum page size that can be specified by the server.
@@ -73,5 +74,19 @@ public class TableControllerOptions
     /// <summary>
     /// The status code returned when the user is not authorized to perform an operation.
     /// </summary>
-    public int UnauthorizedStatusCode { get; set; } = StatusCodes.Status401Unauthorized;
+    /// <remarks>
+    /// The value must be a client error (4xx) status code in the range 400-499.  Setting a value
+    /// outside this range (for example, a success or server error code) is considered a
+    /// misconfiguration and throws <see cref="ArgumentOutOfRangeException"/>.
+    /// </remarks>
+    public int UnauthorizedStatusCode
+    {
+        get => this._unauthorizedStatusCode;
+        set
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(value, 400, nameof(UnauthorizedStatusCode));
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(value, 499, nameof(UnauthorizedStatusCode));
+            this._unauthorizedStatusCode = value;
+        }
+    }
 }

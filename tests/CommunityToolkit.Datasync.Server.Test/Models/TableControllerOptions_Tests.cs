@@ -33,14 +33,38 @@ public class TableControllerOptions_Tests
         act.Should().Throw<ArgumentException>();
     }
 
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(0)]
+    [InlineData(200)]
+    [InlineData(399)]
+    [InlineData(500)]
+    [InlineData(510)]
+    public void Ctor_InvalidUnauthorizedStatusCode_Throws(int statusCode)
+    {
+        Action act = () => _ = new TableControllerOptions { UnauthorizedStatusCode = statusCode };
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Theory]
+    [InlineData(400)]
+    [InlineData(401)]
+    [InlineData(403)]
+    [InlineData(499)]
+    public void Ctor_ValidUnauthorizedStatusCode_Roundtrips(int statusCode)
+    {
+        TableControllerOptions sut = new() { UnauthorizedStatusCode = statusCode };
+        sut.UnauthorizedStatusCode.Should().Be(statusCode);
+    }
+
     [Fact]
     public void Ctor_Roundtrips()
     {
-        TableControllerOptions sut = new() { EnableSoftDelete = true, MaxTop = 100, PageSize = 50, UnauthorizedStatusCode = 510 };
+        TableControllerOptions sut = new() { EnableSoftDelete = true, MaxTop = 100, PageSize = 50, UnauthorizedStatusCode = 403 };
 
         sut.EnableSoftDelete.Should().BeTrue();
         sut.MaxTop.Should().Be(100);
         sut.PageSize.Should().Be(50);
-        sut.UnauthorizedStatusCode.Should().Be(510);
+        sut.UnauthorizedStatusCode.Should().Be(403);
     }
 }
