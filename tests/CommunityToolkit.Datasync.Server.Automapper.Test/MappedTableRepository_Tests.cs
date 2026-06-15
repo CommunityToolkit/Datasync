@@ -9,7 +9,6 @@ using CommunityToolkit.Datasync.TestCommon;
 using CommunityToolkit.Datasync.TestCommon.Databases;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Xunit;
 using Xunit.Abstractions;
 
 namespace CommunityToolkit.Datasync.Server.Automapper.Test;
@@ -31,7 +30,7 @@ public class MappedTableRepository_Tests : RepositoryTests<MovieDto>, IDisposabl
     public MappedTableRepository_Tests(ITestOutputHelper output)
     {
         this.output = output;
-        this.loggerFactory = new LoggerFactory([ new XunitLoggerProvider(this.output) ]);
+        this.loggerFactory = new TestLoggerFactory(this.output);
         MapperConfiguration config = new(c => c.AddProfile(new MapperProfile()), this.loggerFactory);
         this.mapper = config.CreateMapper();
     }
