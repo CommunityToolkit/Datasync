@@ -130,7 +130,7 @@ The options you can set include:
 * `PageSize` (int, default: 100) is the maximum number of items a query operation returns in a single page.
 * `MaxTop` (int, default: 512000) is the maximum number of items a user can request in a single operation.
 * `EnableSoftDelete` (bool, default: false) enables soft-delete, which marks items as deleted instead of deleting them from the database.  Soft delete allows clients to update their offline cache, but requires that deleted items are purged from the database separately.
-* `UnauthorizedStatusCode` (int, default: 401 Unauthorized) is the status code returned when the user isn't allowed to do an action.
+* `UnauthorizedStatusCode` (int, default: 401 Unauthorized) is the status code returned when the user isn't allowed to do an action.  The value must be a client error (4xx) status code in the range 400-499.
 
 ## Configure access permissions
 
