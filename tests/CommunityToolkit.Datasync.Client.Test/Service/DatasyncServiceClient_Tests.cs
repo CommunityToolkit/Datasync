@@ -216,13 +216,13 @@ public class DatasyncServiceClient_Tests : IDisposable
         ClientKitchenSink entity = new() { Id = "1", StringValue = "abc" };
         string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<ClientKitchenSink> response = await client.AddAsync(entity, new DatasyncServiceOptions());
+        ServiceResponse<ClientKitchenSink> response = await client.AddAsync(entity, new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Post);
         request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
-        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(expected);
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -241,13 +241,13 @@ public class DatasyncServiceClient_Tests : IDisposable
         ClientKitchenSink entity = new() { Id = "1", StringValue = "abc" };
         string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<ClientKitchenSink> response = await client.AddAsync(entity);
+        ServiceResponse<ClientKitchenSink> response = await client.AddAsync(entity, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Post);
         request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
-        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(expected);
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -276,7 +276,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Post);
         request.RequestUri.ToString().Should().Be("http://localhost/tables/kitchensink/");
-        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(expected);
 
         ex.ClientEntity.Should().BeEquivalentTo(entity, this.entityEquivalentOptions);
         ex.ServerEntity.Should().BeEquivalentTo(this.successfulKitchenSink, this.entityEquivalentOptions);
@@ -354,7 +354,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         _ = CreatePage(0, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<int> response = await client.CountAsync(client.AsQueryable(), new DatasyncServiceOptions());
+        ServiceResponse<int> response = await client.CountAsync(client.AsQueryable(), new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -377,7 +377,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         _ = CreatePage(0, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IDatasyncQueryable<ClientKitchenSink> query = client.Where(x => x.StringValue == "abc");
-        ServiceResponse<int> response = await client.CountAsync(query, new DatasyncServiceOptions());
+        ServiceResponse<int> response = await client.CountAsync(query, new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -399,7 +399,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         _ = CreatePage(0, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        int response = await client.Where(x => x.StringValue == "abc").CountAsync();
+        int response = await client.Where(x => x.StringValue == "abc").CountAsync(TestContext.Current.CancellationToken);
         response.Should().Be(42);
     }
 
@@ -409,7 +409,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         _ = CreatePage(0, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IDatasyncQueryable<ClientKitchenSink> query = client.Where(x => x.StringValue == "abc");
-        ServiceResponse<int> response = await client.CountAsync(query);
+        ServiceResponse<int> response = await client.CountAsync(query, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -431,7 +431,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         _ = CreatePage(0, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<int> response = await client.CountAsync();
+        ServiceResponse<int> response = await client.CountAsync(TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -454,7 +454,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         _ = CreatePage(0, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IDatasyncQueryable<NamedSelectClass> query = client.Where(x => x.StringValue == "abc").Skip(10).Take(5).Select(n => new NamedSelectClass { Id = n.Id, StringValue = n.StringValue });
-        ServiceResponse<int> response = await query.ServiceClient.CountAsync(query, new DatasyncServiceOptions());
+        ServiceResponse<int> response = await query.ServiceClient.CountAsync(query, new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -541,7 +541,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         this.mockHandler.Responses.Add(GetSuccessfulResponse(this.successfulKitchenSink, HttpStatusCode.OK));
         string id = Guid.NewGuid().ToString("N");
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<ClientKitchenSink> response = await client.GetAsync(id, new DatasyncServiceOptions());
+        ServiceResponse<ClientKitchenSink> response = await client.GetAsync(id, new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -564,7 +564,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         this.mockHandler.Responses.Add(GetSuccessfulResponse(this.successfulKitchenSink, HttpStatusCode.OK));
         string id = Guid.NewGuid().ToString("N");
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<ClientKitchenSink> response = await client.GetAsync(id);
+        ServiceResponse<ClientKitchenSink> response = await client.GetAsync(id, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -588,7 +588,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         string id = Guid.NewGuid().ToString("N");
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         DatasyncServiceOptions options = new() { IncludeDeleted = true };
-        ServiceResponse<ClientKitchenSink> response = await client.GetAsync(id, options);
+        ServiceResponse<ClientKitchenSink> response = await client.GetAsync(id, options, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -639,7 +639,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         string id = Guid.NewGuid().ToString("N");
         DatasyncServiceOptions options = new() { ThrowIfMissing = false };
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<ClientKitchenSink> response = await client.GetAsync(id, options);
+        ServiceResponse<ClientKitchenSink> response = await client.GetAsync(id, options, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -700,7 +700,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         string expectedUri = string.IsNullOrEmpty(query) ? "http://localhost/tables/kitchensink/" : $"http://localhost/tables/kitchensink/?{query}";
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<Page<ClientKitchenSink>> response = await client.GetPageAsync(query, new DatasyncServiceOptions());
+        ServiceResponse<Page<ClientKitchenSink>> response = await client.GetPageAsync(query, new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -731,7 +731,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         string expectedUri = string.IsNullOrEmpty(query) ? "http://localhost/tables/kitchensink/" : $"http://localhost/tables/kitchensink/?{query}";
         Page<ClientKitchenSink> page = CreatePage(5, 20L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<Page<ClientKitchenSink>> response = await client.GetPageAsync(query, new DatasyncServiceOptions());
+        ServiceResponse<Page<ClientKitchenSink>> response = await client.GetPageAsync(query, new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -762,7 +762,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         string expectedUri = string.IsNullOrEmpty(query) ? "http://localhost/tables/kitchensink/" : $"http://localhost/tables/kitchensink/?{query}";
         Page<ClientKitchenSink> page = CreatePage(5, null, "$filter=booleanValue&$skip=5");
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<Page<ClientKitchenSink>> response = await client.GetPageAsync(query, new DatasyncServiceOptions());
+        ServiceResponse<Page<ClientKitchenSink>> response = await client.GetPageAsync(query, new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -894,7 +894,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         _ = CreatePage(0, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<long> response = await client.LongCountAsync(client.AsQueryable(), new DatasyncServiceOptions());
+        ServiceResponse<long> response = await client.LongCountAsync(client.AsQueryable(), new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -917,7 +917,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         _ = CreatePage(0, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IDatasyncQueryable<ClientKitchenSink> query = client.Where(x => x.StringValue == "abc");
-        ServiceResponse<long> response = await client.LongCountAsync(query, new DatasyncServiceOptions());
+        ServiceResponse<long> response = await client.LongCountAsync(query, new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -939,7 +939,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         _ = CreatePage(0, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        long response = await client.Where(x => x.StringValue == "abc").LongCountAsync();
+        long response = await client.Where(x => x.StringValue == "abc").LongCountAsync(TestContext.Current.CancellationToken);
         response.Should().Be(42);
     }
 
@@ -949,7 +949,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         _ = CreatePage(0, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IDatasyncQueryable<ClientKitchenSink> query = client.Where(x => x.StringValue == "abc");
-        ServiceResponse<long> response = await client.LongCountAsync(query);
+        ServiceResponse<long> response = await client.LongCountAsync(query, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -971,7 +971,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         _ = CreatePage(0, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<long> response = await client.LongCountAsync();
+        ServiceResponse<long> response = await client.LongCountAsync(TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -994,7 +994,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         _ = CreatePage(0, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IDatasyncQueryable<NamedSelectClass> query = client.Where(x => x.StringValue == "abc").Skip(10).Take(5).Select(n => new NamedSelectClass { Id = n.Id, StringValue = n.StringValue });
-        ServiceResponse<long> response = await query.ServiceClient.LongCountAsync(query, new DatasyncServiceOptions());
+        ServiceResponse<long> response = await query.ServiceClient.LongCountAsync(query, new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -1163,7 +1163,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         this.mockHandler.AddResponse(code);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IAsyncPageable<ClientKitchenSink> sut = client.Query(client.AsQueryable());
-        IAsyncEnumerator<ClientKitchenSink> enumerator = sut.GetAsyncEnumerator();
+        IAsyncEnumerator<ClientKitchenSink> enumerator = sut.GetAsyncEnumerator(TestContext.Current.CancellationToken);
         Func<Task> act = async () => _ = await enumerator.MoveNextAsync();
         (await act.Should().ThrowAsync<DatasyncHttpException>()).Which.ServiceResponse.StatusCode.Should().Be((int)code);
     }
@@ -1174,7 +1174,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         this.mockHandler.AddResponse(HttpStatusCode.OK, new Page<ClientKitchenSink>());
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IAsyncPageable<ClientKitchenSink> sut = client.Query(client.AsQueryable());
-        IAsyncEnumerator<ClientKitchenSink> enumerator = sut.GetAsyncEnumerator();
+        IAsyncEnumerator<ClientKitchenSink> enumerator = sut.GetAsyncEnumerator(TestContext.Current.CancellationToken);
         bool hasMore = await enumerator.MoveNextAsync();
         hasMore.Should().BeFalse();
 
@@ -1190,7 +1190,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IAsyncPageable<ClientKitchenSink> sut = client.Query(client.AsQueryable());
-        List<ClientKitchenSink> actualItems = await sut.ToListAsync();
+        List<ClientKitchenSink> actualItems = await sut.ToListAsync(TestContext.Current.CancellationToken);
 
         actualItems.Should().BeEquivalentTo(page.Items);
 
@@ -1209,7 +1209,7 @@ public class DatasyncServiceClient_Tests : IDisposable
 
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IAsyncPageable<ClientKitchenSink> sut = client.Query(client.AsQueryable());
-        List<ClientKitchenSink> actualItems = await sut.ToListAsync();
+        List<ClientKitchenSink> actualItems = await sut.ToListAsync(TestContext.Current.CancellationToken);
 
         actualItems.Should().HaveCount(10);
         actualItems.Take(5).Should().BeEquivalentTo(page1.Items);
@@ -1237,7 +1237,7 @@ public class DatasyncServiceClient_Tests : IDisposable
 
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IAsyncPageable<ClientKitchenSink> sut = client.Query(client.AsQueryable());
-        List<ClientKitchenSink> actualItems = await sut.ToListAsync();
+        List<ClientKitchenSink> actualItems = await sut.ToListAsync(TestContext.Current.CancellationToken);
 
         actualItems.Should().HaveCount(15);
         actualItems.Take(5).Should().BeEquivalentTo(page1.Items);
@@ -1267,7 +1267,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         _ = CreatePage(5, 42);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IAsyncPageable<ClientKitchenSink> sut = client.Query(client.AsQueryable());
-        IAsyncEnumerator<ClientKitchenSink> enumerator = sut.GetAsyncEnumerator();
+        IAsyncEnumerator<ClientKitchenSink> enumerator = sut.GetAsyncEnumerator(TestContext.Current.CancellationToken);
         _ = await enumerator.MoveNextAsync();
         sut.Count.Should().Be(42);
     }
@@ -1279,7 +1279,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IDatasyncQueryable<ClientKitchenSink> query = client.Where(x => x.StringValue == "abc");
         IAsyncPageable<ClientKitchenSink> sut = client.Query(query);
-        IAsyncEnumerator<ClientKitchenSink> enumerator = sut.GetAsyncEnumerator();
+        IAsyncEnumerator<ClientKitchenSink> enumerator = sut.GetAsyncEnumerator(TestContext.Current.CancellationToken);
         _ = await enumerator.MoveNextAsync();
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
@@ -1295,7 +1295,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IDatasyncQueryable<ClientKitchenSink> query = client.Where(x => x.StringValue == "abc").Skip(5).Take(100).OrderBy(x => x.GuidValue).ThenByDescending(x => x.IntValue);
         IAsyncPageable<ClientKitchenSink> sut = client.Query(query);
-        IAsyncEnumerator<ClientKitchenSink> enumerator = sut.GetAsyncEnumerator();
+        IAsyncEnumerator<ClientKitchenSink> enumerator = sut.GetAsyncEnumerator(TestContext.Current.CancellationToken);
         _ = await enumerator.MoveNextAsync();
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
@@ -1386,7 +1386,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         this.mockHandler.AddResponse(HttpStatusCode.NoContent);
         string id = Guid.NewGuid().ToString("N");
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse response = await client.RemoveAsync(id, new DatasyncServiceOptions());
+        ServiceResponse response = await client.RemoveAsync(id, new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -1407,7 +1407,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         this.mockHandler.AddResponse(HttpStatusCode.NoContent);
         ClientKitchenSink entity = new() { Id = Guid.NewGuid().ToString("N") };
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse response = await client.RemoveAsync(entity, true);
+        ServiceResponse response = await client.RemoveAsync(entity, true, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -1429,7 +1429,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         string id = Guid.NewGuid().ToString("N");
         DatasyncServiceOptions options = new() { Version = "abcdefg1234" };
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse response = await client.RemoveAsync(id, options);
+        ServiceResponse response = await client.RemoveAsync(id, options, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -1451,7 +1451,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         this.mockHandler.AddResponse(HttpStatusCode.NoContent);
         ClientKitchenSink entity = new() { Id = Guid.NewGuid().ToString("N"), Version = "abcdefg1234" };
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse response = await client.RemoveAsync(entity, false);
+        ServiceResponse response = await client.RemoveAsync(entity, false, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -1473,7 +1473,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         this.mockHandler.AddResponse(HttpStatusCode.NoContent);
         ClientKitchenSink entity = new() { Id = Guid.NewGuid().ToString("N"), Version = "abcdefg1234" };
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse response = await client.RemoveAsync(entity);
+        ServiceResponse response = await client.RemoveAsync(entity, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -1495,7 +1495,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         this.mockHandler.AddResponse(HttpStatusCode.NoContent);
         ClientKitchenSink entity = new() { Id = Guid.NewGuid().ToString("N"), Version = "abcdefg1234" };
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse response = await client.RemoveAsync(entity, true);
+        ServiceResponse response = await client.RemoveAsync(entity, true, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -1561,7 +1561,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         string id = Guid.NewGuid().ToString("N");
         DatasyncServiceOptions options = new() { ThrowIfMissing = false };
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse response = await client.RemoveAsync(id, options);
+        ServiceResponse response = await client.RemoveAsync(id, options, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -1662,13 +1662,13 @@ public class DatasyncServiceClient_Tests : IDisposable
         ClientKitchenSink entity = new() { Id = "1", StringValue = "abc" };
         string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, new DatasyncServiceOptions());
+        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, new DatasyncServiceOptions(), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
-        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(expected);
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -1687,13 +1687,13 @@ public class DatasyncServiceClient_Tests : IDisposable
         ClientKitchenSink entity = new() { Id = "1", StringValue = "abc" };
         string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, true);
+        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, true, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
-        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(expected);
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -1712,13 +1712,13 @@ public class DatasyncServiceClient_Tests : IDisposable
         ClientKitchenSink entity = new() { Id = "1", StringValue = "abc" };
         string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity);
+        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
-        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(expected);
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -1738,14 +1738,14 @@ public class DatasyncServiceClient_Tests : IDisposable
         string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
         DatasyncServiceOptions options = new() { Version = "abcdefg1234" };
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, options);
+        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, options, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
         request.Headers.Should().Contain(x => x.Key == "If-Match" && x.Value.First() == "\"abcdefg1234\"");
-        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(expected);
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -1764,14 +1764,14 @@ public class DatasyncServiceClient_Tests : IDisposable
         ClientKitchenSink entity = new() { Id = "1", Version = "abcdefg1234", StringValue = "abc" };
         string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, true);
+        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, true, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
         request.Headers.Should().NotContain(x => x.Key == "If-Match");
-        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(expected);
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -1790,14 +1790,14 @@ public class DatasyncServiceClient_Tests : IDisposable
         ClientKitchenSink entity = new() { Id = "1", Version = "abcdefg1234", StringValue = "abc" };
         string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, false);
+        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, false, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
         request.Headers.Should().Contain(x => x.Key == "If-Match" && x.Value.First() == "\"abcdefg1234\"");
-        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(expected);
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -1816,14 +1816,14 @@ public class DatasyncServiceClient_Tests : IDisposable
         ClientKitchenSink entity = new() { Id = "1", Version = "abcdefg1234", StringValue = "abc" };
         string expected = JsonSerializer.Serialize(entity, DatasyncSerializer.JsonSerializerOptions);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity);
+        ServiceResponse<ClientKitchenSink> response = await client.ReplaceAsync(entity, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
         request.Headers.Should().Contain(x => x.Key == "If-Match" && x.Value.First() == "\"abcdefg1234\"");
-        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(expected);
 
         response.Should().NotBeNull();
         response.HasContent.Should().BeTrue();
@@ -1852,7 +1852,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         request.Should().NotBeNull();
         request.Method.Should().Be(HttpMethod.Put);
         request.RequestUri.ToString().Should().Be($"http://localhost/tables/kitchensink/{entity.Id}");
-        (await request.Content.ReadAsStringAsync()).Should().Be(expected);
+        (await request.Content.ReadAsStringAsync(TestContext.Current.CancellationToken)).Should().Be(expected);
 
         ex.ClientEntity.Should().BeEquivalentTo(entity, this.entityEquivalentOptions);
         ex.ServerEntity.Should().BeEquivalentTo(this.successfulKitchenSink, this.entityEquivalentOptions);
@@ -1898,7 +1898,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         ClientKitchenSink entity = new() { Id = "1", StringValue = "abc" };
         DatasyncServiceOptions options = new() { ThrowIfMissing = false };
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ServiceResponse response = await client.ReplaceAsync(entity, options);
+        ServiceResponse response = await client.ReplaceAsync(entity, options, TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = this.mockHandler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -2011,7 +2011,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ClientKitchenSink[] actualItems = await client.ToArrayAsync();
+        ClientKitchenSink[] actualItems = await client.ToArrayAsync(TestContext.Current.CancellationToken);
 
         actualItems.Should().BeEquivalentTo(page.Items);
 
@@ -2026,7 +2026,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ClientKitchenSink[] actualItems = await client.Where(x => x.StringValue == "abc").ToArrayAsync();
+        ClientKitchenSink[] actualItems = await client.Where(x => x.StringValue == "abc").ToArrayAsync(TestContext.Current.CancellationToken);
 
         actualItems.Should().BeEquivalentTo(page.Items);
 
@@ -2044,7 +2044,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IAsyncEnumerable<ClientKitchenSink> result = client.ToAsyncEnumerable();
-        List<ClientKitchenSink> actualItems = await result.ToListAsync();
+        List<ClientKitchenSink> actualItems = await result.ToListAsync(TestContext.Current.CancellationToken);
 
         actualItems.Should().BeEquivalentTo(page.Items);
 
@@ -2060,7 +2060,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IAsyncEnumerable<ClientKitchenSink> result = client.Where(x => x.StringValue == "abc").ToAsyncEnumerable();
-        List<ClientKitchenSink> actualItems = await result.ToListAsync();
+        List<ClientKitchenSink> actualItems = await result.ToListAsync(TestContext.Current.CancellationToken);
 
         actualItems.Should().BeEquivalentTo(page.Items);
 
@@ -2078,7 +2078,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         Page<ClientKitchenSink> page = CreatePage(5, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IAsyncPageable<ClientKitchenSink> pagedResult = client.ToAsyncPageable();
-        Page<ClientKitchenSink> firstPage = await pagedResult.AsPages().FirstAsync();
+        Page<ClientKitchenSink> firstPage = await pagedResult.AsPages().FirstAsync(TestContext.Current.CancellationToken);
         List<ClientKitchenSink> actualItems = firstPage.Items.ToList();
 
         actualItems.Should().BeEquivalentTo(page.Items);
@@ -2095,7 +2095,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         Page<ClientKitchenSink> page = CreatePage(5, 42L);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         IAsyncPageable<ClientKitchenSink> pagedResult = client.Where(x => x.StringValue == "abc").ToAsyncPageable();
-        Page<ClientKitchenSink> firstPage = await pagedResult.AsPages().FirstAsync();
+        Page<ClientKitchenSink> firstPage = await pagedResult.AsPages().FirstAsync(TestContext.Current.CancellationToken);
         List<ClientKitchenSink> actualItems = firstPage.Items.ToList();
 
         actualItems.Should().BeEquivalentTo(page.Items);
@@ -2113,7 +2113,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        Dictionary<string, ClientKitchenSink> actualItems = await client.ToDictionaryAsync(x => x.Id);
+        Dictionary<string, ClientKitchenSink> actualItems = await client.ToDictionaryAsync(x => x.Id, TestContext.Current.CancellationToken);
         Dictionary<string, ClientKitchenSink> expectedItems = page.Items.ToDictionary(x => x.Id);
 
         actualItems.Should().BeEquivalentTo(expectedItems);
@@ -2129,7 +2129,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        Dictionary<string, ClientKitchenSink> actualItems = await client.ToDictionaryAsync(x => x.Id, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, ClientKitchenSink> actualItems = await client.ToDictionaryAsync(x => x.Id, StringComparer.OrdinalIgnoreCase, TestContext.Current.CancellationToken);
         Dictionary<string, ClientKitchenSink> expectedItems = page.Items.ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
         actualItems.Should().BeEquivalentTo(expectedItems);
@@ -2145,7 +2145,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        Dictionary<string, ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToDictionaryAsync(x => x.Id);
+        Dictionary<string, ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToDictionaryAsync(x => x.Id, TestContext.Current.CancellationToken);
         Dictionary<string, ClientKitchenSink> expectedItems = page.Items.ToDictionary(x => x.Id);
 
         actualItems.Should().BeEquivalentTo(expectedItems);
@@ -2161,7 +2161,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        Dictionary<string, ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToDictionaryAsync(x => x.Id, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToDictionaryAsync(x => x.Id, StringComparer.OrdinalIgnoreCase, TestContext.Current.CancellationToken);
         Dictionary<string, ClientKitchenSink> expectedItems = page.Items.ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
 
         actualItems.Should().BeEquivalentTo(expectedItems);
@@ -2179,7 +2179,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        HashSet<ClientKitchenSink> actualItems = await client.ToHashSetAsync();
+        HashSet<ClientKitchenSink> actualItems = await client.ToHashSetAsync(TestContext.Current.CancellationToken);
         HashSet<ClientKitchenSink> expectedItems = page.Items.ToHashSet();
 
         actualItems.Should().BeEquivalentTo(expectedItems);
@@ -2197,7 +2197,7 @@ public class DatasyncServiceClient_Tests : IDisposable
 
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        HashSet<ClientKitchenSink> actualItems = await client.ToHashSetAsync(comparer);
+        HashSet<ClientKitchenSink> actualItems = await client.ToHashSetAsync(comparer, TestContext.Current.CancellationToken);
         HashSet<ClientKitchenSink> expectedItems = page.Items.ToHashSet(comparer);
 
         actualItems.Should().BeEquivalentTo(expectedItems);
@@ -2213,7 +2213,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        HashSet<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToHashSetAsync();
+        HashSet<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToHashSetAsync(TestContext.Current.CancellationToken);
         HashSet<ClientKitchenSink> expectedItems = page.Items.ToHashSet();
 
         actualItems.Should().BeEquivalentTo(expectedItems);
@@ -2231,7 +2231,7 @@ public class DatasyncServiceClient_Tests : IDisposable
 
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        HashSet<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToHashSetAsync(comparer);
+        HashSet<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToHashSetAsync(comparer, TestContext.Current.CancellationToken);
         HashSet<ClientKitchenSink> expectedItems = page.Items.ToHashSet(comparer);
 
         actualItems.Should().BeEquivalentTo(expectedItems);
@@ -2258,7 +2258,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        List<ClientKitchenSink> actualItems = await client.ToListAsync();
+        List<ClientKitchenSink> actualItems = await client.ToListAsync(TestContext.Current.CancellationToken);
 
         actualItems.Should().BeEquivalentTo(page.Items);
 
@@ -2273,7 +2273,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        List<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToListAsync();
+        List<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToListAsync(TestContext.Current.CancellationToken);
 
         actualItems.Should().BeEquivalentTo(page.Items);
 
@@ -2290,7 +2290,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ConcurrentObservableCollection<ClientKitchenSink> actualItems = await client.ToObservableCollectionAsync();
+        ConcurrentObservableCollection<ClientKitchenSink> actualItems = await client.ToObservableCollectionAsync(TestContext.Current.CancellationToken);
 
         actualItems.Should().BeEquivalentTo(page.Items);
 
@@ -2306,7 +2306,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         ConcurrentObservableCollection<ClientKitchenSink> collection = new();
-        ConcurrentObservableCollection<ClientKitchenSink> actualItems = await client.ToObservableCollectionAsync(collection);
+        ConcurrentObservableCollection<ClientKitchenSink> actualItems = await client.ToObservableCollectionAsync(collection, TestContext.Current.CancellationToken);
 
         actualItems.Should().BeSameAs(collection).And.BeEquivalentTo(page.Items);
 
@@ -2321,7 +2321,7 @@ public class DatasyncServiceClient_Tests : IDisposable
     {
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
-        ConcurrentObservableCollection<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToObservableCollectionAsync();
+        ConcurrentObservableCollection<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToObservableCollectionAsync(TestContext.Current.CancellationToken);
 
         actualItems.Should().BeEquivalentTo(page.Items);
 
@@ -2337,7 +2337,7 @@ public class DatasyncServiceClient_Tests : IDisposable
         Page<ClientKitchenSink> page = CreatePage(5);
         DatasyncServiceClient<ClientKitchenSink> client = GetMockClient<ClientKitchenSink>();
         ConcurrentObservableCollection<ClientKitchenSink> collection = new();
-        ConcurrentObservableCollection<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToObservableCollectionAsync(collection);
+        ConcurrentObservableCollection<ClientKitchenSink> actualItems = await client.Where(x => x.StringValue == "abc").ToObservableCollectionAsync(collection, TestContext.Current.CancellationToken);
 
         actualItems.Should().BeSameAs(collection).And.BeEquivalentTo(page.Items);
 

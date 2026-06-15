@@ -31,7 +31,7 @@ public class NSwag_Tests
                 .UseContentRoot(AppContext.BaseDirectory)
                 .UseStartup<ServiceStartup>();
         }).Build();
-        await host.StartAsync();
+        await host.StartAsync(TestContext.Current.CancellationToken);
 
         TestServer server = host.GetTestServer();
 
@@ -40,7 +40,7 @@ public class NSwag_Tests
         context.InitializeDatabase();
 
         HttpClient client = server.CreateClient();
-        string actualContent = (await client.GetStringAsync("swagger/v1/swagger.json")).NormalizeContent();
+        string actualContent = (await client.GetStringAsync("swagger/v1/swagger.json", TestContext.Current.CancellationToken)).NormalizeContent();
         string expectedContent = Assembly.GetExecutingAssembly().ReadExternalFile("swagger.json");
 
         // There is an x-generator field that is library specific and completely irrelevant

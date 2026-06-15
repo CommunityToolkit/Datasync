@@ -18,7 +18,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     {
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
 
-        HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.MovieEndpoint}/{existingMovie.Id}");
+        HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.MovieEndpoint}/{existingMovie.Id}", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         InMemoryMovie serverEntity = this.factory.GetServerEntityById<InMemoryMovie>(existingMovie.Id);
@@ -38,13 +38,13 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
         HttpRequestMessage request = new(HttpMethod.Delete, $"{this.factory.MovieEndpoint}/{existingMovie.Id}");
         request.Headers.Add(headerName, etag);
 
-        HttpResponseMessage response = await this.client.SendAsync(request);
+        HttpResponseMessage response = await this.client.SendAsync(request, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(expectedStatusCode);
 
         if (expectedStatusCode == HttpStatusCode.PreconditionFailed)
         {
             InMemoryMovie serverEntity = this.factory.GetServerEntityById<InMemoryMovie>(existingMovie.Id);
-            ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions);
+            ClientMovie clientMovie = await response.Content.ReadFromJsonAsync<ClientMovie>(this.serializerOptions, TestContext.Current.CancellationToken);
             clientMovie.Should().HaveEquivalentMetadataTo(serverEntity).And.BeEquivalentTo<IMovie>(serverEntity);
         }
     }
@@ -52,7 +52,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     [Fact]
     public async Task Delete_MissingId_Returns404()
     {
-        HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.MovieEndpoint}/missing");
+        HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.MovieEndpoint}/missing", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
@@ -63,7 +63,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
         byte[] existingVersion = [.. existingMovie.Version];
         DateTimeOffset existingUpdatedAt = (DateTimeOffset)existingMovie.UpdatedAt;
 
-        HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}");
+        HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         InMemoryMovie serverEntity = this.factory.GetServerEntityById<InMemoryMovie>(existingMovie.Id);
@@ -79,7 +79,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
 
-        HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}");
+        HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.Gone);
 
         InMemoryMovie serverEntity = this.factory.GetServerEntityById<InMemoryMovie>(existingMovie.Id);

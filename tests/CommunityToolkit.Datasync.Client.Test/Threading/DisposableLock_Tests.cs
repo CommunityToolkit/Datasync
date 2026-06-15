@@ -29,7 +29,7 @@ public class DisposableLock_Tests
         DisposableLock sut = new();
 
         sut.IsLocked().Should().BeFalse();
-        using (await sut.AcquireLockAsync())
+        using (await sut.AcquireLockAsync(TestContext.Current.CancellationToken))
         {
             sut.IsLocked().Should().BeTrue();
         }

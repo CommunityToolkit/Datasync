@@ -82,7 +82,7 @@ public class LiteDbRepository_Tests : RepositoryTests<LiteDbMovie>, IDisposable
         LiteDbMovie addition = TestData.Movies.OfType<LiteDbMovie>(TestData.Movies.BlackPanther);
         addition.Id = null;
         LiteDbMovie sut = addition.Clone();
-        await repository.CreateAsync(sut);
+        await repository.CreateAsync(sut, TestContext.Current.CancellationToken);
         LiteDbMovie actual = await GetEntityAsync(sut.Id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);
@@ -108,7 +108,7 @@ public class LiteDbRepository_Tests : RepositoryTests<LiteDbMovie>, IDisposable
         LiteDbMovie addition = TestData.Movies.OfType<LiteDbMovie>(TestData.Movies.BlackPanther);
         addition.Id = null;
         LiteDbMovie sut = addition.Clone();
-        await repository.CreateAsync(sut);
+        await repository.CreateAsync(sut, TestContext.Current.CancellationToken);
         LiteDbMovie actual = await GetEntityAsync(sut.Id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);

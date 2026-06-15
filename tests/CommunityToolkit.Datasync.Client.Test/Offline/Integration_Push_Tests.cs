@@ -45,7 +45,7 @@ public class Integration_Push_Tests : ServiceTest, IClassFixture<ServiceApplicat
     {
         ResetInMemoryMovies();
 
-        PullResult initialPullResults = await this.context.Movies.PullAsync();
+        PullResult initialPullResults = await this.context.Movies.PullAsync(TestContext.Current.CancellationToken);
         initialPullResults.IsSuccessful.Should().BeTrue();
         initialPullResults.Additions.Should().Be(248);
         initialPullResults.Deletions.Should().Be(0);
@@ -54,32 +54,32 @@ public class Integration_Push_Tests : ServiceTest, IClassFixture<ServiceApplicat
         // Let's add some new movies
         ClientMovie blackPanther = new(TestCommon.TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
         this.context.Movies.Add(blackPanther);
-        await this.context.SaveChangesAsync();
+        await this.context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // And remove any movie that matches some criteria
-        List<ClientMovie> moviesToDelete = await this.context.Movies.Where(x => x.Duration > 180).ToListAsync();
+        List<ClientMovie> moviesToDelete = await this.context.Movies.Where(x => x.Duration > 180).ToListAsync(TestContext.Current.CancellationToken);
         this.context.Movies.RemoveRange(moviesToDelete);
-        await this.context.SaveChangesAsync();
+        await this.context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Then replace all the Unrated movies with a rating of NC17
-        List<ClientMovie> moviesToReplace = await this.context.Movies.Where(x => x.Rating == MovieRating.Unrated).ToListAsync();
+        List<ClientMovie> moviesToReplace = await this.context.Movies.Where(x => x.Rating == MovieRating.Unrated).ToListAsync(TestContext.Current.CancellationToken);
         moviesToReplace.ForEach(r => 
         { 
             r.Rating = MovieRating.NC17;
             r.Title = r.Title.PadLeft('-');
             this.context.Movies.Update(r); 
         });
-        await this.context.SaveChangesAsync();
+        await this.context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Check the queue.
-        List<DatasyncOperation> operations = await this.context.DatasyncOperationsQueue.ToListAsync();
+        List<DatasyncOperation> operations = await this.context.DatasyncOperationsQueue.ToListAsync(TestContext.Current.CancellationToken);
         operations.Count.Should().Be(1 + moviesToDelete.Count + moviesToReplace.Count);
         operations.Count(x => x.Kind is OperationKind.Add).Should().Be(1);
         operations.Count(x => x.Kind is OperationKind.Delete).Should().Be(moviesToDelete.Count);
         operations.Count(x => x.Kind is OperationKind.Replace).Should().Be(moviesToReplace.Count);
 
         // Now push the results and check what we did
-        PushResult pushResults = await this.context.Movies.PushAsync();
+        PushResult pushResults = await this.context.Movies.PushAsync(TestContext.Current.CancellationToken);
 
         // This little snippet of code is to aid debugging if this test fails
         if (!pushResults.IsSuccessful)
@@ -104,7 +104,7 @@ public class Integration_Push_Tests : ServiceTest, IClassFixture<ServiceApplicat
         this.context.DatasyncOperationsQueue.Should().BeEmpty();
 
         // Now use PullAsync() again - these should all be pulled down again
-        PullResult pullResults = await this.context.Movies.PullAsync();
+        PullResult pullResults = await this.context.Movies.PullAsync(TestContext.Current.CancellationToken);
         pullResults.IsSuccessful.Should().BeTrue();
         pullResults.Additions.Should().Be(0);
         pullResults.Deletions.Should().Be(0);
@@ -117,7 +117,7 @@ public class Integration_Push_Tests : ServiceTest, IClassFixture<ServiceApplicat
     {
         ResetInMemoryMovies();
 
-        PullResult initialPullResults = await this.context.ByteMovies.PullAsync();
+        PullResult initialPullResults = await this.context.ByteMovies.PullAsync(TestContext.Current.CancellationToken);
         initialPullResults.IsSuccessful.Should().BeTrue();
         initialPullResults.Additions.Should().Be(248);
         initialPullResults.Deletions.Should().Be(0);
@@ -127,32 +127,32 @@ public class Integration_Push_Tests : ServiceTest, IClassFixture<ServiceApplicat
         // Let's add some new movies
         ByteVersionMovie blackPanther = new(TestCommon.TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
         this.context.ByteMovies.Add(blackPanther);
-        await this.context.SaveChangesAsync();
+        await this.context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // And remove any movie that matches some criteria
-        List<ByteVersionMovie> moviesToDelete = await this.context.ByteMovies.Where(x => x.Duration > 180).ToListAsync();
+        List<ByteVersionMovie> moviesToDelete = await this.context.ByteMovies.Where(x => x.Duration > 180).ToListAsync(TestContext.Current.CancellationToken);
         this.context.ByteMovies.RemoveRange(moviesToDelete);
-        await this.context.SaveChangesAsync();
+        await this.context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Then replace all the Unrated movies with a rating of NC17
-        List<ByteVersionMovie> moviesToReplace = await this.context.ByteMovies.Where(x => x.Rating == MovieRating.Unrated).ToListAsync();
+        List<ByteVersionMovie> moviesToReplace = await this.context.ByteMovies.Where(x => x.Rating == MovieRating.Unrated).ToListAsync(TestContext.Current.CancellationToken);
         moviesToReplace.ForEach(r =>
         {
             r.Rating = MovieRating.NC17;
             r.Title = r.Title.PadLeft('-');
             this.context.ByteMovies.Update(r);
         });
-        await this.context.SaveChangesAsync();
+        await this.context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Check the queue.
-        List<DatasyncOperation> operations = await this.context.DatasyncOperationsQueue.ToListAsync();
+        List<DatasyncOperation> operations = await this.context.DatasyncOperationsQueue.ToListAsync(TestContext.Current.CancellationToken);
         operations.Count.Should().Be(1 + moviesToDelete.Count + moviesToReplace.Count);
         operations.Count(x => x.Kind is OperationKind.Add).Should().Be(1);
         operations.Count(x => x.Kind is OperationKind.Delete).Should().Be(moviesToDelete.Count);
         operations.Count(x => x.Kind is OperationKind.Replace).Should().Be(moviesToReplace.Count);
 
         // Now push the results and check what we did
-        PushResult pushResults = await this.context.PushAsync();
+        PushResult pushResults = await this.context.PushAsync(TestContext.Current.CancellationToken);
 
         // This little snippet of code is to aid debugging if this test fails
         if (!pushResults.IsSuccessful)
@@ -177,7 +177,7 @@ public class Integration_Push_Tests : ServiceTest, IClassFixture<ServiceApplicat
         this.context.DatasyncOperationsQueue.Should().BeEmpty();
 
         // Now use PullAsync() again - these should all be pulled down again
-        PullResult pullResults = await this.context.ByteMovies.PullAsync();
+        PullResult pullResults = await this.context.ByteMovies.PullAsync(TestContext.Current.CancellationToken);
         pullResults.IsSuccessful.Should().BeTrue();
         pullResults.Additions.Should().Be(0);
         pullResults.Deletions.Should().Be(0);
@@ -190,7 +190,7 @@ public class Integration_Push_Tests : ServiceTest, IClassFixture<ServiceApplicat
     {
         ResetInMemoryMovies();
 
-        PullResult initialPullResults = await this.context.Movies.PullAsync();
+        PullResult initialPullResults = await this.context.Movies.PullAsync(TestContext.Current.CancellationToken);
         initialPullResults.IsSuccessful.Should().BeTrue();
         initialPullResults.Additions.Should().Be(248);
         initialPullResults.Deletions.Should().Be(0);
@@ -199,32 +199,32 @@ public class Integration_Push_Tests : ServiceTest, IClassFixture<ServiceApplicat
         // Let's add some new movies
         ClientMovie blackPanther = new(TestCommon.TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
         this.context.Movies.Add(blackPanther);
-        await this.context.SaveChangesAsync();
+        await this.context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // And remove any movie that matches some criteria
-        List<ClientMovie> moviesToDelete = await this.context.Movies.Where(x => x.Duration > 180).ToListAsync();
+        List<ClientMovie> moviesToDelete = await this.context.Movies.Where(x => x.Duration > 180).ToListAsync(TestContext.Current.CancellationToken);
         this.context.Movies.RemoveRange(moviesToDelete);
-        await this.context.SaveChangesAsync();
+        await this.context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Then replace all the Unrated movies with a rating of NC17
-        List<ClientMovie> moviesToReplace = await this.context.Movies.Where(x => x.Rating == MovieRating.Unrated).ToListAsync();
+        List<ClientMovie> moviesToReplace = await this.context.Movies.Where(x => x.Rating == MovieRating.Unrated).ToListAsync(TestContext.Current.CancellationToken);
         moviesToReplace.ForEach(r =>
         {
             r.Rating = MovieRating.NC17;
             r.Title = r.Title.PadLeft('-');
             this.context.Movies.Update(r);
         });
-        await this.context.SaveChangesAsync();
+        await this.context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Check the queue.
-        List<DatasyncOperation> operations = await this.context.DatasyncOperationsQueue.ToListAsync();
+        List<DatasyncOperation> operations = await this.context.DatasyncOperationsQueue.ToListAsync(TestContext.Current.CancellationToken);
         operations.Count.Should().Be(1 + moviesToDelete.Count + moviesToReplace.Count);
         operations.Count(x => x.Kind is OperationKind.Add).Should().Be(1);
         operations.Count(x => x.Kind is OperationKind.Delete).Should().Be(moviesToDelete.Count);
         operations.Count(x => x.Kind is OperationKind.Replace).Should().Be(moviesToReplace.Count);
 
         // Now push the results and check what we did
-        PushResult pushResults = await this.context.Movies.PushAsync(new PushOptions { ParallelOperations = 8 });
+        PushResult pushResults = await this.context.Movies.PushAsync(new PushOptions { ParallelOperations = 8 }, TestContext.Current.CancellationToken);
 
         // This little snippet of code is to aid debugging if this test fails
         if (!pushResults.IsSuccessful)
@@ -249,7 +249,7 @@ public class Integration_Push_Tests : ServiceTest, IClassFixture<ServiceApplicat
         this.context.DatasyncOperationsQueue.Should().BeEmpty();
 
         // Now use PullAsync() again - these should all be pulled down again
-        PullResult pullResults = await this.context.Movies.PullAsync();
+        PullResult pullResults = await this.context.Movies.PullAsync(TestContext.Current.CancellationToken);
         pullResults.IsSuccessful.Should().BeTrue();
         pullResults.Additions.Should().Be(0);
         pullResults.Deletions.Should().Be(0);

@@ -147,7 +147,7 @@ public abstract class LiveControllerTests<TEntity> : BaseTest where TEntity : cl
 
         await CreateControllerAsync(HttpMethod.Get, $"{MovieEndpoint}?{query}");
 
-        IActionResult result = await this.tableController.QueryAsync();
+        IActionResult result = await this.tableController.QueryAsync(TestContext.Current.CancellationToken);
 
         result.Should().BeAssignableTo<StatusCodeResult>();
         ((StatusCodeResult)result).StatusCode.Should().Be((int)expectedStatusCode);

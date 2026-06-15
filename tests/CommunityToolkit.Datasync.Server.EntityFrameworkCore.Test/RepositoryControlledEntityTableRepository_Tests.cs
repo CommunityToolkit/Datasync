@@ -52,7 +52,7 @@ public class RepositoryControlledEntityTableRepository_Tests : RepositoryTests<R
         RepositoryControlledEntityMovie addition = TestData.Movies.OfType<RepositoryControlledEntityMovie>(TestData.Movies.BlackPanther);
         addition.Id = null;
         RepositoryControlledEntityMovie sut = addition.Clone();
-        await repository.CreateAsync(sut);
+        await repository.CreateAsync(sut, TestContext.Current.CancellationToken);
         RepositoryControlledEntityMovie actual = await GetEntityAsync(sut.Id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);
@@ -78,7 +78,7 @@ public class RepositoryControlledEntityTableRepository_Tests : RepositoryTests<R
         RepositoryControlledEntityMovie addition = TestData.Movies.OfType<RepositoryControlledEntityMovie>(TestData.Movies.BlackPanther);
         addition.Id = null;
         RepositoryControlledEntityMovie sut = addition.Clone();
-        await repository.CreateAsync(sut);
+        await repository.CreateAsync(sut, TestContext.Current.CancellationToken);
         RepositoryControlledEntityMovie actual = await GetEntityAsync(sut.Id);
 
         actual.Should().BeEquivalentTo<IMovie>(addition);

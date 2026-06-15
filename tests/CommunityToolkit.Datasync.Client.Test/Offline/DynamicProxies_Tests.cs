@@ -78,13 +78,13 @@ public class DynamicProxies_Tests : IDisposable
                     Name = $"Test {DateTime.Now}",
                     LocalNotes = "These notes should not be serialized into DatasyncOperationsQueue",
                     RelatedEntity = new() { Id = Guid.NewGuid().ToString() }
-                });
-                await context.SaveChangesAsync();
+                }, TestContext.Current.CancellationToken);
+                await context.SaveChangesAsync(TestContext.Current.CancellationToken);
             }
 
             await using (DynamicProxiesTestContext context = new(dbContextOptions))
             {
-                DatasyncOperation operationAfterInsert = await context.DatasyncOperationsQueue.FirstAsync(o => o.ItemId == key);
+                DatasyncOperation operationAfterInsert = await context.DatasyncOperationsQueue.FirstAsync(o => o.ItemId == key, TestContext.Current.CancellationToken);
                 operationAfterInsert.EntityType.Should().EndWith("DynamicProxiesEntity1");
                 operationAfterInsert.Version.Should().Be(0);
 
@@ -92,17 +92,17 @@ public class DynamicProxies_Tests : IDisposable
                 operationAfterInsert.Item.Should().NotContain("\"localNotes\":");
 
                 // Update the entity within the DbContext
-                DynamicProxiesEntity1 entity = await context.DynamicProxiesEntities1.FirstAsync(e => e.Id == key);
+                DynamicProxiesEntity1 entity = await context.DynamicProxiesEntities1.FirstAsync(e => e.Id == key, TestContext.Current.CancellationToken);
                 string updatedName = $"Updated name {DateTime.Now}";
                 entity.Name = updatedName;
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
                 // There should be 1 operation.
-                int operationsWithItemId = await context.DatasyncOperationsQueue.CountAsync(o => o.ItemId == key);
+                int operationsWithItemId = await context.DatasyncOperationsQueue.CountAsync(o => o.ItemId == key, TestContext.Current.CancellationToken);
                 operationsWithItemId.Should().Be(1);
 
                 // Here is the operation after edit.
-                DatasyncOperation operationAfterEdit = await context.DatasyncOperationsQueue.FirstAsync(o => o.ItemId == key);
+                DatasyncOperation operationAfterEdit = await context.DatasyncOperationsQueue.FirstAsync(o => o.ItemId == key, TestContext.Current.CancellationToken);
                 operationAfterEdit.EntityType.Should().EndWith("DynamicProxiesEntity1");
                 operationAfterEdit.Version.Should().Be(1);
                 operationAfterEdit.Item.Should().Contain($"\"name\":\"{updatedName}\"");

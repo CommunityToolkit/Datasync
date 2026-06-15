@@ -78,7 +78,7 @@ public class PullOperationManager_Tests : BaseTest
         Page<ClientMovie> page = CreatePage(5);
         handler.AddResponse(HttpStatusCode.OK, page);
 
-        Page<object> actual = await operationManager.GetPageAsync(client, new Uri("http://localhost/tables/kitchensink"), typeof(Page<ClientMovie>));
+        Page<object> actual = await operationManager.GetPageAsync(client, new Uri("http://localhost/tables/kitchensink"), typeof(Page<ClientMovie>), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = handler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -97,7 +97,7 @@ public class PullOperationManager_Tests : BaseTest
         Page<ClientMovie> page = CreatePage(5, null, "$filter=booleanValue&$skip=5");
         handler.AddResponse(HttpStatusCode.OK, page);
 
-        Page<object> actual = await operationManager.GetPageAsync(client, new Uri("http://localhost/tables/kitchensink"), typeof(Page<ClientMovie>));
+        Page<object> actual = await operationManager.GetPageAsync(client, new Uri("http://localhost/tables/kitchensink"), typeof(Page<ClientMovie>), TestContext.Current.CancellationToken);
 
         HttpRequestMessage request = handler.Requests.SingleOrDefault();
         request.Should().NotBeNull();
@@ -170,7 +170,7 @@ public class PullOperationManager_Tests : BaseTest
         handler.AddResponseContent("""{"nextLink":"abc"}""", HttpStatusCode.OK);
         Uri requestUri = new("http://localhost/tables/movies");
 
-        Page<object> result = await operationManager.GetPageAsync(client, requestUri, typeof(Page<ClientMovie>));
+        Page<object> result = await operationManager.GetPageAsync(client, requestUri, typeof(Page<ClientMovie>), TestContext.Current.CancellationToken);
         result.Should().NotBeNull();
         result.Items.Should().BeEmpty();
         result.NextLink.Should().Be("abc");

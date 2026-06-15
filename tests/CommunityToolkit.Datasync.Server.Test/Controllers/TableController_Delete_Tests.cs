@@ -141,7 +141,7 @@ public class TableController_Delete_Tests : BaseTest
         List<RepositoryUpdatedEventArgs> firedEvents = [];
         controller.RepositoryUpdated += (_, e) => firedEvents.Add(e);
 
-        NoContentResult actual = await controller.DeleteAsync(entity.Id) as NoContentResult;
+        NoContentResult actual = await controller.DeleteAsync(entity.Id, TestContext.Current.CancellationToken) as NoContentResult;
 
         actual.Should().NotBeNull();
         actual.StatusCode.Should().Be(204);
@@ -187,7 +187,7 @@ public class TableController_Delete_Tests : BaseTest
         List<RepositoryUpdatedEventArgs> firedEvents = [];
         controller.RepositoryUpdated += (_, e) => firedEvents.Add(e);
 
-        NoContentResult actual = await controller.DeleteAsync(entity.Id) as NoContentResult;
+        NoContentResult actual = await controller.DeleteAsync(entity.Id, TestContext.Current.CancellationToken) as NoContentResult;
 
         actual.Should().NotBeNull();
         actual.StatusCode.Should().Be(204);
