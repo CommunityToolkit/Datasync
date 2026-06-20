@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Adds an encrypted SQLite offline store (via SQLite3 Multiple Ciphers - free, no paid license) for the Datasync Toolkit offline client.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CommunityToolkit.Datasync.Client.EncryptedSqlite.Test" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommunityToolkit.Datasync.Client\CommunityToolkit.Datasync.Client.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SQLite3MC.PCLRaw.bundle" />
+  </ItemGroup>
+</Project>

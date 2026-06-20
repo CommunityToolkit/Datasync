@@ -31,6 +31,9 @@ Use the `OfflineDbContext` as the base for your offline storage:
 
     The Datasync Community Toolkit does not rely on the storage of the `UpdatedAt` field in your model for synchronization.  
 
+!!! note Choosing a SQLite native library
+    The client uses the bundle-less `Microsoft.EntityFrameworkCore.Sqlite.Core` provider, so your application must reference exactly one SQLitePCLRaw bundle: add `SQLitePCLRaw.bundle_e_sqlite3` for a plaintext store, or the `CommunityToolkit.Datasync.Client.EncryptedSqlite` package for an [encrypted offline store](./encryption.md).
+
 Each synchronizable entity in an offline context **MUST** have the following properties:
 
 * `Id` - string, primary key - the globally unique ID for the entity.

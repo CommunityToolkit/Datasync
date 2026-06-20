@@ -61,6 +61,7 @@ nav:
       - The basics: in-depth/client/index.md
       - Authentication: in-depth/client/auth.md
       - Online operations: in-depth/client/online.md
+      - Encrypted offline store: in-depth/client/encryption.md
       - Advanced topics:
         - MAUI AOT: in-depth/client/advanced/maui-aot.md
   - Samples:
@@ -68,6 +69,7 @@ nav:
         - The server: samples/todoapp/server.md
         - Avalonia: samples/todoapp/avalonia.md
         - MAUI: samples/todoapp/maui.md
+        - "MAUI (encrypted)": samples/todoapp/maui-encrypted.md
         - "Uno Plaform": samples/todoapp/unoplatform.md
         - WinUI3: samples/todoapp/winui3.md
         - WPF: samples/todoapp/wpf.md

@@ -60,6 +60,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Client.Test", "tests\CommunityToolkit.Datasync.Client.Test\CommunityToolkit.Datasync.Client.Test.csproj", "{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Client.EncryptedSqlite", "src\CommunityToolkit.Datasync.Client.EncryptedSqlite\CommunityToolkit.Datasync.Client.EncryptedSqlite.csproj", "{9BF4A280-C2CF-4EA1-9B5C-1FC600BB4AA3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunityToolkit.Datasync.Client.EncryptedSqlite.Test", "tests\CommunityToolkit.Datasync.Client.EncryptedSqlite.Test\CommunityToolkit.Datasync.Client.EncryptedSqlite.Test.csproj", "{5AC81D60-8D19-45F6-96D8-2A7BBF5C311F}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.CosmosDb", "src\CommunityToolkit.Datasync.Server.CosmosDb\CommunityToolkit.Datasync.Server.CosmosDb.csproj", "{D9356867-0A30-4B17-BD4C-0F7EF70984C6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommunityToolkit.Datasync.Server.MongoDB", "src\CommunityToolkit.Datasync.Server.MongoDB\CommunityToolkit.Datasync.Server.MongoDB.csproj", "{DC20ACF9-12E9-41D9-B672-CB5FD85548E9}"
@@ -158,6 +162,14 @@ Global
 		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BF4A280-C2CF-4EA1-9B5C-1FC600BB4AA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BF4A280-C2CF-4EA1-9B5C-1FC600BB4AA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BF4A280-C2CF-4EA1-9B5C-1FC600BB4AA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BF4A280-C2CF-4EA1-9B5C-1FC600BB4AA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AC81D60-8D19-45F6-96D8-2A7BBF5C311F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AC81D60-8D19-45F6-96D8-2A7BBF5C311F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AC81D60-8D19-45F6-96D8-2A7BBF5C311F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AC81D60-8D19-45F6-96D8-2A7BBF5C311F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A9967817-2A2C-4C6D-A133-967A6062E9B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A9967817-2A2C-4C6D-A133-967A6062E9B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9967817-2A2C-4C6D-A133-967A6062E9B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -211,6 +223,8 @@ Global
 		{45D47A4E-AD58-40C8-B4CC-95BC888C47A7} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{D3B72031-D4BD-44D3-973C-2752AB1570F6} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{2889E6B2-9CD1-437C-A43C-98CFAFF68B99} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
+		{9BF4A280-C2CF-4EA1-9B5C-1FC600BB4AA3} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
+		{5AC81D60-8D19-45F6-96D8-2A7BBF5C311F} = {D59F1489-5D74-4F52-B78B-88037EAB2838}
 		{D9356867-0A30-4B17-BD4C-0F7EF70984C6} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{DC20ACF9-12E9-41D9-B672-CB5FD85548E9} = {84AD662A-4B9E-4E64-834D-72529FB7FCE5}
 		{4FC45D20-0BA9-484B-9040-641687659AF6} = {D59F1489-5D74-4F52-B78B-88037EAB2838}

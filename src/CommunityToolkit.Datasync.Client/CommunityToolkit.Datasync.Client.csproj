@@ -10,7 +10,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <!--
+      Use the bundle-less Sqlite.Core provider so consumers can choose their own SQLitePCLRaw bundle.
+      Plain consumers add SQLitePCLRaw.bundle_e_sqlite3; consumers that need an encrypted offline store add
+      CommunityToolkit.Datasync.Client.EncryptedSqlite (which brings the SQLite3 Multiple Ciphers bundle).
+      A project must reference exactly one SQLitePCLRaw bundle.
+    -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" />
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.Spatial" />
   </ItemGroup>

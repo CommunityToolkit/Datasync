@@ -1,4 +1,5 @@
 **/CommunityToolkit.Datasync.Client
+**/CommunityToolkit.Datasync.Client.EncryptedSqlite
 **/CommunityToolkit.Datasync.Server.Abstractions
 **/CommunityToolkit.Datasync.Server.Automapper
 **/CommunityToolkit.Datasync.Server.CosmosDb
