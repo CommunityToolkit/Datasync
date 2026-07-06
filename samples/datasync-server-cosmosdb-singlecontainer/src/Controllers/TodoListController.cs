@@ -13,6 +13,9 @@ public class TodoListController : TableController<TodoList>
 {
     public TodoListController(IRepository<TodoList> repository) : base(repository)
     {
-        Options = new TableControllerOptions { EnableSoftDelete = true };
+        // UnsafeEntityLogging is intentionally left at its secure default (false).
+        // This sample stores user-supplied TodoList content (Title), so only the
+        // entity ID is logged; the full serialized entity is never written to the logs.
+        Options = new TableControllerOptions { EnableSoftDelete = true, UnsafeEntityLogging = false };
     }
 }
