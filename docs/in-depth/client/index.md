@@ -47,7 +47,7 @@ Each synchronizable entity in an offline context **MUST** have the following pro
 * `Version` - `string?` or `byte[]?` - the opaque version for the entity on the service - changes on each write.
 * `Deleted` - boolean (optional) - only needed if using soft-delete on the service; marks the entity as deleted.
 
-!!! warning DO NOT USE THE SAME ENTITY TYPE FOR BOTH SERVICE AND CLIENT
+!!! warning "Do not use the same entity type for both service and client"
     You may be tempted to use the same entity type for both service and client.  This is a mistake:
 
     * The service side entity types have automatic updates configured on UpdatedAt and Version which are not appropriate for the client.
