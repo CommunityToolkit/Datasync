@@ -3,6 +3,7 @@
 
 ### Mkdocs Site ###
 site/
+.venv-*/
 
 # Ignore codespaces / C# Dev Kit files
 .mono
