@@ -10,6 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="CommunityToolkit.Datasync.Client" Version="10.0.0" />
+    <PackageReference Include="CommunityToolkit.Datasync.Client" Version="10.1.0" />
   </ItemGroup>
 </Project>
