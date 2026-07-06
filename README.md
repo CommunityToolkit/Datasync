@@ -1,7 +1,6 @@
 # 🧰 Datasync Toolkit
 
-The Datasync Community Toolkit is a collection of libraries that implement a client-server system used for synchronizing data
-from the database table.  The Datasync Community Toolkit is a member of the Community Toolkit organization and published under the dotnet Foundation.
+The Datasync Community Toolkit is a collection of libraries that implement a client-server system used for synchronizing data from the database table.  The Datasync Community Toolkit is a member of the Community Toolkit organization and published under the dotnet Foundation.
 
 Currently, the library supports:
 
@@ -17,17 +16,15 @@ The client platforms that have been tested include:
 * [Windows Presentation Framework (WPF)](https://learn.microsoft.com/dotnet/desktop/wpf/overview/?view=netdesktop-8.0)
 * [Windows UI Library (WinUI) 3](https://learn.microsoft.com/windows/apps/winui/winui3/)
 
-We support most databases that are supported by Entity Framework Core, along with an in-memory store and LiteDb.  Support for additional
-database types is easily added through our flexible repository pattern.
+We support most databases that are supported by Entity Framework Core, along with an in-memory store and LiteDb.  Support for additional database types is easily added through our flexible repository pattern.
 
 Other platforms may work, but have not been tested.
 
 ## 🙌 Getting Started
 
-Please take a look at the tutorials included in our [documentation](https://CommunityToolkit.github.io/Datasync).
+Please take a look at the tutorials included in our [documentation].
 
-You can easily get started by using the `dotnet new` command to create a new datasync server.  The template pre-configured ASP.NET Core, 
-Entity Framework Core, and the Datasync server libraries.  To install the template:
+You can easily get started by using the `dotnet new` command to create a new datasync server.  The template pre-configured ASP.NET Core, Entity Framework Core, and the Datasync server libraries.  To install the template:
 
 ```dotnetcli
 dotnet new -i CommunityToolkit.Datasync.Server.Template.CSharp
