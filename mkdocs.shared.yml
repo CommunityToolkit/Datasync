@@ -56,17 +56,19 @@ nav:
       - OpenApi:
         - NSwag: in-depth/server/openapi/nswag.md
         - Swashbuckle: in-depth/server/openapi/swashbuckle.md
-        - ".NET 9.x": in-depth/server/openapi/net9.md
+        - ".NET 10.x": in-depth/server/openapi/net10.md
     - Client:
       - The basics: in-depth/client/index.md
       - Authentication: in-depth/client/auth.md
       - Online operations: in-depth/client/online.md
       - Advanced topics:
         - MAUI AOT: in-depth/client/advanced/maui-aot.md
+        - "Blazor WASM support": in-depth/client/advanced/blazor-wasm.md
   - Samples:
       - Todo App:
         - The server: samples/todoapp/server.md
         - Avalonia: samples/todoapp/avalonia.md
+        - "Blazor WASM": samples/todoapp/blazor-wasm.md
         - MAUI: samples/todoapp/maui.md
         - "Uno Plaform": samples/todoapp/unoplatform.md
         - WinUI3: samples/todoapp/winui3.md
