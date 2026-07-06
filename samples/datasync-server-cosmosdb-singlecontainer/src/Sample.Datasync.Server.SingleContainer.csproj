@@ -10,6 +10,15 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\CommunityToolkit.Datasync.Server.CosmosDb\CommunityToolkit.Datasync.Server.CosmosDb.csproj" />
     <ProjectReference Include="..\..\..\src\CommunityToolkit.Datasync.Server.Swashbuckle\CommunityToolkit.Datasync.Server.Swashbuckle.csproj" />
+
+    <!--
+      Microsoft.AspNetCore.OData (a transitive dependency via CommunityToolkit.Datasync.Server) floats
+      Microsoft.OData.Edm to a lower version than the one CommunityToolkit.Datasync.Server.Abstractions
+      already pins Microsoft.Spatial to. Pin it explicitly here to keep the resolved assembly versions
+      consistent, matching the src/Directory.Packages.props ODataVersion.
+    -->
+    <PackageReference Include="Microsoft.OData.Core" Version="8.4.3" />
+    <PackageReference Include="Microsoft.OData.Edm" Version="8.4.3" />
   </ItemGroup>
 
 </Project>
