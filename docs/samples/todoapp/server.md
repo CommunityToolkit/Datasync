@@ -109,10 +109,14 @@ Here is a typical table controller for the `TodoItem` entity:
         public TodoItemController(AppDbContext context) 
             : base(new EntityTableRepository<TodoItem>(context))
         {
+            // UnsafeEntityLogging is intentionally left at its secure default (false).
+            // This sample stores user-supplied TodoItem content (Title), so only the
+            // entity ID is logged; the full serialized entity is never written to the logs.
+            Options = new TableControllerOptions { UnsafeEntityLogging = false };
         }
     }
 
-In many respects, this datasync server is a standard ASP.NET Core Web API controller with minimal changes to support datasync services.
+In many respects, this datasync server is a standard ASP.NET Core Web API controller with minimal changes to support datasync services.  Note the explicit `UnsafeEntityLogging = false` above — this is the default value, but it is set explicitly here to demonstrate how you can control how much entity data is written to your logs.  See [the table controller options](../../in-depth/server/index.md#table-controller-options) for more information.
 
 The sample has support for [NSwag](../../in-depth/server/openapi/nswag.md) and [Swashbuckle](../../in-depth/server/openapi/swashbuckle.md).  Set the following in the `appsettings.json` (or `appsettings.Development.json`) file:
 

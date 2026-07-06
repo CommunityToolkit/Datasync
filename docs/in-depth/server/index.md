@@ -266,7 +266,7 @@ You can publish the API defined by data sync controllers using [NSwag](https://l
 Review the instructions for each library:
 
 * [NSwag](./openapi/nswag.md)
-* [OpenApi](./openapi/net9.md)
+* [OpenApi](./openapi/net10.md)
 * [Swashbuckle](./openapi/swashbuckle.md)
 
 Currently, NSwag provides the best option for OpenApi document generation.

@@ -212,7 +212,6 @@ namespace Sample.WebAPI.Controllers;
 public class TodoItemController : TableController<TodoItem>
 {
     public TodoItemController(AppDbContext context, ILogger<TodoItemController> logger) : base() 
-        : base(new EntityTableRepository<TodoItem>(context))
     {
       Repository = new EntityTableRepository<TodoItem>(context);
       Logger = logger;
@@ -221,7 +220,8 @@ public class TodoItemController : TableController<TodoItem>
         EnableSoftDelete = false,
         MaxTop = 128000,
         PageSize = 100,
-        UnauthorizedStatusCode = 401
+        UnauthorizedStatusCode = 401,
+        UnsafeEntityLogging = false
       };
     }
 }
@@ -236,6 +236,8 @@ All the values in the options are the defaults.   Let's take a look at what each
 **PageSize** is the maximum number of records that will be returned in one response.  The server implements paging.  If there are more records to be returned, the response from the server indicates the query parameters to use to get the next page of results.
 
 **UnauthorizedStatusCode** affects what response is generated if the user is not authorized to read or write a record.  See [a later tutorial](./part-4.md).
+
+**UnsafeEntityLogging** controls how much entity data is written to the logs.  When `false` (the default), only the entity ID is logged at `Information` level.  When `true`, the entity ID is logged at `Information` level and the full (serialized) entity contents are also logged at `Debug` level.  Entity contents may include personally identifiable information (PII), secrets, or other sensitive business data, so only enable this option when the additional diagnostic detail is required and the log sink is appropriately secured.
 
 To add further table controllers, you should:
 

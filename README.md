@@ -5,12 +5,13 @@ from the database table.  The Datasync Community Toolkit is a member of the Comm
 
 Currently, the library supports:
 
-* Server: [ASP.NET 8 or later](https://learn.microsoft.com/aspnet/core/)
-* Client: .NET 8 or later
+* Server: [ASP.NET Core 10.x or later](https://learn.microsoft.com/aspnet/core/)
+* Client: .NET clients using .NET 10.x or later
 
 The client platforms that have been tested include:
 
 * [Avalonia UI](https://www.avaloniaui.net/)
+* [Blazor WASM](https://learn.microsoft.com/en-us/aspnet/core/blazor/webassembly-build-tools-and-aot)
 * [.NET MAUI](https://dotnet.microsoft.com/apps/maui)
 * [Uno Platform](https://platform.uno/)
 * [Windows Presentation Framework (WPF)](https://learn.microsoft.com/dotnet/desktop/wpf/overview/?view=netdesktop-8.0)
