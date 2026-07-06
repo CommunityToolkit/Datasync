@@ -2,7 +2,7 @@
 
 This guide shows you how to perform common scenarios using the Datasync Community Toolkit.  Use the client library in any .NET 9 application, including AvaloniaUI, MAUI, Uno Platform, WinUI, and WPF applications.
 
-!!! note **Blazor WASM and Blazor Hybrid**
+!!! note "Blazor WASM and Blazor Hybrid"
     The offline capabilities are known to have issues with Blazor WASM and Blazor Hybrid (since EF Core and SQLite do not work in those environments when running in the browser).  Use online-only operations in these environments.  For more information, see [our guide on Blazor WASM](./advanced/blazor-wasm.md)
 
 This guide primary deals with offline operations.  For online operations, see the [Online operations guide](./online.md).
@@ -26,6 +26,15 @@ Use the `OfflineDbContext` as the base for your offline storage:
         }
     }
 
+!!! note "Resolving the SQLitePCLRaw NuGet audit warning (NU1903)"
+    `OfflineDbContext` uses Entity Framework Core's SQLite provider for local storage, which transitively depends on an older version of `SQLitePCLRaw.bundle_e_sqlite3` that triggers a high-severity `NU1903` NuGet audit warning ([GHSA-2m69-gcr7-jv3q](https://github.com/advisories/GHSA-2m69-gcr7-jv3q)). If you see this warning in your own application, force the patched `SQLitePCLRaw` 3.x line by adding an explicit package reference to your client `.csproj` file:
+
+    ```xml
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+    ```
+
+    See [issue #492](https://github.com/CommunityToolkit/Datasync/issues/492) for more details.
+
 !!! warning
     Sqlite stores DateTimeOffset using a second accuracy by default. We strongly recommend using [a ValueConverter](https://learn.microsoft.com/ef/core/modeling/value-conversions?tabs=data-annotations) to store date/time values.
 
@@ -38,7 +47,7 @@ Each synchronizable entity in an offline context **MUST** have the following pro
 * `Version` - `string?` or `byte[]?` - the opaque version for the entity on the service - changes on each write.
 * `Deleted` - boolean (optional) - only needed if using soft-delete on the service; marks the entity as deleted.
 
-!!! warning DO NOT USE THE SAME ENTITY TYPE FOR BOTH SERVICE AND CLIENT
+!!! warning "Do not use the same entity type for both service and client"
     You may be tempted to use the same entity type for both service and client.  This is a mistake:
 
     * The service side entity types have automatic updates configured on UpdatedAt and Version which are not appropriate for the client.

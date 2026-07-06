@@ -46,6 +46,17 @@
     <PackageVersion Include="NSubstitute" Version="5.3.0" />
     <PackageVersion Include="NSwag.AspNetCore" Version="14.7.1" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+    <!--
+      Microsoft.EntityFrameworkCore.Sqlite floats a transitive dependency on
+      SQLitePCLRaw.bundle_e_sqlite3 2.1.11, which pulls in the deprecated
+      SQLitePCLRaw.lib.e_sqlite3 2.1.11 and has a known high-severity vulnerability
+      (NU1903, GHSA-2m69-gcr7-jv3q / CVE-2025-6965 - SQLite versions before 3.50.2
+      have a memory corruption issue). The SQLitePCLRaw 3.x line replaces
+      lib.e_sqlite3 entirely with SourceGear.sqlite3 (>= 3.50.2), so pin explicitly
+      to the patched 3.x release; CentralPackageTransitivePinningEnabled above
+      forces this version across all transitive references.
+    -->
+    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="10.2.1" />
     <PackageVersion Include="System.Formats.Asn1" Version="$(DotNetVersion)" />
     <PackageVersion Include="System.Linq.Async" Version="7.0.0" />

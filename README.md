@@ -79,6 +79,26 @@ The majority of tests in the test suite provide [TestContainers](https://testcon
 > **NOTE**: The `.runsettings` file contains secrets.  It should not be checked in.  We have added this file to the `.gitignore` to ensure that it is
 > not checked into public GitHub repositories.
 
+## 📖 Building the documentation site
+
+The documentation site is built with [MkDocs](https://www.mkdocs.org/).  To build and serve it locally:
+
+```sh
+python3 -m venv .venv-docs
+source .venv-docs/bin/activate
+pip install mkdocs mkdocs-mermaid2-plugin
+
+mkdocs serve
+```
+
+Browse to [http://localhost:7000](http://localhost:7000) to view the site.  `mkdocs serve` watches the `docs` folder and live-reloads whenever you make changes.
+
+To produce a static build instead (the output is written to `./site`, which is git-ignored):
+
+```sh
+mkdocs build
+```
+
 ## 🌍 Roadmap
 
 Read what we [plan for next iterations](https://github.com/CommunityToolkit/Datasync/milestones), and feel free to ask questions.
