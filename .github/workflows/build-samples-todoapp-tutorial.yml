@@ -8,17 +8,16 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   DOTNET_CONFIGURATION: 'Release'
-  # NOTE: This sample's solution (todoapp.sln) also contains ClientApp, a WPF project
-  # targeting net10.0-windows. That head requires a windows-latest runner and is tracked
-  # separately in https://github.com/CommunityToolkit/Datasync/issues/510 (Phase 2). Only
-  # ServerApp (net10.0) is built here.
-  ProjectFile: 'samples/todoapp-tutorial/ServerApp/ServerApp.csproj'
+  ServerProjectFile: 'samples/todoapp-tutorial/ServerApp/ServerApp.csproj'
+  # ClientApp is a WPF project targeting net10.0-windows, so it is built on a windows-latest
+  # runner in a separate job below. See https://github.com/CommunityToolkit/Datasync/issues/510.
+  ClientProjectFile: 'samples/todoapp-tutorial/ClientApp/ClientApp.csproj'
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  build-serverapp:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -30,10 +29,30 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore ${{ env.ProjectFile }}
+        run: dotnet restore ${{ env.ServerProjectFile }}
 
       - name: Build sample
         run: >
-          dotnet build ${{ env.ProjectFile }}
+          dotnet build ${{ env.ServerProjectFile }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
+
+  build-clientapp:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.ClientProjectFile }}
+
+      - name: Build sample
+        run: >
+          dotnet build ${{ env.ClientProjectFile }}
           --configuration ${{ env.DOTNET_CONFIGURATION }}
           --no-restore
