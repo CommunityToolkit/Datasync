@@ -1,0 +1,49 @@
+name: Build Sample - TodoApp Avalonia
+
+on:
+  workflow_call:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  DOTNET_CONFIGURATION: 'Release'
+  # NOTE: This sample's solution (TodoApp.Avalonia.sln) also contains Android and iOS
+  # heads (net10.0-android / net10.0-ios), which require mobile workloads and are tracked
+  # separately in https://github.com/CommunityToolkit/Datasync/issues/511 (Phase 3). Only
+  # the shared and Desktop (net10.0) projects are built directly here, not the full .sln.
+  SharedProjectFile: 'samples/todoapp/TodoApp.Avalonia/TodoApp.Avalonia/TodoApp.Avalonia.csproj'
+  DesktopProjectFile: 'samples/todoapp/TodoApp.Avalonia/TodoApp.Avalonia.Desktop/TodoApp.Avalonia.Desktop.csproj'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore shared project
+        run: dotnet restore ${{ env.SharedProjectFile }}
+
+      - name: Build shared project
+        run: >
+          dotnet build ${{ env.SharedProjectFile }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
+
+      - name: Restore desktop project
+        run: dotnet restore ${{ env.DesktopProjectFile }}
+
+      - name: Build desktop project
+        run: >
+          dotnet build ${{ env.DesktopProjectFile }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore

@@ -1,0 +1,39 @@
+name: Build Sample - TodoApp Tutorial
+
+on:
+  workflow_call:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  DOTNET_CONFIGURATION: 'Release'
+  # NOTE: This sample's solution (todoapp.sln) also contains ClientApp, a WPF project
+  # targeting net10.0-windows. That head requires a windows-latest runner and is tracked
+  # separately in https://github.com/CommunityToolkit/Datasync/issues/510 (Phase 2). Only
+  # ServerApp (net10.0) is built here.
+  ProjectFile: 'samples/todoapp-tutorial/ServerApp/ServerApp.csproj'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.ProjectFile }}
+
+      - name: Build sample
+        run: >
+          dotnet build ${{ env.ProjectFile }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore

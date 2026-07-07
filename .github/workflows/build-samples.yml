@@ -1,0 +1,55 @@
+name: Build Samples
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'samples/**', '.github/workflows/build-samples*.yml' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'samples/**', '.github/workflows/build-samples*.yml' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  datasync-server:
+    uses: ./.github/workflows/build-samples-datasync-server.yml
+
+  datasync-server-cosmosdb:
+    uses: ./.github/workflows/build-samples-datasync-server-cosmosdb.yml
+
+  todoapp-mvc:
+    uses: ./.github/workflows/build-samples-todoapp-mvc.yml
+
+  todoapp-blazor-wasm:
+    uses: ./.github/workflows/build-samples-todoapp-blazor-wasm.yml
+
+  todoapp-tutorial:
+    uses: ./.github/workflows/build-samples-todoapp-tutorial.yml
+
+  todoapp-avalonia:
+    uses: ./.github/workflows/build-samples-todoapp-avalonia.yml
+
+  # Single aggregation point so branch protection only needs to require one check,
+  # regardless of how many sample workflows are added over time (see Phase 2/3
+  # follow-ups: https://github.com/CommunityToolkit/Datasync/issues/510 and #511).
+  all-samples-built:
+    name: All samples built
+    if: always()
+    needs:
+      - datasync-server
+      - datasync-server-cosmosdb
+      - todoapp-mvc
+      - todoapp-blazor-wasm
+      - todoapp-tutorial
+      - todoapp-avalonia
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check sample build results
+        run: |
+          if [ "${{ contains(needs.*.result, 'failure') }}" = "true" ] || [ "${{ contains(needs.*.result, 'cancelled') }}" = "true" ]; then
+            echo "One or more sample builds failed."
+            exit 1
+          fi
+          echo "All samples built successfully."
