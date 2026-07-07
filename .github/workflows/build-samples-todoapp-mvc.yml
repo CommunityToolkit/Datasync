@@ -1,0 +1,35 @@
+name: Build Sample - TodoApp MVC
+
+on:
+  workflow_call:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  DOTNET_CONFIGURATION: 'Release'
+  SolutionFile: 'samples/todoapp-mvc/part5.sln'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SolutionFile }}
+
+      - name: Build sample
+        run: >
+          dotnet build ${{ env.SolutionFile }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
