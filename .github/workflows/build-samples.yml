@@ -34,9 +34,23 @@ jobs:
   todoapp-windows:
     uses: ./.github/workflows/build-samples-todoapp-windows.yml
 
+  todoapp-maui:
+    uses: ./.github/workflows/build-samples-todoapp-maui.yml
+
+  # NOTE: todoapp-uno (build-samples-todoapp-uno.yml) is intentionally NOT wired in here.
+  # TodoApp.Uno.csproj fails to restore on every head with:
+  #   NU1605: Detected package downgrade: Uno.WinUI from 5.5.87 to 5.4.22
+  #   TodoApp.Uno -> CommunityToolkit.WinUI.Behaviors 8.2.250402 -> Uno.WinUI (>= 5.5.87)
+  #   TodoApp.Uno -> Uno.WinUI (>= 5.4.22)
+  # This is unconditional (CommunityToolkit.WinUI.Behaviors has no TFM condition on its
+  # PackageReference), so it blocks every TFM, not just the desktop head as originally
+  # suspected. See https://github.com/CommunityToolkit/Datasync/issues/506, which is tracking
+  # the underlying Uno.WinUI/CommunityToolkit.WinUI.Behaviors version conflict. Re-enable this
+  # job (add it back to the jobs list and to all-samples-built's needs below) once #506 is
+  # resolved and TodoApp.Uno.csproj restores cleanly.
+
   # Single aggregation point so branch protection only needs to require one check,
-  # regardless of how many sample workflows are added over time (see Phase 3
-  # follow-up: https://github.com/CommunityToolkit/Datasync/issues/511).
+  # regardless of how many sample workflows are added over time.
   all-samples-built:
     name: All samples built
     if: always()
@@ -48,6 +62,7 @@ jobs:
       - todoapp-tutorial
       - todoapp-avalonia
       - todoapp-windows
+      - todoapp-maui
     runs-on: ubuntu-latest
     steps:
       - name: Check sample build results

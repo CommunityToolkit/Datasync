@@ -14,8 +14,8 @@ env:
   WpfProjectFile: 'samples/todoapp/TodoApp.WPF/TodoApp.WPF.csproj'
   # TodoApp.MAUI.csproj targets net10.0-android;net10.0-ios, with net10.0-windows10.0.19041.0
   # conditionally appended only when building on Windows. Android/iOS heads require separate
-  # workloads and are tracked in https://github.com/CommunityToolkit/Datasync/issues/511 (Phase 3),
-  # so restore/build here is explicitly scoped to the Windows TargetFramework only.
+  # workloads and are built by build-samples-todoapp-maui.yml instead, so restore/build here is
+  # explicitly scoped to the Windows TargetFramework only.
   MauiProjectFile: 'samples/todoapp/TodoApp.MAUI/TodoApp.MAUI.csproj'
   MauiWindowsTargetFramework: 'net10.0-windows10.0.19041.0'
 
