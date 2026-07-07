@@ -1,0 +1,72 @@
+name: Build Sample - TodoApp MAUI (Android / iOS)
+
+on:
+  workflow_call:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  DOTNET_CONFIGURATION: 'Release'
+  # TodoApp.MAUI.csproj targets net10.0-android;net10.0-ios, with net10.0-windows10.0.19041.0
+  # conditionally appended only when building on Windows (that head is built separately in
+  # build-samples-todoapp-windows.yml). Restore/build here is explicitly scoped to one mobile
+  # TargetFramework per job so each runner only needs the workload for its own head.
+  MauiProjectFile: 'samples/todoapp/TodoApp.MAUI/TodoApp.MAUI.csproj'
+  AndroidTargetFramework: 'net10.0-android'
+  iOSTargetFramework: 'net10.0-ios'
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+
+      - name: Restore MAUI project (Android TFM only)
+        # NOTE: 'dotnet restore' has no -f|--framework option (-f means --force there, unlike
+        # 'dotnet build'). Use the MSBuild property directly to scope restore to one TFM.
+        run: dotnet restore ${{ env.MauiProjectFile }} -p:TargetFramework=${{ env.AndroidTargetFramework }}
+
+      - name: Build MAUI project (Android TFM only)
+        run: >
+          dotnet build ${{ env.MauiProjectFile }}
+          -f ${{ env.AndroidTargetFramework }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
+
+  ios:
+    # iOS builds require Xcode, which is only available on macOS runners.
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install MAUI iOS workload
+        run: dotnet workload install maui-ios
+
+      - name: Restore MAUI project (iOS TFM only)
+        run: dotnet restore ${{ env.MauiProjectFile }} -p:TargetFramework=${{ env.iOSTargetFramework }}
+
+      - name: Build MAUI project (iOS TFM only)
+        run: >
+          dotnet build ${{ env.MauiProjectFile }}
+          -f ${{ env.iOSTargetFramework }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore

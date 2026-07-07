@@ -8,18 +8,21 @@ env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
   DOTNET_CONFIGURATION: 'Release'
-  # NOTE: This sample's solution (TodoApp.Avalonia.sln) also contains Android and iOS
-  # heads (net10.0-android / net10.0-ios), which require mobile workloads and are tracked
-  # separately in https://github.com/CommunityToolkit/Datasync/issues/511 (Phase 3). Only
-  # the shared and Desktop (net10.0) projects are built directly here, not the full .sln.
+  # NOTE: This sample's solution (TodoApp.Avalonia.sln) also contains Android and iOS heads
+  # (net10.0-android / net10.0-ios). Only the shared and Desktop (net10.0) projects are built
+  # directly here, not the full .sln - the Android and iOS heads are built by their own jobs
+  # below, each restoring/building its own project directly so only the workload needed for
+  # that head is installed on that runner.
   SharedProjectFile: 'samples/todoapp/TodoApp.Avalonia/TodoApp.Avalonia/TodoApp.Avalonia.csproj'
   DesktopProjectFile: 'samples/todoapp/TodoApp.Avalonia/TodoApp.Avalonia.Desktop/TodoApp.Avalonia.Desktop.csproj'
+  AndroidProjectFile: 'samples/todoapp/TodoApp.Avalonia/TodoApp.Avalonia.Android/TodoApp.Avalonia.Android.csproj'
+  iOSProjectFile: 'samples/todoapp/TodoApp.Avalonia/TodoApp.Avalonia.iOS/TodoApp.Avalonia.iOS.csproj'
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  desktop:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -45,5 +48,52 @@ jobs:
       - name: Build desktop project
         run: >
           dotnet build ${{ env.DesktopProjectFile }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install Android workload
+        run: dotnet workload install android
+
+      - name: Restore Android project
+        run: dotnet restore ${{ env.AndroidProjectFile }}
+
+      - name: Build Android project
+        run: >
+          dotnet build ${{ env.AndroidProjectFile }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
+
+  ios:
+    # iOS builds require Xcode, which is only available on macOS runners.
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install iOS workload
+        run: dotnet workload install ios
+
+      - name: Restore iOS project
+        run: dotnet restore ${{ env.iOSProjectFile }}
+
+      - name: Build iOS project
+        run: >
+          dotnet build ${{ env.iOSProjectFile }}
           --configuration ${{ env.DOTNET_CONFIGURATION }}
           --no-restore

@@ -1,0 +1,160 @@
+name: Build Sample - TodoApp Uno
+
+on:
+  workflow_call:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  DOTNET_CONFIGURATION: 'Release'
+  # TodoApp.Uno.csproj is a single Uno.Sdk project with a multi-head TargetFrameworks list
+  # (net10.0-android;net10.0-ios;net10.0-maccatalyst;net10.0-windows10.0.26100;
+  # net10.0-browserwasm;net10.0-desktop). No single runner can build every head (mobile heads
+  # need Android/iOS workloads, the Windows head needs windows-latest, etc.), so each job below
+  # restores/builds one head at a time, scoped via the MSBuild TargetFramework property.
+  UnoProjectFile: 'samples/todoapp/TodoApp.Uno/TodoApp.Uno/TodoApp.Uno.csproj'
+  AndroidTargetFramework: 'net10.0-android'
+  iOSTargetFramework: 'net10.0-ios'
+  MacCatalystTargetFramework: 'net10.0-maccatalyst'
+  WindowsTargetFramework: 'net10.0-windows10.0.26100'
+  BrowserWasmTargetFramework: 'net10.0-browserwasm'
+  DesktopTargetFramework: 'net10.0-desktop'
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install Android workload
+        run: dotnet workload install android
+
+      - name: Restore Uno project (Android TFM only)
+        # NOTE: 'dotnet restore' has no -f|--framework option (-f means --force there, unlike
+        # 'dotnet build'). Use the MSBuild property directly to scope restore to one TFM.
+        run: dotnet restore ${{ env.UnoProjectFile }} -p:TargetFramework=${{ env.AndroidTargetFramework }}
+
+      - name: Build Uno project (Android TFM only)
+        run: >
+          dotnet build ${{ env.UnoProjectFile }}
+          -f ${{ env.AndroidTargetFramework }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
+
+  ios-maccatalyst:
+    # iOS and Mac Catalyst builds both require Xcode, which is only available on macOS runners.
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install iOS and Mac Catalyst workloads
+        run: dotnet workload install ios maccatalyst
+
+      - name: Restore Uno project (iOS TFM only)
+        run: dotnet restore ${{ env.UnoProjectFile }} -p:TargetFramework=${{ env.iOSTargetFramework }}
+
+      - name: Build Uno project (iOS TFM only)
+        run: >
+          dotnet build ${{ env.UnoProjectFile }}
+          -f ${{ env.iOSTargetFramework }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
+
+      - name: Restore Uno project (Mac Catalyst TFM only)
+        run: dotnet restore ${{ env.UnoProjectFile }} -p:TargetFramework=${{ env.MacCatalystTargetFramework }}
+
+      - name: Build Uno project (Mac Catalyst TFM only)
+        run: >
+          dotnet build ${{ env.UnoProjectFile }}
+          -f ${{ env.MacCatalystTargetFramework }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore Uno project (Windows TFM only)
+        run: dotnet restore ${{ env.UnoProjectFile }} -p:TargetFramework=${{ env.WindowsTargetFramework }}
+
+      - name: Build Uno project (Windows TFM only)
+        run: >
+          dotnet build ${{ env.UnoProjectFile }}
+          -f ${{ env.WindowsTargetFramework }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
+
+  browserwasm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install WebAssembly build tools workload
+        run: dotnet workload install wasm-tools
+
+      - name: Restore Uno project (Browser WebAssembly TFM only)
+        run: dotnet restore ${{ env.UnoProjectFile }} -p:TargetFramework=${{ env.BrowserWasmTargetFramework }}
+
+      - name: Build Uno project (Browser WebAssembly TFM only)
+        run: >
+          dotnet build ${{ env.UnoProjectFile }}
+          -f ${{ env.BrowserWasmTargetFramework }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
+
+  desktop:
+    # NOTE: https://github.com/CommunityToolkit/Datasync/issues/506 is investigating a NU1903
+    # audit warning (Tmds.DBus) for this head; that alone does not fail restore/build since this
+    # repo does not configure NuGet audit to fail on warnings. That investigation separately
+    # reported hitting a NU1605 package-downgrade error (Uno.WinUI version floor conflict via
+    # CommunityToolkit.WinUI.Behaviors) while digging into the warning - if that reproduces here
+    # and fails this job, do not silently mark it continue-on-error; comment on #506 with the
+    # concrete failure first, since that conflict is not confirmed to be desktop-specific.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore Uno project (Desktop TFM only)
+        run: dotnet restore ${{ env.UnoProjectFile }} -p:TargetFramework=${{ env.DesktopTargetFramework }}
+
+      - name: Build Uno project (Desktop TFM only)
+        run: >
+          dotnet build ${{ env.UnoProjectFile }}
+          -f ${{ env.DesktopTargetFramework }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore

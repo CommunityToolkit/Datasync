@@ -34,9 +34,14 @@ jobs:
   todoapp-windows:
     uses: ./.github/workflows/build-samples-todoapp-windows.yml
 
+  todoapp-maui:
+    uses: ./.github/workflows/build-samples-todoapp-maui.yml
+
+  todoapp-uno:
+    uses: ./.github/workflows/build-samples-todoapp-uno.yml
+
   # Single aggregation point so branch protection only needs to require one check,
-  # regardless of how many sample workflows are added over time (see Phase 3
-  # follow-up: https://github.com/CommunityToolkit/Datasync/issues/511).
+  # regardless of how many sample workflows are added over time.
   all-samples-built:
     name: All samples built
     if: always()
@@ -48,6 +53,8 @@ jobs:
       - todoapp-tutorial
       - todoapp-avalonia
       - todoapp-windows
+      - todoapp-maui
+      - todoapp-uno
     runs-on: ubuntu-latest
     steps:
       - name: Check sample build results
