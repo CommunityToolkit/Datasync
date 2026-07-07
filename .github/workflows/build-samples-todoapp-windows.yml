@@ -1,0 +1,69 @@
+name: Build Sample - TodoApp Windows (WinUI3 / WPF / MAUI)
+
+on:
+  workflow_call:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  DOTNET_CONFIGURATION: 'Release'
+  # WinUI3 declares <Platforms>x86;x64;ARM64</Platforms> with no AnyCPU, so Platform must be
+  # specified explicitly - the CLI default of AnyCPU is not a valid configuration for this project.
+  WinUI3ProjectFile: 'samples/todoapp/TodoApp.WinUI3/TodoApp.WinUI3.csproj'
+  WpfProjectFile: 'samples/todoapp/TodoApp.WPF/TodoApp.WPF.csproj'
+  # TodoApp.MAUI.csproj targets net10.0-android;net10.0-ios, with net10.0-windows10.0.19041.0
+  # conditionally appended only when building on Windows. Android/iOS heads require separate
+  # workloads and are tracked in https://github.com/CommunityToolkit/Datasync/issues/511 (Phase 3),
+  # so restore/build here is explicitly scoped to the Windows TargetFramework only.
+  MauiProjectFile: 'samples/todoapp/TodoApp.MAUI/TodoApp.MAUI.csproj'
+  MauiWindowsTargetFramework: 'net10.0-windows10.0.19041.0'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore WinUI3 project
+        run: dotnet restore ${{ env.WinUI3ProjectFile }} -p:Platform=x64
+
+      - name: Build WinUI3 project
+        run: >
+          dotnet build ${{ env.WinUI3ProjectFile }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          -p:Platform=x64
+          --no-restore
+
+      - name: Restore WPF project
+        run: dotnet restore ${{ env.WpfProjectFile }}
+
+      - name: Build WPF project
+        run: >
+          dotnet build ${{ env.WpfProjectFile }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
+
+      - name: Install MAUI Windows workload
+        run: dotnet workload install maui-windows
+
+      - name: Restore MAUI project (Windows TFM only)
+        # NOTE: 'dotnet restore' has no -f|--framework option (-f means --force there, unlike
+        # 'dotnet build'). Use the MSBuild property directly to scope restore to one TFM.
+        run: dotnet restore ${{ env.MauiProjectFile }} -p:TargetFramework=${{ env.MauiWindowsTargetFramework }}
+
+      - name: Build MAUI project (Windows TFM only)
+        run: >
+          dotnet build ${{ env.MauiProjectFile }}
+          -f ${{ env.MauiWindowsTargetFramework }}
+          --configuration ${{ env.DOTNET_CONFIGURATION }}
+          --no-restore
