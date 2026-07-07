@@ -57,7 +57,9 @@ jobs:
         run: dotnet workload install maui-windows
 
       - name: Restore MAUI project (Windows TFM only)
-        run: dotnet restore ${{ env.MauiProjectFile }} -f ${{ env.MauiWindowsTargetFramework }}
+        # NOTE: 'dotnet restore' has no -f|--framework option (-f means --force there, unlike
+        # 'dotnet build'). Use the MSBuild property directly to scope restore to one TFM.
+        run: dotnet restore ${{ env.MauiProjectFile }} -p:TargetFramework=${{ env.MauiWindowsTargetFramework }}
 
       - name: Build MAUI project (Windows TFM only)
         run: >
