@@ -1,6 +1,9 @@
 <Project>
   <PropertyGroup>
     <Nullable>enable</Nullable>
-    <AvaloniaVersion>11.2.3</AvaloniaVersion>
+    <!-- Keep in sync across all Avalonia.* PackageReferences in this sample tree. -->
+    <!-- Bumped to resolve NU1903 (GHSA-xrw6-gwf8-vvr9 / CVE-2026-39959) for Tmds.DBus.Protocol,
+         pulled in transitively via Avalonia.FreeDesktop -> Avalonia.Desktop. See #499. -->
+    <AvaloniaVersion>11.3.18</AvaloniaVersion>
   </PropertyGroup>
 </Project>
