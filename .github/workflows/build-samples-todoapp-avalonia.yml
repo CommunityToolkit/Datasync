@@ -76,7 +76,14 @@ jobs:
 
   ios:
     # iOS builds require Xcode, which is only available on macOS runners.
-    runs-on: macos-latest
+    # Pinned to macos-15 (rather than macos-latest) while that label migrates to macos-26
+    # (see https://github.com/actions/runner-images/issues/14167, rollout through
+    # 2026-07-15): macos-latest can currently land on either image at random, each with a
+    # different default Xcode (16.4 vs 26.4.1). Combined with the workload-set pin in the
+    # repo-root global.json, this keeps the Xcode version this job builds against
+    # deterministic. See https://github.com/CommunityToolkit/Datasync/issues/529. Revisit
+    # once we deliberately upgrade to an Xcode-26-compatible workload set.
+    runs-on: macos-15
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7

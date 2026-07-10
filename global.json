@@ -1,0 +1,27 @@
+{
+  // Pins the .NET SDK workload SET version (not just the SDK itself) so that every
+  // `dotnet workload install <id>` call in CI (todoapp-avalonia / ios, todoapp-maui / ios,
+  // and the currently-disabled todoapp-uno / ios-maccatalyst once #506 is resolved) resolves
+  // a consistent, known-good bundle of workload manifests instead of always floating to the
+  // newest individually-published manifest for each workload ("loose manifests" mode, the
+  // default when no workloadVersion is pinned).
+  //
+  // Why this is needed (see https://github.com/CommunityToolkit/Datasync/issues/529):
+  // Without this pin, `dotnet workload install ios` / `maui-ios` on a macos-latest runner
+  // installs the newest published Microsoft.iOS.Sdk.net10.0_* pack. As of workload set
+  // 10.0.108 (iOS manifest 26.5.10284), that pack requires Xcode 26.5, which isn't installed
+  // on either the macOS-15 or macOS-26 runner images backing the macos-latest label during
+  // its migration window (see https://github.com/actions/runner-images/issues/14167) -
+  // causing "This version of .NET for iOS (26.5.10284) requires Xcode 26.5" build failures.
+  //
+  // 10.0.107 is pinned because it's the last workload set before the iOS/MacCatalyst/macOS/
+  // tvOS manifest moved to the 26.4/26.5 pack line (see workload-set history on nuget.org,
+  // package id Microsoft.NET.Workloads.10.0.100), while keeping the MAUI (10.0.20) and
+  // Android (36.1.53) manifests at their latest versions to avoid an unnecessary regression
+  // there. This must live at the repo root (not e.g. samples/todoapp/) because the .NET SDK
+  // muxer resolves global.json by walking up from the current working directory, and the CI
+  // `dotnet workload install`/`dotnet build` steps all run with cwd = repo root.
+  "sdk": {
+    "workloadVersion": "10.0.107"
+  }
+}
