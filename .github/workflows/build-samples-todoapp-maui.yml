@@ -7,7 +7,15 @@ env:
   DOTNET_VERSION: '10.0.x'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
-  DOTNET_CONFIGURATION: 'Release'
+  # Debug (not Release): this is a build-only compile sanity check, never published/shipped.
+  # Release triggers the real ILLink trimmer (not just the trim analyzer) on the iOS head even
+  # for a plain `dotnet build` of a simulator RID - "Optimizing assemblies for
+  # size"/"IL stripping assemblies" dominated ~90% of that job's build time (15+ minutes).
+  # Debug avoids that IL trimming/AOT machinery entirely (see
+  # https://blog.verslu.is/maui/exclude-assemblies-from-trimming/ and
+  # https://github.com/CommunityToolkit/Datasync/issues/521), so all sample CI workflows build
+  # Debug for consistency, even on heads where it isn't currently an issue.
+  DOTNET_CONFIGURATION: 'Debug'
   # TodoApp.MAUI.csproj targets net10.0-android;net10.0-ios, with net10.0-windows10.0.19041.0
   # conditionally appended only when building on Windows (that head is built separately in
   # build-samples-todoapp-windows.yml). Restore/build here is explicitly scoped to one mobile
