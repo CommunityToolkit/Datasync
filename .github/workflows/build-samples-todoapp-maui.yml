@@ -51,11 +51,25 @@ jobs:
     # Pinned to macos-15 (rather than macos-latest) while that label migrates to macos-26
     # (see https://github.com/actions/runner-images/issues/14167, rollout through
     # 2026-07-15): macos-latest can currently land on either image at random, each with a
-    # different default Xcode (16.4 vs 26.4.1). Combined with the workload-set pin in the
-    # repo-root global.json, this keeps the Xcode version this job builds against
-    # deterministic. See https://github.com/CommunityToolkit/Datasync/issues/529. Revisit
-    # once we deliberately upgrade to an Xcode-26-compatible workload set.
+    # different default Xcode (16.4 vs 26.4.1). Combined with the workload-set version pin
+    # below, this keeps the Xcode version this job builds against deterministic. See
+    # https://github.com/CommunityToolkit/Datasync/issues/529. Revisit once we deliberately
+    # upgrade to an Xcode-26-compatible workload set.
     runs-on: macos-15
+    env:
+      # `dotnet workload install maui-ios` alone always resolves the newest published
+      # Microsoft.iOS.Sdk.net10.0_* pack. As of workload set 10.0.108, that's 26.5.10284,
+      # which requires Xcode 26.5 - not installed on macos-15. Pinning to 10.0.107 (the last
+      # set before the iOS/MacCatalyst/macOS/tvOS manifest moved to the 26.4/26.5 pack line;
+      # see workload-set history for package id Microsoft.NET.Workloads.10.0.100 on
+      # nuget.org) resolves 26.2.10233 instead, while keeping other manifests (e.g. MAUI,
+      # Android) unaffected. `--version` pins only this job's `dotnet workload install`
+      # invocation and the `restore`/`build` steps that follow it in the same runner - it's
+      # intentionally not a repo-wide global.json pin, which would force every `dotnet`
+      # invocation in the whole repo (including samples with no workload dependency at all)
+      # to require this exact workload version to already be installed, breaking them on a
+      # fresh runner.
+      WorkloadSetVersion: '10.0.107'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -66,7 +80,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install MAUI iOS workload
-        run: dotnet workload install maui-ios
+        run: dotnet workload install maui-ios --version ${{ env.WorkloadSetVersion }}
 
       - name: Restore MAUI project (iOS TFM only)
         run: dotnet restore ${{ env.MauiProjectFile }} -p:TargetFramework=${{ env.iOSTargetFramework }}
