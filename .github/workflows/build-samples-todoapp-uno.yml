@@ -16,7 +16,11 @@ env:
   DOTNET_VERSION: '10.0.x'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
-  DOTNET_CONFIGURATION: 'Release'
+  # Debug (not Release): this is a build-only compile sanity check, never published/shipped.
+  # Release builds pointlessly enable IL trimming/AOT machinery on some sample heads (see
+  # https://github.com/CommunityToolkit/Datasync/issues/521), so all sample CI workflows build
+  # Debug to avoid that overhead consistently, even where it isn't currently an issue.
+  DOTNET_CONFIGURATION: 'Debug'
   # TodoApp.Uno.csproj is a single Uno.Sdk project with a multi-head TargetFrameworks list
   # (net10.0-android;net10.0-ios;net10.0-maccatalyst;net10.0-windows10.0.26100;
   # net10.0-browserwasm;net10.0-desktop). No single runner can build every head (mobile heads

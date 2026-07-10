@@ -7,7 +7,11 @@ env:
   DOTNET_VERSION: '10.0.x'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
   DOTNET_NOLOGO: true
-  DOTNET_CONFIGURATION: 'Release'
+  # Debug (not Release): this is a build-only compile sanity check, never published/shipped.
+  # Release builds pointlessly enable IL trimming/AOT machinery on some sample heads (see
+  # https://github.com/CommunityToolkit/Datasync/issues/521), so all sample CI workflows build
+  # Debug to avoid that overhead consistently, even where it isn't currently an issue.
+  DOTNET_CONFIGURATION: 'Debug'
   # WinUI3 declares <Platforms>x86;x64;ARM64</Platforms> with no AnyCPU, so Platform must be
   # specified explicitly - the CLI default of AnyCPU is not a valid configuration for this project.
   WinUI3ProjectFile: 'samples/todoapp/TodoApp.WinUI3/TodoApp.WinUI3.csproj'
