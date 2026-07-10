@@ -98,17 +98,21 @@ jobs:
         run: dotnet restore ${{ env.MauiProjectFile }} -p:TargetFramework=${{ env.iOSTargetFramework }}
 
       - name: Build MAUI project (iOS TFM only)
-        # -p:PublishTrimmed=false: net10.0-ios Release builds run the real ILLink trimmer
-        # (not just the trim analyzer) even for a plain `dotnet build` of a simulator RID -
+        # -p:MtouchLink=None: net10.0-ios Release builds run the real ILLink trimmer (not
+        # just the trim analyzer) even for a plain `dotnet build` of a simulator RID -
         # "Optimizing assemblies for size"/"IL stripping assemblies" dominates ~90% of the
         # build time here (15+ minutes). This job never publishes or ships an app - it's a
-        # build-only sanity check - so there's no benefit to actually linking. Passed only on
-        # the command line (not set in the .csproj) so a real `dotnet publish` by a developer
-        # following the tutorial still gets the platform's normal trimming default. See
-        # https://github.com/CommunityToolkit/Datasync/issues/521.
+        # build-only sanity check - so there's no benefit to actually linking.
+        # `-p:PublishTrimmed=false` is rejected by the SDK for iOS ("iOS projects must build
+        # with PublishTrimmed=true ... Set 'MtouchLink=None' instead to disable trimming for
+        # all assemblies" - Xamarin.Shared.Sdk.targets); MtouchLink=None is the SDK-blessed
+        # way to keep PublishTrimmed=true while skipping the actual link/strip step. Passed
+        # only on the command line (not set in the .csproj) so a real `dotnet publish` by a
+        # developer following the tutorial still gets the platform's normal trimming default.
+        # See https://github.com/CommunityToolkit/Datasync/issues/521.
         run: >
           dotnet build ${{ env.MauiProjectFile }}
           -f ${{ env.iOSTargetFramework }}
           --configuration ${{ env.DOTNET_CONFIGURATION }}
           --no-restore
-          -p:PublishTrimmed=false
+          -p:MtouchLink=None
