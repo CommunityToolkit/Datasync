@@ -1,14 +1,5 @@
 name: Build Sample - TodoApp Uno
 
-# NOTE: This workflow is NOT currently wired into build-samples.yml. #506 fixed the NU1605
-# restore blocker that used to affect every head (see samples/todoapp/TodoApp.Uno/global.json),
-# so restore now succeeds everywhere. However, build now fails on every Skia-based head (android,
-# ios, maccatalyst, browserwasm, desktop) with UXAML0001/CS1061 (EventTriggerBehavior could not
-# be found) - see the `desktop` job below for details and
-# https://github.com/CommunityToolkit/Datasync/issues/506 for background. Re-add the
-# `todoapp-uno` job to build-samples.yml (and to all-samples-built's `needs`) once that build
-# failure is resolved and every head restores AND builds cleanly.
-
 on:
   workflow_call:
 
@@ -145,27 +136,6 @@ jobs:
           --no-restore
 
   desktop:
-    # NOTE: this head (along with every other Skia-based head in this file - android,
-    # ios-maccatalyst, browserwasm) currently fails to BUILD (not restore) with:
-    #   error UXAML0001: The type {using:Microsoft.Xaml.Interactions.Core}EventTriggerBehavior
-    #   could not be found
-    # CommunityToolkit.WinUI.Behaviors 8.2.250402 resolves
-    # Uno.Microsoft.Xaml.Behaviors.Interactivity.WinUI 3.0.0-dev.17.g7c09b9114d on Skia heads
-    # (confirmed via project.assets.json for desktop and browserwasm), which appears to lack the
-    # Microsoft.Xaml.Interactions.Core types used in Views/TodoListPage.xaml. The `windows` job
-    # below is unaffected - it resolves the real Microsoft.Xaml.Behaviors.WinUI.Managed 3.0.0
-    # package instead. This is a separate, pre-existing bug from the NU1903 Tmds.DBus finding
-    # below and from the NU1605 restore blocker #506 originally hit (now fixed - see
-    # samples/todoapp/TodoApp.Uno/global.json) - it was never surfaced before because restore
-    # always failed first. Tracked as a #506 follow-up issue.
-    #
-    # Restore also emits a NU1903 warning for 'Tmds.DBus' 0.16.0 (GHSA-xrw6-gwf8-vvr9 /
-    # CVE-2026-39959), floated transitively via Uno.WinUI.Runtime.Skia.X11. This is harmless as a
-    # CI matter today (this repo does not configure NuGet audit to fail on warnings) but is not
-    # yet resolved - Uno only switches Uno.WinUI.Runtime.Skia.X11 to the patched
-    # Tmds.DBus.Protocol starting at Uno.WinUI 6.0.465, which requires a major-version bump of
-    # Uno.Sdk. See https://github.com/CommunityToolkit/Datasync/issues/506 for background and the
-    # tracked major-version-bump follow-up issue.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
