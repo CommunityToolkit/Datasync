@@ -35,11 +35,9 @@ public class LoggingHandler : DelegatingHandler
         return response;
     }
 
-    private static async Task WriteContentAsync(HttpContent content, CancellationToken cancellationToken = default)
+    private static async Task WriteContentAsync(HttpContent? content, CancellationToken cancellationToken = default)
     {
-        if (content != null)
-        {
-            Debug.WriteLine($"[HTTP] >>> {await content.ReadAsStringAsync(cancellationToken)}");
-        }
+        Debug.Assert(content != null, "Request/response content should never be null here.");
+        Debug.WriteLine($"[HTTP] >>> {await content.ReadAsStringAsync(cancellationToken)}");
     }
 }
