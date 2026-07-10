@@ -41,6 +41,17 @@
     </UnoFeatures>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 
+    <!--
+      IL trim analyzer runs during `dotnet build` on these TFMs (SDK marks them trimmable by
+      default), but this CI pipeline never publishes with PublishTrimmed, so it's diagnostic
+      noise only. Same fix as #531. See #534.
+    -->
+    <SuppressTrimAnalysisWarnings Condition="
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' OR
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' OR
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browserwasm'
+      ">true</SuppressTrimAnalysisWarnings>
+
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\AddItem.png" />
