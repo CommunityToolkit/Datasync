@@ -9,20 +9,12 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:viewmodels="using:TodoApp.Uno.ViewModels"
       xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-      xmlns:interactions="using:Microsoft.Xaml.Interactions.Core"
       xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
       xmlns:uen="using:Uno.Extensions.Navigation.UI"
       xmlns:utu="using:Uno.Toolkit.UI"
       NavigationCacheMode="Required"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
       mc:Ignorable="d">
-
-  <!-- Interaction below binds to the command correctly, but the event is not triggered. Handling in code behind for now -->
-  <interactivity:Interaction.Behaviors>
-    <interactions:EventTriggerBehavior EventName="Loaded">
-      <interactions:InvokeCommandAction Command="{x:Bind ViewModel.LoadPageCommand}" />
-    </interactions:EventTriggerBehavior>
-  </interactivity:Interaction.Behaviors>
 
   <Page.Resources>
     <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />

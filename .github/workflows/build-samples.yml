@@ -37,20 +37,8 @@ jobs:
   todoapp-maui:
     uses: ./.github/workflows/build-samples-todoapp-maui.yml
 
-  # NOTE: todoapp-uno (build-samples-todoapp-uno.yml) is intentionally NOT wired in here yet.
-  # #506 fixed the NU1605 restore blocker that used to affect every head (bumped Uno.Sdk in
-  # samples/todoapp/TodoApp.Uno/global.json from 5.4.5 to 5.6.54), so TodoApp.Uno.csproj now
-  # restores cleanly. However, restoring cleanly surfaced a separate, pre-existing bug: on every
-  # Skia-based head (android, ios, maccatalyst, browserwasm, desktop - confirmed for desktop and
-  # browserwasm; android/ios/maccatalyst require workloads not available where this was
-  # verified), CommunityToolkit.WinUI.Behaviors 8.2.250402 resolves
-  # Uno.Microsoft.Xaml.Behaviors.Interactivity.WinUI 3.0.0-dev.17.g7c09b9114d instead of the real
-  # Microsoft.Xaml.Behaviors.WinUI.Managed package (which the windows head still gets), and that
-  # substitute is missing the Microsoft.Xaml.Interactions.Core types used in
-  # Views/TodoListPage.xaml, so build fails with UXAML0001/CS1061 (EventTriggerBehavior could not
-  # be found). This was never surfaced before because restore always failed first. See the
-  # tracking issue for this build failure (filed as a #506 follow-up) - re-add this job once
-  # that's resolved and every head restores AND builds cleanly.
+  todoapp-uno:
+    uses: ./.github/workflows/build-samples-todoapp-uno.yml
 
   # Single aggregation point so branch protection only needs to require one check,
   # regardless of how many sample workflows are added over time.
@@ -66,6 +54,7 @@ jobs:
       - todoapp-avalonia
       - todoapp-windows
       - todoapp-maui
+      - todoapp-uno
     runs-on: ubuntu-latest
     steps:
       - name: Check sample build results
