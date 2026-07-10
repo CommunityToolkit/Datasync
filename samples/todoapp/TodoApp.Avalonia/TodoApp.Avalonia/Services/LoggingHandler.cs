@@ -35,7 +35,7 @@ public class LoggingHandler : DelegatingHandler
         return response;
     }
 
-    private static async Task WriteContentAsync(HttpContent content, CancellationToken cancellationToken = default)
+    private static async Task WriteContentAsync(HttpContent? content, CancellationToken cancellationToken = default)
     {
         if (content != null)
         {
