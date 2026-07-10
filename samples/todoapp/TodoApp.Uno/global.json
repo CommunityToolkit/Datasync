@@ -1,7 +1,14 @@
 {
   // To update the version of Uno please update the version of the Uno.Sdk here. See https://aka.platform.uno/upgrade-uno-packages for more information.
+  // Bumped from 5.4.5 (-> Uno.WinUI 5.4.22) to 5.6.54 (-> Uno.WinUI 5.6.99) to resolve NU1605:
+  // CommunityToolkit.WinUI.Behaviors 8.2.250402 floors Uno.WinUI at >= 5.5.87, which is higher
+  // than what Uno.Sdk 5.4.5 resolves, causing a package-downgrade restore error on every head.
+  // This does NOT resolve the separate NU1903 (Tmds.DBus 0.16.0) advisory on the desktop head -
+  // Uno.WinUI.Runtime.Skia.X11 keeps floating vulnerable Tmds.DBus 0.16.0 through the entire
+  // 5.x line and only switches to the patched Tmds.DBus.Protocol starting at Uno.WinUI 6.0.465.
+  // See https://github.com/CommunityToolkit/Datasync/issues/506.
   "msbuild-sdks": {
-    "Uno.Sdk": "5.4.5"
+    "Uno.Sdk": "5.6.54"
   },
   "sdk":{
     "allowPrerelease": false
