@@ -29,6 +29,20 @@
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+
+    <!--
+      net10.0-ios enables the IL trim analyzer during `dotnet build` (not just `dotnet publish`),
+      because iOS app projects are marked trimmable by the SDK by default. This CI pipeline only
+      ever runs `dotnet build` (see build-samples-todoapp-maui.yml) - it never publishes with
+      PublishTrimmed, so no actual IL trimming/linking happens here; the analyzer is purely
+      diagnostic noise on framework APIs (e.g. EF Core's DbContext(DbContextOptions) ctor) that
+      their own maintainers have marked [RequiresUnreferencedCode]. Setting this also sets
+      EnableTrimAnalyzer=false (see Microsoft.NET.ILLink.targets), which disables the analyzer
+      pass itself, not just its warning output. Scoped to the iOS TFM only, since the
+      Android/Windows heads haven't been confirmed to surface this warning.
+      See https://github.com/CommunityToolkit/Datasync/issues/521.
+    -->
+    <SuppressTrimAnalysisWarnings Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">true</SuppressTrimAnalysisWarnings>
   </PropertyGroup>
 
   <ItemGroup>
