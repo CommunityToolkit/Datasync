@@ -78,6 +78,7 @@ jobs:
             --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
             --exclude "^https://dev\.mysql\.com/"
             --exclude "^https://developers\.facebook\.com/"
+            --exclude "^https://dotnet\.microsoft\.com/"
             'docs/**/*.md'
           token: ${{ secrets.GITHUB_TOKEN }}
           fail: true
