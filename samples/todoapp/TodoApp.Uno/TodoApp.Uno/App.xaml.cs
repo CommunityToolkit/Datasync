@@ -23,7 +23,7 @@ public partial class App : Application
 
     private SqliteConnection DbConnection { get => dbConnection.Value; }
 
-    private SqliteConnection CreateSqliteConnection()
+    private static SqliteConnection CreateSqliteConnection()
     {
         SqliteConnection conn = new SqliteConnection("Data Source=:memory:");
         conn.Open();
