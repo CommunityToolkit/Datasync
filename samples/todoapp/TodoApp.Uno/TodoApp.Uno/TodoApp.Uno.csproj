@@ -52,6 +52,20 @@
         $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browserwasm'
       ">true</SuppressTrimAnalysisWarnings>
 
+    <!--
+      MT7156: Uno.Resizetizer (unoresizetizer) rasterizes each SVG-sourced asset
+      (Assets/Icons/icon_foreground.svg, Assets/Images/back.svg, Assets/Splash/splash_screen.svg)
+      into both an unscaled base PNG and an explicit "scale-100" variant. On ios/maccatalyst these
+      collapse to the same BundleResource LogicalName (Apple bundling treats unscaled and "1x" as
+      identical), so one copy is silently dropped - benign, expected Resizetizer output on these
+      TFMs, not a duplicate-inclusion bug in this project's Assets/UnoIcon/UnoSplashScreen wiring.
+      See #541.
+    -->
+    <MSBuildWarningsAsMessages Condition="
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' OR
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'
+      ">$(MSBuildWarningsAsMessages);MT7156</MSBuildWarningsAsMessages>
+
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\AddItem.png" />
