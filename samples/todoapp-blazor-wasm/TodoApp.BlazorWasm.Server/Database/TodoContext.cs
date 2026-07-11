@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace TodoApp.BlazorWasm.Server.Database;
 
@@ -55,7 +57,7 @@ public class TodoContext(DbContextOptions<TodoContext> options) : DbContext(opti
     /// This method performs the following operations:
     /// <list type="number">
     /// <item><description>Ensures the database is created using <see cref="DatabaseFacade.EnsureCreatedAsync"/>.</description></item>
-    /// <item><description>Checks if the TodoItems table is empty using <see cref="EntityFrameworkQueryableExtensions.AnyAsync{TSource}(IQueryable{TSource})"/>.</description></item>
+    /// <item><description>Checks if the TodoItems table is empty using <see cref="EntityFrameworkQueryableExtensions.AnyAsync{TSource}(IQueryable{TSource}, CancellationToken)"/>.</description></item>
     /// <item><description>If empty, clears the change tracker to avoid entity tracking conflicts.</description></item>
     /// <item><description>Adds three sample todo items with predefined titles.</description></item>
     /// <item><description>Saves the sample data to the database.</description></item>

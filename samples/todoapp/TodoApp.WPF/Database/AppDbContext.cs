@@ -7,6 +7,7 @@
 using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Offline;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using TodoApp.WPF.Services;
 
 namespace TodoApp.WPF.Database;

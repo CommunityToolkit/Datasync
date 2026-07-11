@@ -55,7 +55,7 @@
                         Completed="OnAddItemEntryCompleted"
                         Placeholder="Enter Todo Item Text"
                         ReturnCommand="{Binding AddItemCommand}"
-                        ReturnCommandParameter="{Binding Text, Source={x:Reference addItemEntry}}"
+                        ReturnCommandParameter="{Binding Text, Source={x:Reference addItemEntry}, x:DataType=Entry}"
                         Style="{StaticResource addItemEntry}" />
                 </Grid>
             </Border>
