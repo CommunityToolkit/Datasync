@@ -21,29 +21,30 @@
         </Grid.ColumnDefinitions>
 
         <!--  List of items  -->
-        <ListView ItemTapped="OnListItemTapped" ItemsSource="{Binding Items}">
-            <ListView.ItemTemplate>
+        <CollectionView
+            ItemsSource="{Binding Items}"
+            SelectionChanged="OnListItemTapped"
+            SelectionMode="Single">
+            <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:TodoItem">
-                    <ViewCell>
-                        <Grid Style="{StaticResource listItemContainer}">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                    <Grid Style="{StaticResource listItemContainer}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-                            <Label Style="{StaticResource listItemTitle}" Text="{Binding Title}" />
-                            <Image
-                                Grid.Column="1"
-                                IsVisible="{Binding IsComplete}"
-                                Style="{StaticResource listItemIcon}" />
-                        </Grid>
-                    </ViewCell>
+                        <Label Style="{StaticResource listItemTitle}" Text="{Binding Title}" />
+                        <Image
+                            Grid.Column="1"
+                            IsVisible="{Binding IsComplete}"
+                            Style="{StaticResource listItemIcon}" />
+                    </Grid>
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
             <Border Grid.Column="0" Style="{StaticResource roundedCornerFrame}">
