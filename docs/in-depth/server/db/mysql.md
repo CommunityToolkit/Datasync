@@ -25,4 +25,3 @@ In the `OnModelCreating()` method of your context, add the following for each en
 
 * [Official docs: MySql and Entity Framework Core](https://dev.mysql.com/doc/connector-net/en/connector-net-entityframework-core.html)
 * [Pomelo docs: MySql](https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql)
-* [Test MySQL Context](https://github.com/CommunityToolkit/Datasync/blob/main/tests/CommunityToolkit.Datasync.TestCommon/Databases/MySQL/MysqlDbContext.cs)
