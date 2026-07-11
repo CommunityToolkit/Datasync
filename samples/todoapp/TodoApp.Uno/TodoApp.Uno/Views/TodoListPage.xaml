@@ -37,7 +37,6 @@
               Margin="10"
               ItemsSource="{x:Bind ViewModel.Items, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
               SelectionMode="None"
-              IsSwipeEnabled="True"
               ScrollViewer.VerticalScrollBarVisibility="Auto">
       <ListView.ItemTemplate>
         <DataTemplate>
