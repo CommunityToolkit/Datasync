@@ -128,8 +128,9 @@ If that value is blank, stop and ask the user for an issue number before doing a
     - For library/test changes (`src/**`, `tests/**`), trigger `build-library.yml`.
     - For sample changes (`samples/**`), trigger `build-samples.yml`.
     - For template changes (`templates/**`), trigger `build-template.yml`.
+    - For docs changes (`docs/**`, `mkdocs.yml`, `mkdocs.shared.yml`, `mkdocs.production.yml`), trigger `build-docs.yml`.
 
-    Do **not** dispatch `build-docs.yml`. Its `deploy` job has no branch guard, so any `workflow_dispatch` — including from a feature branch — publishes straight to the live GitHub Pages site. 
+    `build-docs.yml`'s `deploy` job only runs for a `release` event, or for `workflow_dispatch` when `github.ref` starts with `refs/tags/`. Dispatching it with `--ref issues/$1` (a branch ref, not a tag) only runs its `build`/`validate` jobs — it is safe to dispatch from a feature branch and will never publish to the live GitHub Pages site. Do not pass a tag ref to `--ref` when dispatching `build-docs.yml` for pre-PR validation.
 
     If none of the changed paths match any of the above, state that no CI workflow applies and continue with local test results only.
 
