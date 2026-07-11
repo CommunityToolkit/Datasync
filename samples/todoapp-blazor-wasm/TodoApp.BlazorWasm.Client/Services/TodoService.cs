@@ -76,7 +76,7 @@ public class TodoService(DatasyncServiceClient<TodoItemDto> todoClient) : ITodoS
     /// <summary>
     /// Creates a new todo item with the specified title.
     /// </summary>
-    /// <param name="title">The title or description of the new todo item.</param>
+    /// <param name="title">The title for the new todo item. Must not be null or empty.</param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> that represents the asynchronous operation.
     /// The task result contains the newly created <see cref="TodoItemDto"/> with
@@ -90,11 +90,11 @@ public class TodoService(DatasyncServiceClient<TodoItemDto> todoClient) : ITodoS
     /// </para>
     /// <para>
     /// The method sends the new item to the server via the datasync client's 
-    /// <see cref="DatasyncServiceClient{T}.AddAsync(T)"/> method. Upon successful creation,
-    /// the server returns the persisted item with updated timestamps and version information.
+    /// <see cref="IDatasyncServiceClientExtensions.AddAsync{TEntity}(IDatasyncServiceClient{TEntity}, TEntity, CancellationToken)"/>
+    /// method. Upon successful creation, the server returns the persisted item with updated
+    /// timestamps and version information.
     /// </para>
     /// </remarks>
-    /// <param name="title">The title for the new todo item. Must not be null or empty.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="title"/> is <c>null</c>.
     /// </exception>
@@ -104,8 +104,8 @@ public class TodoService(DatasyncServiceClient<TodoItemDto> todoClient) : ITodoS
     /// <exception cref="InvalidOperationException">
     /// Thrown when the server operation fails, containing details about the failure reason.
     /// </exception>
-    /// <exception cref="ValidationException">
-    /// Thrown when the todo item fails server-side validation (e.g., title too long).
+    /// <exception cref="ConflictException{TodoItemDto}">
+    /// Thrown when a todo item with the same identifier already exists in the remote service dataset.
     /// </exception>
     public async Task<TodoItemDto> CreateTodoItemAsync(string title)
     {
@@ -131,24 +131,28 @@ public class TodoService(DatasyncServiceClient<TodoItemDto> todoClient) : ITodoS
     /// <remarks>
     /// <para>
     /// This method performs a complete replacement of the todo item on the server using
-    /// the datasync client's <see cref="DatasyncServiceClient{T}.ReplaceAsync(T)"/> method.
-    /// The operation includes optimistic concurrency control based on the item's version property.
+    /// the datasync client's <see cref="IDatasyncServiceClientExtensions.ReplaceAsync{TEntity}(IDatasyncServiceClient{TEntity}, TEntity, CancellationToken)"/>
+    /// method. The operation includes optimistic concurrency control based on the item's version property.
     /// </para>
     /// <para>
     /// If the item has been modified by another client since it was last retrieved,
-    /// the server will reject the update with a conflict status, which will be reflected
-    /// in the <see cref="ServiceResponse{T}"/> returned by the datasync client.
+    /// the server will reject the update with a conflict status, which is surfaced as a
+    /// <see cref="ConflictException{TodoItemDto}"/> by the datasync client.
     /// </para>
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="item"/> is <c>null</c>.
     /// </exception>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when the server operation fails, including conflicts due to concurrent modifications,
-    /// validation failures, or network errors. The exception message includes the server's reason phrase.
+    /// Thrown when the server operation fails due to network errors or other operational
+    /// problems. The exception message includes the server's reason phrase.
     /// </exception>
-    /// <exception cref="ValidationException">
-    /// Thrown when the updated todo item fails server-side validation.
+    /// <exception cref="ConflictException{TodoItemDto}">
+    /// Thrown when the item has been modified by another client since it was last retrieved,
+    /// causing a version conflict.
+    /// </exception>
+    /// <exception cref="EntityDoesNotExistException">
+    /// Thrown when the item no longer exists on the server.
     /// </exception>
     public async Task<TodoItemDto> UpdateTodoItemAsync(TodoItemDto item)
     {
@@ -177,7 +181,7 @@ public class TodoService(DatasyncServiceClient<TodoItemDto> todoClient) : ITodoS
     /// </para>
     /// <para>
     /// The method uses <see cref="DatasyncServiceOptions"/> to configure the delete operation
-    /// and leverages the datasync client's <see cref="DatasyncServiceClient{T}.RemoveAsync(string, DatasyncServiceOptions)"/>
+    /// and leverages the datasync client's <see cref="DatasyncServiceClient{T}.RemoveAsync(string, DatasyncServiceOptions, CancellationToken)"/>
     /// method to perform the server-side operation.
     /// </para>
     /// <para>
@@ -192,9 +196,11 @@ public class TodoService(DatasyncServiceClient<TodoItemDto> todoClient) : ITodoS
     /// Thrown when <paramref name="id"/> is empty or whitespace only.
     /// </exception>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when the server operation fails, such as when the item doesn't exist,
-    /// has already been deleted, or due to network connectivity issues.
-    /// The exception message includes the server's reason phrase.
+    /// Thrown when the server operation fails due to network connectivity issues or
+    /// other operational problems. The exception message includes the server's reason phrase.
+    /// </exception>
+    /// <exception cref="EntityDoesNotExistException">
+    /// Thrown when the item doesn't exist or has already been deleted on the server.
     /// </exception>
     public async Task DeleteTodoItemAsync(string id)
     {

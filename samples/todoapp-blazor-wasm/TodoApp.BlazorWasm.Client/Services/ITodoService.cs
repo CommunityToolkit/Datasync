@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client;
 using TodoApp.BlazorWasm.Shared.Models;
 
 namespace TodoApp.BlazorWasm.Client.Services;
@@ -74,7 +75,10 @@ public interface ITodoService
     /// <summary>
     /// Creates a new todo item with the specified title.
     /// </summary>
-    /// <param name="title">The title or description of the new todo item.</param>
+    /// <param name="title">
+    /// The title for the new todo item. Should not be null, empty, or consist only of whitespace.
+    /// The title length should comply with validation rules defined in <see cref="TodoItemDto"/>.
+    /// </param>
     /// <returns>
     /// A <see cref="Task{TResult}"/> that represents the asynchronous operation.
     /// The task result contains the newly created <see cref="TodoItemDto"/> with
@@ -92,10 +96,6 @@ public interface ITodoService
     /// concurrency control, and any other metadata required by the datasync framework.
     /// </para>
     /// </remarks>
-    /// <param name="title">
-    /// The title for the new todo item. Should not be null, empty, or consist only of whitespace.
-    /// The title length should comply with validation rules defined in <see cref="TodoItemDto"/>.
-    /// </param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="title"/> is <c>null</c>.
     /// </exception>
@@ -107,8 +107,8 @@ public interface ITodoService
     /// Thrown when the service fails to create the todo item due to server errors,
     /// network issues, or other operational problems.
     /// </exception>
-    /// <exception cref="ValidationException">
-    /// Thrown when the todo item data fails validation on the server side.
+    /// <exception cref="ConflictException{TodoItemDto}">
+    /// Thrown when a todo item with the same identifier already exists in the remote service dataset.
     /// </exception>
     Task<TodoItemDto> CreateTodoItemAsync(string title);
 
@@ -143,14 +143,14 @@ public interface ITodoService
     /// </exception>
     /// <exception cref="InvalidOperationException">
     /// Thrown when the update operation fails due to server errors, network issues,
-    /// concurrent modifications, or when the item no longer exists on the server.
+    /// or other operational problems.
     /// </exception>
-    /// <exception cref="ValidationException">
-    /// Thrown when the updated todo item data fails server-side validation.
-    /// </exception>
-    /// <exception cref="ConcurrencyException">
+    /// <exception cref="ConflictException{TodoItemDto}">
     /// Thrown when the item has been modified by another client and the update
     /// cannot be completed due to version conflicts.
+    /// </exception>
+    /// <exception cref="EntityDoesNotExistException">
+    /// Thrown when the item no longer exists on the server.
     /// </exception>
     Task<TodoItemDto> UpdateTodoItemAsync(TodoItemDto item);
 
@@ -192,6 +192,10 @@ public interface ITodoService
     /// </exception>
     /// <exception cref="UnauthorizedAccessException">
     /// Thrown when the current user is not authorized to delete the specified todo item.
+    /// </exception>
+    /// <exception cref="EntityDoesNotExistException">
+    /// Thrown by implementations (such as <see cref="TodoService"/>) that surface a missing
+    /// or already-deleted item as an error rather than treating it as a successful no-op.
     /// </exception>
     Task DeleteTodoItemAsync(string id);
 }
