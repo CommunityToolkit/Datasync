@@ -67,7 +67,7 @@ jobs:
           dotnet pack DatasyncTemplates.csproj 
           --configuration ${{ env.DOTNET_CONFIGURATION }} 
           --output ${{ env.NuGetDirectory }}
-          -p:PackageVersion=$BUILD_VERSION
+          -p:PackageVersion="$BUILD_VERSION"
 
       - name: Upload NuGet packages
         uses: actions/upload-artifact@v7
