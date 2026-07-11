@@ -2,8 +2,9 @@
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <!-- Keep in sync across all Avalonia.* PackageReferences in this sample tree. -->
-    <!-- Bumped to resolve NU1903 (GHSA-xrw6-gwf8-vvr9 / CVE-2026-39959) for Tmds.DBus.Protocol,
-         pulled in transitively via Avalonia.FreeDesktop -> Avalonia.Desktop. See #499. -->
-    <AvaloniaVersion>11.3.18</AvaloniaVersion>
+    <!-- Major-version bump from 11.3.18 to the 12.x line (12.1.0, the latest release as of this
+         writing) for general currency ahead of 11.x reaching end-of-support. See
+         https://docs.avaloniaui.net/docs/avalonia12-breaking-changes and #507. -->
+    <AvaloniaVersion>12.1.0</AvaloniaVersion>
   </PropertyGroup>
 </Project>

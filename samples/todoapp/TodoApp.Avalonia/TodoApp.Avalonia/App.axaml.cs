@@ -2,8 +2,6 @@ using System;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
-using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Data.Sqlite;
@@ -52,16 +50,19 @@ public partial class App : Application, IDisposable
     /// <inheritdoc />
     public override void OnFrameworkInitializationCompleted()
     {
-        // Line below is needed to remove Avalonia data validation.
-        // Without this line you will get duplicate validations from both Avalonia and CT
-        BindingPlugins.DataValidators.RemoveAt(0);
-
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow { DataContext = GetRequiredService<TodoListViewModel>() };
         }
+        else if (ApplicationLifetime is IActivityApplicationLifetime activityLifetime)
+        {
+            // Android now uses IActivityApplicationLifetime instead of ISingleViewApplicationLifetime.
+            // See https://docs.avaloniaui.net/docs/avalonia12-breaking-changes#android.
+            activityLifetime.MainViewFactory = () => new MainView { DataContext = GetRequiredService<TodoListViewModel>() };
+        }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
+            // ISingleViewApplicationLifetime is still used by iOS, browser, and embedded Linux platforms.
             singleViewPlatform.MainView = new MainView { DataContext = GetRequiredService<TodoListViewModel>() };
         }
         

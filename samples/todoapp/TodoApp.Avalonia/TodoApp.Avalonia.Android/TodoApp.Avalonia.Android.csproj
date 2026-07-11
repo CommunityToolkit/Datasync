@@ -15,9 +15,9 @@
           `dotnet build` (not just `dotnet publish`) by SDK default. This CI pipeline only ever runs
           `dotnet build` (see build-samples-todoapp-avalonia.yml) - it never publishes with
           PublishTrimmed, so no actual IL trimming/linking happens here; the analyzer is purely
-          diagnostic noise on framework APIs (Avalonia's BindingPlugins.DataValidators, EF Core's
-          DbContext(DbContextOptions) ctor) that their own maintainers have marked
-          [RequiresUnreferencedCode]. Setting this also sets EnableTrimAnalyzer=false (see
+          diagnostic noise on framework APIs (e.g. EF Core's DbContext(DbContextOptions) ctor)
+          that their own maintainers have marked [RequiresUnreferencedCode]. Setting this also
+          sets EnableTrimAnalyzer=false (see
           Microsoft.NET.ILLink.targets), which disables the analyzer pass itself, not just its
           warning output. See https://github.com/CommunityToolkit/Datasync/issues/521.
         -->
