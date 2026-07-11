@@ -43,6 +43,18 @@
       See https://github.com/CommunityToolkit/Datasync/issues/521.
     -->
     <SuppressTrimAnalysisWarnings Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">true</SuppressTrimAnalysisWarnings>
+
+    <!--
+      MainPage.xaml has one binding (Entry.ReturnCommandParameter) that sets an explicit
+      Source={x:Reference ...} instead of relying on the page's BindingContext. By default,
+      XamlC skips compiling any binding with an explicit Source, falling back to slower
+      reflection-based binding and emitting an XC0025 warning. Opting into this project-wide
+      flag lets XamlC compile that binding too, now that it's annotated with the correct
+      x:DataType for its Source (see MainPage.xaml). This project has no other Source-based
+      bindings, so there's no risk of newly-surfaced x:DataType mismatches elsewhere.
+      See https://github.com/CommunityToolkit/Datasync/issues/517.
+    -->
+    <MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
   </PropertyGroup>
 
   <ItemGroup>
