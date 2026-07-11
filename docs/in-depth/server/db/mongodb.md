@@ -32,9 +32,9 @@ In your table controller:
 
 ## Known issues
 
-The MongoDB implementation within Cosmos is split into vCore and RU format (also known as dedicated and serverless SKUs).  Do not use the "serverless" or RU SKU.  Ensure you are using Azure Cosmos DB for MongoDB (vCore). For more information, see [the Azure documentation](https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/vcore/).
+The MongoDB implementation within Cosmos is split into vCore and RU format (also known as dedicated and serverless SKUs).  Do not use the "serverless" or RU SKU.  Ensure you are using Azure Cosmos DB for MongoDB (vCore). For more information, see [the Azure documentation](https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/overview).
 
 ## Support and further information
 
 * [MongoDb C# Driver (v3.1)](https://www.mongodb.com/docs/drivers/csharp/current/?msockid=3814d66fce6360e01644c3edcf2061bc)
-* [Azure Cosmos DB for MongoDB (vCore)](https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/vcore/)
+* [Azure Cosmos DB for MongoDB (vCore)](https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/overview)

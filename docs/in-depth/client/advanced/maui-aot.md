@@ -9,7 +9,7 @@ When using [Native AOT with .NET MAUI](https://learn.microsoft.com/dotnet/maui/d
 The following are basic instructions on how to fulfill these requirements.  However, you should consult the official documentation (linked above) for each requirement.
 
 !!! info
-    Thanks to [Richard Perry](https://github.com/richard-einfinity) for providing the detailed instructions for enabling Native AOT support.
+    Thanks to Richard Perry for providing the detailed instructions for enabling Native AOT support.
 
 ## Compiled models
 

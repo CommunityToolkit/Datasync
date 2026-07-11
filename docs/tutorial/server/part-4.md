@@ -53,7 +53,7 @@ Now, I want to implement some business rules:
 This will demonstrate the first two methods that are needed for an access control provider.  
 
 !!! tip Using the IHttpContextAccessor
-    Most access control providers need asynchronous access to the `HttpContext` of a request.  This is handled using the `IHttpContextAccessor`.  For details, see [the documentation](https://learn.microsoft.comaspnet/core/fundamentals/http-context).  The documentation will tell you to add the following to your application services.
+    Most access control providers need asynchronous access to the `HttpContext` of a request.  This is handled using the `IHttpContextAccessor`.  For details, see [the documentation](https://learn.microsoft.com/aspnet/core/fundamentals/http-context).  The documentation will tell you to add the following to your application services.
 
     ```csharp
     builder.Services.AddHttpContextAccessor();

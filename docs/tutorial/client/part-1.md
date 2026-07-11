@@ -174,7 +174,7 @@ Each operation can take a `DatasyncServiceOptions` object with the following pro
 
 ## Querying for data
 
-The final method in our sample implementation is the query interface.  The `DatasyncServiceClient<TEntity>` class implements `TableQuery` - a subset of LINQ that is supported by our implementation of OData.  When the query is transmitted to the remote service, it is turned into an OData query string.  Full details are provided in the [in-depth documentation](https://communitytoolkit.github.io/Datasync/in-depth/client/online-operations/index.html#querying-for-data).  To query for all data:
+The final method in our sample implementation is the query interface.  The `DatasyncServiceClient<TEntity>` class implements `TableQuery` - a subset of LINQ that is supported by our implementation of OData.  When the query is transmitted to the remote service, it is turned into an OData query string.  Full details are provided in the [in-depth documentation](../../in-depth/client/online.md#querying-for-data).  To query for all data:
 
     public async Task<List<TodoItem>> GetAllTodoItemsAsync(CancellationToken cancellationToken = default)
       => await client.ToListAsync(cancellationToken);
