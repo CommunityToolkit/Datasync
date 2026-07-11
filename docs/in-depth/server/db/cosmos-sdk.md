@@ -12,7 +12,7 @@ Use the [CommunityToolkit.Datasync.Server.CosmosDb](https://www.nuget.org/packag
 Azure Cosmos DB is a fully managed NoSQL database for high-performance applications of any size or scale.  See [Azure Cosmos DB for NoSQL .NET SDK](https://learn.microsoft.com/azure/cosmos-db/nosql/quickstart-dotnet) for information on using Azure Cosmos DB via the SDK.
 
 !!! info
-    The Cosmos DB library and sample has been kindly contributed to the community by [@richard-einfinity](https://github.com/richard-einfinity).
+    The Cosmos DB library and sample has been kindly contributed to the community by @richard-einfinity.
 
 ## Set up
 

@@ -43,7 +43,7 @@ Azure Cosmos DB is a fully managed NoSQL database for high-performance applicati
 
     You must include a composite index for each combination of filters that you require.  A "client-side evaluation" exception will be generated (which is turned into a `400 Bad Request` by the server) if you do not have the appropriate composite indices for the request.
     
-    You can also review our [bicep module](https://github.com/CommunityToolkit/Datasync/blob/main/tests/infra/databases/cosmos.bicep) that we use for testing.
+    You can also review the [bicep module](https://github.com/CommunityToolkit/Datasync/blob/main/samples/datasync-server-cosmosdb-singlecontainer/infra/resources.bicep) used by our Cosmos DB sample.
 
     If you pull a subset of items in the table, ensure you specify all properties involved in the query.
 

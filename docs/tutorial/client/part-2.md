@@ -285,7 +285,7 @@ In the [next tutorial](./part-3.md), we'll take a final look at the online clien
 [OIDC]: https://www.microsoft.com/security/business/security-101/what-is-openid-connect-oidc?msockid=3814d66fce6360e01644c3edcf2061bc
 [Google]: https://developers.google.com/identity/openid-connect/openid-connect
 [Facebook]: https://developers.facebook.com/docs/facebook-login
-[Auth0]: https://auth0.com/docs/quickstart/backend/aspnet-core-webapi/01-authorization
+[Auth0]: https://auth0.com/docs/quickstart/backend/aspnet-core-webapi
 [OpenID Dict]: https://openiddict.com/
 [Duende Identity Server]: https://duendesoftware.com/products/identityserver
 [Microsoft Entra ID]: https://learn.microsoft.com/en-us/entra/fundamentals/whatis
