@@ -77,16 +77,16 @@ jobs:
         run: >
           dotnet build 
           --configuration ${{ env.DOTNET_CONFIGURATION }} 
-          -p:PackageVersion=$BUILD_VERSION
-          -p:Version=$BUILD_VERSION 
+          -p:PackageVersion="$BUILD_VERSION"
+          -p:Version="$BUILD_VERSION" 
           --no-restore
 
       - name: Run tests
         run: >
           dotnet test --nologo 
           --configuration ${{ env.DOTNET_CONFIGURATION }}
-          -p:PackageVersion=$BUILD_VERSION
-          -p:Version=$BUILD_VERSION 
+          -p:PackageVersion="$BUILD_VERSION"
+          -p:Version="$BUILD_VERSION" 
           --no-build 
           --verbosity minimal
           --logger trx
@@ -107,7 +107,7 @@ jobs:
 
       - name: Add code coverage summary to job
         if: always()
-        run: cat "${{ github.workspace }}/TestResults/SummaryGithub.md" >> $GITHUB_STEP_SUMMARY
+        run: cat "${{ github.workspace }}/TestResults/SummaryGithub.md" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload code coverage reports
         uses: actions/upload-artifact@v7
@@ -120,8 +120,8 @@ jobs:
         run: >
           dotnet pack 
           --configuration ${{ env.DOTNET_CONFIGURATION }} 
-          -p:PackageVersion=$BUILD_VERSION
-          -p:Version=$BUILD_VERSION 
+          -p:PackageVersion="$BUILD_VERSION"
+          -p:Version="$BUILD_VERSION" 
           --no-build 
           --output ${{ env.NuGetDirectory }}
 
