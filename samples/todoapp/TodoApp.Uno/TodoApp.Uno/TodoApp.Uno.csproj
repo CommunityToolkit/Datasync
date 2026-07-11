@@ -66,6 +66,20 @@
         $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'
       ">$(MSBuildWarningsAsMessages);MT7156</MSBuildWarningsAsMessages>
 
+    <!--
+      e_sqlite3 (bundled via SQLitePCLRaw.bundle_e_sqlite3, pinned for #492) exposes variadic
+      (varargs) native functions (sqlite3_config/sqlite3_db_config). The WebAssembly SDK's
+      build-time native-interop check flags every fixed-arity P/Invoke overload SQLitePCLRaw
+      ships to work around this (sqlite3_config_none, sqlite3_config_int, etc.) as WASM0001,
+      even though this sample's actual SQLite usage (in-memory EF Core CRUD via AppDbContext)
+      never calls sqlite3_config/sqlite3_db_config directly. This is diagnostic-only noise -
+      WASM0001 is a standard MSBuild task warning code (emitted via TaskLoggingHelper.LogWarning
+      in dotnet/runtime's WasmAppBuilder), so it honors NoWarn like any other build warning.
+      Same documented, NoWarn-suppressible pattern as
+      docs/in-depth/client/advanced/blazor-wasm.md. See #543.
+    -->
+    <NoWarn Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browserwasm'">$(NoWarn);WASM0001</NoWarn>
+
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\AddItem.png" />
