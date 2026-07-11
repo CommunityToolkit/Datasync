@@ -8,6 +8,10 @@ using Uno.Resizetizer;
 namespace TodoApp.Uno;
 public partial class App : Application
 {
+    protected Window? MainWindow { get; private set; }
+    public IHost? Host { get; private set; }
+    private Lazy<SqliteConnection> dbConnection = new(() => CreateSqliteConnection());
+
     /// <summary>
     /// Initializes the singleton application object. This is the first line of authored code
     /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -15,22 +19,20 @@ public partial class App : Application
     public App()
     {
         this.InitializeComponent();
-
-
     }
 
-    protected Window? MainWindow { get; private set; }
-    public IHost? Host { get; private set; }
+    private SqliteConnection DbConnection { get => dbConnection.Value; }
 
-    private SqliteConnection dbConnection;
+    private static SqliteConnection CreateSqliteConnection()
+    {
+        SqliteConnection conn = new SqliteConnection("Data Source=:memory:");
+        conn.Open();
+        return conn;
+    }
 
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
     {
         AppContext.SetSwitch("System.Reflection.NullabilityInfoContext.IsSupported", true);
-
-        this.dbConnection = new SqliteConnection("Data Source=:memory:");
-        this.dbConnection.Open();
-
         var builder = this.CreateBuilder(args)
             // Add navigation support for toolkit controls such as TabBar and NavigationView
             .UseToolkitNavigation()
@@ -42,12 +44,9 @@ public partial class App : Application
 
                 .ConfigureServices((context, services) =>
                 {
-                    // TODO: Register your services
-                    //services.AddSingleton<IMyService, MyService>();
-                    services.AddDbContext<AppDbContext>(options => options.UseSqlite(this.dbConnection));
+                    services.AddDbContext<AppDbContext>(options => options.UseSqlite(DbConnection));
                     services.AddScoped<IDbInitializer, DbContextInitializer>();
                     services.AddTransient<TodoListViewModel>();
-
                 })
                 .UseNavigation(RegisterRoutes)
             );
@@ -58,14 +57,10 @@ public partial class App : Application
 #endif
         MainWindow.SetWindowIcon();
 
-        // We have to build here so that the services are initialized and we can call InitializeDatabase
-        // before navigating. This enables us to load the data when the page is loaded
         Host = builder.Build();
 
         InitializeDatabase();
 
-        // We still make this navigation call so we use the Uno Navigation extension, which automatically wires 
-        // up view models with their page using the ViewMap and RouteMap below. 
         Host = await builder.NavigateAsync<Shell>();
 
     }

@@ -1,16 +1,4 @@
 {
-  // To update the version of Uno please update the version of the Uno.Sdk here. See https://aka.platform.uno/upgrade-uno-packages for more information.
-  // Bumped from 5.6.54 (-> Uno.WinUI 5.6.99) to 6.5.36 (-> Uno.WinUI 6.5.237). See #524:
-  // this major-version bump resolves the NU1903 (Tmds.DBus 0.16.0, GHSA-xrw6-gwf8-vvr9) advisory
-  // on the desktop head for free - Uno.WinUI.Runtime.Skia.X11 switches to the patched
-  // Tmds.DBus.Protocol dependency starting at Uno.WinUI 6.0.465, and 6.5.237 resolves well above
-  // that floor. It also lifts the Uno.Wasm.Bootstrap net9.0+ TargetFramework guard blocking the
-  // browserwasm head (Uno.Sdk 6.x implicitly resolves Uno.Wasm.Bootstrap 10.0.96 instead of the
-  // 5.x line's 8.0.23). See https://platform.uno/docs/articles/migrating-to-uno-6.html for the
-  // accompanying manual code changes required across heads (Platforms/Desktop/Program.cs,
-  // Platforms/Android/Main.Android.cs).
-  // See https://github.com/CommunityToolkit/Datasync/issues/506 and
-  // https://github.com/CommunityToolkit/Datasync/issues/524.
   "msbuild-sdks": {
     "Uno.Sdk": "6.5.36"
   },

@@ -29,8 +29,6 @@ public sealed partial class TodoListPage : Page
         DataContextChanged += DataContextChangedHandler;
     }
 
-
-
     // on loaded override
     private async void DataContextChangedHandler(object sender, DataContextChangedEventArgs e)
     {
@@ -42,7 +40,7 @@ public sealed partial class TodoListPage : Page
         }
     }
 
-    internal void PublishNotification(object sender, NotificationEventArgs args)
+    internal void PublishNotification(object? sender, NotificationEventArgs args)
     {
         Notification notification = new()
         {
