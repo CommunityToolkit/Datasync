@@ -24,14 +24,14 @@ public partial class MainPage : ContentPage
         this._viewModel.RefreshItemsCommand.Execute(null);
     }
 
-    public void OnListItemTapped(object sender, ItemTappedEventArgs e)
+    public void OnListItemTapped(object sender, SelectionChangedEventArgs e)
     {
-        if (e.Item is TodoItem item)
+        if (e.CurrentSelection.FirstOrDefault() is TodoItem item)
         {
             this._viewModel.UpdateItemCommand.Execute(item.Id);
         }
 
-        if (sender is ListView itemList)
+        if (sender is CollectionView itemList)
         {
             itemList.SelectedItem = null;
         }
