@@ -74,10 +74,7 @@
     <PackageReference Include="CommunityToolkit.Datasync.Client" />
     <!-- Force the SQLitePCLRaw 3.x line to resolve NU1903 (GHSA-2m69-gcr7-jv3q) floated by CommunityToolkit.Datasync.Client -> Microsoft.EntityFrameworkCore.Sqlite. See #492. -->
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" />
-    <PackageReference Include="System.Formats.Asn1" />
     <PackageReference Include="System.IO.Packaging" />
-    <PackageReference Include="System.Private.Uri" />
-    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\TodoListPage.xaml">
