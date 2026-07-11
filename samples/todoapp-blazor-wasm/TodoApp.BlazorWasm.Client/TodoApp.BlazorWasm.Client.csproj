@@ -19,4 +19,18 @@
     <ProjectReference Include="..\TodoApp.BlazorWasm.Shared\TodoApp.BlazorWasm.Shared.csproj" />
   </ItemGroup>
 
+  <!--
+    CommunityToolkit.Datasync.Client depends unconditionally on Microsoft.EntityFrameworkCore.Sqlite,
+    which transitively adds a browser-wasm NativeFileReference for SourceGear.sqlite3's e_sqlite3.a
+    (via SQLitePCLRaw.bundle_e_sqlite3, pinned above only to resolve NU1903 - see #492). This app never
+    uses SQLite/OfflineDbContext, so the native asset is unused; remove it before the SDK's browser
+    workload check runs to avoid a benign, code-less "NativeFileReference is not empty..." warning
+    from WorkloadManifest.targets. See #523.
+  -->
+  <Target Name="RemoveUnusedSqliteNativeFileReference" BeforeTargets="_CheckBrowserWorkloadNeededButNotAvailable">
+    <ItemGroup>
+      <NativeFileReference Remove="@(NativeFileReference)" Condition="'%(Filename)%(Extension)' == 'e_sqlite3.a'" />
+    </ItemGroup>
+  </Target>
+
 </Project>
