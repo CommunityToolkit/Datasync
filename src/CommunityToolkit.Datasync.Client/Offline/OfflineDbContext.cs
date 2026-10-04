@@ -60,7 +60,12 @@ public abstract partial class OfflineDbContext : DbContext
     /// A checker for the disposed state of this context.
     /// </summary>
     internal bool _disposedValue;
-    internal DisposableLock _optionsLock = new();
+
+    /// <summary>
+    /// Guards the lazy creation of <see cref="OfflineOptions"/>.  A monitor is used instead of a
+    /// <see cref="SemaphoreSlim"/> because blocking semaphore waits are not supported on single-threaded browser-wasm.
+    /// </summary>
+    private readonly object _optionsLock = new();
 
     /// <summary>
     /// The operations queue.  This is used to store pending requests to the datasync service.
@@ -144,15 +149,17 @@ public abstract partial class OfflineDbContext : DbContext
     /// <returns>The offline options for the datasync operation.</returns>
     internal OfflineOptions BuildDatasyncOfflineOptions()
     {
-        using IDisposable optionsLock = this._optionsLock.AcquireLock();
-        if (OfflineOptions is null)
+        lock (this._optionsLock)
         {
-            DatasyncOfflineOptionsBuilder builder = new(QueueManager.GetSynchronizableEntityTypes());
-            OnDatasyncInitialization(builder);
-            OfflineOptions = builder.Build();
+            if (OfflineOptions is null)
+            {
+                DatasyncOfflineOptionsBuilder builder = new(QueueManager.GetSynchronizableEntityTypes());
+                OnDatasyncInitialization(builder);
+                OfflineOptions = builder.Build();
+            }
+
+            return OfflineOptions;
         }
-        
-        return OfflineOptions;
     }
 
     /// <summary>
@@ -604,7 +611,6 @@ public abstract partial class OfflineDbContext : DbContext
         {
             if (disposing)
             {
-                this._optionsLock.Dispose();
                 base.Dispose();
             }
 
