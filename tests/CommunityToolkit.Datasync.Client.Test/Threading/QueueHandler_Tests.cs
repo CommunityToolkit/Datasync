@@ -10,6 +10,38 @@ namespace CommunityToolkit.Datasync.Client.Test.Threading;
 [ExcludeFromCodeCoverage]
 public class QueueHandler_Tests
 {
+    /// <summary>
+    /// The delay each job takes.  This is an async delay so that a job does not hold a thread-pool thread, which makes
+    /// the amount of concurrency depend only on <c>MaxDegreeOfParallelism</c> and not on thread-pool thread injection.
+    /// </summary>
+    private static readonly TimeSpan JobDelay = TimeSpan.FromMilliseconds(250);
+
+    /// <summary>
+    /// Tracks the number of jobs running at the same time, and the peak.
+    /// </summary>
+    private sealed class ConcurrencyTracker
+    {
+        private int current;
+        private int peak;
+
+        public int Peak => Volatile.Read(ref this.peak);
+
+        public void Enter()
+        {
+            int now = Interlocked.Increment(ref this.current);
+            int seen;
+            while (now > (seen = Volatile.Read(ref this.peak)))
+            {
+                if (Interlocked.CompareExchange(ref this.peak, now, seen) == seen)
+                {
+                    break;
+                }
+            }
+        }
+
+        public void Exit() => Interlocked.Decrement(ref this.current);
+    }
+
     [Theory(Timeout = 30000)]
     [InlineData(1)]
     [InlineData(2)]
@@ -18,13 +50,19 @@ public class QueueHandler_Tests
     public async Task QueueHandler_WithThreads_Enqueue(int nThreads)
     {
         ConcurrentQueue<string> accId = new();
-        ConcurrentQueue<int> accTh = new();
-        QueueHandler<string> sut = new(nThreads, (el) =>
+        ConcurrencyTracker tracker = new();
+        QueueHandler<string> sut = new(nThreads, async (el) =>
         {
-            accId.Enqueue(el);
-            accTh.Enqueue(Environment.CurrentManagedThreadId);
-            Thread.Sleep(2000);
-            return Task.CompletedTask;
+            tracker.Enter();
+            try
+            {
+                accId.Enqueue(el);
+                await Task.Delay(JobDelay);
+            }
+            finally
+            {
+                tracker.Exit();
+            }
         });
         DateTimeOffset startTime = DateTimeOffset.Now;
 
@@ -43,10 +81,10 @@ public class QueueHandler_Tests
         await sut.WhenComplete();
         DateTimeOffset endTime = DateTimeOffset.Now;
 
-        // Check everything ran.
+        // Check everything ran, and that concurrency was bounded by (and, for more than 1 thread, actually used)
+        // the requested degree of parallelism.
         accId.Should().HaveCount(nElements);
-        accTh.Should().HaveCount(nElements);
-        accTh.AsEnumerable().Distinct().Should().HaveCount(nThreads);
+        AssertConcurrency(tracker, nThreads);
         // This just makes sure that the amount of time is "of the right order of magnitude" since CI systems
         // are notoriously bad at correct timings.  We just don't want it to be 10x the expected time.
         (endTime - startTime).TotalSeconds.Should().BeLessThanOrEqualTo(2 * (nElements / nThreads) + 5);
@@ -60,13 +98,19 @@ public class QueueHandler_Tests
     public async Task QueueHandler_WithThreads_EnqueueRange(int nThreads)
     {
         ConcurrentQueue<string> accId = new();
-        ConcurrentQueue<int> accTh = new();
-        QueueHandler<string> sut = new(nThreads, (el) =>
+        ConcurrencyTracker tracker = new();
+        QueueHandler<string> sut = new(nThreads, async (el) =>
         {
-            accId.Enqueue(el);
-            accTh.Enqueue(Environment.CurrentManagedThreadId);
-            Thread.Sleep(1000);
-            return Task.CompletedTask;
+            tracker.Enter();
+            try
+            {
+                accId.Enqueue(el);
+                await Task.Delay(JobDelay);
+            }
+            finally
+            {
+                tracker.Exit();
+            }
         });
         DateTimeOffset startTime = DateTimeOffset.Now;
         sut.Count.Should().Be(0);
@@ -83,9 +127,20 @@ public class QueueHandler_Tests
 
         // Check everything ran.
         accId.Should().HaveCount(nElements);
-        accTh.Should().HaveCount(nElements);
-        accTh.AsEnumerable().Distinct().Should().HaveCount(nThreads);
+        AssertConcurrency(tracker, nThreads);
         (endTime - startTime).TotalSeconds.Should().BeLessThanOrEqualTo(2 * (nElements / nThreads) + 5);
+    }
+
+    private static void AssertConcurrency(ConcurrencyTracker tracker, int nThreads)
+    {
+        // MaxDegreeOfParallelism is an upper bound, so the peak can never exceed it.
+        tracker.Peak.Should().BeLessThanOrEqualTo(nThreads);
+        if (nThreads > 1)
+        {
+            // Jobs must have overlapped at least once; exact thread counts are not asserted because they
+            // depend on the thread pool and are not deterministic.
+            tracker.Peak.Should().BeGreaterThan(1);
+        }
     }
 
     [Fact(Timeout = 30000)]
