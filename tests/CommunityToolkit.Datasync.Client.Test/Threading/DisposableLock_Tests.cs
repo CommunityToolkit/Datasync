@@ -10,20 +10,6 @@ namespace CommunityToolkit.Datasync.Client.Test.Threading;
 public class DisposableLock_Tests
 {
     [Fact]
-    public void AcquireLock_Works()
-    {
-        DisposableLock sut = new();
-
-        sut.IsLocked().Should().BeFalse();
-        using (sut.AcquireLock())
-        {
-            sut.IsLocked().Should().BeTrue();
-        }
-
-        sut.IsLocked().Should().BeFalse();
-    }
-
-    [Fact]
     public async Task AcquireLockAsync_Works()
     {
         DisposableLock sut = new();

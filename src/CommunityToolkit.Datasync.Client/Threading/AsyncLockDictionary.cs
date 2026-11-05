@@ -40,28 +40,6 @@ internal class AsyncLockDictionary
     }
 
     /// <summary>
-    /// Acquire a lock (asynchronously) from the dictionary of locks.
-    /// </summary>
-    /// <param name="key">The key for the lock.</param>
-    /// <returns>An <see cref="IDisposable"/> to release the lock when done.</returns>
-    public IDisposable AcquireLock(string key)
-    {
-        LockEntry entry = this.locks.GetOrAdd(key, _ => new LockEntry());
-        _ = entry.IncrementCount();
-
-        IDisposable releaser = entry.Lock.AcquireLock();
-        return new DisposeAction(() =>
-        {
-            releaser.Dispose();
-            if (entry.DecrementCount() == 0)
-            {
-                _ = this.locks.TryRemove(key, out _);
-                entry.Dispose();
-            }
-        });
-    }
-
-    /// <summary>
     /// Determines if the specific lock referenced by key is locked now.
     /// </summary>
     /// <param name="key">The key to check.</param>

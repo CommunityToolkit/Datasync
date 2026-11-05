@@ -10,24 +10,6 @@ namespace CommunityToolkit.Datasync.Client.Test.Threading;
 public class AsyncLockDictionary_Tests
 {
     [Fact]
-    public void AcquireLock_Works()
-    {
-        AsyncLockDictionary sut = new();
-
-        sut.IsLocked("key1").Should().BeFalse();
-        sut.IsLocked("key2").Should().BeFalse();
-
-        using (sut.AcquireLock("key1"))
-        {
-            sut.IsLocked("key1").Should().BeTrue();
-            sut.IsLocked("key2").Should().BeFalse();
-        }
-
-        sut.IsLocked("key1").Should().BeFalse();
-        sut.IsLocked("key2").Should().BeFalse();
-    }
-
-    [Fact]
     public async Task AcquireLockAsync_Works()
     {
         AsyncLockDictionary sut = new();
