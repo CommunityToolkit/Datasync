@@ -201,6 +201,9 @@ When the push result is complete, the `PushResult` is returned.  This has the fo
 
 In addition, the operations queue is updated.  Completed operations are removed and failed operations are marked as failed.  You can use the `FailedRequests` property to see the exact error that was returned by the service.
 
+!!! note "Timeouts and network failures"
+    `FailedRequests` only records responses that were received from the service.  If a request cannot complete (for example, the `HttpClient.Timeout` elapses or the connection is refused), `PushAsync()` throws instead of returning a result: a `TimeoutException` for a timeout, or an `HttpRequestException` for other network failures.  Operations that completed before the failure are removed from the queue, and the operation that failed remains queued so it can be retried.  If you cancel the push yourself through the `CancellationToken`, an `OperationCanceledException` is thrown.
+
 ### Conflict resolution
 
 When a conflict resolver is configured, that will be used before a queued change is marked as failed.  In the case of a failed request, you can process the failed requests as follows:

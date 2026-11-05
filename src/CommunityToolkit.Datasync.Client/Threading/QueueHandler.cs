@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks.Dataflow;
 
 namespace CommunityToolkit.Datasync.Client.Threading;
@@ -13,6 +14,7 @@ namespace CommunityToolkit.Datasync.Client.Threading;
 internal class QueueHandler<T> where T : class
 {
     private readonly ActionBlock<T> jobs;
+    private ExceptionDispatchInfo? cancellation;
 
     /// <summary>
     /// Creates a new <see cref="QueueHandler{T}"/>
@@ -25,7 +27,20 @@ internal class QueueHandler<T> where T : class
         ArgumentOutOfRangeException.ThrowIfGreaterThan(maxThreads, 8);
         ArgumentNullException.ThrowIfNull(jobRunner);
         ExecutionDataflowBlockOptions options = new() { MaxDegreeOfParallelism = maxThreads };
-        this.jobs = new(jobRunner, options);
+        this.jobs = new(async item =>
+        {
+            try
+            {
+                await jobRunner(item).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException ex)
+            {
+                // TPL Dataflow treats an OperationCanceledException thrown by the delegate as cooperative cancellation:
+                // the item is silently dropped and Completion finishes normally.  Remember the first one so that
+                // WhenComplete() can surface it instead of reporting a clean run.
+                _ = Interlocked.CompareExchange(ref this.cancellation, ExceptionDispatchInfo.Capture(ex), null);
+            }
+        }, options);
     }
 
     /// <summary>
@@ -52,11 +67,13 @@ internal class QueueHandler<T> where T : class
     /// <summary>
     /// Returns a task that resolves when all the runners are completed.
     /// </summary>
-    /// <returns></returns>
-    public Task WhenComplete()
+    /// <returns>A task that completes when all jobs are done.</returns>
+    /// <exception cref="OperationCanceledException">If a job was canceled.</exception>
+    public async Task WhenComplete()
     {
         this.jobs.Complete();
-        return this.jobs.Completion;
+        await this.jobs.Completion.ConfigureAwait(false);
+        this.cancellation?.Throw();
     }
 
     /// <summary>
