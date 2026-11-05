@@ -16,7 +16,9 @@ public enum ConflictResolutionResult
 
     /// <summary>
     /// The provided client object should be used.  This results in a new "force" submission
-    /// to the server to over-write the server entity.
+    /// to the server (with no <c>If-Match</c> header) to over-write the server entity.  This is an
+    /// unconditional overwrite: any change made on the server after the conflict was detected is lost.
+    /// Use <see cref="Merged"/> when the entity was computed from the server entity.
     /// </summary>
     Client,
 
@@ -24,7 +26,15 @@ public enum ConflictResolutionResult
     /// The server object should be used.  This results in the client object being updated
     /// with whatever the server object was provided.
     /// </summary>
-    Server
+    Server,
+
+    /// <summary>
+    /// The provided entity is a merge of the client and server objects.  This results in a new submission
+    /// to the server that is conditional on the version of the server object that was given to the resolver
+    /// (an <c>If-Match</c> header is sent).  If the server entity has changed again, the conflict is resolved
+    /// again, up to a fixed number of attempts, after which the operation is marked as failed.
+    /// </summary>
+    Merged
 }
 
 /// <summary>

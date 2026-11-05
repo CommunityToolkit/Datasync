@@ -237,8 +237,15 @@ public class ClientWinsConflictResolver : IConflictResolver
 
 The `IConflictResolver<T>` is the same as `IConflictResolver` with the notable exception that the `clientObject` and `serverObject` are typed instead of objects.  The `ConflictResolution` result model consists of two parts:
 
-* `Result` is either `ConflictResolutionResult.Client` (indicating that the client wins and the server entity should be overwritten) or `ConflictResolutionResult.Server` (indicating that the server wins and the client entity should be overwritten).
+* `Result` is one of the following:
+    * `ConflictResolutionResult.Client` indicates that the client wins and the server entity should be overwritten.  The entity is sent to the server as a "force" write with no `If-Match` header.
+    * `ConflictResolutionResult.Server` indicates that the server wins and the client entity should be overwritten.
+    * `ConflictResolutionResult.Merged` indicates that `Entity` was computed from the server entity (a merge).  The entity is sent to the server with an `If-Match` header set to the version of the server entity that the resolver received.
+    * `ConflictResolutionResult.Default` leaves the operation in the queue marked as failed.
 * `Entity` is the entity that should be written.
+
+!!! warning "A `Client` result is an unconditional overwrite"
+    When a resolver returns `ConflictResolutionResult.Client`, the entity is written without an `If-Match` header.  If another client updates the entity after the conflict was detected but before the forced write arrives, that update is silently lost.  This is fine for a plain "client wins" policy, but it is not safe when the entity is a merge of client and server values.  Return `ConflictResolutionResult.Merged` for merges instead.  If the server entity changes again before the merged write arrives, the service responds with another conflict and the resolver is called again with the newer server entity.  After 5 attempts, the operation is left in the queue marked as failed.  A `Merged` result requires the server entity to have a version; if it does not, the operation is marked as failed.
 
 To provide another example, let's say you want to allow updates from the client for all columns except for a `Title` column.  You can do this as follows:
 
@@ -248,12 +255,12 @@ public class CustomConflictResolver : IConflictResolver<Movie>
   public async Task<ConflictResolution> ResolverConflictAsync(Movie? clientObject, Movie? serverObject, CancellationToken cancellationToken = default)
   {
     clientObject.Movie = serverObject.Movie;
-    return new ConflictResolution { Result = ConflictResolutionResult.Client, Entity = clientObject };
+    return new ConflictResolution { Result = ConflictResolutionResult.Merged, Entity = clientObject };
   }
 }
 ```
 
-Here, we copy the server value of the movie title to the client before returning so that the title is preserved.
+Here, we copy the server value of the movie title to the client before returning so that the title is preserved.  Because the result is a merge of the client and server entities, we return `ConflictResolutionResult.Merged` so that the write is conditional on the server version we merged against.
 
 ## Pulling data from the service
 

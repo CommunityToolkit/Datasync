@@ -29,7 +29,13 @@ internal class OperationsQueueManager : IOperationsQueueManager
     private readonly Lock pushlock = new();
 
     /// <summary>
-    /// The map of valid entities that can be synchronized to the service.
+    /// The maximum number of times a <see cref="ConflictResolutionResult.Merged"/> resolution is
+    /// retried when the server reports another conflict.
+    /// </summary>
+    internal const int MaxMergeAttempts = 5;
+
+    /// <summary>
+    /// The context used for storing the operations queue.
     /// </summary>
     internal OfflineDbContext _context;
 
@@ -368,15 +374,29 @@ internal class OperationsQueueManager : IOperationsQueueManager
         ServiceResponse response = await op.ExecuteAsync(options, cancellationToken).ConfigureAwait(false);
 
         bool isSuccessful = response.IsSuccessful;
-        if (response.IsConflictStatusCode && options.ConflictResolver is not null)
+        int mergeAttempts = 0;
+        while (response.IsConflictStatusCode && options.ConflictResolver is not null)
         {
             object? serverEntity = JsonSerializer.Deserialize(response.ContentStream, entityType, DatasyncSerializer.JsonSerializerOptions);
             object? clientEntity = JsonSerializer.Deserialize(operation.Item, entityType, DatasyncSerializer.JsonSerializerOptions);
             ConflictResolution resolution = await options.ConflictResolver.ResolveConflictAsync(clientEntity, serverEntity, cancellationToken).ConfigureAwait(false);
 
-            if (resolution.Result is ConflictResolutionResult.Client)
+            if (resolution.Result is ConflictResolutionResult.Client or ConflictResolutionResult.Merged)
             {
-                // The client entity is the winner, so we need to update the operation and re-queue it.
+                bool isMerge = resolution.Result is ConflictResolutionResult.Merged;
+                string? mergeVersion = null;
+                if (isMerge)
+                {
+                    // A merge must stay conditional: it is only valid against the server version that the resolver saw.
+                    mergeVersion = serverEntity is null ? null : EntityResolver.GetEntityMetadata(serverEntity, entityType).Version;
+                    if (string.IsNullOrEmpty(mergeVersion) || ++mergeAttempts > MaxMergeAttempts)
+                    {
+                        // No server version to condition on, or the server keeps changing: leave the operation failed.
+                        break;
+                    }
+                }
+
+                // The resolved entity is the winner, so we need to update the operation and re-queue it.
                 if (operation.Kind == OperationKind.Add)
                 {
                     // The server has an entity and the client is winning, so we need to replace the entity on the server.
@@ -387,12 +407,18 @@ internal class OperationsQueueManager : IOperationsQueueManager
                 operation.State = OperationState.Pending;
                 operation.LastAttempt = DateTimeOffset.UtcNow;
                 operation.HttpStatusCode = response.StatusCode;
-                operation.EntityVersion = string.Empty; // Force the push
+                operation.EntityVersion = mergeVersion ?? string.Empty; // Client forces the push; Merged is conditional on the server version.
                 operation.Version++;
                 _ = this._context.Update(operation);
                 ExecutableOperation resolvedOp = await ExecutableOperation.CreateAsync(operation, cancellationToken).ConfigureAwait(false);
                 response = await resolvedOp.ExecuteAsync(options, cancellationToken).ConfigureAwait(false);
                 isSuccessful = response.IsSuccessful;
+
+                if (isMerge)
+                {
+                    // Another conflict means the server changed again, so resolve it again (up to MaxMergeAttempts).
+                    continue;
+                }
             }
             else if (resolution.Result is ConflictResolutionResult.Server)
             {
@@ -405,6 +431,8 @@ internal class OperationsQueueManager : IOperationsQueueManager
                     _ = this._context.Update(operation);
                 }
             }
+
+            break;
         }
 
         if (!isSuccessful)

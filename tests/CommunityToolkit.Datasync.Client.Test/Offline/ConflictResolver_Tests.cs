@@ -651,6 +651,135 @@ public class ConflictResolver_Tests : BaseTest
         op.HttpStatusCode.Should().Be(409);
     }
 
+    [Fact]
+    public async Task PushAsync_WithClientResolution_ShouldForcePushWithoutIfMatch()
+    {
+        TestDbContext context = CreateContext();
+        context.Configurator = builder => builder.Entity<ClientMovie>(c => c.ConflictResolver = new ClientWinsConflictResolver());
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N"), Title = "Client Title" };
+        context.Movies.Add(clientMovie);
+        context.SaveChanges(acceptAllChangesOnSuccess: true, addToQueue: false);
+        clientMovie.Title = "Changed";
+        context.Update(clientMovie);
+        context.SaveChanges();
+
+        ClientMovie serverMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, Title = "Server Title", UpdatedAt = DateTimeOffset.UtcNow, Version = "server-v1" };
+        context.Handler.AddResponseContent(DatasyncSerializer.Serialize(serverMovie), HttpStatusCode.PreconditionFailed);
+        ClientMovie finalMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, Title = "Changed", UpdatedAt = DateTimeOffset.UtcNow, Version = "final" };
+        context.Handler.AddResponseContent(DatasyncSerializer.Serialize(finalMovie), HttpStatusCode.OK);
+
+        PushResult result = await context.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
+
+        result.IsSuccessful.Should().BeTrue();
+        context.Handler.Requests.Should().HaveCount(2);
+        context.Handler.Requests[1].Method.Should().Be(HttpMethod.Put);
+        context.Handler.Requests[1].Headers.IfMatch.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PushAsync_WithMergedResolution_ShouldPushConditionalOnServerVersion()
+    {
+        TestDbContext context = CreateContext();
+        MergingResolver resolver = new();
+        context.Configurator = builder => builder.Entity<ClientMovie>(c => c.ConflictResolver = resolver);
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N"), Title = "Client Title", Rating = MovieRating.G };
+        context.Movies.Add(clientMovie);
+        context.SaveChanges();
+
+        ClientMovie serverMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, Title = "Server Title", Rating = MovieRating.R, UpdatedAt = DateTimeOffset.UtcNow, Version = "server-v1" };
+        context.Handler.AddResponseContent(DatasyncSerializer.Serialize(serverMovie), HttpStatusCode.Conflict);
+        ClientMovie finalMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, Title = "Server Title", Rating = MovieRating.G, UpdatedAt = DateTimeOffset.UtcNow, Version = "final" };
+        context.Handler.AddResponseContent(DatasyncSerializer.Serialize(finalMovie), HttpStatusCode.OK);
+
+        PushResult result = await context.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
+
+        result.IsSuccessful.Should().BeTrue();
+        result.CompletedOperations.Should().Be(1);
+        resolver.Calls.Should().Be(1);
+        context.Handler.Requests.Should().HaveCount(2);
+        context.Handler.Requests[1].Method.Should().Be(HttpMethod.Put);
+        context.Handler.Requests[1].Headers.IfMatch.Should().ContainSingle().Which.Tag.Should().Be("\"server-v1\"");
+
+        ClientMovie saved = context.Movies.Find(clientMovie.Id)!;
+        saved.Title.Should().Be("Server Title");
+        saved.Rating.Should().Be(MovieRating.G);
+        saved.Version.Should().Be("final");
+    }
+
+    [Fact]
+    public async Task PushAsync_WithMergedResolution_ShouldReResolveWhenServerChangesAgain()
+    {
+        TestDbContext context = CreateContext();
+        MergingResolver resolver = new();
+        context.Configurator = builder => builder.Entity<ClientMovie>(c => c.ConflictResolver = resolver);
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N"), Title = "Client Title", Rating = MovieRating.G };
+        context.Movies.Add(clientMovie);
+        context.SaveChanges();
+
+        ClientMovie server1 = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, Title = "Server 1", UpdatedAt = DateTimeOffset.UtcNow, Version = "server-v1" };
+        ClientMovie server2 = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, Title = "Server 2", UpdatedAt = DateTimeOffset.UtcNow, Version = "server-v2" };
+        ClientMovie finalMovie = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, Title = "Server 2", Rating = MovieRating.G, UpdatedAt = DateTimeOffset.UtcNow, Version = "final" };
+        context.Handler.AddResponseContent(DatasyncSerializer.Serialize(server1), HttpStatusCode.Conflict);
+        context.Handler.AddResponseContent(DatasyncSerializer.Serialize(server2), HttpStatusCode.PreconditionFailed);
+        context.Handler.AddResponseContent(DatasyncSerializer.Serialize(finalMovie), HttpStatusCode.OK);
+
+        PushResult result = await context.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
+
+        result.IsSuccessful.Should().BeTrue();
+        resolver.Calls.Should().Be(2);
+        context.Handler.Requests.Should().HaveCount(3);
+        context.Handler.Requests[1].Headers.IfMatch.Should().ContainSingle().Which.Tag.Should().Be("\"server-v1\"");
+        context.Handler.Requests[2].Headers.IfMatch.Should().ContainSingle().Which.Tag.Should().Be("\"server-v2\"");
+        context.Movies.Find(clientMovie.Id)!.Title.Should().Be("Server 2");
+    }
+
+    [Fact]
+    public async Task PushAsync_WithMergedResolution_ShouldFailAfterMaxAttempts()
+    {
+        TestDbContext context = CreateContext();
+        MergingResolver resolver = new();
+        context.Configurator = builder => builder.Entity<ClientMovie>(c => c.ConflictResolver = resolver);
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N"), Title = "Client Title" };
+        context.Movies.Add(clientMovie);
+        context.SaveChanges();
+
+        // The initial push plus every merge attempt keeps conflicting, plus one more conflict that exceeds the limit.
+        for (int i = 0; i <= 5 + 1; i++)
+        {
+            ClientMovie server = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, Title = $"Server {i}", UpdatedAt = DateTimeOffset.UtcNow, Version = $"server-v{i}" };
+            context.Handler.AddResponseContent(DatasyncSerializer.Serialize(server), HttpStatusCode.PreconditionFailed);
+        }
+
+        PushResult result = await context.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
+
+        result.IsSuccessful.Should().BeFalse();
+        result.FailedRequests.Should().HaveCount(1);
+        resolver.Calls.Should().Be(6);
+        context.Handler.Requests.Should().HaveCount(6);
+        context.DatasyncOperationsQueue.Single().State.Should().Be(OperationState.Failed);
+        context.DatasyncOperationsQueue.Single().HttpStatusCode.Should().Be(412);
+    }
+
+    [Fact]
+    public async Task PushAsync_WithMergedResolution_AndNoServerVersion_ShouldFail()
+    {
+        TestDbContext context = CreateContext();
+        MergingResolver resolver = new();
+        context.Configurator = builder => builder.Entity<ClientMovie>(c => c.ConflictResolver = resolver);
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N"), Title = "Client Title" };
+        context.Movies.Add(clientMovie);
+        context.SaveChanges();
+
+        ClientMovie server = new(TestData.Movies.BlackPanther) { Id = clientMovie.Id, Title = "Server", UpdatedAt = DateTimeOffset.UtcNow, Version = null };
+        context.Handler.AddResponseContent(DatasyncSerializer.Serialize(server), HttpStatusCode.Conflict);
+
+        PushResult result = await context.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
+
+        result.IsSuccessful.Should().BeFalse();
+        context.Handler.Requests.Should().HaveCount(1);
+        context.DatasyncOperationsQueue.Single().State.Should().Be(OperationState.Failed);
+    }
+
     #endregion
 }
 
@@ -700,5 +829,28 @@ public class TestGenericConflictResolver : AbstractConflictResolver<ClientMovie>
             Result = ConflictResolutionResult.Client,
             Entity = mergedMovie
         });
+    }
+}
+
+/// <summary>
+/// A resolver that merges the title from the server with the rating from the client.
+/// </summary>
+[ExcludeFromCodeCoverage]
+public class MergingResolver : AbstractConflictResolver<ClientMovie>
+{
+    public int Calls { get; private set; }
+
+    public override Task<ConflictResolution> ResolveConflictAsync(ClientMovie clientObject, ClientMovie serverObject, CancellationToken cancellationToken = default)
+    {
+        Calls++;
+        ClientMovie merged = new(serverObject)
+        {
+            Id = serverObject.Id,
+            Title = serverObject.Title,
+            UpdatedAt = serverObject.UpdatedAt,
+            Version = serverObject.Version,
+            Rating = clientObject.Rating
+        };
+        return Task.FromResult(new ConflictResolution { Result = ConflictResolutionResult.Merged, Entity = merged });
     }
 }
