@@ -17,16 +17,6 @@ internal class DisposableLock : IDisposable
     /// <summary>
     /// Acquire the lock.
     /// </summary>
-    /// <returns>An <see cref="IDisposable"/> to release the lock when the lock is acquired.</returns>
-    public IDisposable AcquireLock()
-    {
-        this.semaphore.Wait();
-        return new DisposeAction(() => this.semaphore.Release());
-    }
-
-    /// <summary>
-    /// Acquire the lock.
-    /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns>A task that returns an <see cref="IDisposable"/> to release the lock when the lock is acquired.</returns>
     public async Task<IDisposable> AcquireLockAsync(CancellationToken cancellationToken = default)
