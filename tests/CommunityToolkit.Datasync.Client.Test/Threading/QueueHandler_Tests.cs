@@ -88,6 +88,28 @@ public class QueueHandler_Tests
         (endTime - startTime).TotalSeconds.Should().BeLessThanOrEqualTo(2 * (nElements / nThreads) + 5);
     }
 
+    [Fact(Timeout = 30000)]
+    public async Task QueueHandler_JobCanceled_WhenCompleteThrows()
+    {
+        ConcurrentQueue<string> processed = new();
+        QueueHandler<string> sut = new(1, el =>
+        {
+            if (el == "el-1")
+            {
+                throw new TaskCanceledException("simulated HttpClient timeout");
+            }
+
+            processed.Enqueue(el);
+            return Task.CompletedTask;
+        });
+
+        sut.EnqueueRange(["el-0", "el-1", "el-2"]);
+
+        Func<Task> act = sut.WhenComplete;
+        await act.Should().ThrowAsync<OperationCanceledException>();
+        processed.Should().BeEquivalentTo(["el-0", "el-2"]);
+    }
+
     [Theory, CombinatorialData]
     public void QueueHandler_Throws_OutOfRangeMaxThreads([CombinatorialValues(-1, 0, 9, 10)] int threads)
     {

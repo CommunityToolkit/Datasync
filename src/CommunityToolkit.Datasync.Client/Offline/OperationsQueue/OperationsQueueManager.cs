@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -295,7 +296,18 @@ internal class OperationsQueueManager : IOperationsQueueManager
         // Push things in parallel, according to the PushOptions
         QueueHandler<DatasyncOperation> queueHandler = new(pushOptions.ParallelOperations, async operation =>
         {
-            ServiceResponse? response = await PushOperationAsync(operation, cancellationToken).ConfigureAwait(false);
+            ServiceResponse? response;
+            try
+            {
+                response = await PushOperationAsync(operation, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+            {
+                // The caller did not cancel, so this is a request timeout (HttpClient.Timeout).  Don't let it be
+                // treated as cooperative cancellation (which drops the operation silently); fail the push instead.
+                throw new TimeoutException($"The push of operation '{operation.Id}' timed out.", ex);
+            }
+
             pushResult.AddOperationResult(operation, response);
             // We can run on multiple threads, so use Interlocked to update the number of items processed.
             int newItemsProcessed = Interlocked.Increment(ref nrItemsProcessed);
@@ -310,10 +322,25 @@ internal class OperationsQueueManager : IOperationsQueueManager
 
         // Enqueue and process all the queued operations in scope
         queueHandler.EnqueueRange(queuedOperations);
-        await queueHandler.WhenComplete();
+        Exception? pushException = null;
+        try
+        {
+            await queueHandler.WhenComplete().ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            // Operations that completed before the failure must still be persisted (removed from the queue),
+            // otherwise they would be pushed again.  The failure is re-thrown after saving.
+            pushException = ex;
+        }
 
         // Save the changes, this time we don't update the queue.
-        _ = await this._context.SaveChangesAsync(acceptAllChangesOnSuccess: true, addToQueue: false, cancellationToken).ConfigureAwait(false);
+        _ = await this._context.SaveChangesAsync(acceptAllChangesOnSuccess: true, addToQueue: false, pushException is null ? cancellationToken : CancellationToken.None).ConfigureAwait(false);
+
+        if (pushException is not null)
+        {
+            ExceptionDispatchInfo.Capture(pushException).Throw();
+        }
 
         this._context.SendSynchronizationEvent(new SynchronizationEventArgs()
         {

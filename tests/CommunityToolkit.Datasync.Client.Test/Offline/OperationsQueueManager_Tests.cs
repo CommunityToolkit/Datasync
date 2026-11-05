@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using CommunityToolkit.Datasync.Client.Http;
 using CommunityToolkit.Datasync.Client.Offline;
 using CommunityToolkit.Datasync.Client.Offline.OperationsQueue;
 using CommunityToolkit.Datasync.Client.Serialization;
@@ -168,6 +169,51 @@ public class OperationsQueueManager_Tests : BaseTest
         DatasyncOperation op = this.context.DatasyncOperationsQueue.Single();
         op.HttpStatusCode.Should().Be(500);
         op.LastAttempt.Should().NotBeNull().And.BeOnOrAfter(StartTime);
+    }
+
+    [Fact]
+    public async Task PushAsync_Addition_Timeout_Throws_AndKeepsOperationQueued()
+    {
+        // Replace the pipeline so that the request times out (HttpClient surfaces this as a TaskCanceledException).
+        TimeoutHandler handler = new();
+        this.context.Configurator = builder => builder.UseHttpClientOptions(new HttpClientOptions
+        {
+            Endpoint = new Uri("https://test.zumo.net"),
+            HttpPipeline = [handler],
+            Timeout = TimeSpan.FromSeconds(1)
+        });
+
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges();
+
+        Func<Task> act = async () => _ = await this.context.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), TestContext.Current.CancellationToken);
+        TimeoutException ex = (await act.Should().ThrowAsync<TimeoutException>()).Which;
+        ex.InnerException.Should().BeAssignableTo<OperationCanceledException>();
+
+        this.context.DatasyncOperationsQueue.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task PushAsync_CallerCancellation_Throws_OperationCanceledException()
+    {
+        using CancellationTokenSource cts = new();
+        CancellationToken token = cts.Token;
+        TimeoutHandler handler = new() { OnRequest = cts.Cancel };
+        this.context.Configurator = builder => builder.UseHttpClientOptions(new HttpClientOptions
+        {
+            Endpoint = new Uri("https://test.zumo.net"),
+            HttpPipeline = [handler]
+        });
+
+        ClientMovie clientMovie = new(TestData.Movies.BlackPanther) { Id = Guid.NewGuid().ToString("N") };
+        this.context.Movies.Add(clientMovie);
+        this.context.SaveChanges();
+
+        Func<Task> act = async () => _ = await this.context.QueueManager.PushAsync([typeof(ClientMovie)], new PushOptions(), token);
+        await act.Should().ThrowAsync<OperationCanceledException>();
+
+        this.context.DatasyncOperationsQueue.Should().HaveCount(1);
     }
 
     [Fact]
@@ -513,4 +559,21 @@ public class OperationsQueueManager_Tests : BaseTest
             .Which.EntityType.Should().NotContain("Castle.Proxies");
     }
     #endregion
+}
+
+/// <summary>
+/// A handler that never responds; the request only ends when its cancellation token is canceled
+/// (either by <see cref="HttpClient.Timeout"/> or by the caller).
+/// </summary>
+[ExcludeFromCodeCoverage]
+internal class TimeoutHandler : DelegatingHandler
+{
+    public Action OnRequest { get; set; }
+
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        OnRequest?.Invoke();
+        await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken).ConfigureAwait(false);
+        return new HttpResponseMessage(HttpStatusCode.OK);
+    }
 }

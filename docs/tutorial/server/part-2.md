@@ -319,5 +319,5 @@ However, there are always those cases when one of the standard repositories does
 [5]: ../../in-depth/server/db/pgsql.md
 [6]: ../../in-depth/server/db/sqlite.md
 [7]: https://learn.microsoft.com/ef/core/providers/
-[8]: https://docs.automapper.org/en/stable/
+[8]: https://docs.automapper.io/en/stable/
 [9]: https://www.mongodb.com/products/self-managed/community-edition
