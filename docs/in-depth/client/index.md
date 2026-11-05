@@ -285,6 +285,8 @@ As with the push operations, you can optionally specify a `PullOptions` object f
 
 Service requests are paged and each page contains a link to the next page of results. This means that consecutive service requests for a single entity are serialized, but service requests for different entities can be parallelized.  After each service request, the delta-token for the request is updated.  The delta-token is stored in the `DatasyncDeltaTokens` DbSet on the database context.  For normal requests, the Id is the full name of the entity type.  If a query ID is used (see below), then the Id is `q-<entityType>-<queryId>`.  The `Value` property of the delta-token is the maximum value of the `UpdatedAt` property for the entity data set, expressed as the number of milliseconds since the UNIX epoch.
 
+Soft-deleted entities are only requested from the service (using `__includedeleted=true`) when they could result in a local deletion: that is, when a delta-token exists for the request, or when the local table already contains entities.  On an initial pull into an empty table, soft-deleted entities are not requested, which reduces the amount of data transferred when the service holds a large number of soft-deleted entities.  This also means the total count reported in synchronization events for an initial pull only includes entities that are not deleted.
+
 If you need to pull data from the same entity using different searches, you need to use a pull configurator.
 
     PullResult result = await context.PullAsync(cfg => {
