@@ -8,6 +8,7 @@ using CommunityToolkit.Datasync.Client.Query.Linq;
 using CommunityToolkit.Datasync.Client.Query.OData;
 using CommunityToolkit.Datasync.Client.Serialization;
 using CommunityToolkit.Datasync.Client.Threading;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Diagnostics.CodeAnalysis;
@@ -233,7 +234,8 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
         foreach (PullRequest request in requests)
         {
             DateTimeOffset lastSynchronization = await context.DeltaTokenStore.GetDeltaTokenAsync(request.QueryId, cancellationToken).ConfigureAwait(false);
-            request.QueryDescription = PrepareQueryDescription(request.QueryDescription, lastSynchronization);
+            bool hasLocalEntities = lastSynchronization.ToUnixTimeMilliseconds() > 0L || await HasLocalEntitiesAsync(request.EntityType, cancellationToken).ConfigureAwait(false);
+            request.QueryDescription = PrepareQueryDescription(request.QueryDescription, lastSynchronization, hasLocalEntities);
             requestsToEnqueue.Add(request);
         }
 
@@ -294,15 +296,43 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
     }
 
     /// <summary>
+    /// Determines whether the local table for the entity type contains any entities.  This is used to decide
+    /// if soft-deleted entities need to be requested from the service on an initial pull.
+    /// </summary>
+    /// <param name="entityType">The type of entity to check.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe.</param>
+    /// <returns><c>true</c> if at least one entity of the type exists locally; <c>false</c> otherwise.</returns>
+    internal Task<bool> HasLocalEntitiesAsync(Type entityType, CancellationToken cancellationToken = default)
+    {
+        MethodInfo method = typeof(PullOperationManager)
+            .GetMethod(nameof(HasLocalEntitiesInternalAsync), BindingFlags.NonPublic | BindingFlags.Instance)!
+            .MakeGenericMethod(entityType);
+        return (Task<bool>)method.Invoke(this, [cancellationToken])!;
+    }
+
+    /// <summary>
+    /// Typed implementation of <see cref="HasLocalEntitiesAsync(Type, CancellationToken)"/>.
+    /// </summary>
+    private Task<bool> HasLocalEntitiesInternalAsync<TEntity>(CancellationToken cancellationToken) where TEntity : class
+        => context.Set<TEntity>().AnyAsync(cancellationToken);
+
+    /// <summary>
     /// Prepares the query description for use as a pull request.
     /// </summary>
+    /// <remarks>
+    /// Soft-deleted entities are only requested when they could result in a local deletion; that is,
+    /// when this is an incremental pull (a delta-token exists) or when the local table already contains
+    /// entities.  On an initial pull into an empty table, they are not requested.
+    /// </remarks>
     /// <param name="source">The query description to modify.</param>
     /// <param name="lastSynchronization">The last synchronization date/time</param>
+    /// <param name="hasLocalEntities"><c>true</c> if the local table already contains entities of the type being pulled.</param>
     /// <returns>A modified query description for the actual query.</returns>
-    internal static QueryDescription PrepareQueryDescription(QueryDescription source, DateTimeOffset lastSynchronization)
+    internal static QueryDescription PrepareQueryDescription(QueryDescription source, DateTimeOffset lastSynchronization, bool hasLocalEntities)
     {
         QueryDescription query = new(source);
-        if (lastSynchronization.ToUnixTimeMilliseconds() > 0L)
+        bool isIncremental = lastSynchronization.ToUnixTimeMilliseconds() > 0L;
+        if (isIncremental)
         {
             BinaryOperatorNode deltaTokenFilter = new(BinaryOperatorKind.GreaterThan)
             {
@@ -312,7 +342,15 @@ internal class PullOperationManager(OfflineDbContext context, IEnumerable<Type> 
             query.Filter = query.Filter is null ? deltaTokenFilter : new BinaryOperatorNode(BinaryOperatorKind.And, query.Filter, deltaTokenFilter);
         }
 
-        query.QueryParameters[ODataQueryParameters.IncludeDeleted] = "true";
+        if (isIncremental || hasLocalEntities)
+        {
+            query.QueryParameters[ODataQueryParameters.IncludeDeleted] = "true";
+        }
+        else
+        {
+            _ = query.QueryParameters.Remove(ODataQueryParameters.IncludeDeleted);
+        }
+
         query.RequestTotalCount = true;
         query.Top = null;
         query.Skip = 0;

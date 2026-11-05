@@ -186,10 +186,10 @@ public class PullOperationManager_Tests : BaseTest
         string expected = qd.ToODataQueryString();
 
         DateTimeOffset lastSynchronization = DateTimeOffset.FromUnixTimeSeconds(0L);
-        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization);
+        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization, false);
 
         string actual = Uri.UnescapeDataString(actualQD.ToODataQueryString());
-        actual.Should().Be("$orderby=updatedAt&$count=true&__includedeleted=true");
+        actual.Should().Be("$orderby=updatedAt&$count=true");
         qd.ToODataQueryString().Should().Be(expected);
     }
 
@@ -202,10 +202,10 @@ public class PullOperationManager_Tests : BaseTest
         string expected = qd.ToODataQueryString();
 
         DateTimeOffset lastSynchronization = DateTimeOffset.FromUnixTimeSeconds(0L);
-        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization);
+        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization, false);
 
         string actual = Uri.UnescapeDataString(actualQD.ToODataQueryString());
-        actual.Should().Be("$filter=(rating eq 'G')&$orderby=updatedAt&$count=true&__includedeleted=true");
+        actual.Should().Be("$filter=(rating eq 'G')&$orderby=updatedAt&$count=true");
         qd.ToODataQueryString().Should().Be(expected);
     }
 
@@ -217,7 +217,7 @@ public class PullOperationManager_Tests : BaseTest
         string expected = qd.ToODataQueryString();
 
         DateTimeOffset lastSynchronization = DateTimeOffset.FromUnixTimeMilliseconds(1724444574291L);
-        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization);
+        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization, true);
 
         string actual = Uri.UnescapeDataString(actualQD.ToODataQueryString());
         actual.Should().Be("$filter=(updatedAt gt cast(2024-08-23T20:22:54.291Z,Edm.DateTimeOffset))&$orderby=updatedAt&$count=true&__includedeleted=true");
@@ -233,11 +233,71 @@ public class PullOperationManager_Tests : BaseTest
         string expected = qd.ToODataQueryString();
 
         DateTimeOffset lastSynchronization = DateTimeOffset.FromUnixTimeMilliseconds(1724444574291L);
-        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization);
+        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization, true);
 
         string actual = Uri.UnescapeDataString(actualQD.ToODataQueryString());
         actual.Should().Be("$filter=((rating eq 'G') and (updatedAt gt cast(2024-08-23T20:22:54.291Z,Edm.DateTimeOffset)))&$orderby=updatedAt&$count=true&__includedeleted=true");
         qd.ToODataQueryString().Should().Be(expected);
+    }
+
+    [Fact]
+    public void PrepareQueryDescription_NQ_NS_LocalEntities_IncludesDeleted()
+    {
+        DatasyncPullQuery<ClientMovie> query = new();
+        QueryDescription qd = new QueryTranslator<ClientMovie>(query).Translate();
+
+        DateTimeOffset lastSynchronization = DateTimeOffset.FromUnixTimeSeconds(0L);
+        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization, true);
+
+        string actual = Uri.UnescapeDataString(actualQD.ToODataQueryString());
+        actual.Should().Be("$orderby=updatedAt&$count=true&__includedeleted=true");
+    }
+
+    [Fact]
+    public void PrepareQueryDescription_NS_RemovesExistingIncludeDeleted()
+    {
+        DatasyncPullQuery<ClientMovie> query = new();
+        QueryDescription qd = new QueryTranslator<ClientMovie>(query).Translate();
+        qd.QueryParameters[ODataQueryParameters.IncludeDeleted] = "true";
+
+        DateTimeOffset lastSynchronization = DateTimeOffset.FromUnixTimeSeconds(0L);
+        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization, false);
+
+        string actual = Uri.UnescapeDataString(actualQD.ToODataQueryString());
+        actual.Should().Be("$orderby=updatedAt&$count=true");
+    }
+
+    [Fact]
+    public void PrepareQueryDescription_S_NoLocalEntities_IncludesDeleted()
+    {
+        DatasyncPullQuery<ClientMovie> query = new();
+        QueryDescription qd = new QueryTranslator<ClientMovie>(query).Translate();
+
+        DateTimeOffset lastSynchronization = DateTimeOffset.FromUnixTimeMilliseconds(1724444574291L);
+        QueryDescription actualQD = PullOperationManager.PrepareQueryDescription(qd, lastSynchronization, false);
+
+        string actual = Uri.UnescapeDataString(actualQD.ToODataQueryString());
+        actual.Should().Contain("__includedeleted=true");
+    }
+    #endregion
+
+    #region HasLocalEntitiesAsync
+    [Fact]
+    public async Task HasLocalEntitiesAsync_EmptyTable_ReturnsFalse()
+    {
+        bool actual = await operationManager.HasLocalEntitiesAsync(typeof(ClientMovie), TestContext.Current.CancellationToken);
+        actual.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task HasLocalEntitiesAsync_WithEntities_ReturnsTrue()
+    {
+        ClientMovie movie = new() { Id = Guid.NewGuid().ToString("N"), Title = "Test Movie" };
+        _ = this.context.Movies.Add(movie);
+        _ = await this.context.SaveChangesAsync(true, false, TestContext.Current.CancellationToken);
+
+        bool actual = await operationManager.HasLocalEntitiesAsync(typeof(ClientMovie), TestContext.Current.CancellationToken);
+        actual.Should().BeTrue();
     }
     #endregion
 }

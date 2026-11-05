@@ -68,7 +68,7 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true");
         this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
         this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
         this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
@@ -104,7 +104,7 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true");
         this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
         this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
         this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
@@ -148,7 +148,7 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true");
         this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
         this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
         this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
@@ -192,7 +192,7 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true");
         this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
         this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
         this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
@@ -243,7 +243,7 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$filter=startswith%28title%2C%27abc%27%29&$orderby=updatedAt&$count=true");
         this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
         this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
         this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
@@ -282,7 +282,7 @@ public class OfflineDbContext_Tests : BaseTest
         actual.Should().BeEquivalentTo(expected);
 
         this.context.Handler.Requests.Should().HaveCount(4);
-        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true&__includedeleted=true");
+        this.context.Handler.Requests[0].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true");
         this.context.Handler.Requests[1].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=5");
         this.context.Handler.Requests[2].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=10");
         this.context.Handler.Requests[3].RequestUri.ToString().Should().Be("https://test.zumo.net/tables/movies?$skip=15");
@@ -427,7 +427,7 @@ public class OfflineDbContext_Tests : BaseTest
         pullResult.IsSuccessful.Should().BeFalse();
         pullResult.FailedRequests.Should().HaveCount(1);
         KeyValuePair<Uri, ServiceResponse> kv = pullResult.FailedRequests.Single();
-        kv.Key.Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true&__includedeleted=true");
+        kv.Key.Should().Be("https://test.zumo.net/tables/movies?$orderby=updatedAt&$count=true");
     }
 
     [Fact]
