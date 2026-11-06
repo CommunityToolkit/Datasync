@@ -23,6 +23,12 @@ a pull request (PR) against this repository.  Your fix, if accepted, will be inc
 * If it gets approved by the team, proceed to submit a PR of the proposed Feature.
 * If the PR contains an error-free code and the reviewer signs off, the PR will be merged.
 
+## 🧪 Run the Tests <a name="tests"></a>
+
+The test projects run on xUnit.net v3 with the Microsoft.Testing.Platform runner.  Run `dotnet test` from the repository root
+(.NET 10 SDK or later).  See [Running Tests](./README.md#running-tests) in the README for filtering, code coverage, and live-test
+configuration.
+
 ## 📝 Add or Improve Documentation <a name="docs"></a>
 
 Our documentation is stored in the `docs` folder, so you can update or provide new documentation in the same way as fixing a bug

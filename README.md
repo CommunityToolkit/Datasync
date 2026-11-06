@@ -57,25 +57,44 @@ The following NuGet packages have been published:
 | [CommunityToolkit.Datasync.Server.OpenApi] | ![OpenApi Library Version][vs-openapi] | ![OpenApi Library Downloads][ds-openapi] |
 | [CommunityToolkit.Datasync.Server.Swashbuckle] | ![Swashbuckle Library Version][vs-swashbuckle] | ![Swashbuckle Library Downloads][ds-swashbuckle] |
 
-## Running Live Tests
+## Running Tests
 
-The majority of tests in the test suite provide [TestContainers](https://testcontainers.com/) so that the tests are run against real servers running inside containers.  However, some test suites have not been set up yet or do not work as expected.  For those services, you will need to provide a real service and configure the `.runsettings` file to run the service.  Here is a typical `.runsettings` file:
+The test projects use [xUnit.net v3](https://xunit.net/) on the [Microsoft.Testing.Platform](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro) (MTP) runner.  The root `global.json` opts in to the MTP experience for `dotnet test` (this requires the .NET 10 SDK or later).
 
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<RunSettings>
-  <RunConfiguration>
-    <EnvironmentVariables>
-      <ENABLE_SQL_LOGGING>true</ENABLE_SQL_LOGGING>
-      <COSMOS_CONNECTION_STRING>{insert your connection string here}</COSMOS_CONNECTION_STRING>
-      <AZSQL_CONNECTION_STRING>{insert your connection string here}</AZSQL_CONNECTION_STRING>
-    </EnvironmentVariables>
-  </RunConfiguration>
-</RunSettings>
+```sh
+# Run all tests
+dotnet test
+
+# Run a single test project, or filter by class / method
+dotnet test --project tests/CommunityToolkit.Datasync.Client.Test
+dotnet test --filter-class "*ConflictResolver_Tests"
+
+# Collect code coverage (Cobertura XML is written to each project's TestResults folder)
+dotnet test --coverage --coverage-output-format cobertura
+
+# Write a TRX report as well
+dotnet test --report-xunit-trx
 ```
 
-> **NOTE**: The `.runsettings` file contains secrets.  It should not be checked in.  We have added this file to the `.gitignore` to ensure that it is
-> not checked into public GitHub repositories.
+Run `dotnet test -?` to list all available options.
+
+## Running Live Tests
+
+The majority of tests in the test suite provide [TestContainers](https://testcontainers.com/) so that the tests are run against real servers running inside containers.  However, some test suites have not been set up yet or do not work as expected.  For those services, you will need to provide a real service and configure environment variables before running `dotnet test`:
+
+| Variable | Purpose |
+|----------|---------|
+| `ENABLE_SQL_LOGGING` | Set to `true` to log SQL statements during the tests. |
+| `COSMOS_CONNECTION_STRING` | Connection string for the Cosmos DB live tests. |
+| `DATASYNC_COSMOS_CONNECTIONSTRING` | Connection string for the Cosmos DB repository live tests. |
+| `MONGO_CONNECTION_STRING` | Connection string for the Cosmos DB for MongoDB live tests. |
+
+```sh
+export COSMOS_CONNECTION_STRING="{insert your connection string here}"
+dotnet test
+```
+
+> **NOTE**: Connection strings are secrets.  Do not check them in.
 
 ## 📖 Building the documentation site
 

@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsTestProject>false</IsTestProject>
+    <!-- Support project: keep the MTP-enabled `dotnet test` from running it as a test application. -->
+    <IsTestingPlatformApplication>false</IsTestingPlatformApplication>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +15,7 @@
 
   <ItemGroup>
     <!-- Shared test library: needs the xUnit v3 core types and assertions, but not the runner (stays a library). -->
-    <PackageReference Include="xunit.v3.core.mtp-off" />
+    <PackageReference Include="xunit.v3.core.mtp-v2" />
     <PackageReference Include="xunit.v3.assert" />
   </ItemGroup>
 

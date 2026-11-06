@@ -9,6 +9,7 @@ on:
       - 'tests/**'
       - 'Datasync.Toolkit.sln'
       - 'Directory.Packages.props'
+      - 'global.json'
       - '.github/workflows/build-library.yml'
       - '.github/workflows/SignedPackageFileList.txt'
   pull_request:
@@ -19,6 +20,7 @@ on:
       - 'tests/**'
       - 'Datasync.Toolkit.sln'
       - 'Directory.Packages.props'
+      - 'global.json'
       - '.github/workflows/build-library.yml'
       - '.github/workflows/SignedPackageFileList.txt'
   release:
@@ -89,13 +91,14 @@ jobs:
           -p:Version="$BUILD_VERSION" 
           --no-build 
           --verbosity minimal
-          --logger trx
-          --collect:"XPlat Code Coverage"
+          --report-xunit-trx
+          --coverage
+          --coverage-output-format cobertura
 
       - name: Combine coverage reports
         uses: danielpalme/ReportGenerator-GitHub-Action@5.5.10
         with:
-          reports: "**/coverage.cobertura.xml"
+          reports: "**/*.cobertura.xml"
           assemblyfilters: "-*Test*"
           targetdir: "${{ github.workspace }}/TestResults" 
           reporttypes: "Cobertura;lcov;MarkdownSummaryGithub" 

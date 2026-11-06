@@ -39,7 +39,7 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(DotNetVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="$(DotNetVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(DotNetVersion)" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.10.0" />
     <PackageVersion Include="Microsoft.OData.Core" Version="$(ODataVersion)" />
     <!--
       Microsoft.AspNetCore.OpenApi/NSwag.AspNetCore/Swashbuckle.AspNetCore all float a transitive
@@ -76,12 +76,9 @@
     <PackageVersion Include="TestContainers.MongoDb" Version="$(TestContainersVersion)" />
     <PackageVersion Include="TestContainers.MsSql" Version="$(TestContainersVersion)" />
     <PackageVersion Include="TestContainers.PostgreSql" Version="$(TestContainersVersion)" />
-    <PackageVersion Include="xunit.v3.mtp-off" Version="4.0.2" />
-    <PackageVersion Include="xunit.v3.core.mtp-off" Version="4.0.2" />
+    <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.2" />
+    <PackageVersion Include="xunit.v3.core.mtp-v2" Version="4.0.2" />
     <PackageVersion Include="xunit.v3.assert" Version="4.0.2" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1" />
-    <PackageVersion Include="coverlet.collector" Version="10.1.0" />
-    <PackageVersion Include="coverlet.msbuild" Version="10.1.0" />
     <PackageVersion Include="Ulid" Version="1.4.1" />
     <!-- XUnit.Combinatorial v2.x targets xUnit v3 (xunit.v3.extensibility.core) -->
     <PackageVersion Include="XUnit.Combinatorial" Version="2.1.43" />
