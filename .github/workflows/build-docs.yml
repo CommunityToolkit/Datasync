@@ -23,7 +23,8 @@ jobs:
   # artifact might actually be deployed (see the 'deploy' job below).
   build:
     if: ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-26.04 (not a floating label) so the runner image only changes when we choose.
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -53,7 +54,8 @@ jobs:
   # above) so that a stray warning can never block the artifact that 'deploy' publishes.
   validate:
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-26.04 (not a floating label) so the runner image only changes when we choose.
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -99,7 +101,8 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-26.04 (not a floating label) so the runner image only changes when we choose.
+    runs-on: ubuntu-26.04
     steps:
       - name: Setup Pages
         uses: actions/configure-pages@v6
