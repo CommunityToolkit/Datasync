@@ -41,21 +41,18 @@
   </ItemGroup>
 
   <!--
-    Runnable test projects only. xUnit.net v3 test projects are stand-alone executables,
-    and the VSTest host (Microsoft.NET.Test.Sdk + xunit.runner.visualstudio) drives
-    'dotnet test' and 'XPlat Code Coverage'. Library/web support projects (IsTestProject=false)
-    such as TestCommon and TestService do not receive these references.
-
-    xUnit.net v3 4.0 made Microsoft.Testing.Platform (MTP) v2 the default, and the .NET 10 SDK
-    rejects the VSTest target for MTP-based projects. The '.mtp-off' package variants keep the
-    VSTest host working; migrating to MTP is tracked as a follow-up.
+    Runnable test projects only. xUnit.net v3 test projects are stand-alone executables that run on
+    Microsoft.Testing.Platform (MTP) v2. 'dotnet test' uses the MTP runner (see the root global.json),
+    and code coverage comes from Microsoft.Testing.Extensions.CodeCoverage (use the coverage option of 'dotnet test').
+    Library/web support projects (IsTestProject=false) such as TestCommon and TestService do not
+    receive these references.
   -->
   <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup Condition="'$(IsTestProject)' == 'true'">
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="xunit.v3.mtp-off" />
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+    <PackageReference Include="xunit.v3.mtp-v2" />
     <PackageReference Include="XUnit.Combinatorial" />
   </ItemGroup>
 

@@ -6,12 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.msbuild" />
-    <PackageReference Include="coverlet.collector" />
-    <PackageReference Include="xunit.runner.visualstudio" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\src\CommunityToolkit.Datasync.Server.CosmosDb\CommunityToolkit.Datasync.Server.CosmosDb.csproj" />
     <ProjectReference Include="..\CommunityToolkit.Datasync.TestCommon\CommunityToolkit.Datasync.TestCommon.csproj" />
   </ItemGroup>
