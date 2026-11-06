@@ -173,6 +173,7 @@ public class Read_Tests(ServiceApplicationFactory factory) : ServiceTest(factory
     [Fact]
     public async Task Read_SoftDeleted_Deleted_Returns410()
     {
+        this.factory.ResetInMemoryMovies();
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
         HttpResponseMessage response = await this.client.GetAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", TestContext.Current.CancellationToken);
@@ -182,6 +183,7 @@ public class Read_Tests(ServiceApplicationFactory factory) : ServiceTest(factory
     [Fact]
     public async Task Read_SoftDeleted_Deleted_WithIncludeDeleted_Returns200()
     {
+        this.factory.ResetInMemoryMovies();
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
         HttpResponseMessage response = await this.client.GetAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}?__includedeleted=true", TestContext.Current.CancellationToken);

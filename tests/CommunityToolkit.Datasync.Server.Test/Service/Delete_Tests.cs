@@ -16,6 +16,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     [Fact]
     public async Task Delete_ById_Returns204()
     {
+        this.factory.ResetInMemoryMovies();
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
 
         HttpResponseMessage response = await this.client.DeleteAsync($"{this.factory.MovieEndpoint}/{existingMovie.Id}", TestContext.Current.CancellationToken);
@@ -32,6 +33,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     [InlineData("If-None-Match", "\"dGVzdA==\"", HttpStatusCode.NoContent)]
     public async Task Delete_WithVersioning_Works(string headerName, string value, HttpStatusCode expectedStatusCode)
     {
+        this.factory.ResetInMemoryMovies();
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         string etag = value ?? $"\"{Convert.ToBase64String(existingMovie.Version)}\"";
 
@@ -59,6 +61,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     [Fact]
     public async Task Delete_NotSoftDeleted_Returns204()
     {
+        this.factory.ResetInMemoryMovies();
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         byte[] existingVersion = [.. existingMovie.Version];
         DateTimeOffset existingUpdatedAt = (DateTimeOffset)existingMovie.UpdatedAt;
@@ -76,6 +79,7 @@ public class Delete_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     [Fact]
     public async Task Delete_SoftDeletedId_Returns410()
     {
+        this.factory.ResetInMemoryMovies();
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
 

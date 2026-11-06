@@ -20,6 +20,7 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     [Fact]
     public async Task Replace_Returns200()
     {
+        this.factory.ResetInMemoryMovies();
         ClientMovie existingMovie = new(this.factory.GetRandomMovie()) { Title = "New Title" };
         HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.MovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -44,6 +45,7 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     [InlineData("If-None-Match", "\"dGVzdA==\"", HttpStatusCode.OK)]
     public async Task Replace_WithVersioning_Works(string headerName, string headerValue, HttpStatusCode expectedStatusCode)
     {
+        this.factory.ResetInMemoryMovies();
         ClientMovie existingMovie = new(this.factory.GetRandomMovie());
         string etag = headerValue ?? $"\"{existingMovie.Version}\"";
         string content = JsonSerializer.Serialize(existingMovie);
@@ -85,6 +87,7 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     [Fact]
     public async Task Replace_NotSoftDeleted_Works()
     {
+        this.factory.ResetInMemoryMovies();
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions, TestContext.Current.CancellationToken);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -100,6 +103,7 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     [Fact]
     public async Task Replace_SoftDeleted_NotUndeleting_Returns410()
     {
+        this.factory.ResetInMemoryMovies();
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
         HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions, TestContext.Current.CancellationToken);
@@ -109,6 +113,7 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     [Fact]
     public async Task Replace_SoftDeleted_Undeleting_Returns410()
     {
+        this.factory.ResetInMemoryMovies();
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
         HttpResponseMessage response = await this.client.PutAsJsonAsync($"{this.factory.SoftDeletedMovieEndpoint}/{existingMovie.Id}", existingMovie, this.serializerOptions, TestContext.Current.CancellationToken);
@@ -118,6 +123,7 @@ public class Replace_Tests(ServiceApplicationFactory factory) : ServiceTest(fact
     [Fact]
     public async Task Replace_SoftDeleted_Undeleting_WithShowDeleted_Returns200()
     {
+        this.factory.ResetInMemoryMovies();
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
         existingMovie.Deleted = false;
