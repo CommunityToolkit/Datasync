@@ -78,7 +78,7 @@ public class QueueHandler_Tests
         sut.Count.Should().NotBe(0);
 
         // Now wait for completion
-        await sut.WhenComplete();
+        await sut.WhenComplete().WaitAsync(TestContext.Current.CancellationToken);
         DateTimeOffset endTime = DateTimeOffset.Now;
 
         // Check everything ran, and that concurrency was bounded by (and, for more than 1 thread, actually used)
@@ -122,7 +122,7 @@ public class QueueHandler_Tests
         sut.Count.Should().NotBe(0);
 
         // Now wait for completion
-        await sut.WhenComplete();
+        await sut.WhenComplete().WaitAsync(TestContext.Current.CancellationToken);
         DateTimeOffset endTime = DateTimeOffset.Now;
 
         // Check everything ran.
@@ -160,7 +160,7 @@ public class QueueHandler_Tests
 
         sut.EnqueueRange(["el-0", "el-1", "el-2"]);
 
-        Func<Task> act = sut.WhenComplete;
+        Func<Task> act = () => sut.WhenComplete().WaitAsync(TestContext.Current.CancellationToken);
         await act.Should().ThrowAsync<OperationCanceledException>();
         processed.Should().BeEquivalentTo(["el-0", "el-2"]);
     }

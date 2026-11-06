@@ -66,10 +66,10 @@
     <PackageVersion Include="TestContainers.MongoDb" Version="$(TestContainersVersion)" />
     <PackageVersion Include="TestContainers.MsSql" Version="$(TestContainersVersion)" />
     <PackageVersion Include="TestContainers.PostgreSql" Version="$(TestContainersVersion)" />
-    <PackageVersion Include="xunit.v3" Version="3.2.2" />
-    <PackageVersion Include="xunit.v3.core" Version="3.2.2" />
-    <PackageVersion Include="xunit.v3.assert" Version="3.2.2" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageVersion Include="xunit.v3.mtp-off" Version="4.0.2" />
+    <PackageVersion Include="xunit.v3.core.mtp-off" Version="4.0.2" />
+    <PackageVersion Include="xunit.v3.assert" Version="4.0.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.1" />
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
     <PackageVersion Include="coverlet.msbuild" Version="10.1.0" />
     <PackageVersion Include="Ulid" Version="1.4.1" />
