@@ -57,6 +57,18 @@ public class ServiceApplicationFactory : WebApplicationFactory<Program>
         return repository.GetEntity(id);
     }
 
+    /// <summary>
+    /// Resets the in-memory movie repository to the seeded test data so that a test starts from a known state.
+    /// </summary>
+    internal void ResetInMemoryMovies()
+    {
+        using IServiceScope scope = Services.CreateScope();
+        InMemoryRepository<InMemoryMovie> repository = scope.ServiceProvider.GetRequiredService<IRepository<InMemoryMovie>>() as InMemoryRepository<InMemoryMovie>;
+        List<InMemoryMovie> sourceData = TestCommon.TestData.Movies.OfType<InMemoryMovie>();
+        repository.Clear();
+        sourceData.ForEach(movie => repository.StoreEntity(movie));
+    }
+
     internal void SetupAccessControlProvider(bool isAuthorized, Expression<Func<InMemoryMovie, bool>> dataView = null)
     {
         using IServiceScope scope = Services.CreateScope();
@@ -101,10 +113,11 @@ public class ServiceApplicationFactory : WebApplicationFactory<Program>
     internal InMemoryMovie GetRandomMovie()
     {
         // Note that we don't use all movies, since some of them are not "valid", which will result in a 400 error instead
-        // of the expected error when testing replace or create functionality.
+        // of the expected error when testing replace or create functionality.  We also exclude soft-deleted movies, since
+        // an earlier test in the same class may have soft-deleted a movie without restoring it.
         using IServiceScope scope = Services.CreateScope();
         InMemoryRepository<InMemoryMovie> repository = scope.ServiceProvider.GetRequiredService<IRepository<InMemoryMovie>>() as InMemoryRepository<InMemoryMovie>;
-        List<InMemoryMovie> entities = repository.GetEntities().Where(x => IsValid(x)).ToList();
+        List<InMemoryMovie> entities = repository.GetEntities().Where(x => IsValid(x) && !x.Deleted).ToList();
         return entities[new Random().Next(entities.Count)];
     }
 

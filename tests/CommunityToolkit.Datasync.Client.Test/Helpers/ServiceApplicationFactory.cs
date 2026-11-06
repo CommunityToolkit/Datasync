@@ -44,10 +44,11 @@ public class ServiceApplicationFactory : WebApplicationFactory<Program>
     internal InMemoryMovie GetRandomMovie()
     {
         // Note that we don't use all movies, since some of them are not "valid", which will result in a 400 error instead
-        // of the expected error when testing replace or create functionality.
+        // of the expected error when testing replace or create functionality.  We also exclude soft-deleted movies, since
+        // an earlier test in the same class may have soft-deleted a movie without restoring it.
         using IServiceScope scope = Services.CreateScope();
         InMemoryRepository<InMemoryMovie> repository = scope.ServiceProvider.GetRequiredService<IRepository<InMemoryMovie>>() as InMemoryRepository<InMemoryMovie>;
-        List<InMemoryMovie> entities = repository.GetEntities().Where(x => IsValid(x)).ToList();
+        List<InMemoryMovie> entities = repository.GetEntities().Where(x => IsValid(x) && !x.Deleted).ToList();
         return entities[new Random().Next(entities.Count)];
     }
 

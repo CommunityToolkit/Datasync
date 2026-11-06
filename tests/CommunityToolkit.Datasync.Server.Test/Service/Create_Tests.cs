@@ -22,6 +22,7 @@ public class Create_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     [InlineData("de76a422-7fb0-4f1f-9bb4-12b3c7882541")]
     public async Task Create_WithValidInput_Returns201(string id)
     {
+        this.factory.ResetInMemoryMovies();
         ClientMovie source = new(TestData.Movies.BlackPanther) { Id = id };
 
         HttpResponseMessage response = await this.client.PostAsJsonAsync(this.factory.MovieEndpoint, source, this.serializerOptions, TestContext.Current.CancellationToken);
@@ -55,6 +56,7 @@ public class Create_Tests(ServiceApplicationFactory factory) : ServiceTest(facto
     [Fact]
     public async Task Create_SoftDeleted_Returns409()
     {
+        this.factory.ResetInMemoryMovies();
         InMemoryMovie existingMovie = this.factory.GetRandomMovie();
         this.factory.SoftDelete(existingMovie);
         ClientMovie source = new(TestData.Movies.BlackPanther) { Id = existingMovie.Id };

@@ -25,6 +25,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
     [InlineData("de76a422-7fb0-4f1f-9bb4-12b3c7882541")]
     public async Task Create_WithValidInput_Returns201(string id)
     {
+        ResetInMemoryMovies();
         ClientMovie source = new(TestData.Movies.BlackPanther) { Id = id };
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
 
@@ -61,6 +62,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
     [Fact]
     public async Task Create_SoftDeleted_Returns409()
     {
+        ResetInMemoryMovies();
         InMemoryMovie existingMovie = GetRandomMovie();
         SoftDelete(existingMovie);
         ClientMovie source = new(TestData.Movies.BlackPanther) { Id = existingMovie.Id };
@@ -162,6 +164,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
     [Fact]
     public async Task Read_SoftDeleted_Deleted_Returns404()
     {
+        ResetInMemoryMovies();
         InMemoryMovie existingMovie = GetRandomMovie();
         SoftDelete(existingMovie);
 
@@ -175,6 +178,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
     [Fact]
     public async Task Read_SoftDeleted_Deleted_WithIncludeDeleted_Returns200()
     {
+        ResetInMemoryMovies();
         InMemoryMovie existingMovie = GetRandomMovie();
         SoftDelete(existingMovie);
         DatasyncServiceClient<ClientMovie> client = GetSoftDeletedMovieClient();
@@ -195,6 +199,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
     [Fact]
     public async Task Delete_ById_Returns204()
     {
+        ResetInMemoryMovies();
         InMemoryMovie existingMovie = GetRandomMovie();
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
 
@@ -212,6 +217,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
     [Fact]
     public async Task Delete_WithVersioning_Works()
     {
+        ResetInMemoryMovies();
         InMemoryMovie existingMovie = GetRandomMovie();
         string version = Convert.ToBase64String(existingMovie.Version);
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
@@ -273,6 +279,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
     [Fact]
     public async Task Delete_NotSoftDeleted_Returns204()
     {
+        ResetInMemoryMovies();
         InMemoryMovie existingMovie = GetRandomMovie();
         byte[] existingVersion = [.. existingMovie.Version];
         DateTimeOffset existingUpdatedAt = (DateTimeOffset)existingMovie.UpdatedAt;
@@ -295,6 +302,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
     [Fact]
     public async Task Delete_SoftDeletedId_Returns410()
     {
+        ResetInMemoryMovies();
         InMemoryMovie existingMovie = GetRandomMovie();
         SoftDelete(existingMovie);
         DatasyncServiceClient<ClientMovie> client = GetSoftDeletedMovieClient();
@@ -312,6 +320,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
     [Fact]
     public async Task Replace_Returns200()
     {
+        ResetInMemoryMovies();
         ClientMovie existingMovie = new(GetRandomMovie()) { Title = "New Title" };
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
         DatasyncServiceOptions options = new();
@@ -331,6 +340,7 @@ public class Integration_Tests(ServiceApplicationFactory factory) : ServiceTest(
     [Fact]
     public async Task Replace_WithVersioning_Works()
     {
+        ResetInMemoryMovies();
         ClientMovie existingMovie = new(GetRandomMovie()) { Title = "New Title" };
         DatasyncServiceClient<ClientMovie> client = GetMovieClient();
 
