@@ -17,8 +17,8 @@
       already pins Microsoft.Spatial to. Pin it explicitly here to keep the resolved assembly versions
       consistent, matching the src/Directory.Packages.props ODataVersion.
     -->
-    <PackageReference Include="Microsoft.OData.Core" Version="8.4.3" />
-    <PackageReference Include="Microsoft.OData.Edm" Version="8.4.3" />
+    <PackageReference Include="Microsoft.OData.Core" Version="8.4.4" />
+    <PackageReference Include="Microsoft.OData.Edm" Version="8.4.4" />
   </ItemGroup>
 
 </Project>
