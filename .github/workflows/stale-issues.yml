@@ -17,7 +17,8 @@ permissions:
 
 jobs:
   stale:
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-26.04 (not a floating label) so the runner image only changes when we choose.
+    runs-on: ubuntu-26.04
     permissions:
       issues: write
       pull-requests: write

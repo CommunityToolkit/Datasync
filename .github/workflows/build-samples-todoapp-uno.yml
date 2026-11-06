@@ -30,7 +30,8 @@ permissions:
 
 jobs:
   android:
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-26.04 (not a floating label) so the runner image only changes when we choose.
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -144,7 +145,8 @@ jobs:
           --no-restore
 
   browserwasm:
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-26.04 (not a floating label) so the runner image only changes when we choose.
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -168,7 +170,8 @@ jobs:
           --no-restore
 
   desktop:
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-26.04 (not a floating label) so the runner image only changes when we choose.
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7

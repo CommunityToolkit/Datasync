@@ -26,7 +26,8 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-26.04 (not a floating label) so the runner image only changes when we choose.
+    runs-on: ubuntu-26.04
     permissions:
       pull-requests: write
       contents: read
@@ -166,7 +167,8 @@ jobs:
           (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/')) }}
     needs: [ sign ]
     environment: nuget-release-gate
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-26.04 (not a floating label) so the runner image only changes when we choose.
+    runs-on: ubuntu-26.04
     permissions:
       id-token: write
       contents: read
