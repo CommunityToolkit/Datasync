@@ -105,7 +105,7 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
         }
 
         // Produce the paged result.
-        PagedResult result = BuildPagedResult(queryOptions, entitiesInResultSet.ApplyODataSelect(queryOptions.SelectExpand, querySettings), filteredCount);
+        PagedResult result = BuildPagedResult(queryOptions, entitiesInResultSet.ApplyODataSelect(queryOptions.SelectExpand, querySettings), filteredCount, IsLegacyClient(Request));
         Logger.LogInformation("Query: {Count} items being returned", entitiesInResultSet.Count);
         return Ok(result);
     }
@@ -141,21 +141,39 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
     }
 
     /// <summary>
+    /// Determines whether the request came from a legacy (Datasync/Zumo v6 or earlier) client, which
+    /// indicates via the <c>X-ZUMO-OPTIONS</c> header that it expects a relative <c>nextLink</c>.
+    /// </summary>
+    /// <param name="request">The <see cref="HttpRequest"/> to check.</param>
+    /// <returns><c>true</c> if the request contains <c>nextLink=path</c> in the <c>X-ZUMO-OPTIONS</c> header; otherwise <c>false</c>.</returns>
+    [NonAction]
+    internal static bool IsLegacyClient(HttpRequest request)
+    {
+        if (!request.Headers.TryGetValue("X-ZUMO-OPTIONS", out StringValues values))
+        {
+            return false;
+        }
+
+        return values.Any(value => value is not null && value.Contains("nextLink=path", StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
     /// Creates a <see cref="PagedResult"/> object from the results of a query.
     /// </summary>
     /// <param name="queryOptions">The OData query options to use in constructing the result.</param>
     /// <param name="results">The set of results.</param>
     /// <param name="count">The count of items to be returned by the query without paging.</param>
+    /// <param name="legacyClient">If <c>true</c>, the <c>nextLink</c> is returned as a path relative to the host root.</param>
     /// <returns>A <see cref="PagedResult"/> object.</returns>
     [NonAction]
-    internal PagedResult BuildPagedResult(ODataQueryOptions queryOptions, IEnumerable<object>? results, int count)
+    internal PagedResult BuildPagedResult(ODataQueryOptions queryOptions, IEnumerable<object>? results, int count, bool legacyClient = false)
     {
         int resultCount = results?.Count() ?? 0;
         int skip = (queryOptions.Skip?.Value ?? 0) + resultCount;
         int top = (queryOptions.Top?.Value ?? 0) - resultCount;
 
         // Internal function to create the nextLink property for the paged result.
-        static string CreateNextLink(HttpRequest request, int skip = 0, int top = 0)
+        static string CreateNextLink(HttpRequest request, bool legacyClient, int skip = 0, int top = 0)
         {
             Dictionary<string, StringValues> query = QueryHelpers.ParseNullableQuery(request.QueryString.Value) ?? [];
             if (skip > 0)
@@ -168,17 +186,23 @@ public partial class TableController<TEntity> : ODataController where TEntity : 
                 query[TopParameterName] = top.ToString(CultureInfo.InvariantCulture);
             }
 
-            return QueryHelpers.AddQueryString(string.Empty, query).TrimStart('?');
+            string queryString = QueryHelpers.AddQueryString(string.Empty, query).TrimStart('?');
+            if (legacyClient)
+            {
+                return ((request.PathBase + request.Path).Value ?? string.Empty).Trim('/') + "?" + queryString;
+            }
+
+            return queryString;
         }
 
         PagedResult result = new(results ?? []) { Count = queryOptions.Count != null ? count : null };
         if (queryOptions.Top is not null)
         {
-            result.NextLink = skip >= count || top <= 0 ? null : CreateNextLink(Request, skip, top);
+            result.NextLink = skip >= count || top <= 0 ? null : CreateNextLink(Request, legacyClient, skip, top);
         }
         else
         {
-            result.NextLink = skip >= count ? null : CreateNextLink(Request, skip, 0);
+            result.NextLink = skip >= count ? null : CreateNextLink(Request, legacyClient, skip, 0);
         }
 
         return result;

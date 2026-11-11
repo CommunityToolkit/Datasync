@@ -46,6 +46,21 @@ public class Query_Tests(ServiceApplicationFactory factory) : ServiceTest(factor
     }
 
     [Fact]
+    public async Task Query_LegacyClient_NextLinkIsRelativePath()
+    {
+        using HttpRequestMessage request = new(HttpMethod.Get, this.factory.MovieEndpoint);
+        request.Headers.Add("X-ZUMO-OPTIONS", "nextLink=path");
+        HttpResponseMessage response = await this.client.SendAsync(request, TestContext.Current.CancellationToken);
+        string content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        PageOfItems<ClientMovie> result = JsonSerializer.Deserialize<PageOfItems<ClientMovie>>(content, this.serializerOptions);
+        Assert.NotNull(result?.NextLink);
+        Assert.StartsWith(this.factory.MovieEndpoint.TrimStart('/') + "?", result.NextLink);
+        Assert.Contains("$skip=100", result.NextLink);
+    }
+
+    [Fact]
     public async Task Query_Test_002()
     {
         await MovieQueryTest(
