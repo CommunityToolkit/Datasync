@@ -156,6 +156,20 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: Pin .NET SDK to 10.0
+        # The ubuntu-26.04 image (20261111.196 and later) ships .NET SDK 11.0.100 alongside the
+        # 10.0.x SDKs, and the `dotnet` muxer picks the highest installed SDK. That made
+        # `dotnet workload install wasm-tools` install the .NET 11 workload set, which doesn't
+        # satisfy the net10.0-browserwasm head (Uno.Wasm.Bootstrap failed with UNOWA0001:
+        # "wasm-tools workload could not be located"). Pin the SDK to the 10.0 band that
+        # setup-dotnet installed. This edits only the runner's throwaway checkout of the root
+        # global.json (it keeps the existing test runner settings), and only for this job.
+        run: |
+          jq '. + {sdk: {version: "10.0.100", rollForward: "latestFeature", allowPrerelease: false}}' global.json > global.json.tmp
+          mv global.json.tmp global.json
+          cat global.json
+          dotnet --version
+
       - name: Install WebAssembly build tools workload
         run: dotnet workload install wasm-tools
 
