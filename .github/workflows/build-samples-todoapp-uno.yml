@@ -64,16 +64,36 @@ jobs:
     # a runner due to capacity constraints (see
     # https://github.com/CommunityToolkit/Datasync/issues/622).
     #
-    # This job deliberately uses the image's default Xcode (no `xcode-select` step) and
-    # installs the newest published workload set (no `--version` pin), so the iOS SDK pack
-    # and Xcode move forward together as the runner image is updated. See
-    # https://github.com/CommunityToolkit/Datasync/issues/627. Because nothing is pinned,
-    # builds are less reproducible: if a new workload set or image Xcode breaks this job,
-    # investigate the failure rather than assuming a flaky runner.
+    # The workload set and Xcode are pinned together (see WorkloadSetVersion and
+    # RequiredXcodeVersion below). See https://github.com/CommunityToolkit/Datasync/issues/627.
     runs-on: macos-26
+    env:
+      # `dotnet workload install ios maccatalyst` with no `--version` resolves the newest published
+      # workload set, which can move to an iOS SDK pack that needs an Xcode that isn't on the
+      # runner image yet. As of workload set 10.0.115 that's Microsoft.iOS.Sdk.net10.0_27.2, which
+      # requires Xcode 27.2 (macos-26 only has Xcode 26.x), and the build fails with
+      # "This version of .NET for iOS requires Xcode 27.2". Workload set 10.0.112 is the newest
+      # set on the 26.5 pack line (Microsoft.iOS.Sdk.net10.0_26.5, 26.5.10318), which requires
+      # Xcode 26.5 - installed (non-default) on macos-26 (see the "Select Xcode" step below).
+      # Sets 10.0.113 and later move to the 27.x pack line. `--version` pins only this job's
+      # `dotnet workload install` invocation and the `restore`/`build` steps that follow it in
+      # the same runner - it's intentionally not a repo-wide global.json pin, which would
+      # force every `dotnet` invocation in the whole repo (including samples with no workload
+      # dependency at all) to require this exact workload version to already be installed,
+      # breaking them on a fresh runner. Move to the 27.x pack line together with Xcode 27 once
+      # it is available on a standard runner image.
+      WorkloadSetVersion: '10.0.112'
+      RequiredXcodeVersion: '26.5'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
+
+      - name: Select Xcode ${{ env.RequiredXcodeVersion }}
+        # macos-26 defaults to Xcode 26.6, which isn't the Xcode the pinned iOS workload (see
+        # WorkloadSetVersion above) is built for. Xcode 26.5 is already installed on the image,
+        # just not selected by default - so switch to it explicitly rather than installing
+        # anything extra.
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.RequiredXcodeVersion }}.app
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
@@ -81,7 +101,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Install iOS and Mac Catalyst workloads
-        run: dotnet workload install ios maccatalyst
+        run: dotnet workload install ios maccatalyst --version ${{ env.WorkloadSetVersion }}
 
       - name: Restore Uno project (iOS TFM only)
         run: dotnet restore ${{ env.UnoProjectFile }} -p:TargetFramework=${{ env.iOSTargetFramework }}
