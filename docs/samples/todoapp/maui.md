@@ -16,6 +16,24 @@ The application should run on Android, iOS, and Windows.  Each platform needs sl
 !!! info Tested platforms
     The TodoApp.MAUI sample is known to work on Android and Desktop.  We have not tested on other platforms.
 
+### Minimum OS versions and tooling
+
+The sample sets the minimum OS version it runs on (`SupportedOSPlatformVersion`) in `TodoApp.MAUI.csproj`:
+
+| Platform | Minimum version | Notes |
+|----------|-----------------|-------|
+| iOS | 18.0 | The same value is used by the Avalonia and Uno samples.  .NET MAUI itself supports iOS 12.2 and later. |
+| Android | 7.0 (API 24) | The same value is used by the Avalonia and Uno samples.  .NET 11 raises the .NET MAUI minimum to API 24. |
+| Windows | 10.0.17763.0 (Windows 10 1809) | The Windows App SDK minimum. |
+
+The minimum OS version is separate from the SDK you build with.  To build the sample you need:
+
+* **iOS**: a Mac with Xcode 26.6 and the `maui-ios` workload (the iOS SDK 26.5 workload set, 10.0.112).  This is the combination used by the sample build in CI.
+* **Android**: the `maui-android` workload, JDK 21, and the Android SDK (installed with Android Studio or Visual Studio) including the Android 16 (API 36) SDK platform, which is the default target of `net10.0-android`.
+
+!!! tip
+    The minimum OS version is a sample choice.  If your application needs to support older devices, lower the values in the project file (down to the .NET MAUI minimums).
+
 ## Deploy a datasync server to Azure
 
 Before you begin adjusting the application for offline usage, you must [deploy a datasync service](./server.md).  Make a note of the URI of the service before continuing.
