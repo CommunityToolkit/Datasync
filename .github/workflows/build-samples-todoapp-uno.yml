@@ -13,14 +13,13 @@ env:
   # Debug to avoid that overhead consistently, even where it isn't currently an issue.
   DOTNET_CONFIGURATION: 'Debug'
   # TodoApp.Uno.csproj is a single Uno.Sdk project with a multi-head TargetFrameworks list
-  # (net10.0-android;net10.0-ios;net10.0-maccatalyst;net10.0-windows10.0.26100;
+  # (net10.0-android;net10.0-ios;net10.0-windows10.0.26100;
   # net10.0-browserwasm;net10.0-desktop). No single runner can build every head (mobile heads
   # need Android/iOS workloads, the Windows head needs windows-latest, etc.), so each job below
   # restores/builds one head at a time, scoped via the MSBuild TargetFramework property.
   UnoProjectFile: 'samples/todoapp/TodoApp.Uno/TodoApp.Uno/TodoApp.Uno.csproj'
   AndroidTargetFramework: 'net10.0-android'
   iOSTargetFramework: 'net10.0-ios'
-  MacCatalystTargetFramework: 'net10.0-maccatalyst'
   WindowsTargetFramework: 'net10.0-windows10.0.26100'
   BrowserWasmTargetFramework: 'net10.0-browserwasm'
   DesktopTargetFramework: 'net10.0-desktop'
@@ -56,8 +55,8 @@ jobs:
           --configuration ${{ env.DOTNET_CONFIGURATION }}
           --no-restore
 
-  ios-maccatalyst:
-    # iOS and Mac Catalyst builds both require Xcode, which is only available on macOS runners.
+  ios:
+    # The iOS build requires Xcode, which is only available on macOS runners.
     # Pinned to macos-26 (rather than macos-latest) so the Xcode toolchain doesn't change
     # underneath us when the macos-latest label moves. macos-26 replaced the previous
     # (older) macOS image because macOS arm64 jobs on that image repeatedly failed to acquire
@@ -68,7 +67,7 @@ jobs:
     # RequiredXcodeVersion below). See https://github.com/CommunityToolkit/Datasync/issues/627.
     runs-on: macos-26
     env:
-      # `dotnet workload install ios maccatalyst` with no `--version` resolves the newest published
+      # `dotnet workload install ios` with no `--version` resolves the newest published
       # workload set, which can move to an iOS SDK pack that needs an Xcode that isn't on the
       # runner image yet. As of workload set 10.0.115 that's Microsoft.iOS.Sdk.net10.0_27.2, which
       # requires Xcode 27.2 (macos-26 only has Xcode 26.x), and the build fails with
@@ -100,8 +99,8 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Install iOS and Mac Catalyst workloads
-        run: dotnet workload install ios maccatalyst --version ${{ env.WorkloadSetVersion }}
+      - name: Install iOS workload
+        run: dotnet workload install ios --version ${{ env.WorkloadSetVersion }}
 
       - name: Restore Uno project (iOS TFM only)
         run: dotnet restore ${{ env.UnoProjectFile }} -p:TargetFramework=${{ env.iOSTargetFramework }}
@@ -110,16 +109,6 @@ jobs:
         run: >
           dotnet build ${{ env.UnoProjectFile }}
           -f ${{ env.iOSTargetFramework }}
-          --configuration ${{ env.DOTNET_CONFIGURATION }}
-          --no-restore
-
-      - name: Restore Uno project (Mac Catalyst TFM only)
-        run: dotnet restore ${{ env.UnoProjectFile }} -p:TargetFramework=${{ env.MacCatalystTargetFramework }}
-
-      - name: Build Uno project (Mac Catalyst TFM only)
-        run: >
-          dotnet build ${{ env.UnoProjectFile }}
-          -f ${{ env.MacCatalystTargetFramework }}
           --configuration ${{ env.DOTNET_CONFIGURATION }}
           --no-restore
 
