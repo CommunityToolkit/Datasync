@@ -1,6 +1,6 @@
 <Project Sdk="Uno.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst;net10.0-windows10.0.26100;net10.0-browserwasm;net10.0-desktop</TargetFrameworks>
+    <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-windows10.0.26100;net10.0-browserwasm;net10.0-desktop</TargetFrameworks>
 
     <OutputType>Exe</OutputType>
     <UnoSingleProject>true</UnoSingleProject>
@@ -48,23 +48,19 @@
     -->
     <SuppressTrimAnalysisWarnings Condition="
         $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' OR
-        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst' OR
         $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browserwasm'
       ">true</SuppressTrimAnalysisWarnings>
 
     <!--
       MT7156: Uno.Resizetizer (unoresizetizer) rasterizes each SVG-sourced asset
       (Assets/Icons/icon_foreground.svg, Assets/Images/back.svg, Assets/Splash/splash_screen.svg)
-      into both an unscaled base PNG and an explicit "scale-100" variant. On ios/maccatalyst these
-      collapse to the same BundleResource LogicalName (Apple bundling treats unscaled and "1x" as
-      identical), so one copy is silently dropped - benign, expected Resizetizer output on these
-      TFMs, not a duplicate-inclusion bug in this project's Assets/UnoIcon/UnoSplashScreen wiring.
+      into both an unscaled base PNG and an explicit "scale-100" variant. On ios this
+      collapses to the same BundleResource LogicalName (Apple bundling treats unscaled and "1x" as
+      identical), so one copy is silently dropped - benign, expected Resizetizer output on this
+      TFM, not a duplicate-inclusion bug in this project's Assets/UnoIcon/UnoSplashScreen wiring.
       See #541.
     -->
-    <MSBuildWarningsAsMessages Condition="
-        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' OR
-        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'
-      ">$(MSBuildWarningsAsMessages);MT7156</MSBuildWarningsAsMessages>
+    <MSBuildWarningsAsMessages Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">$(MSBuildWarningsAsMessages);MT7156</MSBuildWarningsAsMessages>
 
     <!--
       e_sqlite3 (bundled via SQLitePCLRaw.bundle_e_sqlite3, pinned for #492) exposes variadic

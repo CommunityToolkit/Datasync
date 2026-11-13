@@ -33,7 +33,7 @@ far more reliable than trying to reproduce that locally.
 **Timing:** a full `Build Samples` run across all sample projects takes
 approximately **6 minutes** end-to-end. Individual jobs (e.g.
 `todoapp-blazor-wasm`) typically finish in well under a minute, but slower
-jobs (Windows, Uno iOS/maccatalyst) can take several minutes each, and they
+jobs (Windows, Uno iOS) can take several minutes each, and they
 run in parallel. Plan polling/wait times accordingly — don't assume the run
 is stuck if it's still going after a minute or two; do check back in if it
 hasn't completed after ~6-8 minutes.

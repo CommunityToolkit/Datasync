@@ -11,6 +11,7 @@ The Uno Platform sample uses an in-memory Sqlite store for storing its data.  To
 * Open `samples/todoapp/TodoApp.Uno/TodoApp.Uno.sln` in Visual Studio.
 * Select a target (in the top bar), then press F5 to run the application.
     * For Windows, select **TodoApp.Uno (WinAppSDK Packaged)**.
+    * For macOS and Linux, select the `net10.0-desktop` head (Skia rendering).  This is the supported way to run the sample on macOS.
     * For other platforms, select the correct emulator or simulator from the target selection drop-down.
 
 If you bump into issues at this point, ensure you can properly develop and run Uno Platform applications for the desktop outside of the datasync service.
