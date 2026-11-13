@@ -12,6 +12,17 @@
     <!-- Versions -->
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
+
+    <!--
+      Minimum OS versions. These are set explicitly (rather than relying on the Uno.Sdk defaults)
+      so the targets are visible here and stay aligned with the other mobile samples (MAUI and
+      Avalonia): iOS 18.0 and Android 7.0 (API 24). Mac Catalyst uses the iOS-equivalent version
+      number (18.0 = macOS 15). See https://github.com/CommunityToolkit/Datasync/issues/628.
+    -->
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">18.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">18.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+
     <!-- Package Publisher -->
     <ApplicationPublisher>Your.Name</ApplicationPublisher>
     <!-- Package Description -->
