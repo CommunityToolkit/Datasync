@@ -18,6 +18,21 @@ If you bump into issues at this point, ensure you can properly develop and run U
 !!! info Tested platforms
     The TodoApp.Uno sample is known to work on Android and Desktop.  We have not tested on other platforms.
 
+### Minimum OS versions and tooling
+
+The sample sets the minimum OS version it runs on (`SupportedOSPlatformVersion`) explicitly in `TodoApp.Uno.csproj`, rather than relying on the Uno SDK defaults:
+
+| Platform | Minimum version | Notes |
+|----------|-----------------|-------|
+| iOS | 18.0 | The same value is used by the MAUI and Avalonia samples.  The Uno SDK 6.x default is iOS 14.2. |
+| Mac Catalyst | 18.0 (macOS 15) | Mac Catalyst uses the iOS-equivalent version number. |
+| Android | 7.0 (API 24) | The same value is used by the MAUI and Avalonia samples. |
+
+The minimum OS version is separate from the SDK you build with.  To build the mobile heads you need:
+
+* **iOS and Mac Catalyst**: a Mac with Xcode 26.6 and the `ios` and `maccatalyst` workloads (the iOS SDK 26.5 workload set, 10.0.112).  This is the combination used by the sample build in CI.
+* **Android**: the `android` workload, JDK 21, and the Android SDK (installed with Android Studio or Visual Studio) including the Android 16 (API 36) SDK platform, which is the default target of `net10.0-android`.
+
 !!! info WASM0001 warning on the browserwasm head
     When building the `browserwasm` head, you may see a `WASM0001` warning about native varargs
     functions (`sqlite3_config`/`sqlite3_db_config`) in the bundled SQLite provider.  This is
