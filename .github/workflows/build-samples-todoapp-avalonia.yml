@@ -101,8 +101,9 @@ jobs:
       # runner image yet. As of workload set 10.0.115 that's Microsoft.iOS.Sdk.net10.0_27.2, which
       # requires Xcode 27.2 (macos-26 only has Xcode 26.x), and the build fails with
       # "This version of .NET for iOS requires Xcode 27.2". Workload set 10.0.112 is the newest
-      # set on the 26.5 pack line (Microsoft.iOS.Sdk.net10.0_26.5, 26.5.10318), which requires
-      # Xcode 26.5 - installed (non-default) on macos-26 (see the "Select Xcode" step below).
+      # set on the 26.x pack line (Microsoft.iOS.Sdk.net10.0_26.5, 26.5.10318), which requires
+      # Xcode 26.6 - the macos-26 default today, selected explicitly (see the "Select Xcode" step
+      # below) so a future change of the image default does not silently break the pairing.
       # Sets 10.0.113 and later move to the 27.x pack line. `--version` pins only this job's
       # `dotnet workload install` invocation and the `restore`/`build` steps that follow it in
       # the same runner - it's intentionally not a repo-wide global.json pin, which would
@@ -111,16 +112,15 @@ jobs:
       # breaking them on a fresh runner. Move to the 27.x pack line together with Xcode 27 once
       # it is available on a standard runner image.
       WorkloadSetVersion: '10.0.112'
-      RequiredXcodeVersion: '26.5'
+      RequiredXcodeVersion: '26.6'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
 
       - name: Select Xcode ${{ env.RequiredXcodeVersion }}
-        # macos-26 defaults to Xcode 26.6, which isn't the Xcode the pinned iOS workload (see
-        # WorkloadSetVersion above) is built for. Xcode 26.5 is already installed on the image,
-        # just not selected by default - so switch to it explicitly rather than installing
-        # anything extra.
+        # Pin the Xcode the pinned iOS workload (see WorkloadSetVersion above) requires, rather
+        # than relying on the image default. Xcode 26.6 is already installed on the image, so
+        # this just makes the selection explicit instead of installing anything extra.
         run: sudo xcode-select -s /Applications/Xcode_${{ env.RequiredXcodeVersion }}.app
 
       - name: Setup .NET
