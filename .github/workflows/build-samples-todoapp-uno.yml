@@ -62,38 +62,37 @@ jobs:
     # underneath us when the macos-latest label moves. macos-26 replaced the previous
     # (older) macOS image because macOS arm64 jobs on that image repeatedly failed to acquire
     # a runner due to capacity constraints (see
-    # https://github.com/CommunityToolkit/Datasync/issues/622). macos-26's default Xcode
-    # (26.6) is newer than what the pinned iOS SDK pack requires (see
-    # WorkloadSetVersion below), so this job explicitly selects an older Xcode that is
-    # already installed on the image (see the "Select Xcode" step) to match. See
-    # https://github.com/CommunityToolkit/Datasync/issues/529 and #559. Revisit this whole job
-    # once we deliberately drop the workload set pin and move to a newer Xcode.
+    # https://github.com/CommunityToolkit/Datasync/issues/622).
+    #
+    # The workload set and Xcode are pinned together (see WorkloadSetVersion and
+    # RequiredXcodeVersion below). See https://github.com/CommunityToolkit/Datasync/issues/627.
     runs-on: macos-26
     env:
-      # `dotnet workload install ios maccatalyst` alone always resolves the newest published
-      # Microsoft.iOS.Sdk.net10.0_* pack. As of workload set 10.0.108, that's 26.5.10284,
-      # which requires Xcode 26.5 (installed on macos-26, but not the Xcode this job selects).
-      # Pinning to 10.0.107 (the last set before the iOS/MacCatalyst/macOS/tvOS manifest moved
-      # to the 26.4/26.5 pack line; see workload-set history for package id
-      # Microsoft.NET.Workloads.10.0.100 on nuget.org) resolves 26.2.10233 instead, which
-      # requires Xcode 26.3 - installed (non-default) on macos-26 as of image 20261026.0455.2
-      # (see the "Select Xcode" step below). `--version` pins only this job's
+      # `dotnet workload install ios maccatalyst` with no `--version` resolves the newest published
+      # workload set, which can move to an iOS SDK pack that needs an Xcode that isn't on the
+      # runner image yet. As of workload set 10.0.115 that's Microsoft.iOS.Sdk.net10.0_27.2, which
+      # requires Xcode 27.2 (macos-26 only has Xcode 26.x), and the build fails with
+      # "This version of .NET for iOS requires Xcode 27.2". Workload set 10.0.112 is the newest
+      # set on the 26.x pack line (Microsoft.iOS.Sdk.net10.0_26.5, 26.5.10318), which requires
+      # Xcode 26.6 - the macos-26 default today, selected explicitly (see the "Select Xcode" step
+      # below) so a future change of the image default does not silently break the pairing.
+      # Sets 10.0.113 and later move to the 27.x pack line. `--version` pins only this job's
       # `dotnet workload install` invocation and the `restore`/`build` steps that follow it in
       # the same runner - it's intentionally not a repo-wide global.json pin, which would
       # force every `dotnet` invocation in the whole repo (including samples with no workload
       # dependency at all) to require this exact workload version to already be installed,
-      # breaking them on a fresh runner.
-      WorkloadSetVersion: '10.0.107'
-      RequiredXcodeVersion: '26.3'
+      # breaking them on a fresh runner. Move to the 27.x pack line together with Xcode 27 once
+      # it is available on a standard runner image.
+      WorkloadSetVersion: '10.0.112'
+      RequiredXcodeVersion: '26.6'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
 
       - name: Select Xcode ${{ env.RequiredXcodeVersion }}
-        # macos-26 defaults to Xcode 26.6, which doesn't match what the pinned iOS/Mac
-        # Catalyst workload (see WorkloadSetVersion above) requires. Xcode 26.3 is already
-        # installed on the image, just not selected by default - so switch to it explicitly
-        # rather than installing anything extra.
+        # Pin the Xcode the pinned iOS workload (see WorkloadSetVersion above) requires, rather
+        # than relying on the image default. Xcode 26.6 is already installed on the image, so
+        # this just makes the selection explicit instead of installing anything extra.
         run: sudo xcode-select -s /Applications/Xcode_${{ env.RequiredXcodeVersion }}.app
 
       - name: Setup .NET
@@ -156,6 +155,20 @@ jobs:
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Pin .NET SDK to 10.0
+        # The ubuntu-26.04 image (20261111.196 and later) ships .NET SDK 11.0.100 alongside the
+        # 10.0.x SDKs, and the `dotnet` muxer picks the highest installed SDK. That made
+        # `dotnet workload install wasm-tools` install the .NET 11 workload set, which doesn't
+        # satisfy the net10.0-browserwasm head (Uno.Wasm.Bootstrap failed with UNOWA0001:
+        # "wasm-tools workload could not be located"). Pin the SDK to the 10.0 band that
+        # setup-dotnet installed. This edits only the runner's throwaway checkout of the root
+        # global.json (it keeps the existing test runner settings), and only for this job.
+        run: |
+          jq '. + {sdk: {version: "10.0.100", rollForward: "latestFeature", allowPrerelease: false}}' global.json > global.json.tmp
+          mv global.json.tmp global.json
+          cat global.json
+          dotnet --version
 
       - name: Install WebAssembly build tools workload
         run: dotnet workload install wasm-tools
